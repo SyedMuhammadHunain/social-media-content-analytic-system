@@ -1,0 +1,65 @@
+1. Requirements
+
+a. Functional Requirements
+    Below are the requirements and their description.
+      i. Authentication - The user can register and login account in software.
+      i. Create a Social Media Post - Users can create / edit / delete social media post. A social media post can be Text post, Image post or a Video post. 
+      ii. Like / Unlike Posts - Users can like / Unlike other people's post.
+      iii. Follow / Unfollow - Users can follow / unfollow users.
+      iv. Comment on Posts - Users can comment on each other posts.
+      v. News Feed - Users can view news feed. The feed shows posts from people they follow, listed from newest to oldest.
+      vi. Like / Unlike Graph - Users can users like / unlike graph in dashboard.
+      vii. Followers Graph - Users can see followers Increasing / Decreasing graph in dashboard.
+      viii. Engagement Graph - Users can see comments / engagements Graph (comments directly proportional to engagements)
+
+  b. Non-Functional Requirements
+      
+      i. Eventual Consistency - If the user posts something, it should show up within 2 seconds on News Feed.
+      ii. Like / Unlike Update - If the user like / unlike on post, it should update like / unlike graph in dashboard within 2 seconds.
+      iii. Follow / Unfollow Update - If the user follows a user, it should update follow / unfollow graph in dashboard within 2 seconds.
+      iv. Engagement Update - If a user comments on the post, it should update users engagement graph in dashboard within 2 seconds.
+      v. Usability - The rendering should be fast. Example: It's frustrating if a post loads in parts (like the image first, then text, etc.). The post should appear almost instantly.
+      vi. Load Latency - The News Feed should load within 1-2 seconds
+
+  c. Architectue Requirements
+      
+      i. Extensibility - The design of our system should be such that it is easier to extend it in the future. Example: If we need to add features like replying to a comment, post recommendations, or ads.
+      ii. Modularity - The system should split in small independent "modules".
+      iii. Cohesion and Coupling - The system should have "high cohesion" and "low coupling".
+      iv. Microservice - The system should use small independent services, each one runs on its own, focuses on one job.
+      
+
+2. Capacity Estimation (Optional)
+
+3. API Design
+  We will use the REST API for this communication. Here are the technical details:
+    Register:
+      HTTP Method: POST
+      Endpoint: /v1/auth/register
+    Login:
+      HTTP Method: POST
+      Endpoint: /v1/auth/login
+    Text Post:
+      Endpoint: /v1/posts
+      HTTP Method: POST
+      HTTP Body: {"userId": "Your unique identifier", "text": "The content of your post", "hashtags": [The tags you include in your post"]}
+    Image or Video Post:
+      Endpoint: /v1/posts
+      HTTP Method: POST
+      HTTP Body: {"userId": "Your unique identifier", "mediaUrl": "The web address (URL) where your uploaded image or video is stored.", "description": "The caption you write under your image or video", "hashtags": ["The tags you include in your post."]}
+    Like  or Unlike:
+      Endpoint: /v1/like, /v1/unlike
+      HTTP Method: POST, DELETE
+      HTTP Body: {"userId: "Your unique identifier", "postId": "The unique identifier of the post you are liking on"}, {"userId": "Your unique identifier", "postId": "The unique identifier of the post you are unliking on"}
+    Comments:
+      Endpoint: /v1/comment
+      HTTP Method: POST
+      HTTP Body: {"userId": "Your unique identifier", "postId": "The unique identifier of the post you are commenting on", "comment": "The text of your comment"}
+    Follow or Unfollow:
+      Endpoint: /v1/follow, /v1/unfollow
+      HTTP Method: POST, DELETE
+      HTTP Body: {"followerId": "Your unique identifier", "followeeId": "The unique identifier of the user you want to follow"}, {"followerId": "Your unique identifier", "followeeId": "The unique identifier of the user you want to unfollow"}
+    News Feed:
+      Endpoint: /v1/feeds/{userId}
+      HTTP Method: GET
+      HTTP Body: NONE
