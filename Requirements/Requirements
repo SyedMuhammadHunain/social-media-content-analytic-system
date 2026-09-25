@@ -3,17 +3,17 @@
 a. Functional Requirements
     Below are the requirements and their description.
       i. Authentication - The user can register and login account in software.
-      i. Create a Social Media Post - Users can create / edit / delete social media post. A social media post can be Text post, Image post or a Video post. 
-      ii. Like / Unlike Posts - Users can like / Unlike other people's post.
-      iii. Follow / Unfollow - Users can follow / unfollow users.
-      iv. Comment on Posts - Users can comment on each other posts.
-      v. News Feed - Users can view news feed. The feed shows posts from people they follow, listed from newest to oldest.
-      vi. Like / Unlike Graph - Users can users like / unlike graph in dashboard.
-      vii. Followers Graph - Users can see followers Increasing / Decreasing graph in dashboard.
-      viii. Engagement Graph - Users can see comments / engagements Graph (comments directly proportional to engagements)
+      ii. Create a Social Media Post - Users can create / edit / delete social media post. A social media post can be Text post, Image post or a Video post. 
+      iii. Like / Unlike Posts - Users can like / Unlike other people's post.
+      iv. Follow / Unfollow - Users can follow / unfollow users.
+      v. Comment on Posts - Users can comment on each other posts.
+      vi. News Feed - Users can view news feed. The feed shows posts from people they follow, listed from newest to oldest.
+      vii. Like / Unlike Graph - Users can users like / unlike graph in dashboard.
+      viii. Followers Graph - Users can see followers Increasing / Decreasing graph in dashboard.
+      ix. Engagement Graph - Users can see comments / engagements Graph (comments directly proportional to engagements)
 
   b. Non-Functional Requirements
-      
+ 
       i. Eventual Consistency - If the user posts something, it should show up within 2 seconds on News Feed.
       ii. Like / Unlike Update - If the user like / unlike on post, it should update like / unlike graph in dashboard within 2 seconds.
       iii. Follow / Unfollow Update - If the user follows a user, it should update follow / unfollow graph in dashboard within 2 seconds.
@@ -22,12 +22,12 @@ a. Functional Requirements
       vi. Load Latency - The News Feed should load within 1-2 seconds
 
   c. Architectue Requirements
-      
+ 
       i. Extensibility - The design of our system should be such that it is easier to extend it in the future. Example: If we need to add features like replying to a comment, post recommendations, or ads.
       ii. Modularity - The system should split in small independent "modules".
       iii. Cohesion and Coupling - The system should have "high cohesion" and "low coupling".
       iv. Microservice - The system should use small independent services, each one runs on its own, focuses on one job.
-      
+
 
 2. Capacity Estimation (Optional)
 
@@ -48,7 +48,7 @@ a. Functional Requirements
       HTTP Method: POST
       HTTP Body: {"userId": "Your unique identifier", "mediaUrl": "The web address (URL) where your uploaded image or video is stored.", "description": "The caption you write under your image or video", "hashtags": ["The tags you include in your post."]}
     Like  or Unlike:
-      Endpoint: /v1/like, /v1/unlike
+      Endpoint: /v1/like{userId}, /v1/unlike/{userId}
       HTTP Method: POST, DELETE
       HTTP Body: {"userId: "Your unique identifier", "postId": "The unique identifier of the post you are liking on"}, {"userId": "Your unique identifier", "postId": "The unique identifier of the post you are unliking on"}
     Comments:
@@ -63,3 +63,5 @@ a. Functional Requirements
       Endpoint: /v1/feeds/{userId}
       HTTP Method: GET
       HTTP Body: NONE
+
+
