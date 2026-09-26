@@ -8,7 +8,7 @@ a. Functional Requirements
       iv. Follow / Unfollow - Users can follow / unfollow users.
       v. Comment on Posts - Users can comment on each other posts.
       vi. News Feed - Users can view news feed. The feed shows posts from people they follow, listed from newest to oldest.
-      vii. Like / Unlike Graph - Users can users like / unlike graph in dashboard.
+      vii. Like / Unlike Graph - Users can see users like / unlike graph in dashboard.
       viii. Followers Graph - Users can see followers Increasing / Decreasing graph in dashboard.
       ix. Engagement Graph - Users can see comments / engagements Graph (comments directly proportional to engagements)
 
@@ -30,6 +30,55 @@ a. Functional Requirements
 
 
 2. Capacity Estimation (Optional)
+  Daily Active Users - 500 million
+  Monthly Active Users - 2 billion
+
+  i. Throughput
+    Writes:
+      * Create a Social Media Post
+        Assume 10% of DAU create social media post.
+        a. Total DAU = 500 million
+        b. 10% of DAU create post - 50 million
+        c. This results in 50 million 'create post' requests per day.
+      
+      * Like / Unlike
+        Assume user likes 5 posts per day.
+        a. Total DAU = 500 million
+        b. 500 million x 5 = 2,500 million.
+        c. This results in 2500 million requests per day.
+
+      * Follow / Unfollow
+        Assume 5% of DAU users perform a follow / unfollow action.
+        a. Total DAU = 500 million
+        b. 500 million x (5/100) = 25 million requests per day.
+        c. This results in 25 million requests per day.
+
+      * Comment on Posts
+        Assume 2 comments by user daily.
+        a. Total DAU = 500 million
+        b. 500 x 2 = 1000 million requests per day.
+        c. This results in 1000 million requests per day.
+
+    Reads
+      * News Feed
+        Assume an average user reads 100 posts per day.
+        b. Total DAU = 500 million
+        c. Each user reads 100 posts per day
+        c. 500 million × 100 = 50000 million read requests per day.
+
+  ii. Storage Estimation
+    Post Data
+      Text posts are usually around 100 KB, image posts around 0.5 MB, and video posts around 20 MB. From throughput estimation, we know there are 50 million ‘create post’ requests per day.
+        Now, assume:
+          20% of posts are text posts
+          60% of posts are image posts
+          20% of posts are video posts
+      
+        Storage Calculation:
+          Text Data Storage - (0.2 * 50M) * 100KB = 1TB/day
+          Image Data Storage - (0.6 * 50M) * 0.5MB = 15TB/day
+          Video Data Storage - (0.2 * 50M) * 20MB = 200TB/day
+          Total Storage - 1TB + 15TB + 200TB = 216TB/day
 
 3. API Design
   We will use the REST API for this communication. Here are the technical details:
