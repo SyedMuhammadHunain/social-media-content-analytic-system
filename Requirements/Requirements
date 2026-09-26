@@ -97,7 +97,7 @@ a. Functional Requirements
       HTTP Method: POST
       HTTP Body: {"userId": "Your unique identifier", "mediaUrl": "The web address (URL) where your uploaded image or video is stored.", "description": "The caption you write under your image or video", "hashtags": ["The tags you include in your post."]}
     Like  or Unlike:
-      Endpoint: /v1/like{userId}, /v1/unlike/{userId}
+      Endpoint: /v1/like, /v1/unlike
       HTTP Method: POST, DELETE
       HTTP Body: {"userId: "Your unique identifier", "postId": "The unique identifier of the post you are liking on"}, {"userId": "Your unique identifier", "postId": "The unique identifier of the post you are unliking on"}
     Comments:
@@ -113,4 +113,21 @@ a. Functional Requirements
       HTTP Method: GET
       HTTP Body: NONE
 
+4. High Level Design
+  1. Create a Social Media Post
+    * When the user writes a text post and clicks submit, a POST Request is sent with the details of the text post.
+    * The API Gateway handles the incoming request and routes it to the Post Writer Service.
+    * The Post Writer Service saves the new post in the Posts Database (Posts DB).
+    * The Client receives confirmation of the successful post.
 
+  2. Follow / Unfollow
+    * When the user follows another user, a POST request is sent to the /v1/follow endpoint.
+    * API Gateway Handling The API Gateway handles the incoming request and routes it to the Follow Service.
+    * Database Update The Follow Service updates the Follow Database (Graph DB) to reflect the new follower-followee relationship.
+    * The client receives confirmation of the successful follow request.
+
+  3. Like / Unlike
+    * When the user likes another user, a POST request is sent to the /v1/like and so on endpoint.
+    * API Gateway Handling The API Gateway handles the incoming request and routes it to the Like / Unlike Service.
+    * Database Update The Like / Unlike Service updates the Like / Unlike Database to reflect the new like-unlike relationship.
+    * The client receives confirmation of the successful like / unlike request.
