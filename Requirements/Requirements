@@ -28,7 +28,6 @@ a. Functional Requirements
       iii. Cohesion and Coupling - The system should have "high cohesion" and "low coupling".
       iv. Microservice - The system should use small independent services, each one runs on its own, focuses on one job.
 
-
 2. Capacity Estimation (Optional)
   Daily Active Users - 500 million
   Monthly Active Users - 2 billion
@@ -114,7 +113,7 @@ a. Functional Requirements
       HTTP Body: NONE
 
 4. High Level Design
-  1. Create a Social Media Post
+  1. Create a Social Media Text Post
     * When the user writes a text post and clicks submit, a POST Request is sent with the details of the text post.
     * The API Gateway handles the incoming request and routes it to the Post Writer Service.
     * The Post Writer Service saves the new post in the Posts Database (Posts DB).
@@ -123,11 +122,38 @@ a. Functional Requirements
   2. Follow / Unfollow
     * When the user follows another user, a POST request is sent to the /v1/follow endpoint.
     * API Gateway Handling The API Gateway handles the incoming request and routes it to the Follow Service.
-    * Database Update The Follow Service updates the Follow Database (Graph DB) to reflect the new follower-followee relationship.
+    * The Follow Service updates the Follow Database (Follow DB) to reflect the new follower / followee relationship in dashboard graph.
     * The client receives confirmation of the successful follow request.
 
   3. Like / Unlike
     * When the user likes another user, a POST request is sent to the /v1/like and so on endpoint.
     * API Gateway Handling The API Gateway handles the incoming request and routes it to the Like / Unlike Service.
-    * Database Update The Like / Unlike Service updates the Like / Unlike Database to reflect the new like-unlike relationship.
+    * The Like / Unlike Service updates the Like / Unlike Database to reflect the new like-unlike relationship in dashboard graph.
     * The client receives confirmation of the successful like / unlike request.
+
+  4. News Feed
+    * When a user sends a request to read their news feed, we need to determine what the feed consists of. The news feed contains posts from accounts the user follows. To retrieve these posts, the News Feed Reader Service performs the following steps:
+      1. Finds all followed accounts from the Follow DB.
+      2. Reads posts from these accounts using the Posts DB.
+      3. Sorts all posts in reverse chronological order (newest to oldest).
+      4. The sorted posts are returned as the user's news feed.
+
+  5. Create Image or Video Post
+    * The client requests a pre-signed URL from the API Gateway to upload the image/video.
+    * API Gateway receives this request and routes it to the Pre-Signed URL Generator Service. The Pre-Signed URL Generator Service generates the pre-signed URL and returns it to the client.
+    * The client uploads the image/video directly to Object Storage using the pre-signed URL.
+    * Object Storage returns the URL of the uploaded image/video to the client.
+    * The client uses this uploaded image/video URL in the request body & sends a POST request to the API Gateway.
+    * The API Gateway handles the incoming request and routes it to the Post Writer Service.
+    * The Post Writer Service saves the new post in the Posts DB.
+    * The client receives confirmation of the successful post.
+    * The News Feed Generator Service fetches the new post data from the Posts DB using postId.
+    * The News Feed Generator Service finds all followers for this user using Follow DB.
+    * The News Feed Generator Service adds the new post to all followers' feeds. This information is stored in the Feeds DB. Each entry in the Feeds DB maps UserId to their News FeedUserId → { Post1, Post2, Post3 ... }
+
+  6. Comment on Post
+    * The user writes a comment and submits it. A POST request is sent to /v1/comments with the comment data.
+    * The API Gateway handles the incoming request. It routes the request to the Comment Service.
+    * Thise Comment Service processes the comment. It stores the comment in the Comments Database.
+    * The Comment Service then fetces the postId and post owner and update the engagement graph in dashboard of the followeeId (owner).
+    * The client receives confirmation that the comment was successfully posted.
