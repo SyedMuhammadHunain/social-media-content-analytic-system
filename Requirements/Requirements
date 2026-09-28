@@ -157,3 +157,38 @@ a. Functional Requirements
     * Thise Comment Service processes the comment. It stores the comment in the Comments Database.
     * The Comment Service then fetces the postId and post owner and update the engagement graph in dashboard of the followeeId (owner).
     * The client receives confirmation that the comment was successfully posted.
+
+5. Database Selection
+    Database: No-SQL
+      We are choosing No-SQL database because:
+        i. Extensibility - Easily accommodates new media types, such as audio support, as the application scales.
+        ii. Scehema Flexibility - Offers a schema-less structure, allowing documents to store varied and unstructured data without rigid predefined tables.
+        iii. Fast Access - Optimized for fast data reads and writes, meeting the performance requirements of the system.
+        iv. Simple Queries - Eliminates the need for complex multi-table joins by keeping related data together in documents.
+        v. Frequent Evolving Data Changes - Easily adapts to shifting data requirements and new attributes over time without requiring heavy database migrations.
+
+    Database Decision Table
+      i. LikesDB
+        * Deciding Factor:
+          a. Extremely high scale and throughput - 1.5 billion activities/day.
+          b. No fixed schema - Data may evolve in future to include like 'types' aka reactions (funny, wow, sad, love, ...).
+          Decision - No-SQL
+      ii. FollowDB
+        * Deciding Factor:
+          a. In Follow DB, we are storing user connections and relationships - follower and followee data. 
+          Decision - No-SQL
+      iii. CommentDB
+        * Deciding Factor:
+          a. Extremely high scale and throughput - 1.5 billion activities/day.
+          b. No fixed schema - Data may evolve in future to include replies to a comment aka nested comments (comment inside a comment).
+      iv. PostDB
+        * Deciding Factor:
+            a. Social media posts can include text, images, videos, and metadata. Some posts have only text, some have only image or video. In short, it doesn't have a fixed structure.
+            b. We are only reading posts by PostID in the news feed generation flow.
+            c. Simple query pattern - We only need to find all the comments for a post.
+        * Decision - No-SQL
+      v. FeedDB
+        * Deciding Factor:
+          a. Stores data as UserId -> [Post1, Post2, ...]. Post data doesn't have a fixed structure, so FeedDB is also unstructured.
+          b. Simple query pattern - We are only reading news feed by userID in the news feed generation flow.
+        * Decision - No-SQL
