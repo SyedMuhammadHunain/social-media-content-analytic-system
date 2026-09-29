@@ -90,7 +90,7 @@ a. Functional Requirements
     Text Post:
       Endpoint: /v1/posts
       HTTP Method: POST
-      HTTP Body: {"userId": "Your unique identifier", "text": "The content of your post", "hashtags": [The tags you include in your post"]}
+      HTTP Body: {"userId": "Your unique identifier", "text": "The content of your post", "hashtags": ["The tags you include in your post"]}
     Image or Video Post:
       Endpoint: /v1/posts
       HTTP Method: POST
@@ -132,11 +132,11 @@ a. Functional Requirements
     * The client receives confirmation of the successful like / unlike request.
 
   4. News Feed
-    * When a user sends a request to read their news feed, we need to determine what the feed consists of. The news feed contains posts from accounts the user follows. To retrieve these posts, the News Feed Reader Service performs the following steps:
-      1. Finds all followed accounts from the Follow DB.
-      2. Reads posts from these accounts using the Posts DB.
-      3. Sorts all posts in reverse chronological order (newest to oldest).
-      4. The sorted posts are returned as the user's news feed.
+    * When the user tries to load their news feed, a GET request is sent to the API Gateway on the /v1/feeds/{userId} endpoint.
+    * The API Gateway receives the request and forwards it to the NewsFeed Reader Service.
+    * The NewsFeed Reader Service fetches the pre-built news feed from the FeedDB.
+    * The NewsFeed Reader Service sends the news feed back to the user.
+    * The news feed only contains the URLs for the images and videos, not the actual media files. The client fetches the actual images and videos from the Object Storage using these URLs.
 
   5. Create Image or Video Post
     * The client requests a pre-signed URL from the API Gateway to upload the image/video.
@@ -194,7 +194,7 @@ a. Functional Requirements
         * Decision - No-SQL
 
 6. Data Modeling
-    i. Post Schema - {"postId": "unique_post_id","userId": "user_id", "text": "post text", "mediaUrls": ["url1, url2"], "timestamp": "1720748150"}
+    i. Post Schema - {"postId": "unique_post_id","userId": "user_id", "text": "post text", "mediaUrls": ["url1", "url2"], "timestamp": "1720748150"}
     ii. Like Schema - {"likeId": "unique_like_id", "userId": "user_id", "postId": "post_id", "timestamp": "1720741345"}
     iii. Comments Schema - {"commentId": "unique_comment_id", "userId": "user_id", "postId": "post_id", "comment": "comment text", "timestamp": "1720748150"}
     iv. Follow Schema - {"userId": "user_id", "followers": ["user2_id", "user3_id", "..."] // More Followers, "followees": ["user4_id", "user5_id", "..."]}
