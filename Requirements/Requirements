@@ -56,7 +56,7 @@ a. Functional Requirements
         Assume 2 comments by user daily.
         a. Total DAU = 500 million
         b. 500 x 2 = 1000 million requests per day.
-        c. This results in 1000 million requests per day.
+        c. This results in 1 billion requests per day.
 
     Reads
       * News Feed
@@ -94,7 +94,7 @@ a. Functional Requirements
     Image or Video Post:
       Endpoint: /v1/posts
       HTTP Method: POST
-      HTTP Body: {"userId": "Your unique identifier", "mediaUrl": "The web address (URL) where your uploaded image or video is stored.", "description": "The caption you write under your image or video", "hashtags": ["The tags you include in your post."]}
+      HTTP Body: {"userId": "Your unique identifier", "mediaUrls": "The web address (URL) where your uploaded image or video is stored.", "description": "The caption you write under your image or video", "hashtags": ["The tags you include in your post."]}
     Like  or Unlike:
       Endpoint: /v1/like, /v1/unlike
       HTTP Method: POST, DELETE
@@ -170,7 +170,7 @@ a. Functional Requirements
     Database Decision Table
       i. LikesDB
         * Deciding Factor:
-          a. Extremely high scale and throughput - 1.5 billion activities/day.
+          a. Extremely high scale and throughput - 2.5 billion activities/day.
           b. No fixed schema - Data may evolve in future to include like 'types' aka reactions (funny, wow, sad, love, ...).
           Decision - No-SQL
       ii. FollowDB
@@ -179,7 +179,7 @@ a. Functional Requirements
           Decision - No-SQL
       iii. CommentDB
         * Deciding Factor:
-          a. Extremely high scale and throughput - 1.5 billion activities/day.
+          a. Extremely high scale and throughput - 1 billion activities/day.
           b. No fixed schema - Data may evolve in future to include replies to a comment aka nested comments (comment inside a comment).
       iv. PostDB
         * Deciding Factor:
@@ -195,7 +195,7 @@ a. Functional Requirements
 
 6. Data Modeling
     i. Post Schema - {"postId": "unique_post_id","userId": "user_id", "text": "post text", "mediaUrls": ["url1, url2"], "timestamp": "1720748150"}
-    ii. Like Schema - {"likeId": "unique_post_id", "userId": "user_id", "postId": "post_id", "timestamp": "1720741345"}
+    ii. Like Schema - {"likeId": "unique_like_id", "userId": "user_id", "postId": "post_id", "timestamp": "1720741345"}
     iii. Comments Schema - {"commentId": "unique_comment_id", "userId": "user_id", "postId": "post_id", "comment": "comment text", "timestamp": "1720748150"}
-    iv. Follow Schema - {"userId": "user_id", "followers": ["followerId": "user2_id", "timestamp": "1720741345"] // More Followers, "followees": ["followeeId": "user3_id", "timestamp": "1720741345"] // More Followees}
-    v. Feed Schema - 
+    iv. Follow Schema - {"userId": "user_id", "followers": ["user2_id", "user3_id", "..."] // More Followers, "followees": ["user4_id", "user5_id", "..."]}
+    v. Feed Schema - {"userId": "unique_user_id", "feedItems": [{"postId": "13452", "userId": "84231", "text": "sample post text 1", "timestamp": "1720748111"}, {"postId": "86475", "userId": "12394", "text": "sample post text 2", "mediaUrls": ["url1", "url2", "..."], "timestamp": "1720713459"} // More posts...]}
