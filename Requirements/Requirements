@@ -192,3 +192,10 @@ a. Functional Requirements
           a. Stores data as UserId -> [Post1, Post2, ...]. Post data doesn't have a fixed structure, so FeedDB is also unstructured.
           b. Simple query pattern - We are only reading news feed by userID in the news feed generation flow.
         * Decision - No-SQL
+
+6. Data Modeling
+    i. Post Schema - {"postId": "unique_post_id","userId": "user_id", "text": "post text", "mediaUrls": ["url1, url2"], "timestamp": "1720748150"}
+    ii. Like Schema - {"likeId": "unique_post_id", "userId": "user_id", "postId": "post_id", "timestamp": "1720741345"}
+    iii. Comments Schema - {"commentId": "unique_comment_id", "userId": "user_id", "postId": "post_id", "comment": "comment text", "timestamp": "1720748150"}
+    iv. Follow Schema - {"userId": "user_id", "followers": ["followerId": "user2_id", "timestamp": "1720741345"] // More Followers, "followees": ["followeeId": "user3_id", "timestamp": "1720741345"] // More Followees}
+    v. Feed Schema - 
