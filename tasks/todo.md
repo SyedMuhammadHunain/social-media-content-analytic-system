@@ -34,12 +34,12 @@
 ## Task 3: Build Astryx Post Card & Comment Section Components
 **Description:** Build `frontend/src/app/feed/PostCard.tsx` and `frontend/src/app/feed/CommentSection.tsx` using Astryx `Card`, `Avatar`, `Button`, `Badge`, `Divider`, `Icon`. Provide interactive Like/Unlike toggle, Follow/Unfollow toggle, media visualizer, and collapsible commenting section.
 **Acceptance criteria:**
-- [ ] Header renders author Avatar, name, handle, timestamp, and Follow/Unfollow button.
-- [ ] Media renders responsive image or video with format Badge.
-- [ ] Action bar includes Like (with count toggle) and Comment (with count toggle) buttons.
-- [ ] CommentSection renders existing comments and input field to add new comments.
+- [x] Header renders author Avatar, name, handle, timestamp, and Follow/Unfollow button.
+- [x] Media renders responsive image or video with format Badge.
+- [x] Action bar includes Like (with count toggle) and Comment (with count toggle) buttons.
+- [x] CommentSection renders existing comments and input field to add new comments.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npx tsc -b`
 **Dependencies:** Task 2
 **Files likely touched:**
 - `frontend/src/app/feed/PostCard.tsx`
@@ -49,7 +49,7 @@
 ---
 
 ## Checkpoint 1: Feed Primitives Ready
-- [ ] Type check succeeds on composer, post card, and comment components.
+- [x] Type check succeeds on composer, post card, and comment components.
 
 ---
 
