@@ -1,9 +1,9 @@
-import DashboardPage from './components/dashboard/DashboardPage'
+import DashboardTemplate from './app/dashboard/page'
 
 export default function App() {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-background, #F0F2F5)' }}>
-      <DashboardPage />
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background-body, #111111)', color: 'var(--color-text-primary, #FFFFFF)' }}>
+      <DashboardTemplate />
     </div>
   )
 }

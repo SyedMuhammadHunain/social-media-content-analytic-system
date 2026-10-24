@@ -15,30 +15,32 @@
 
 ---
 
-## Task 2: Scaffold Official Astryx Dashboard Template
-**Description:** Run `npx astryx template dashboard` to scaffold the official Meta template into `frontend/src/components/dashboard/DashboardPage.tsx`.
+## Task 2: Configure Neutral Theme & Scaffold Official Template
+**Description:** Run `npx @astryxdesign/cli theme add neutral` and scaffold official `dashboard` (Analytics Dashboard) template into `frontend/src/components/dashboard/DashboardPage.tsx`.
 **Acceptance criteria:**
+- [x] `theme-neutral` verified in `src/astryx-themes.ts`.
 - [x] `frontend/src/components/dashboard/DashboardPage.tsx` created from official template.
 - [x] Imports resolve without missing package errors.
 **Verification:**
 - [x] Build: `cd frontend && npx tsc -b`
 **Dependencies:** Task 1
 **Files likely touched:**
+- `frontend/src/astryx-themes.ts`
 - `frontend/src/components/dashboard/DashboardPage.tsx`
-**Estimated scope:** Small (1 file)
+**Estimated scope:** Small (2 files)
 
 ---
 
 ## Checkpoint 1: Scaffold
 - [x] Official template scaffolded.
-- [x] Dependencies resolve cleanly.
+- [x] Dependencies and theme resolve cleanly.
 
 ---
 
 ## Task 3: Define Creator Analytics Types & Mock Data
 **Description:** Create `types/analytics.ts` and `mock/creatorMetrics.ts` with typed points for follower trend, like/unlike distribution, and engagement volume based on Section 5 ratios.
 **Acceptance criteria:**
-- [x] Interfaces exported for `FollowerPoint`, `LikeUnlikePoint`, `EngagementPoint`, and `KPISummary`.
+- [x] Interfaces exported for `FollowerPoint`, `LikeUnlikePoint`, `EngagementPoint`, `TopPostMetric`, and `KPISummary`.
 - [x] Realistic data generated across 24h, 7d, and 30d timeframes.
 **Verification:**
 - [x] Build: `cd frontend && npx tsc -b`
@@ -51,7 +53,7 @@
 ---
 
 ## Task 4: Adapt Headline KPI Metric Tiles
-**Description:** Adapt top-band metric cards in `DashboardPage.tsx` to display Total Followers (+growth), Total Likes vs Unlikes (+ratio), and Total Comments (+engagement rate).
+**Description:** Adapt top-band metric cards in `DashboardPage.tsx` to display Total Followers (+growth), Total Likes vs Unlikes (+ratio), and Total Comments (+engagement rate) using Astryx `Card padding={4}` and `Badge`.
 **Acceptance criteria:**
 - [x] Astryx `Card` tiles display live values, subtitles, and trend `Badge` indicators.
 **Verification:**
@@ -67,10 +69,11 @@
 **Description:** Adapt chart cards in `DashboardPage.tsx` to render the 3 PDF graphs:
 1. Followers Graph (`AreaChart` with audience net growth over time)
 2. Like / Unlike Graph (`BarChart` comparing likes vs unlikes)
-3. Engagement Graph (`BarChart`/`LineChart` tracking comments and interactions)
+3. Engagement Graph (`LineChart` tracking comments and interactions)
+4. Top Posts performance table using Astryx `Table` with format badges.
 **Acceptance criteria:**
 - [x] All 3 graphs render with tooltips, axes, and Astryx card headers.
-- [x] Top content table displays post performance metrics.
+- [x] Top content table displays post performance metrics and badges.
 **Verification:**
 - [x] Build: `cd frontend && npx tsc -b`
 **Dependencies:** Task 4
@@ -101,13 +104,13 @@
 ---
 
 ## Task 7: Quality Checks & Browser Runtime Test
-**Description:** Run linter, typecheck, production build, and headless Chrome browser test verifying chart SVG elements and console health.
+**Description:** Run linter, typecheck, production build, and automated Chrome DevTools Protocol runtime test verifying chart SVG elements, button interactivity, and console health.
 **Acceptance criteria:**
 - [x] `npm run lint` and `npm run build` pass with 0 errors.
-- [x] Headless Chrome verifies SVG nodes and clean console (0 errors, 0 warnings).
+- [x] Chrome DevTools Protocol test verifies 0 console errors, 0 network errors, and interactive button state changes.
 **Verification:**
 - [x] Run `cd frontend && npm run lint && npm run build`
-- [x] DevTools script checks `http://127.0.0.1:5173/`
+- [x] Run `node /tmp/devtools_test.mjs`
 **Dependencies:** Task 6
 **Files likely touched:** None
 **Estimated scope:** Verification only
