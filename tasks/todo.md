@@ -84,12 +84,12 @@
 5. Tab switching between Feed and Dashboard works smoothly.
 Commit and push changes to `origin/Hunain-Frontend`.
 **Acceptance criteria:**
-- [ ] Zero console and network errors.
-- [ ] Interactive tests succeed.
-- [ ] Committed and pushed to `Hunain-Frontend`.
+- [x] Zero console and network errors.
+- [x] Interactive tests succeed.
+- [x] Committed and pushed to `Hunain-Frontend`.
 **Verification:**
-- [ ] Run `node /tmp/devtools_test.mjs`
-- [ ] Run `git status`
+- [x] Run `node /tmp/devtools_test.mjs`
+- [x] Run `git status`
 **Dependencies:** Task 4
 **Files likely touched:** Verification script
 **Estimated scope:** Verification only
@@ -97,4 +97,4 @@ Commit and push changes to `origin/Hunain-Frontend`.
 ---
 
 ## Checkpoint 3: Complete
-- [ ] All tasks completed.
+- [x] All tasks completed.
