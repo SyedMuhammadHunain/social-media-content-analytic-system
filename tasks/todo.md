@@ -56,11 +56,11 @@
 ## Task 4: Assemble Chronological News Feed & App Navigation
 **Description:** Build `frontend/src/app/feed/NewsFeedPage.tsx` assembling composer and chronological list of posts. Update `frontend/src/App.tsx` with a top navigation bar (Astryx `TabList` or header buttons) to switch seamlessly between `News Feed` and `Analytics Dashboard`.
 **Acceptance criteria:**
-- [ ] Feed renders newest posts at top. Submitting a new post prepends it immediately.
-- [ ] User can switch between `News Feed` and `Analytics Dashboard` tabs.
-- [ ] Both views render under the dark neutral Astryx theme.
+- [x] Feed renders newest posts at top. Submitting a new post prepends it immediately.
+- [x] User can switch between `News Feed` and `Analytics Dashboard` tabs.
+- [x] Both views render under the dark neutral Astryx theme.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b && npm run build`
+- [x] Run `cd frontend && npx tsc -b && npm run build`
 **Dependencies:** Task 3
 **Files likely touched:**
 - `frontend/src/app/feed/NewsFeedPage.tsx`
@@ -70,8 +70,8 @@
 ---
 
 ## Checkpoint 2: Feature Complete
-- [ ] Full social workflow operational in frontend.
-- [ ] Build succeeds with zero errors.
+- [x] Full social workflow operational in frontend.
+- [x] Build succeeds with zero errors.
 
 ---
 
