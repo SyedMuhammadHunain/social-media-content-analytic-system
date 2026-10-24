@@ -1,49 +1,47 @@
-# Implementation Plan: Meta Astryx Creator Analytics Dashboard
+# Implementation Plan: Social Media News Feed and Post Composer
 
 ## Overview
-Implement the Creator Analytics Dashboard using Meta's official **Analytics Dashboard** template (`id: dashboard`) from `https://astryx.atmeta.com/templates` ("Dashboard" tab) with the official **neutral** theme (`npx @astryxdesign/cli theme add neutral`). The layout adapts its three-band structure to feature the 3 required creator metric graphs from Section 4.1 of the system PDF:
-1. **Followers Graph (Req 4.1.viii):** Audience growth / retention over time.
-2. **Like / Unlike Graph (Req 4.1.vii):** Comparative positive vs negative post reactions.
-3. **Engagement Graph (Req 4.1.ix):** User comments directly proportional to audience engagements.
-4. **Top Content Performance Table:** Post breakdown across Video, Image, and Text formats.
+Implement the interactive Post Composer and chronological News Feed interface (PDF Section 4.1) using official Meta Astryx Design System components (`@astryxdesign/core`) in the neutral dark theme. Provide a seamless top-level navigation toggle between the News Feed and the Analytics Dashboard.
 
 ## Architecture Decisions
-- **Template Foundation:** Direct scaffolding from `@astryxdesign/cli` (`dashboard` template) ensures 100% adherence to Meta Astryx's design tokens, responsive grid layouts, and spacing conventions.
-- **Official Theme:** Theme `neutral` (`@astryxdesign/theme-neutral/built`) loaded in `astryx-themes.ts` and wrapped via `<Theme>`.
-- **Chart Primitives:** Recharts inside `ResponsiveContainer` wrapped in Astryx `Card padding={4}` surfaces.
-- **Decoupled Mock Modeling:** Isolate metric datasets in `types/analytics.ts` and `mock/creatorMetrics.ts` with values derived from Section 5 throughput ratios across `24h`, `7d`, and `30d` timeframes.
+1. **Astryx Primitive Purity:** Build exclusively with official Astryx components (`Card`, `Avatar`, `Button`, `Badge`, `TextArea`, `TextInput`, `TabList`, `Divider`, `HStack`, `VStack`, `Layout`, `LayoutContent`). Zero custom CSS hacks or non-Astryx primitives.
+2. **In-Memory Reactive Social State:** Manage posts, comments, likes, and follow status in reactive React state initialized from Section 5 capacity seed data (20% text, 60% image, 20% video). New posts prepend to the feed with sub-second feedback (<2s SLA).
+3. **App Shell Dual Navigation:** Enhance `App.tsx` with Astryx `TabList` / header controls to toggle between the interactive `News Feed` and `Analytics Dashboard`.
+4. **Git Discipline:** Execute exclusively on git branch `Hunain-Frontend`. Do not merge to `main` without explicit instruction.
 
 ## Task List
 
-### Phase 1: Theme & Template Scaffold
-- [x] Task 1: Install `recharts` and `@heroicons/react` dependencies in `frontend/`
-- [x] Task 2: Configure `neutral` theme (`npx @astryxdesign/cli theme add neutral`) and scaffold `dashboard` template to `frontend/src/components/dashboard/DashboardPage.tsx`
+### Phase 1: Foundation & Types
+- [ ] Task 1: Define Social Data Types & Capacity-Compliant Mock Seed Data
+  - `frontend/src/types/social.ts`
+  - `frontend/src/mock/socialSeedData.ts`
 
-### Checkpoint: Scaffold
-- [x] Dependencies installed, `neutral` theme active, template scaffolded, and compiles cleanly with `npx tsc -b`.
+### Checkpoint: Foundation
+- [ ] TypeScript compilation succeeds with zero errors.
 
-### Phase 2: Creator Metrics & Visual Charts
-- [x] Task 3: Define creator analytics types (`types/analytics.ts`) and mock data generator (`mock/creatorMetrics.ts`)
-- [x] Task 4: Adapt headline KPI metric tiles (Followers count, Like/Unlike ratio, Comments/Engagement rate)
-- [x] Task 5: Adapt chart slots to render Followers Graph (`AreaChart`), Like/Unlike Graph (`BarChart`), and Engagement Graph (`LineChart`)
+### Phase 2: Feed UI Components
+- [ ] Task 2: Build Astryx Post Composer (`PostComposer.tsx`)
+- [ ] Task 3: Build Astryx Post Card & Comment Section (`PostCard.tsx`, `CommentSection.tsx`)
 
-### Checkpoint: Feature Complete
-- [x] All 3 PDF graphs rendered inside Astryx cards with realistic metrics and format badges.
+### Checkpoint: Components
+- [ ] Individual post creation and interaction components typecheck clean.
 
-### Phase 3: App Mount & Runtime Verification
-- [x] Task 6: Mount `DashboardPage` in `frontend/src/App.tsx` within Astryx Theme provider
-- [x] Task 7: Execute linter (`oxlint`), production build (`npm run build`), and Chrome DevTools Protocol runtime test
+### Phase 3: Feed Integration & Navigation
+- [ ] Task 4: Assemble Chronological News Feed & App Navigation (`NewsFeedPage.tsx`, `App.tsx`)
 
-### Checkpoint: Quality & Verification Gate
-- [x] Production build succeeds with 0 errors.
-- [x] Zero console errors, zero network errors, and interactive button state changes verified via Chrome DevTools Protocol.
+### Checkpoint: Full Integration
+- [ ] Post creation, liking, commenting, following, and tab switching work end-to-end.
+- [ ] `npm run build` succeeds without errors.
+
+### Phase 4: Verification & Quality Gate
+- [ ] Task 5: DevTools Protocol Automated Verification & Branch Commit
+
+### Checkpoint: Complete
+- [ ] DevTools test passes (0 console errors, 0 network errors).
+- [ ] Committed and pushed to `Hunain-Frontend`.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Incompatible Card props (`elevation`) | Low | Removed `elevation="sm"`; used Astryx-supported `Card padding={4}`. |
-| TableColumn contract mismatch | Medium | Specified typed columns using `{ key, header, width, renderCell }`. |
-| Chart container responsive sizing | Low | Maintained template's tested `ResponsiveContainer` aspect-ratio pattern. |
-
-## Open Questions
-- None.
+| Media URL broken rendering | Medium | Support graceful fallback container for images and video players with Astryx Badge indicators |
+| Layout overflow on small screens | Low | Use Astryx `LayoutContent` padding and responsive `VStack`/`HStack` gap properties |

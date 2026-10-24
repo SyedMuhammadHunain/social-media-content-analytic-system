@@ -1,122 +1,100 @@
-# Task List: Meta Astryx Creator Analytics Dashboard
+# Task List: Social Media News Feed and Post Composer
 
-## Task 1: Install Template Dependencies
-**Description:** Install `recharts` and `@heroicons/react` in `frontend/` required by the Meta Astryx dashboard template.
+## Task 1: Define Social Data Types & Mock Seed Data
+**Description:** Define TypeScript interfaces in `frontend/src/types/social.ts` for Post (Text, Image, Video), Comment, User, and Reaction matching PDF Sections 6 & 9. Create `frontend/src/mock/socialSeedData.ts` with initial chronological posts respecting the Section 5 capacity distribution (20% text, 60% image, 20% video).
 **Acceptance criteria:**
-- [x] `recharts` and `@heroicons/react` added to `frontend/package.json`.
-- [x] `npm install` finishes with 0 errors.
+- [x] Export `Post`, `PostType`, `Comment`, `User`, `CreatePostInput`.
+- [x] Seed data populated with realistic posts, authors, timestamps, and hashtags.
 **Verification:**
-- [x] Check `frontend/package.json` dependencies.
+- [x] Run `cd frontend && npx tsc -b`
 **Dependencies:** None
 **Files likely touched:**
-- `frontend/package.json`
-- `frontend/package-lock.json`
+- `frontend/src/types/social.ts`
+- `frontend/src/mock/socialSeedData.ts`
 **Estimated scope:** Small (2 files)
 
 ---
 
-## Task 2: Configure Neutral Theme & Scaffold Official Template
-**Description:** Run `npx @astryxdesign/cli theme add neutral` and scaffold official `dashboard` (Analytics Dashboard) template into `frontend/src/components/dashboard/DashboardPage.tsx`.
+## Task 2: Build Astryx Post Composer Component
+**Description:** Build `frontend/src/app/feed/PostComposer.tsx` using Meta Astryx primitives (`Card`, `Avatar`, `Button`, `TextArea`, `TextInput`, `Badge`, `TabList`, `HStack`, `VStack`). Support switching between Text, Image, and Video post modes. Validate required fields and emit `onCreatePost`.
 **Acceptance criteria:**
-- [x] `theme-neutral` verified in `src/astryx-themes.ts`.
-- [x] `frontend/src/components/dashboard/DashboardPage.tsx` created from official template.
-- [x] Imports resolve without missing package errors.
+- [ ] Segmented tab control to switch format between `Text`, `Image`, and `Video`.
+- [ ] Dynamic input fields (text body, media URL for image/video, hashtags).
+- [ ] Submit button disabled when text or media URL is empty.
+- [ ] Pre-clears form upon successful creation.
 **Verification:**
-- [x] Build: `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npx tsc -b`
 **Dependencies:** Task 1
 **Files likely touched:**
-- `frontend/src/astryx-themes.ts`
-- `frontend/src/components/dashboard/DashboardPage.tsx`
-**Estimated scope:** Small (2 files)
+- `frontend/src/app/feed/PostComposer.tsx`
+**Estimated scope:** Small (1 file)
 
 ---
 
-## Checkpoint 1: Scaffold
-- [x] Official template scaffolded.
-- [x] Dependencies and theme resolve cleanly.
-
----
-
-## Task 3: Define Creator Analytics Types & Mock Data
-**Description:** Create `types/analytics.ts` and `mock/creatorMetrics.ts` with typed points for follower trend, like/unlike distribution, and engagement volume based on Section 5 ratios.
+## Task 3: Build Astryx Post Card & Comment Section Components
+**Description:** Build `frontend/src/app/feed/PostCard.tsx` and `frontend/src/app/feed/CommentSection.tsx` using Astryx `Card`, `Avatar`, `Button`, `Badge`, `Divider`, `Icon`. Provide interactive Like/Unlike toggle, Follow/Unfollow toggle, media visualizer, and collapsible commenting section.
 **Acceptance criteria:**
-- [x] Interfaces exported for `FollowerPoint`, `LikeUnlikePoint`, `EngagementPoint`, `TopPostMetric`, and `KPISummary`.
-- [x] Realistic data generated across 24h, 7d, and 30d timeframes.
+- [ ] Header renders author Avatar, name, handle, timestamp, and Follow/Unfollow button.
+- [ ] Media renders responsive image or video with format Badge.
+- [ ] Action bar includes Like (with count toggle) and Comment (with count toggle) buttons.
+- [ ] CommentSection renders existing comments and input field to add new comments.
 **Verification:**
-- [x] Build: `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npx tsc -b`
 **Dependencies:** Task 2
 **Files likely touched:**
-- `frontend/src/types/analytics.ts`
-- `frontend/src/mock/creatorMetrics.ts`
-**Estimated scope:** Small (2 files)
+- `frontend/src/app/feed/PostCard.tsx`
+- `frontend/src/app/feed/CommentSection.tsx`
+**Estimated scope:** Medium (2 files)
 
 ---
 
-## Task 4: Adapt Headline KPI Metric Tiles
-**Description:** Adapt top-band metric cards in `DashboardPage.tsx` to display Total Followers (+growth), Total Likes vs Unlikes (+ratio), and Total Comments (+engagement rate) using Astryx `Card padding={4}` and `Badge`.
+## Checkpoint 1: Feed Primitives Ready
+- [ ] Type check succeeds on composer, post card, and comment components.
+
+---
+
+## Task 4: Assemble Chronological News Feed & App Navigation
+**Description:** Build `frontend/src/app/feed/NewsFeedPage.tsx` assembling composer and chronological list of posts. Update `frontend/src/App.tsx` with a top navigation bar (Astryx `TabList` or header buttons) to switch seamlessly between `News Feed` and `Analytics Dashboard`.
 **Acceptance criteria:**
-- [x] Astryx `Card` tiles display live values, subtitles, and trend `Badge` indicators.
+- [ ] Feed renders newest posts at top. Submitting a new post prepends it immediately.
+- [ ] User can switch between `News Feed` and `Analytics Dashboard` tabs.
+- [ ] Both views render under the dark neutral Astryx theme.
 **Verification:**
-- [x] Build: `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npx tsc -b && npm run build`
 **Dependencies:** Task 3
 **Files likely touched:**
-- `frontend/src/components/dashboard/DashboardPage.tsx`
-**Estimated scope:** Small (1 file)
-
----
-
-## Task 5: Adapt The 3 Creator Analytics Graphs
-**Description:** Adapt chart cards in `DashboardPage.tsx` to render the 3 PDF graphs:
-1. Followers Graph (`AreaChart` with audience net growth over time)
-2. Like / Unlike Graph (`BarChart` comparing likes vs unlikes)
-3. Engagement Graph (`LineChart` tracking comments and interactions)
-4. Top Posts performance table using Astryx `Table` with format badges.
-**Acceptance criteria:**
-- [x] All 3 graphs render with tooltips, axes, and Astryx card headers.
-- [x] Top content table displays post performance metrics and badges.
-**Verification:**
-- [x] Build: `cd frontend && npx tsc -b`
-**Dependencies:** Task 4
-**Files likely touched:**
-- `frontend/src/components/dashboard/DashboardPage.tsx`
-**Estimated scope:** Small (1 file)
+- `frontend/src/app/feed/NewsFeedPage.tsx`
+- `frontend/src/App.tsx`
+**Estimated scope:** Small (2 files)
 
 ---
 
 ## Checkpoint 2: Feature Complete
-- [x] All 3 PDF graphs and KPI tiles adapted inside the Meta Astryx layout.
-- [x] Type check passes cleanly.
+- [ ] Full social workflow operational in frontend.
+- [ ] Build succeeds with zero errors.
 
 ---
 
-## Task 6: Mount DashboardPage in App.tsx
-**Description:** Replace the initial placeholder test button in `frontend/src/App.tsx` with `<DashboardPage />`.
+## Task 5: DevTools Protocol Automated Verification & Branch Commit
+**Description:** Run automated Chrome DevTools test verifying:
+1. Console and network health (0 errors).
+2. Creating a new post prepends to feed.
+3. Toggling Like button updates counter.
+4. Adding a comment appears in the post.
+5. Tab switching between Feed and Dashboard works smoothly.
+Commit and push changes to `origin/Hunain-Frontend`.
 **Acceptance criteria:**
-- [x] `App.tsx` renders `DashboardPage` within Astryx Theme provider.
-- [x] Clean layout margins and responsive behavior verified.
+- [ ] Zero console and network errors.
+- [ ] Interactive tests succeed.
+- [ ] Committed and pushed to `Hunain-Frontend`.
 **Verification:**
-- [x] Build: `cd frontend && npm run build`
-**Dependencies:** Task 5
-**Files likely touched:**
-- `frontend/src/App.tsx`
-**Estimated scope:** Small (1 file)
-
----
-
-## Task 7: Quality Checks & Browser Runtime Test
-**Description:** Run linter, typecheck, production build, and automated Chrome DevTools Protocol runtime test verifying chart SVG elements, button interactivity, and console health.
-**Acceptance criteria:**
-- [x] `npm run lint` and `npm run build` pass with 0 errors.
-- [x] Chrome DevTools Protocol test verifies 0 console errors, 0 network errors, and interactive button state changes.
-**Verification:**
-- [x] Run `cd frontend && npm run lint && npm run build`
-- [x] Run `node /tmp/devtools_test.mjs`
-**Dependencies:** Task 6
-**Files likely touched:** None
+- [ ] Run `node /tmp/devtools_test.mjs`
+- [ ] Run `git status`
+**Dependencies:** Task 4
+**Files likely touched:** Verification script
 **Estimated scope:** Verification only
 
 ---
 
 ## Checkpoint 3: Complete
-- [x] All 7 tasks completed and checked.
-- [x] Creator Analytics Dashboard fully functional and verified.
+- [ ] All tasks completed.
