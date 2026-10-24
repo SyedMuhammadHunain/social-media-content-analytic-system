@@ -18,12 +18,12 @@
 ## Task 2: Build Astryx Post Composer Component
 **Description:** Build `frontend/src/app/feed/PostComposer.tsx` using Meta Astryx primitives (`Card`, `Avatar`, `Button`, `TextArea`, `TextInput`, `Badge`, `TabList`, `HStack`, `VStack`). Support switching between Text, Image, and Video post modes. Validate required fields and emit `onCreatePost`.
 **Acceptance criteria:**
-- [ ] Segmented tab control to switch format between `Text`, `Image`, and `Video`.
-- [ ] Dynamic input fields (text body, media URL for image/video, hashtags).
-- [ ] Submit button disabled when text or media URL is empty.
-- [ ] Pre-clears form upon successful creation.
+- [x] Segmented tab control to switch format between `Text`, `Image`, and `Video`.
+- [x] Dynamic input fields (text body, media URL for image/video, hashtags).
+- [x] Submit button disabled when text or media URL is empty.
+- [x] Pre-clears form upon successful creation.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npx tsc -b`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/app/feed/PostComposer.tsx`
