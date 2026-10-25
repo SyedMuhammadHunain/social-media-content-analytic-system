@@ -73,14 +73,14 @@
 6. Add bookmark toggle button on `PostCard` to save/unsave posts.
 7. Connect `WhoToFollowCard` follow toggle to update both local recommended creators state, feed post authors state, and call `recordFollowToggle`.
 **Acceptance criteria:**
-- [ ] 3 columns render side-by-side on wide screens.
-- [ ] Clicking hashtag or shortcut filters feed in-place without page reload.
-- [ ] "Clear filter" restores complete post feed.
-- [ ] Following creator in right rail updates button to "Following" and syncs follow status on their feed posts.
-- [ ] Bookmark toggle saves post and shows in "Bookmarks" filter.
+- [x] 3 columns render side-by-side on wide screens.
+- [x] Clicking hashtag or shortcut filters feed in-place without page reload.
+- [x] "Clear filter" restores complete post feed.
+- [x] Following creator in right rail updates button to "Following" and syncs follow status on their feed posts.
+- [x] Bookmark toggle saves post and shows in "Bookmarks" filter.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 2, Task 3
 **Files likely touched:**
 - `frontend/src/app/feed/NewsFeedPage.tsx`
@@ -90,8 +90,8 @@
 ---
 
 ## Checkpoint 2: Layout & State Verification
-- [ ] Responsive 3-column layout operational
-- [ ] Filter state and follow state fully synchronized
+- [x] Responsive 3-column layout operational
+- [x] Filter state and follow state fully synchronized
 
 ---
 
