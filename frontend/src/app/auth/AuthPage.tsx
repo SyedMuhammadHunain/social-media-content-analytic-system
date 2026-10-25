@@ -54,6 +54,30 @@ const LOGIN_SPLIT_CSS = `
 }
 `;
 
+const PLATFORM_FEATURES = [
+  {
+    icon: ChartBarIcon,
+    title: 'Real-Time Dashboard Graphs',
+    desc: 'Live like/unlike, follower changes, and engagement tracking.',
+    color: '#0171E3',
+    bg: 'rgba(1, 113, 227, 0.2)',
+  },
+  {
+    icon: ArrowTrendingUpIcon,
+    title: 'Pre-computed News Feed Fan-out',
+    desc: 'High throughput caching delivering chronological updates.',
+    color: '#10B981',
+    bg: 'rgba(16, 185, 129, 0.2)',
+  },
+  {
+    icon: ShieldCheckIcon,
+    title: 'Microservices & NoSQL Architecture',
+    desc: 'Independent write services for 2.5B daily user interactions.',
+    color: '#EC4899',
+    bg: 'rgba(236, 72, 153, 0.2)',
+  },
+];
+
 export const AuthPage: FC = () => {
   const [isRegister, setIsRegister] = useState(false);
 
@@ -135,80 +159,32 @@ export const AuthPage: FC = () => {
                   </VStack>
 
                   <VStack gap={3}>
-                    <HStack gap={3} vAlign="center">
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 8,
-                          backgroundColor: 'rgba(1, 113, 227, 0.2)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#0171E3',
-                        }}
-                      >
-                        <Icon icon={ChartBarIcon} size="sm" />
-                      </div>
-                      <VStack gap={0}>
-                        <Text type="body" weight="bold">
-                          Real-Time Dashboard Graphs
-                        </Text>
-                        <Text type="supporting" color="secondary">
-                          Live like/unlike, follower changes, and engagement tracking.
-                        </Text>
-                      </VStack>
-                    </HStack>
-
-                    <HStack gap={3} vAlign="center">
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 8,
-                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#10B981',
-                        }}
-                      >
-                        <Icon icon={ArrowTrendingUpIcon} size="sm" />
-                      </div>
-                      <VStack gap={0}>
-                        <Text type="body" weight="bold">
-                          Pre-computed News Feed Fan-out
-                        </Text>
-                        <Text type="supporting" color="secondary">
-                          High throughput caching delivering chronological updates.
-                        </Text>
-                      </VStack>
-                    </HStack>
-
-                    <HStack gap={3} vAlign="center">
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 8,
-                          backgroundColor: 'rgba(236, 72, 153, 0.2)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#EC4899',
-                        }}
-                      >
-                        <Icon icon={ShieldCheckIcon} size="sm" />
-                      </div>
-                      <VStack gap={0}>
-                        <Text type="body" weight="bold">
-                          Microservices & NoSQL Architecture
-                        </Text>
-                        <Text type="supporting" color="secondary">
-                          Independent write services for 2.5B daily user interactions.
-                        </Text>
-                      </VStack>
-                    </HStack>
+                    {PLATFORM_FEATURES.map((feature) => (
+                      <HStack key={feature.title} gap={3} vAlign="center">
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 8,
+                            backgroundColor: feature.bg,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: feature.color,
+                          }}
+                        >
+                          <Icon icon={feature.icon} size="sm" />
+                        </div>
+                        <VStack gap={0}>
+                          <Text type="body" weight="bold">
+                            {feature.title}
+                          </Text>
+                          <Text type="supporting" color="secondary">
+                            {feature.desc}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    ))}
                   </VStack>
                 </VStack>
 

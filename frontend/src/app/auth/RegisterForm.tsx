@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import type { FC, FormEvent } from 'react';
+import type { FC, FormEvent, MouseEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
@@ -23,7 +23,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e?: FormEvent) => {
+  const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
 
     const userEl = formRef.current?.querySelector<HTMLInputElement>(
@@ -34,9 +34,10 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
     );
     const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
 
-    const finalUsername = (userEl?.value !== undefined && userEl.value !== '') ? userEl.value : username;
-    const finalEmail = (emailEl?.value !== undefined && emailEl.value !== '') ? emailEl.value : email;
-    const finalPassword = (passEl?.value !== undefined && passEl.value !== '') ? passEl.value : password;
+    // Prefer active DOM input value to handle automated testing and direct input
+    const finalUsername = userEl?.value || username;
+    const finalEmail = emailEl?.value || email;
+    const finalPassword = passEl?.value || password;
 
     if (!finalUsername || !finalEmail || !finalPassword) {
       return;
@@ -48,10 +49,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
     <form
       ref={formRef}
       noValidate
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(e);
-      }}
+      onSubmit={handleSubmit}
       onInput={(e) => {
         const target = e.target as HTMLInputElement;
         if (target.type === 'password') {
@@ -127,10 +125,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
           size="lg"
           type="submit"
           isLoading={isLoading}
-          onClick={(e) => {
-            e?.preventDefault?.();
-            handleSubmit(e);
-          }}
+          onClick={handleSubmit}
         />
 
         <VStack hAlign="center" style={{ marginTop: 8 }}>

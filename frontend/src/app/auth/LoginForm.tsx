@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import type { FC, FormEvent } from 'react';
+import type { FC, FormEvent, MouseEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
@@ -22,7 +22,7 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e?: FormEvent) => {
+  const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
 
     const emailEl = formRef.current?.querySelector<HTMLInputElement>(
@@ -30,8 +30,9 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
     );
     const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
 
-    const finalIdentifier = (emailEl?.value !== undefined && emailEl.value !== '') ? emailEl.value : identifier;
-    const finalPassword = (passEl?.value !== undefined && passEl.value !== '') ? passEl.value : password;
+    // Prefer active DOM input value to handle automated testing and direct input
+    const finalIdentifier = emailEl?.value || identifier;
+    const finalPassword = passEl?.value || password;
 
     if (!finalIdentifier || !finalPassword) {
       return;
@@ -43,10 +44,7 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
     <form
       ref={formRef}
       noValidate
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(e);
-      }}
+      onSubmit={handleSubmit}
       onInput={(e) => {
         const target = e.target as HTMLInputElement;
         if (target.type === 'password') {
@@ -107,10 +105,7 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
           size="lg"
           type="submit"
           isLoading={isLoading}
-          onClick={(e) => {
-            e?.preventDefault?.();
-            handleSubmit(e);
-          }}
+          onClick={handleSubmit}
         />
 
         <VStack hAlign="center" style={{ marginTop: 8 }}>
