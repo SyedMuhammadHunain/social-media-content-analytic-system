@@ -140,6 +140,8 @@ export function NewsFeedPage({
         onToggleLike={handleToggleLike}
         onToggleFollow={handleToggleFollow}
         onAddComment={handleAddComment}
+        onEditPost={handleEditPost}
+        onDeletePost={handleDeletePost}
       />
     );
   }

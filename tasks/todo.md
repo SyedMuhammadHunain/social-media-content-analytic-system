@@ -63,11 +63,11 @@
 ## Task 4: Integrate Edit and Delete in UserProfileView
 **Description:** Update `UserProfileView.tsx` so authored posts shown in user profile post history also support edit and delete actions.
 **Acceptance criteria:**
-- [ ] `UserProfileView` forwards `onEditPost` and `onDeletePost` to post cards.
-- [ ] Editing/deleting in profile view updates author post count and feed state.
-- [ ] Tests 1-5 in `post_edit_and_delete.test.mjs` turn GREEN.
+- [x] `UserProfileView` forwards `onEditPost` and `onDeletePost` to post cards.
+- [x] Editing/deleting in profile view updates author post count and feed state.
+- [x] Tests 1-5 in `post_edit_and_delete.test.mjs` turn GREEN.
 **Verification:**
-- [ ] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
+- [x] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
 **Dependencies:** Task 3
 **Files likely touched:**
 - `frontend/src/components/profile/UserProfileView.tsx`
@@ -76,7 +76,7 @@
 ---
 
 ## Checkpoint 2: All Post Actions Green
-- [ ] Full post lifecycle (Create, Edit, Delete) working and verified by automated tests.
+- [x] Full post lifecycle (Create, Edit, Delete) working and verified by automated tests.
 
 ---
 

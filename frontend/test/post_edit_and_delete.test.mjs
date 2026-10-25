@@ -104,17 +104,18 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
     return res.result?.value;
   };
 
-  // Wait until feed is mounted
+  // Wait until feed is mounted and authored buttons are ready
   let appReady = false;
   for (let i = 0; i < 40; i++) {
-    const ready = await evaluate('!!document.querySelector("nav")');
+    const ready = await evaluate('!!document.querySelector("[data-testid=\\"post-edit-btn-post_00\\"]")');
     if (ready) {
       appReady = true;
       break;
     }
     await sleep(250);
   }
-  assert.ok(appReady, 'App and navigation rendered in DOM');
+  assert.ok(appReady, 'Feed and post action buttons rendered in DOM');
+  await sleep(300);
 
   await t.test('1. Authored posts display Edit and Delete controls; non-authored posts do not', async () => {
     const checks = await evaluate(`

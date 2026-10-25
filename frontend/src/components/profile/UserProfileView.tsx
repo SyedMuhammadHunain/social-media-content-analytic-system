@@ -17,7 +17,7 @@ import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
 import { ArrowLeftIcon, CameraIcon } from '@heroicons/react/24/outline';
 
-import type { UserProfile, Post } from '../../types/social';
+import type { UserProfile, Post, UpdatePostInput } from '../../types/social';
 import { ProfileBioEditor } from './ProfileBioEditor';
 import { PostCard } from '../../app/feed/PostCard';
 
@@ -31,6 +31,8 @@ export interface UserProfileViewProps {
   onToggleLike?: (postId: string) => void;
   onToggleFollow?: (userId: string) => void;
   onAddComment?: (postId: string, text: string) => void;
+  onEditPost?: (postId: string, input: UpdatePostInput) => void;
+  onDeletePost?: (postId: string) => void;
 }
 
 export const UserProfileView: FC<UserProfileViewProps> = ({
@@ -43,6 +45,8 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   onToggleLike = () => {},
   onToggleFollow = () => {},
   onAddComment = () => {},
+  onEditPost,
+  onDeletePost,
 }) => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [bio, setBio] = useState<string>(user.bio);
@@ -327,9 +331,12 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
                           <PostCard
                             key={post.id}
                             post={post}
+                            currentUser={user}
                             onToggleLike={onToggleLike}
                             onToggleFollow={onToggleFollow}
                             onAddComment={onAddComment}
+                            onEditPost={onEditPost}
+                            onDeletePost={onDeletePost}
                           />
                         ))}
                       </VStack>
