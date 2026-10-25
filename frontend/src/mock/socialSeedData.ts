@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Social Media Content Analysis System - Seed Data (Section 5 capacity: 20% text, 60% image, 20% video)
 
-import type { Post, UserProfile } from '../types/social';
+import type { Post, UserProfile, TrendingTopic, SuggestedCreator } from '../types/social';
 
 export const CURRENT_USER: UserProfile = {
   id: 'usr_me_01',
@@ -178,5 +178,76 @@ export const INITIAL_POSTS: Post[] = [
     isLiked: false,
     comments: [],
     createdAt: '6h ago',
+  },
+];
+
+export const TRENDING_TOPICS: TrendingTopic[] = [
+  {
+    id: 'trend_01',
+    tag: '#systemdesign',
+    postCount: 1420,
+    formattedCount: '1.4k posts',
+    category: 'Technology',
+  },
+  {
+    id: 'trend_02',
+    tag: '#metaastryx',
+    postCount: 980,
+    formattedCount: '980 posts',
+    category: 'Design Systems',
+  },
+  {
+    id: 'trend_03',
+    tag: '#scalability',
+    postCount: 840,
+    formattedCount: '840 posts',
+    category: 'Infrastructure',
+  },
+  {
+    id: 'trend_04',
+    tag: '#eventdriven',
+    postCount: 650,
+    formattedCount: '650 posts',
+    category: 'Architecture',
+  },
+  {
+    id: 'trend_05',
+    tag: '#cloudnative',
+    postCount: 520,
+    formattedCount: '520 posts',
+    category: 'Cloud Computing',
+  },
+];
+
+export const SUGGESTED_CREATORS: SuggestedCreator[] = [
+  {
+    id: 'usr_alex_02',
+    username: 'alex_distrib',
+    name: 'Alex Rivera',
+    avatarUrl: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
+    isFollowed: true,
+    headline: 'Staff Infrastructure Architect • Streaming Pipelines',
+    tags: ['Kafka', 'Stream Processing', 'Distributed'],
+    mutualFollowersCount: 14,
+  },
+  {
+    id: 'usr_sarah_03',
+    username: 'sarah_infra',
+    name: 'Sarah Chen',
+    avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    isFollowed: false,
+    headline: 'Principal Distributed Systems Engineer • Meta Astryx',
+    tags: ['Meta Astryx', 'Sub-second Fanout', 'Cache'],
+    mutualFollowersCount: 28,
+  },
+  {
+    id: 'usr_marcus_06',
+    username: 'marcus_arch',
+    name: 'Marcus Vance',
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    isFollowed: false,
+    headline: 'VP Engineering • High-Throughput Media Ingestion',
+    tags: ['Media Pipelines', 'Blob Storage', 'Spring Boot'],
+    mutualFollowersCount: 9,
   },
 ];

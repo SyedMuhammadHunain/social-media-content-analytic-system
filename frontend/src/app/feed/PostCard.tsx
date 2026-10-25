@@ -22,8 +22,12 @@ import {
   CheckIcon,
   PencilSquareIcon,
   TrashIcon,
+  BookmarkIcon as BookmarkOutline,
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+import {
+  HeartIcon as HeartSolid,
+  BookmarkIcon as BookmarkSolid,
+} from '@heroicons/react/24/solid';
 
 import type { Post, UpdatePostInput, UserProfile } from '../../types/social';
 import { CommentSection } from './CommentSection';
@@ -35,6 +39,7 @@ interface PostCardProps {
   onToggleLike: (postId: string) => void;
   onToggleFollow: (userId: string) => void;
   onAddComment: (postId: string, text: string) => void;
+  onToggleBookmark?: (postId: string) => void;
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
 }
@@ -45,6 +50,7 @@ export function PostCard({
   onToggleLike,
   onToggleFollow,
   onAddComment,
+  onToggleBookmark,
   onEditPost,
   onDeletePost,
 }: PostCardProps) {
@@ -127,7 +133,7 @@ export function PostCard({
           {/* Text Content / Description */}
           {(post.text || post.description) && (
             <Text type="body">
-              {post.type === 'TEXT' ? (post.text ?? post.description) : (post.description ?? post.text)}
+              {post.text || post.description}
             </Text>
           )}
 
@@ -211,12 +217,28 @@ export function PostCard({
               />
             </HStack>
 
-            <Button
-              label="Share"
-              variant="ghost"
-              size="sm"
-              icon={<Icon icon={ShareIcon} size="xsm" />}
-            />
+            <HStack gap={2}>
+              <Button
+                data-testid={`post-bookmark-btn-${post.id}`}
+                label={post.isBookmarked ? 'Saved' : 'Save'}
+                variant={post.isBookmarked ? 'secondary' : 'ghost'}
+                size="sm"
+                icon={
+                  <Icon
+                    icon={post.isBookmarked ? BookmarkSolid : BookmarkOutline}
+                    size="xsm"
+                    style={{ color: post.isBookmarked ? 'var(--astryx-color-primary, #1877F2)' : undefined }}
+                  />
+                }
+                onClick={() => onToggleBookmark?.(post.id)}
+              />
+              <Button
+                label="Share"
+                variant="ghost"
+                size="sm"
+                icon={<Icon icon={ShareIcon} size="xsm" />}
+              />
+            </HStack>
           </HStack>
 
           {/* Collapsible Comment Drawer */}

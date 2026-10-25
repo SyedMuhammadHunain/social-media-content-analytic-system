@@ -52,7 +52,11 @@ function AppContent({
 
       {/* Main Content Area */}
       <main>
-        {activeTab === 'feed' ? <NewsFeedPage /> : <DashboardTemplate />}
+        {activeTab === 'feed' ? (
+          <NewsFeedPage onNavigateAnalytics={() => setActiveTab('dashboard')} />
+        ) : (
+          <DashboardTemplate />
+        )}
       </main>
     </div>
   );
