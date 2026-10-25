@@ -33,6 +33,11 @@ export const ProfileBioEditor: FC<ProfileBioEditorProps> = ({
     setShowSavedBanner(true);
   };
 
+  const handleCancel = () => {
+    setContent(bio);
+    setIsEditing(false);
+  };
+
   return (
     <Card variant="default">
       <VStack gap={3} align="stretch">
@@ -85,7 +90,7 @@ export const ProfileBioEditor: FC<ProfileBioEditorProps> = ({
               label="About Bio"
               isLabelHidden
               value={content}
-              onChange={(val) => setContent(val)}
+              onChange={setContent}
               rows={4}
             />
 
@@ -94,7 +99,7 @@ export const ProfileBioEditor: FC<ProfileBioEditorProps> = ({
                 label="Cancel"
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsEditing(false)}
+                onClick={handleCancel}
               />
               <Button
                 label="Save Changes"
