@@ -29,12 +29,12 @@
 - Mutators: `recordLikeToggle(isLiked)`, `recordFollowToggle(isFollowed)`, `recordComment()`.
 - Wrap `AppContent` in `AnalyticsProvider` in `frontend/src/App.tsx`.
 **Acceptance criteria:**
-- [ ] Types exported in `frontend/src/types/analytics.ts`.
-- [ ] `AnalyticsProvider` provides reactive state and update mutators.
-- [ ] Compiles cleanly with zero TypeScript errors.
+- [x] Types exported in `frontend/src/types/analytics.ts`.
+- [x] `AnalyticsProvider` provides reactive state and update mutators.
+- [x] Compiles cleanly with zero TypeScript errors.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/types/analytics.ts`
@@ -47,7 +47,7 @@
 ---
 
 ## Checkpoint 1: Analytics Foundation Ready
-- [ ] `AnalyticsContext` compiles cleanly and is accessible throughout the app.
+- [x] `AnalyticsContext` compiles cleanly and is accessible throughout the app.
 
 ---
 

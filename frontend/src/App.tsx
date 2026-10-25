@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Theme } from '@astryxdesign/core/theme';
 import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
+import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
 import LoginSplitPage from './app/login-split/page';
 import AppTopNav from './components/nav/AppTopNav';
@@ -68,10 +69,12 @@ export default function App() {
   return (
     <Theme theme={themes[defaultThemeSlug]} mode={mode}>
       <AuthProvider>
-        <AppContent
-          mode={mode}
-          onToggleTheme={() => setMode((m) => (m === 'dark' ? 'light' : 'dark'))}
-        />
+        <AnalyticsProvider>
+          <AppContent
+            mode={mode}
+            onToggleTheme={() => setMode((m) => (m === 'dark' ? 'light' : 'dark'))}
+          />
+        </AnalyticsProvider>
       </AuthProvider>
     </Theme>
   );
