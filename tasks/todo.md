@@ -48,12 +48,12 @@
 - Left pane: `LoginForm` and `RegisterForm` with `TextInput` (username, email, password), `Button` (submit), `Banner` (errors), and mode toggle link.
 - Right pane: Rich branded visual featuring 500M DAU scale, real-time news feed telemetry, and system architecture.
 **Acceptance criteria:**
-- [ ] Login Split Card rendered with official Astryx components (`Card`, `Grid`, `Center`, `TextInput`, `Button`, `Banner`, `Badge`).
-- [ ] Toggle between Sign In and Register switches form view.
-- [ ] Form submission calls `login` or `register` from `AuthContext`.
+- [x] Login Split Card rendered with official Astryx components (`Card`, `Grid`, `Center`, `TextInput`, `Button`, `Banner`, `Badge`).
+- [x] Toggle between Sign In and Register switches form view.
+- [x] Form submission calls `login` or `register` from `AuthContext`.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 2
 **Files likely touched:**
 - `frontend/src/app/auth/AuthPage.tsx`
