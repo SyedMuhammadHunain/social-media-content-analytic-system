@@ -8,13 +8,9 @@ import {
   TopNav,
   TopNavHeading,
   TopNavItem,
-  TopNavMegaMenu,
-  TopNavMegaMenuItem,
-  TopNavMegaMenuFeaturedCard,
 } from '@astryxdesign/core/TopNav';
 import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
-import { Badge } from '@astryxdesign/core/Badge';
 import { Icon } from '@astryxdesign/core/Icon';
 import { HStack } from '@astryxdesign/core/Layout';
 
@@ -46,8 +42,6 @@ export const AppTopNav: FC<AppTopNavProps> = ({
         <TopNavHeading
           logo={<Icon icon={SparklesIcon} size="md" style={{ color: '#0171E3' }} />}
           heading="Social Media Content Analysis"
-          subheading="Meta Astryx • Section 4.1 System Client"
-          headerEndContent={<Badge variant="neutral" label="500M DAU" />}
         />
       }
       startContent={
@@ -64,39 +58,13 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             onClick={() => onSelectTab('dashboard')}
             icon={<Icon icon={ChartBarSquareIcon} size="sm" />}
           />
-          <TopNavMegaMenu
-            label="Explore Platform"
-            items={
-              <>
-                <TopNavMegaMenuItem
-                  title="Real-Time Feed"
-                  description="Chronological media stream with sub-second fan-out"
-                  icon={<Icon icon={NewspaperIcon} size="md" />}
-                  onClick={() => onSelectTab('feed')}
-                />
-                <TopNavMegaMenuItem
-                  title="Creator Analytics"
-                  description="Audience growth, reactions, and engagement metrics"
-                  icon={<Icon icon={ChartBarSquareIcon} size="md" />}
-                  onClick={() => onSelectTab('dashboard')}
-                />
-              </>
-            }
-            featured={
-              <TopNavMegaMenuFeaturedCard
-                title="500M DAU Architecture"
-                description="Designed for 2.5B daily interactions and 216 TB/day storage"
-                linkLabel="Read System Spec"
-                linkHref="#spec"
-              />
-            }
-          />
         </>
       }
       endContent={
         <HStack gap={3} vAlign="center">
           <Button
-            label={mode === 'dark' ? 'Light mode' : 'Dark mode'}
+            label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            isIconOnly
             variant="ghost"
             size="sm"
             icon={<Icon icon={mode === 'dark' ? SunIcon : MoonIcon} size="sm" />}

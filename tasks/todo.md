@@ -68,3 +68,28 @@ Commit and push changes to `origin/Hunain-Frontend`.
 
 ## Checkpoint 3: Feature Complete
 - [x] All tasks completed and verified.
+
+---
+
+## Task 4: Declutter & Clean Navigation Bar (TDD)
+**Description:** Remove unnecessary boilerplate text and clutter from `AppTopNav` using TDD.
+**Acceptance criteria:**
+- [x] Add automated test `frontend/test/topnav_cleanliness.test.mjs` asserting absence of subheading, badge, redundant mega menu, and visible button text.
+- [x] Remove boilerplate subheading and "500M DAU" badge from `TopNavHeading`.
+- [x] Remove redundant "Explore Platform" mega menu.
+- [x] Set `isIconOnly` on theme toggle button.
+- [x] Retain brand title, Feed tab, Dashboard tab, theme toggle icon, and Avatar.
+**Verification:**
+- [x] Run `cd frontend && npm test`
+- [x] Run `cd frontend && npx tsc -b && npm run lint && npm run build`
+**Dependencies:** None
+**Files touched:**
+- `frontend/src/components/nav/AppTopNav.tsx`
+- `frontend/test/topnav_cleanliness.test.mjs`
+- `frontend/package.json`
+
+---
+
+## Checkpoint 4: Navigation Cleaned & Verified
+- [x] All tests green (6/6 passing).
+- [x] Build passes with 0 errors.
