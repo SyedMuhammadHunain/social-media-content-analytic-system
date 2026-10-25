@@ -21,13 +21,13 @@
 ## Task 2: Implement Left Rail FeedShortcutsCard
 **Description:** Create `FeedShortcutsCard.tsx` using Astryx components (`Card`, `VStack`, `HStack`, `Button`, `Badge`, `Text`, `Heading`). Render shortcuts for "All Posts", "Media Only", "Bookmarks", and "Creator Analytics" (with follower badge). Wire click handler to update active feed filter or navigate to analytics.
 **Acceptance criteria:**
-- [ ] Renders all 4 shortcuts cleanly with Astryx typography and icons/badges.
-- [ ] Active shortcut is visually highlighted.
-- [ ] Emits filter change callback when shortcut is clicked.
-- [ ] Zero TypeScript or lint errors.
+- [x] Renders all 4 shortcuts cleanly with Astryx typography and icons/badges.
+- [x] Active shortcut is visually highlighted.
+- [x] Emits filter change callback when shortcut is clicked.
+- [x] Zero TypeScript or lint errors.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/app/feed/FeedShortcutsCard.tsx`
