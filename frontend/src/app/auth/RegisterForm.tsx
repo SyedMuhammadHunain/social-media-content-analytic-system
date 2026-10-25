@@ -16,12 +16,60 @@ export interface RegisterFormProps {
   onToggleLogin: () => void;
 }
 
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
 export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
   const { register, error, isLoading, clearError } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [errors, setErrors] = useState<{
+    username?: string;
+    email?: string;
+    password?: string;
+  }>({});
+  const [touched, setTouched] = useState<{
+    username?: boolean;
+    email?: boolean;
+    password?: boolean;
+  }>({});
+
+  const validateField = (field: 'username' | 'email' | 'password', val: string) => {
+    const trimmed = val.trim();
+    if (field === 'username') {
+      if (!trimmed) return 'Username is required.';
+      if (trimmed.length < 3 || trimmed.length > 20) {
+        return 'Username must be between 3 and 20 characters.';
+      }
+      if (!USERNAME_REGEX.test(trimmed)) {
+        return 'Username can only contain letters, numbers, and underscores.';
+      }
+    }
+    if (field === 'email') {
+      if (!trimmed) return 'Email is required.';
+      if (!EMAIL_REGEX.test(trimmed)) {
+        return 'Please enter a valid email address.';
+      }
+    }
+    if (field === 'password') {
+      if (!val) return 'Password is required.';
+      if (val.length < 8) return 'Password must be at least 8 characters.';
+      if (!PASSWORD_COMPLEXITY_REGEX.test(val)) {
+        return 'Password must contain at least one letter and one number.';
+      }
+    }
+    return undefined;
+  };
+
+  const handleBlur = (field: 'username' | 'email' | 'password', val: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateField(field, val);
+    setErrors((prev) => ({ ...prev, [field]: err }));
+  };
 
   const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
@@ -34,14 +82,20 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
     );
     const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
 
-    // Prefer active DOM input value to handle automated testing and direct input
-    const finalUsername = userEl?.value || username;
-    const finalEmail = emailEl?.value || email;
-    const finalPassword = passEl?.value || password;
+    const finalUsername = userEl?.value ?? username;
+    const finalEmail = emailEl?.value ?? email;
+    const finalPassword = passEl?.value ?? password;
 
-    if (!finalUsername || !finalEmail || !finalPassword) {
+    const uErr = validateField('username', finalUsername);
+    const eErr = validateField('email', finalEmail);
+    const pErr = validateField('password', finalPassword);
+
+    if (uErr || eErr || pErr) {
+      setErrors({ username: uErr, email: eErr, password: pErr });
+      setTouched({ username: true, email: true, password: true });
       return;
     }
+
     await register(finalUsername, finalEmail, finalPassword);
   };
 
@@ -86,10 +140,17 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
             label="Username"
             placeholder="Choose a username (e.g. alex_creator)"
             value={username}
+            status={
+              touched.username && errors.username
+                ? { type: 'error', message: errors.username }
+                : undefined
+            }
             onChange={(v) => {
               setUsername(v);
               clearError();
+              if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
             }}
+            onBlur={() => handleBlur('username', username)}
             size="lg"
           />
 
@@ -98,10 +159,17 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
             type="email"
             placeholder="alex@example.com"
             value={email}
+            status={
+              touched.email && errors.email
+                ? { type: 'error', message: errors.email }
+                : undefined
+            }
             onChange={(v) => {
               setEmail(v);
               clearError();
+              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
             }}
+            onBlur={() => handleBlur('email', email)}
             size="lg"
           />
 
@@ -110,10 +178,17 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
             type="password"
             placeholder="Create a strong password"
             value={password}
+            status={
+              touched.password && errors.password
+                ? { type: 'error', message: errors.password }
+                : undefined
+            }
             onChange={(v) => {
               setPassword(v);
               clearError();
+              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
             }}
+            onBlur={() => handleBlur('password', password)}
             size="lg"
           />
         </VStack>

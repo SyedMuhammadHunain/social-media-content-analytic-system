@@ -18,7 +18,6 @@ import type { UserProfile } from '../../types/social';
 import {
   SunIcon,
   MoonIcon,
-  SparklesIcon,
   NewspaperIcon,
   ChartBarSquareIcon,
   ArrowRightOnRectangleIcon,
@@ -46,7 +45,19 @@ export const AppTopNav: FC<AppTopNavProps> = ({
       label="Social Media Content Analysis Navigation"
       heading={
         <TopNavHeading
-          logo={<Icon icon={SparklesIcon} size="md" style={{ color: '#0171E3' }} />}
+          logo={
+            <img
+              src="/logo.png"
+              alt="Social Media Content Analysis Logo"
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+          }
           heading="Social Media Content Analysis"
         />
       }
@@ -88,10 +99,10 @@ export const AppTopNav: FC<AppTopNavProps> = ({
           />
           <Button
             data-testid="nav-logout-btn"
-            label="Log Out"
             variant="secondary"
+            label='Logout'
             size="sm"
-            icon={<Icon icon={ArrowRightOnRectangleIcon} size="xsm" />}
+            icon={<Icon icon={ArrowRightOnRectangleIcon} size="sm" />}
             onClick={onLogout}
           />
           <Avatar
