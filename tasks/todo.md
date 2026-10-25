@@ -1,95 +1,91 @@
-# Task List: Meta Astryx Official Mega TopNav & Theme Toggle
+# Task List: User Profile Card & Full Profile View
 
-## Task 1: Build Official Astryx AppTopNav Component
-**Description:** Build `frontend/src/components/nav/AppTopNav.tsx` using official Astryx primitives (`TopNav`, `TopNavHeading`, `TopNavItem`, `TopNavMegaMenu`, `TopNavMegaMenuItem`, `TopNavMegaMenuFeaturedCard`, `Button`, `Avatar`, `Icon`). Wire brand logo, active tab indicator, mega menu items, and theme switch button.
+## Task 1: Extend User Types, Mock Data, and Add Failing TDD Test Suite
+**Description:** Add `UserProfile` interface with `headline`, `tags`, `bio`, `followerCount`, `followingCount` to `frontend/src/types/social.ts`. Update `currentUser` in `frontend/src/mock/socialSeedData.ts`. Create `frontend/test/profile_card_and_view.test.mjs` asserting presence of left profile card, view transition, banner, bio editor, and back navigation.
 **Acceptance criteria:**
-- [x] Export `AppTopNav` component accepting `mode`, `onToggleTheme`, `activeTab`, `onSelectTab`.
-- [x] Renders `TopNavHeading` with platform title and logo icon.
-- [x] Renders `TopNavItem` for News Feed and Analytics Dashboard with `isSelected`.
-- [x] Renders `TopNavMegaMenu` with `TopNavMegaMenuItem` elements and `TopNavMegaMenuFeaturedCard`.
-- [x] Renders Light/Dark mode toggle button with `SunIcon` / `MoonIcon` and user `Avatar`.
+- [x] `UserProfile` type defined and exported.
+- [x] `currentUser` extended with tags, headline, bio, and follower metrics.
+- [x] TDD test suite created and executed, failing cleanly on missing components (RED).
 **Verification:**
 - [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm test` (confirms RED)
 **Dependencies:** None
 **Files likely touched:**
-- `frontend/src/components/nav/AppTopNav.tsx`
-**Estimated scope:** Small (1 file)
+- `frontend/src/types/social.ts`
+- `frontend/src/mock/socialSeedData.ts`
+- `frontend/test/profile_card_and_view.test.mjs`
+**Estimated scope:** Small (3 files)
 
 ---
 
-## Checkpoint 1: Navigation Component Ready
-- [x] Type check succeeds on `AppTopNav.tsx`.
+## Checkpoint 1: RED Test State Verified
+- [x] Tests run and fail specifically on missing profile card and profile view.
 
 ---
 
-## Task 2: Integrate AppTopNav & Dynamic Light/Dark Mode in App Shell
-**Description:** Update `frontend/src/App.tsx` and `frontend/src/main.tsx` to support dynamic switching between `'dark'` and `'light'` mode. Render `<AppTopNav>` as the sticky top navigation bar. Synchronize `data-theme` on document root and body background.
+## Task 2: Build Official Astryx UserProfileCard & 2-Column Feed Layout
+**Description:** Implement `frontend/src/components/profile/UserProfileCard.tsx` using `@astryxdesign/core/ClickableCard`, `Avatar`, `Badge`, `Heading`, `Text`, `HStack`, `VStack`, and `Divider`. Update `frontend/src/app/feed/NewsFeedPage.tsx` to render a 2-column layout (left sidebar profile card + main feed stream).
 **Acceptance criteria:**
-- [x] App state holds `mode: 'dark' | 'light'` and passes it to `<Theme mode={mode}>`.
-- [x] Document root `data-theme` and `color-scheme` update reactively when toggling theme.
-- [x] Replacing header with `<AppTopNav>` preserves tab switching between Feed and Dashboard.
+- [x] `UserProfileCard` renders user avatar, name, handle, headline, tags as `Badge` components, and follower stats.
+- [x] Entire card is clickable (`ClickableCard`) with accessible label.
+- [x] News feed layout displays profile card on left on desktop.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b && npm run build`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
-- `frontend/src/App.tsx`
-- `frontend/src/main.tsx`
+- `frontend/src/components/profile/UserProfileCard.tsx`
+- `frontend/src/app/feed/NewsFeedPage.tsx`
 **Estimated scope:** Small (2 files)
 
 ---
 
-## Checkpoint 2: Integration Complete
-- [x] Full app builds cleanly with zero errors.
-- [x] Theme toggling and tab navigation operational.
+## Checkpoint 2: Left Card Rendered
+- [x] Left profile card renders cleanly in the feed.
 
 ---
 
-## Task 3: DevTools Protocol Automated Verification & Branch Commit
-**Description:** Run automated Chrome DevTools test verifying:
-1. Console and network health (0 errors).
-2. TopNav renders with all items, heading, and mega menu.
-3. Toggling theme button changes HTML `data-theme` from `dark` to `light` and back.
-4. Switching tabs between Feed and Dashboard functions via nav items and mega menu items.
-5. Capture screenshots in both Dark mode and Light mode.
-Commit and push changes to `origin/Hunain-Frontend`.
+## Task 3: Build ProfileBioEditor and UserProfileView
+**Description:** Implement `frontend/src/components/profile/ProfileBioEditor.tsx` using `Card`, `Markdown`, `TextArea`, `Toolbar`, `Button`, and `Banner`. Implement `frontend/src/components/profile/UserProfileView.tsx` with `AspectRatio` cover banner, large `Avatar`, `ProfileBioEditor`, "Back to Feed" `Button`, and past post history using `TabList`, `Tab`, `Skeleton`, and `PostCard`. Wire view switching in `NewsFeedPage.tsx`.
 **Acceptance criteria:**
-- [x] Zero console and network errors.
-- [x] Interactive tests succeed.
-- [x] Screenshots saved to artifact directory.
-- [x] Committed and pushed to `Hunain-Frontend`.
+- [x] Clicking profile card transitions view to full profile.
+- [x] Profile displays `AspectRatio` cover banner and large `Avatar`.
+- [x] Bio editor toggles between `Markdown` view and `TextArea` + `Toolbar` edit mode, saving updates and showing Astryx success `Banner`.
+- [x] Post history renders authored posts with `Skeleton` loaders during tab change.
+- [x] "Back to Feed" button returns to feed stream.
 **Verification:**
-- [x] Run `node /tmp/verify_topnav.mjs`
-- [x] Run `git status`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm test`
+- [x] Run `cd frontend && npm run build`
 **Dependencies:** Task 2
-**Files likely touched:** Verification script
+**Files likely touched:**
+- `frontend/src/components/profile/ProfileBioEditor.tsx`
+- `frontend/src/components/profile/UserProfileView.tsx`
+- `frontend/src/app/feed/NewsFeedPage.tsx`
+**Estimated scope:** Medium (3 files)
+
+---
+
+## Checkpoint 3: Profile View Interactive
+- [x] Full profile view completely functional with bio editor and post history.
+
+---
+
+## Task 4: Automated Verification, Screenshot Artifacts, and Branch Commit
+**Description:** Run automated Chrome DevTools test testing all interactions (card click, profile render, bio edit/save, banner feedback, tab switch, back to feed). Capture screenshots. Commit and push to `origin/Hunain-Frontend`.
+**Acceptance criteria:**
+- [x] 0 console errors, 0 network errors.
+- [x] All tests pass in `npm test`.
+- [x] Screenshots saved to artifact directory.
+- [x] Changes committed and pushed to `Hunain-Frontend`.
+**Verification:**
+- [x] Run `node /tmp/verify_profile.mjs`
+- [x] Run `git status`
+**Dependencies:** Task 3
+**Files likely touched:** Verification script, tasks/
 **Estimated scope:** Verification only
 
 ---
 
-## Checkpoint 3: Feature Complete
-- [x] All tasks completed and verified.
-
----
-
-## Task 4: Declutter & Clean Navigation Bar (TDD)
-**Description:** Remove unnecessary boilerplate text and clutter from `AppTopNav` using TDD.
-**Acceptance criteria:**
-- [x] Add automated test `frontend/test/topnav_cleanliness.test.mjs` asserting absence of subheading, badge, redundant mega menu, and visible button text.
-- [x] Remove boilerplate subheading and "500M DAU" badge from `TopNavHeading`.
-- [x] Remove redundant "Explore Platform" mega menu.
-- [x] Set `isIconOnly` on theme toggle button.
-- [x] Retain brand title, Feed tab, Dashboard tab, theme toggle icon, and Avatar.
-**Verification:**
-- [x] Run `cd frontend && npm test`
-- [x] Run `cd frontend && npx tsc -b && npm run lint && npm run build`
-**Dependencies:** None
-**Files touched:**
-- `frontend/src/components/nav/AppTopNav.tsx`
-- `frontend/test/topnav_cleanliness.test.mjs`
-- `frontend/package.json`
-
----
-
-## Checkpoint 4: Navigation Cleaned & Verified
-- [x] All tests green (6/6 passing).
-- [x] Build passes with 0 errors.
+## Checkpoint 4: Feature Complete
+- [x] All tasks completed, verified, committed, and pushed.

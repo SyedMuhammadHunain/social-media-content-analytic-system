@@ -11,6 +11,15 @@ export interface User {
   isFollowed: boolean;
 }
 
+export interface UserProfile extends User {
+  headline: string;
+  tags: string[];
+  bio: string;
+  followerCount: number;
+  followingCount: number;
+  coverBannerUrl?: string;
+}
+
 export interface Comment {
   id: string;
   postId: string;

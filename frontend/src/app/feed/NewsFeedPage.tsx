@@ -8,23 +8,31 @@ import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Card } from '@astryxdesign/core/Card';
 
-import type { CreatePostInput, Post, User } from '../../types/social';
+import type { CreatePostInput, Post, UserProfile } from '../../types/social';
 import { CURRENT_USER, INITIAL_POSTS } from '../../mock/socialSeedData';
 import { PostComposer } from './PostComposer';
 import { PostCard } from './PostCard';
+import { UserProfileCard } from '../../components/profile/UserProfileCard';
+import { UserProfileView } from '../../components/profile/UserProfileView';
 
 interface NewsFeedPageProps {
-  currentUser?: User;
+  currentUser?: UserProfile;
+  onOpenProfile?: () => void;
 }
 
-export function NewsFeedPage({ currentUser = CURRENT_USER }: NewsFeedPageProps) {
+export function NewsFeedPage({
+  currentUser = CURRENT_USER,
+  onOpenProfile,
+}: NewsFeedPageProps) {
+  const [user, setUser] = useState<UserProfile>(currentUser);
+  const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
 
   const handleCreatePost = (input: CreatePostInput) => {
     const newPost: Post = {
       id: `post_${Date.now()}`,
-      userId: currentUser.id,
-      author: currentUser,
+      userId: user.id,
+      author: user,
       type: input.type,
       text: input.text,
       description: input.description,
@@ -69,8 +77,8 @@ export function NewsFeedPage({ currentUser = CURRENT_USER }: NewsFeedPageProps) 
     const newComment = {
       id: `c_${Date.now()}`,
       postId,
-      userId: currentUser.id,
-      author: currentUser,
+      userId: user.id,
+      author: user,
       text,
       createdAt: 'Just now',
     };
@@ -87,47 +95,88 @@ export function NewsFeedPage({ currentUser = CURRENT_USER }: NewsFeedPageProps) 
     );
   };
 
+  const handleOpenProfile = () => {
+    setViewMode('profile');
+    onOpenProfile?.();
+  };
+
+  if (viewMode === 'profile') {
+    return (
+      <UserProfileView
+        user={user}
+        posts={posts.filter(p => p.author.id === user.id)}
+        onBack={() => setViewMode('feed')}
+        onUpdateBio={(newBio) => setUser(prev => ({ ...prev, bio: newBio }))}
+        onToggleLike={handleToggleLike}
+        onToggleFollow={handleToggleFollow}
+        onAddComment={handleAddComment}
+      />
+    );
+  }
+
   return (
     <Layout
       height="fill"
       content={
         <LayoutContent padding={6}>
-          <div style={{ maxWidth: 740, margin: '0 auto', width: '100%' }}>
-            <VStack gap={6}>
-              {/* Post Composer */}
-              <PostComposer
-                currentUser={currentUser}
-                onCreatePost={handleCreatePost}
+          <div
+            style={{
+              maxWidth: 1100,
+              margin: '0 auto',
+              width: '100%',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 24,
+              alignItems: 'flex-start',
+            }}
+          >
+            {/* Left Sidebar Profile Card */}
+            <div style={{ flex: '0 0 300px', width: 300, maxWidth: '100%' }}>
+              <UserProfileCard
+                user={user}
+                onOpenProfile={handleOpenProfile}
               />
+            </div>
 
-              {/* Chronological Feed */}
-              <VStack gap={4}>
-                {posts.length === 0 ? (
-                  <Card padding={6}>
-                    <VStack gap={2} hAlign="center">
-                      <Heading level={3}>No Posts Yet</Heading>
-                      <Text type="body" color="secondary">
-                        Be the first to publish content to the chronological feed.
-                      </Text>
-                    </VStack>
-                  </Card>
-                ) : (
-                  posts.map(post => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      onToggleLike={handleToggleLike}
-                      onToggleFollow={handleToggleFollow}
-                      onAddComment={handleAddComment}
-                    />
-                  ))
-                )}
+            {/* Main Chronological News Feed */}
+            <div style={{ flex: '1 1 600px', minWidth: 0, maxWidth: 740 }}>
+              <VStack gap={6}>
+                {/* Post Composer */}
+                <PostComposer
+                  currentUser={user}
+                  onCreatePost={handleCreatePost}
+                />
+
+                {/* Chronological Feed */}
+                <VStack gap={4}>
+                  {posts.length === 0 ? (
+                    <Card padding={6}>
+                      <VStack gap={2} hAlign="center">
+                        <Heading level={3}>No Posts Yet</Heading>
+                        <Text type="body" color="secondary">
+                          Be the first to publish content to the chronological feed.
+                        </Text>
+                      </VStack>
+                    </Card>
+                  ) : (
+                    posts.map(post => (
+                      <PostCard
+                        key={post.id}
+                        post={post}
+                        onToggleLike={handleToggleLike}
+                        onToggleFollow={handleToggleFollow}
+                        onAddComment={handleAddComment}
+                      />
+                    ))
+                  )}
+                </VStack>
               </VStack>
-            </VStack>
+            </div>
           </div>
         </LayoutContent>
       }
     />
   );
 }
+
 export default NewsFeedPage;

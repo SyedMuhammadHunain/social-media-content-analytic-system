@@ -1,17 +1,36 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Social Media Content Analysis System - Seed Data (Section 5 capacity: 20% text, 60% image, 20% video)
 
-import type { Post, User } from '../types/social';
+import type { Post, UserProfile } from '../types/social';
 
-export const CURRENT_USER: User = {
+export const CURRENT_USER: UserProfile = {
   id: 'usr_me_01',
   username: 'hunain_creator',
   name: 'Syed Muhammad Hunain',
   avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
   isFollowed: false,
+  headline: 'Staff Infrastructure Architect • Distributed Media Systems',
+  tags: ['Systems Architecture', 'Distributed Systems', 'Meta Astryx', '500M DAU'],
+  bio: 'Building large-scale content processing pipelines and real-time social telemetry. Passionate about sub-second fan-out, cache hierarchies, and accessible design system engineering.',
+  followerCount: 14200,
+  followingCount: 486,
+  coverBannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
 };
 
 export const INITIAL_POSTS: Post[] = [
+  {
+    id: 'post_00',
+    userId: 'usr_me_01',
+    author: CURRENT_USER,
+    type: 'TEXT',
+    text: 'Excited to unveil the new Meta Astryx system client with dynamic light-dark theming, real-time news feed telemetry, and unified creator analytics!',
+    hashtags: ['#metaastryx', '#systemarchitecture', '#webdev'],
+    likesCount: 520,
+    commentsCount: 2,
+    isLiked: true,
+    comments: [],
+    createdAt: '5m ago',
+  },
   {
     id: 'post_01',
     userId: 'usr_alex_02',
