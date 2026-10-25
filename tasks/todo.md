@@ -22,13 +22,13 @@
 ## Task 2: Implement AuthContext and Mock Authentication Service
 **Description:** Create `frontend/src/context/AuthContext.tsx` providing `currentUser`, `isAuthenticated`, `login`, `register`, and `logout`. Seed valid creator account (`hunain_creator` / `password123`) and maintain session persistence.
 **Acceptance criteria:**
-- [ ] `AuthContext` exports `AuthProvider` and `useAuth` hook.
-- [ ] `login(emailOrUsername, password)` validates credentials against seed store.
-- [ ] `register(username, email, password)` creates new user session.
-- [ ] `logout()` clears session and resets state.
+- [x] `AuthContext` exports `AuthProvider` and `useAuth` hook.
+- [x] `login(emailOrUsername, password)` validates credentials against seed store.
+- [x] `register(username, email, password)` creates new user session.
+- [x] `logout()` clears session and resets state.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/context/AuthContext.tsx`
@@ -38,7 +38,7 @@
 ---
 
 ## Checkpoint 1: Foundation Ready
-- [ ] AuthContext compile-clean and integrated.
+- [x] AuthContext compile-clean and integrated.
 
 ---
 
