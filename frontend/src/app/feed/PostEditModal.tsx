@@ -38,13 +38,13 @@ export const PostEditModal: FC<PostEditModalProps> = ({
 
   const handleSave = () => {
     const domTextarea = document.querySelector('[data-testid="post-edit-text-input"] textarea') as HTMLTextAreaElement | null;
-    const effectiveText = domTextarea?.value !== undefined ? domTextarea.value : text;
+    const effectiveText = domTextarea?.value ?? text;
 
     const domMedia = document.querySelector('[data-testid="post-edit-media-input"] input') as HTMLInputElement | null;
-    const effectiveMedia = domMedia?.value !== undefined ? domMedia.value : mediaUrl;
+    const effectiveMedia = domMedia?.value ?? mediaUrl;
 
     const domTags = document.querySelector('[data-testid="post-edit-hashtags-input"] input') as HTMLInputElement | null;
-    const effectiveTags = domTags?.value !== undefined ? domTags.value : hashtagsRaw;
+    const effectiveTags = domTags?.value ?? hashtagsRaw;
 
     const hashtags = effectiveTags
       .split(' ')

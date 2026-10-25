@@ -57,10 +57,10 @@ export function NewsFeedPage({
         if (p.id !== postId) return p;
         return {
           ...p,
-          text: input.text !== undefined ? input.text : p.text,
-          description: input.description !== undefined ? input.description : p.description,
-          mediaUrls: input.mediaUrls !== undefined ? input.mediaUrls : p.mediaUrls,
-          hashtags: input.hashtags !== undefined ? input.hashtags : p.hashtags,
+          text: input.text ?? p.text,
+          description: input.description ?? p.description,
+          mediaUrls: input.mediaUrls ?? p.mediaUrls,
+          hashtags: input.hashtags ?? p.hashtags,
         };
       })
     );
