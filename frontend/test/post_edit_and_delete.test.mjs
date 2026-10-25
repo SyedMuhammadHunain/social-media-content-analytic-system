@@ -119,10 +119,10 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
   await t.test('1. Authored posts display Edit and Delete controls; non-authored posts do not', async () => {
     const checks = await evaluate(`
       (() => {
-        const authoredEditBtn = document.querySelector('[data-testid="post-edit-btn-post_01"]');
-        const authoredDeleteBtn = document.querySelector('[data-testid="post-delete-btn-post_01"]');
-        const otherEditBtn = document.querySelector('[data-testid="post-edit-btn-post_02"]');
-        const otherDeleteBtn = document.querySelector('[data-testid="post-delete-btn-post_02"]');
+        const authoredEditBtn = document.querySelector('[data-testid="post-edit-btn-post_00"]');
+        const authoredDeleteBtn = document.querySelector('[data-testid="post-delete-btn-post_00"]');
+        const otherEditBtn = document.querySelector('[data-testid="post-edit-btn-post_01"]');
+        const otherDeleteBtn = document.querySelector('[data-testid="post-delete-btn-post_01"]');
         return {
           hasAuthoredEdit: !!authoredEditBtn,
           hasAuthoredDelete: !!authoredDeleteBtn,
@@ -141,33 +141,37 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
   await t.test('2. Clicking Edit on an authored post opens PostEditModal with current text', async () => {
     const modalOpened = await evaluate(`
       (() => {
-        const editBtn = document.querySelector('[data-testid="post-edit-btn-post_01"]');
+        const editBtn = document.querySelector('[data-testid="post-edit-btn-post_00"]');
         if (editBtn) editBtn.click();
         return !!editBtn;
       })()
     `);
     assert.ok(modalOpened, 'Edit button clicked on authored post');
-    await sleep(300);
 
-    const modalState = await evaluate(`
-      (() => {
-        const modal = document.querySelector('[data-testid="post-edit-modal"]');
-        const textarea = document.querySelector('[data-testid="post-edit-text-input"] textarea, [data-testid="post-edit-text-input"] input, textarea');
-        return {
-          isModalVisible: !!modal,
-          textValue: textarea?.value || '',
-        };
-      })()
-    `);
+    let modalState = null;
+    for (let i = 0; i < 20; i++) {
+      await sleep(150);
+      modalState = await evaluate(`
+        (() => {
+          const modal = document.querySelector('[data-testid="post-edit-modal"]');
+          const textarea = document.querySelector('[data-testid="post-edit-text-input"] textarea, [data-testid="post-edit-modal"] textarea');
+          return {
+            isModalVisible: !!modal,
+            textValue: textarea?.value || '',
+          };
+        })()
+      `);
+      if (modalState?.isModalVisible) break;
+    }
 
-    assert.strictEqual(modalState.isModalVisible, true, 'PostEditModal should be open');
-    assert.ok(modalState.textValue.includes('Excited to unveil'), 'Modal pre-populates post text');
+    assert.strictEqual(modalState?.isModalVisible, true, 'PostEditModal should be open');
+    assert.ok(modalState?.textValue.includes('Excited to unveil'), 'Modal pre-populates post text');
   });
 
   await t.test('3. Saving edits updates the post content and hashtags in the feed', async () => {
     const updated = await evaluate(`
       (() => {
-        const textarea = document.querySelector('[data-testid="post-edit-text-input"] textarea, [data-testid="post-edit-text-input"] input, textarea');
+        const textarea = document.querySelector('[data-testid="post-edit-text-input"] textarea, [data-testid="post-edit-modal"] textarea');
         if (!textarea) return false;
 
         textarea.value = 'Updated post content via automated verification [EDITED V2]';
@@ -186,7 +190,7 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
 
     const postContent = await evaluate(`
       (() => {
-        const postCard = document.querySelector('[data-testid="post-card-post_01"]') || document.body;
+        const postCard = document.querySelector('[data-testid="post-card-post_00"]') || document.body;
         return postCard.innerText;
       })()
     `);
@@ -205,7 +209,7 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
     // Click delete on authored post
     const deleteClicked = await evaluate(`
       (() => {
-        const delBtn = document.querySelector('[data-testid="post-delete-btn-post_01"]');
+        const delBtn = document.querySelector('[data-testid="post-delete-btn-post_00"]');
         if (delBtn) {
           delBtn.click();
           return true;
@@ -232,7 +236,7 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
 
     const postStillExists = await evaluate(`
       (() => {
-        const postCard = document.querySelector('[data-testid="post-card-post_01"]');
+        const postCard = document.querySelector('[data-testid="post-card-post_00"]');
         const postText = document.body.innerText;
         return !!postCard || postText.includes('[EDITED V2]');
       })()

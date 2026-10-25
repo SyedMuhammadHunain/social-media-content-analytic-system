@@ -45,13 +45,13 @@
 ## Task 3: Implement PostCard Author Action Controls & PostEditModal
 **Description:** Update `PostCard.tsx` to conditionally render Edit and Delete buttons for authored posts. Create `PostEditModal.tsx` using Astryx components to edit text, media, and hashtags. Add confirmation before deleting.
 **Acceptance criteria:**
-- [ ] Author check (`currentUser.id === post.author.id`) gates action visibility.
-- [ ] `PostEditModal.tsx` provides form fields for text, caption, hashtags.
-- [ ] Edit saves and updates post text in DOM.
-- [ ] Delete prompts confirmation and dispatches deletion.
+- [x] Author check (`currentUser.id === post.author.id`) gates action visibility.
+- [x] `PostEditModal.tsx` provides form fields for text, caption, hashtags.
+- [x] Edit saves and updates post text in DOM.
+- [x] Delete prompts confirmation and dispatches deletion.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 2
 **Files likely touched:**
 - `frontend/src/app/feed/PostCard.tsx`
