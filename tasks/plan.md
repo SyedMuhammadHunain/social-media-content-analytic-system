@@ -1,47 +1,38 @@
-# Implementation Plan: Social Media News Feed and Post Composer
+# Implementation Plan: Meta Astryx Official Mega TopNav & Theme Toggle
 
 ## Overview
-Implement the interactive Post Composer and chronological News Feed interface (PDF Section 4.1) using official Meta Astryx Design System components (`@astryxdesign/core`) in the neutral dark theme. Provide a seamless top-level navigation toggle between the News Feed and the Analytics Dashboard.
+Replace the temporary application header with the official Meta Astryx `TopNav` suite (`@astryxdesign/core/TopNav`). Add brand identity, navigation items, a hover-activated `TopNavMegaMenu` detailing Social Feed and Analytics modules, and an interactive Light/Dark theme toggle button (`SunIcon` / `MoonIcon`) switching Astryx Design System tokens dynamically across the app.
 
 ## Architecture Decisions
-1. **Astryx Primitive Purity:** Build exclusively with official Astryx components (`Card`, `Avatar`, `Button`, `Badge`, `TextArea`, `TextInput`, `TabList`, `Divider`, `HStack`, `VStack`, `Layout`, `LayoutContent`). Zero custom CSS hacks or non-Astryx primitives.
-2. **In-Memory Reactive Social State:** Manage posts, comments, likes, and follow status in reactive React state initialized from Section 5 capacity seed data (20% text, 60% image, 20% video). New posts prepend to the feed with sub-second feedback (<2s SLA).
-3. **App Shell Dual Navigation:** Enhance `App.tsx` with Astryx `TabList` / header controls to toggle between the interactive `News Feed` and `Analytics Dashboard`.
-4. **Git Discipline:** Execute exclusively on git branch `Hunain-Frontend`. Do not merge to `main` without explicit instruction.
+1. **Official Astryx TopNav Primitives:** Use strictly official components from `@astryxdesign/core/TopNav` (`TopNav`, `TopNavHeading`, `TopNavItem`, `TopNavMegaMenu`, `TopNavMegaMenuItem`, `TopNavMegaMenuFeaturedCard`). Zero raw HTML nav elements or custom CSS classes.
+2. **Dynamic Client-Side Theme Mode:** Manage theme mode state (`'dark' | 'light'`) dynamically. Passing `mode={mode}` to `<Theme>` automatically swaps Astryx design tokens; synchronized with `data-theme` attribute on `<html>` and `color-scheme` CSS property.
+3. **Mega Menu Content Traceability:** Populate `TopNavMegaMenu` with Section 4.1 modules (Feed, Composer, Analytics) and Section 5 system capacity metrics (500M DAU, 216 TB/day).
+4. **Git Branch Discipline:** All work remains on `Hunain-Frontend` until explicit merge instruction.
 
 ## Task List
 
-### Phase 1: Foundation & Types
-- [ ] Task 1: Define Social Data Types & Capacity-Compliant Mock Seed Data
-  - `frontend/src/types/social.ts`
-  - `frontend/src/mock/socialSeedData.ts`
+### Phase 1: Navigation Component
+- [x] Task 1: Build Official Astryx AppTopNav Component (`frontend/src/components/nav/AppTopNav.tsx`)
 
-### Checkpoint: Foundation
-- [ ] TypeScript compilation succeeds with zero errors.
+### Checkpoint 1: Component Ready
+- [x] TypeScript compilation succeeds with zero errors.
 
-### Phase 2: Feed UI Components
-- [ ] Task 2: Build Astryx Post Composer (`PostComposer.tsx`)
-- [ ] Task 3: Build Astryx Post Card & Comment Section (`PostCard.tsx`, `CommentSection.tsx`)
+### Phase 2: Shell Integration & Dynamic Theme
+- [x] Task 2: Integrate AppTopNav & Dynamic Light/Dark Mode in App Shell (`frontend/src/App.tsx`, `frontend/src/main.tsx`)
 
-### Checkpoint: Components
-- [ ] Individual post creation and interaction components typecheck clean.
+### Checkpoint 2: Integration Complete
+- [x] Production build succeeds without errors.
+- [x] Theme toggling and tab navigation operate smoothly.
 
-### Phase 3: Feed Integration & Navigation
-- [ ] Task 4: Assemble Chronological News Feed & App Navigation (`NewsFeedPage.tsx`, `App.tsx`)
+### Phase 3: Automated Verification & Branch Commit
+- [x] Task 3: DevTools Protocol Automated Verification & Branch Commit
 
-### Checkpoint: Full Integration
-- [ ] Post creation, liking, commenting, following, and tab switching work end-to-end.
-- [ ] `npm run build` succeeds without errors.
-
-### Phase 4: Verification & Quality Gate
-- [ ] Task 5: DevTools Protocol Automated Verification & Branch Commit
-
-### Checkpoint: Complete
-- [ ] DevTools test passes (0 console errors, 0 network errors).
-- [ ] Committed and pushed to `Hunain-Frontend`.
+### Checkpoint 3: Feature Complete
+- [x] Automated headless Chrome test verifies 0 console errors and interactive theme/tab toggling.
+- [x] Committed and pushed to `Hunain-Frontend`.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Media URL broken rendering | Medium | Support graceful fallback container for images and video players with Astryx Badge indicators |
-| Layout overflow on small screens | Low | Use Astryx `LayoutContent` padding and responsive `VStack`/`HStack` gap properties |
+| StyleX light mode card contrast | Low | Astryx theme tokens (`--color-background-surface`, `--color-background-body`) automatically adapt via CSS `light-dark()` functions |
+| Sticky header z-index collision | Low | Set standard z-index on TopNav container |
