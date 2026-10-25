@@ -131,7 +131,7 @@ export function PostCard({
           {/* Text Content / Description */}
           {(post.text || post.description) && (
             <Text type="body">
-              {post.type === 'TEXT' ? (post.text ?? post.description) : (post.description ?? post.text)}
+              {post.text || post.description}
             </Text>
           )}
 

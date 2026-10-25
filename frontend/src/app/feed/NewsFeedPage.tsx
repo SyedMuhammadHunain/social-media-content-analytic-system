@@ -99,43 +99,35 @@ export function NewsFeedPage({
   };
 
   const handleToggleLike = (postId: string) => {
-    let nextIsLiked = false;
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const nextIsLiked = !post.isLiked;
     setPosts(prev =>
       prev.map(p => {
         if (p.id !== postId) return p;
-        const isLiked = !p.isLiked;
-        nextIsLiked = isLiked;
-        const likesCount = isLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1);
-        return { ...p, isLiked, likesCount };
+        const likesCount = nextIsLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1);
+        return { ...p, isLiked: nextIsLiked, likesCount };
       })
     );
     recordLikeToggle(nextIsLiked);
   };
 
   const handleToggleFollow = (userId: string) => {
-    let nextIsFollowed = false;
+    const creator = suggestedCreators.find(c => c.id === userId);
+    const post = posts.find(p => p.author.id === userId);
+    const nextIsFollowed = creator ? !creator.isFollowed : post ? !post.author.isFollowed : true;
 
     // 1. Toggle in suggested creators list
     setSuggestedCreators(prev =>
-      prev.map(c => {
-        if (c.id !== userId) return c;
-        const isFollowed = !c.isFollowed;
-        nextIsFollowed = isFollowed;
-        return { ...c, isFollowed };
-      })
+      prev.map(c => (c.id === userId ? { ...c, isFollowed: nextIsFollowed } : c))
     );
 
     // 2. Toggle author state across all feed posts
     setPosts(prev =>
-      prev.map(p => {
-        if (p.author.id !== userId) return p;
-        const isFollowed = !p.author.isFollowed;
-        nextIsFollowed = isFollowed;
-        return {
-          ...p,
-          author: { ...p.author, isFollowed },
-        };
-      })
+      prev.map(p =>
+        p.author.id === userId ? { ...p, author: { ...p.author, isFollowed: nextIsFollowed } } : p
+      )
     );
 
     // 3. Update current user following counter
@@ -149,10 +141,7 @@ export function NewsFeedPage({
 
   const handleToggleBookmark = (postId: string) => {
     setPosts(prev =>
-      prev.map(p => {
-        if (p.id !== postId) return p;
-        return { ...p, isBookmarked: !p.isBookmarked };
-      })
+      prev.map(p => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p))
     );
   };
 
@@ -179,14 +168,15 @@ export function NewsFeedPage({
     recordComment();
   };
 
+  const SHORTCUT_LABELS: Record<FeedFilterType, string> = {
+    ALL: 'All Posts',
+    MEDIA: 'Media Only',
+    BOOKMARKS: 'Saved Posts',
+    HASHTAG: 'Filtered Posts',
+  };
+
   const handleSelectShortcut = (type: FeedFilterType) => {
-    if (type === 'ALL') {
-      setActiveFilter({ type: 'ALL', label: 'All Posts' });
-    } else if (type === 'MEDIA') {
-      setActiveFilter({ type: 'MEDIA', label: 'Media Only' });
-    } else if (type === 'BOOKMARKS') {
-      setActiveFilter({ type: 'BOOKMARKS', label: 'Saved Posts' });
-    }
+    setActiveFilter({ type, label: SHORTCUT_LABELS[type] });
   };
 
   const handleSelectHashtag = (tag: string) => {
@@ -198,7 +188,7 @@ export function NewsFeedPage({
   };
 
   const handleClearFilter = () => {
-    setActiveFilter({ type: 'ALL', label: 'All Posts' });
+    handleSelectShortcut('ALL');
   };
 
   const handleOpenProfile = () => {
