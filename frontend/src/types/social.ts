@@ -41,8 +41,31 @@ export interface Post {
   likesCount: number;
   commentsCount: number;
   isLiked: boolean;
+  isBookmarked?: boolean;
   comments: Comment[];
   createdAt: string;
+}
+
+export interface TrendingTopic {
+  id: string;
+  tag: string;
+  postCount: number;
+  formattedCount: string;
+  category?: string;
+}
+
+export interface SuggestedCreator extends User {
+  headline: string;
+  tags?: string[];
+  mutualFollowersCount?: number;
+}
+
+export type FeedFilterType = 'ALL' | 'MEDIA' | 'BOOKMARKS' | 'HASHTAG';
+
+export interface FeedFilter {
+  type: FeedFilterType;
+  value?: string;
+  label: string;
 }
 
 export interface CreatePostInput {

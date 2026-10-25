@@ -1,100 +1,124 @@
-# Task List: Post Edit and Delete Capabilities (PDF Section 4.1.ii)
+# Task List: News Feed 3-Column Social Discovery Architecture
 
-## Task 1: Create Failing TDD Test Suite
-**Description:** Implement `frontend/test/post_edit_and_delete.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9229` to verify:
-1. Authored posts display Edit and Delete buttons (`data-testid="post-edit-btn"`, `data-testid="post-delete-btn"`).
-2. Non-authored posts do NOT display Edit and Delete buttons.
-3. Clicking Edit opens the edit modal, saving modified text updates post in the feed.
-4. Clicking Delete prompts confirmation and removes post from the feed.
-5. Deletion/edits reflect in User Profile authored post view.
+## Task 1: Seed Data and Types for Trending Topics & Suggested Creators
+**Description:** Add TypeScript interfaces for `TrendingTopic`, `SuggestedCreator`, and `FeedFilter` in `types/social.ts`. Export seed data for trending topics (with post volume) and suggested creators in `socialSeedData.ts`.
 **Acceptance criteria:**
-- [x] Test file created and integrated into test suite.
-- [x] Tests run and fail cleanly (RED) against current implementation.
-**Verification:**
-- [x] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
-**Dependencies:** None
-**Files likely touched:**
-- `frontend/test/post_edit_and_delete.test.mjs`
-**Estimated scope:** Small (1 file)
-
----
-
-## Task 2: Implement Update Post Types and State Mutators
-**Description:** Define `UpdatePostInput` in `types/social.ts` and add `handleEditPost(postId, input)` and `handleDeletePost(postId)` in `NewsFeedPage.tsx`.
-**Acceptance criteria:**
-- [x] `UpdatePostInput` exported in `types/social.ts`.
-- [x] `handleEditPost` immutably updates matching post in `posts` state.
-- [x] `handleDeletePost` removes matching post from `posts` state.
+- [x] `TrendingTopic`, `SuggestedCreator`, and `FeedFilter` types exported from `types/social.ts`.
+- [x] `TRENDING_TOPICS` (5 hashtags with volume) exported from `socialSeedData.ts`.
+- [x] `SUGGESTED_CREATORS` (3 suggested creators with avatar, username, headline, isFollowed) exported from `socialSeedData.ts`.
 - [x] Zero TypeScript or lint errors.
 **Verification:**
 - [x] Run `cd frontend && npx tsc -b`
 - [x] Run `cd frontend && npm run lint`
-**Dependencies:** Task 1
+**Dependencies:** None
 **Files likely touched:**
 - `frontend/src/types/social.ts`
-- `frontend/src/app/feed/NewsFeedPage.tsx`
+- `frontend/src/mock/socialSeedData.ts`
 **Estimated scope:** Small (2 files)
 
 ---
 
-## Checkpoint 1: State Mutators Ready
-- [x] Post edit and delete handlers compile and exist in feed container.
+## Task 2: Implement Left Rail FeedShortcutsCard
+**Description:** Create `FeedShortcutsCard.tsx` using Astryx components (`Card`, `VStack`, `HStack`, `Button`, `Badge`, `Text`, `Heading`). Render shortcuts for "All Posts", "Media Only", "Bookmarks", and "Creator Analytics" (with follower badge). Wire click handler to update active feed filter or navigate to analytics.
+**Acceptance criteria:**
+- [ ] Renders all 4 shortcuts cleanly with Astryx typography and icons/badges.
+- [ ] Active shortcut is visually highlighted.
+- [ ] Emits filter change callback when shortcut is clicked.
+- [ ] Zero TypeScript or lint errors.
+**Verification:**
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
+**Dependencies:** Task 1
+**Files likely touched:**
+- `frontend/src/app/feed/FeedShortcutsCard.tsx`
+**Estimated scope:** Small (1 file)
 
 ---
 
-## Task 3: Implement PostCard Author Action Controls & PostEditModal
-**Description:** Update `PostCard.tsx` to conditionally render Edit and Delete buttons for authored posts. Create `PostEditModal.tsx` using Astryx components to edit text, media, and hashtags. Add confirmation before deleting.
+## Task 3: Implement Right Rail Discovery Cards
+**Description:** Create `TrendingTopicsCard.tsx`, `WhoToFollowCard.tsx`, and `PlatformInfoFooter.tsx` using Astryx components.
+- `TrendingTopicsCard`: lists top 5 hashtags with post count badge; triggers hashtag filter on click.
+- `WhoToFollowCard`: lists 3 suggested creators with avatar, headline, and interactive Follow/Following button.
+- `PlatformInfoFooter`: lightweight card with course metadata ("OOAD Content Analysis System • Meta Astryx • Spring 2026").
 **Acceptance criteria:**
-- [x] Author check (`currentUser.id === post.author.id`) gates action visibility.
-- [x] `PostEditModal.tsx` provides form fields for text, caption, hashtags.
-- [x] Edit saves and updates post text in DOM.
-- [x] Delete prompts confirmation and dispatches deletion.
+- [ ] `TrendingTopicsCard` displays hashtags and count pills; triggers `onSelectHashtag`.
+- [ ] `WhoToFollowCard` displays creators with interactive `Follow` button triggering `onToggleFollow`.
+- [ ] `PlatformInfoFooter` renders course metadata.
+- [ ] Zero TypeScript or lint errors.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
-**Dependencies:** Task 2
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
+**Dependencies:** Task 1
 **Files likely touched:**
+- `frontend/src/app/feed/TrendingTopicsCard.tsx`
+- `frontend/src/app/feed/WhoToFollowCard.tsx`
+- `frontend/src/app/feed/PlatformInfoFooter.tsx`
+**Estimated scope:** Medium (3 files)
+
+---
+
+## Checkpoint 1: Foundation & Components Ready
+- [ ] All new types and components compile with zero TypeScript errors (`cd frontend && npx tsc -b`)
+- [ ] Existing 36/36 tests continue to pass (`cd frontend && npm test`)
+
+---
+
+## Task 4: Integrate 3-Column Layout, In-Place Filtering, and State Sync
+**Description:** Update `NewsFeedPage.tsx` and `PostCard.tsx`:
+1. Expand layout container to 3 columns on desktop (`280px` left rail, `680px` center, `320px` right rail).
+2. Add media queries: hide right rail on `< 1280px`, stack left rail on `< 1024px`.
+3. Add `activeFilter` state (`ALL`, `MEDIA`, `BOOKMARKS`, `HASHTAG`).
+4. Display active filter indicator banner with post count and "Clear filter" button.
+5. Compute filtered post list dynamically based on active filter.
+6. Add bookmark toggle button on `PostCard` to save/unsave posts.
+7. Connect `WhoToFollowCard` follow toggle to update both local recommended creators state, feed post authors state, and call `recordFollowToggle`.
+**Acceptance criteria:**
+- [ ] 3 columns render side-by-side on wide screens.
+- [ ] Clicking hashtag or shortcut filters feed in-place without page reload.
+- [ ] "Clear filter" restores complete post feed.
+- [ ] Following creator in right rail updates button to "Following" and syncs follow status on their feed posts.
+- [ ] Bookmark toggle saves post and shows in "Bookmarks" filter.
+**Verification:**
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
+**Dependencies:** Task 2, Task 3
+**Files likely touched:**
+- `frontend/src/app/feed/NewsFeedPage.tsx`
 - `frontend/src/app/feed/PostCard.tsx`
-- `frontend/src/app/feed/PostEditModal.tsx`
 **Estimated scope:** Medium (2 files)
 
 ---
 
-## Task 4: Integrate Edit and Delete in UserProfileView
-**Description:** Update `UserProfileView.tsx` so authored posts shown in user profile post history also support edit and delete actions.
-**Acceptance criteria:**
-- [x] `UserProfileView` forwards `onEditPost` and `onDeletePost` to post cards.
-- [x] Editing/deleting in profile view updates author post count and feed state.
-- [x] Tests 1-5 in `post_edit_and_delete.test.mjs` turn GREEN.
-**Verification:**
-- [x] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
-**Dependencies:** Task 3
-**Files likely touched:**
-- `frontend/src/components/profile/UserProfileView.tsx`
-**Estimated scope:** Small (1-2 files)
+## Checkpoint 2: Layout & State Verification
+- [ ] Responsive 3-column layout operational
+- [ ] Filter state and follow state fully synchronized
 
 ---
 
-## Checkpoint 2: All Post Actions Green
-- [x] Full post lifecycle (Create, Edit, Delete) working and verified by automated tests.
-
----
-
-## Task 5: End-to-End Verification, High-Res Screenshots & Branch Push
-**Description:** Run all 6 test suites (`npm test`), capture high-resolution screenshot artifacts of the edit modal and post deletion, verify clean build, and push to `Hunain-Frontend`.
+## Task 5: Native Test Suite & Chrome DevTools Visual Verification
+**Description:** Implement `frontend/test/feed_3_column_layout.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9229` to verify:
+1. Left rail shortcuts and profile card are visible on desktop.
+2. Right rail trending topics and who-to-follow are visible on desktop.
+3. Clicking trending hashtag filters feed posts to matching hashtag and displays active filter chip.
+4. Clicking "Clear filter" resets feed to full list.
+5. Clicking "Follow" in Who to Follow updates button state and syncs author state.
+6. Capture high-resolution screenshot artifacts (`newsfeed_3_column_desktop.png`, `newsfeed_filtered_hashtag.png`, `newsfeed_tablet_responsive.png`).
 **Acceptance criteria:**
-- [x] High-res screenshot artifacts saved in artifact directory:
-  - `post_edit_modal.png`
-  - `post_delete_confirmed.png`
-- [x] All test suites (36 tests across 6 suites) pass 100%.
-- [x] `tsc -b`, `oxlint`, and `vite build` pass with 0 errors.
-- [x] Changes committed and pushed to `origin/Hunain-Frontend`.
+- [ ] All tests in `feed_3_column_layout.test.mjs` pass cleanly (100% GREEN).
+- [ ] All existing test suites continue to pass (now 7 suites).
+- [ ] Screenshots captured in artifact directory.
+- [ ] Production build succeeds (`cd frontend && npm run build`).
 **Verification:**
-- [x] Run `cd frontend && npm test`
-- [x] Run `cd frontend && npm run build`
-- [x] Run `git status`
+- [ ] Run `cd frontend && npm test`
+- [ ] Run `cd frontend && npm run build`
 **Dependencies:** Task 4
 **Files likely touched:**
-- `tasks/todo.md`
-- Documentation/verification reports
-**Estimated scope:** Small (1-2 files)
+- `frontend/test/feed_3_column_layout.test.mjs`
+**Estimated scope:** Small (1 file)
+
+---
+
+## Checkpoint 3: Complete & Ready for Review
+- [ ] 100% test pass rate across all 7 test suites
+- [ ] TypeScript check and lint pass with 0 errors
+- [ ] Clean build and verified layout

@@ -1,24 +1,46 @@
-# Implementation Plan: Post Edit and Delete Capabilities (PDF Section 4.1.ii)
+# Implementation Plan: News Feed 3-Column Social Discovery Architecture
 
 ## Overview
-Implement post edit and delete capabilities for authored social media posts in the News Feed and Profile View, ensuring full compliance with PDF Report Section 4.1.ii.
+Transform the desktop News Feed layout into an enterprise 3-column social experience ([SPEC-newsfeed-3-column-layout.md](file:///home/hunain/Projects/social-media-content-analysis-system/docs/specs/SPEC-newsfeed-3-column-layout.md)). Add `FeedShortcutsCard` to the Left Rail, and `TrendingTopicsCard`, `WhoToFollowCard`, and `PlatformInfoFooter` to the Right Rail, with in-place reactive feed filtering and follow state synchronization.
 
 ## Architecture Decisions
-1. **Author-Only Scoping:** Post action controls (Edit and Delete) only render when `post.author.id === currentUser.id` (or matches active session user). Non-authored posts omit these controls.
-2. **Astryx Modal Editing:** Use official Astryx `Card`/`Dialog` layout (`PostEditModal.tsx`) for non-destructive editing of text, captions, media URLs, and hashtags.
-3. **Safe Deletion Guard:** Include confirmation before post removal to prevent accidental data loss.
-4. **Synchronized State:** Updating or deleting a post instantly reflects across both the News Feed and the Profile view post history.
+1. **Astryx-Native Component Modularization:** Build self-contained widgets (`FeedShortcutsCard`, `TrendingTopicsCard`, `WhoToFollowCard`, `PlatformInfoFooter`) using only `@astryxdesign/core` primitives (`Card`, `Badge`, `Avatar`, `Button`, `VStack`, `HStack`, `Text`, `Heading`, `Divider`).
+2. **In-Place Reactive Filtering:** Filter feed posts in `NewsFeedPage` state based on `activeFilter` (`{ type: 'ALL' | 'MEDIA' | 'BOOKMARKS' | 'HASHTAG', value?: string }`), showing an active filter chip with instant reset.
+3. **Synchronized Follow State:** Following a recommended creator in `WhoToFollowCard` immediately updates their status in the right rail, reflects across all post cards authored by that creator in the feed, and triggers `recordFollowToggle`.
+4. **Responsive CSS Media Queries:** Clean 3-column layout on desktop (`>= 1280px`), collapses right rail on tablet (`1024px - 1279px`), and stacks left rail on mobile (`< 1024px`).
 
-## Task Breakdown
-- **Task 1:** Create Failing TDD Test Suite (`frontend/test/post_edit_and_delete.test.mjs`)
-- **Task 2:** Add Update Post Types and State Mutators (`social.ts`, `NewsFeedPage.tsx`)
-- **Task 3:** Implement Author Action Controls & `PostEditModal` in `PostCard.tsx`
-- **Task 4:** Wire Edit and Delete into `UserProfileView.tsx`
-- **Task 5:** Automated Test Verification, High-Res Screenshots & Branch Push
+## Task List
+
+### Phase 1: Foundation & Seed Data
+- [ ] Task 1: Seed Data and Types for Trending Topics & Suggested Creators (`social.ts`, `socialSeedData.ts`)
+
+### Phase 2: Core Sidebar Components
+- [ ] Task 2: Implement Left Rail `FeedShortcutsCard` (`FeedShortcutsCard.tsx`)
+- [ ] Task 3: Implement Right Rail Discovery Cards (`TrendingTopicsCard.tsx`, `WhoToFollowCard.tsx`, `PlatformInfoFooter.tsx`)
+
+### Checkpoint 1: Foundation & Components Ready
+- [ ] New types and components compile with zero TypeScript errors (`npx tsc -b`)
+- [ ] Existing 36/36 tests continue to pass (`npm test`)
+
+### Phase 3: Integration & Responsive Layout
+- [ ] Task 4: Integrate 3-Column Layout, In-Place Filtering, and State Sync in `NewsFeedPage` and `PostCard`
+
+### Checkpoint 2: Layout & State Verification
+- [ ] Desktop layout renders 3 columns side-by-side
+- [ ] Clicking hashtag or shortcut filters feed in-place with "Clear" pill
+- [ ] Follow toggle synchronizes across rail and feed
+
+### Phase 4: Automated Testing & Verification
+- [ ] Task 5: Native Test Suite & Chrome DevTools Visual Verification (`feed_3_column_layout.test.mjs`)
+
+### Checkpoint 3: Complete & Ready for Review
+- [ ] All tests pass across all test suites
+- [ ] Production build succeeds (`npm run build`)
+- [ ] Verification screenshots captured
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 | :--- | :--- | :--- |
-| Deleting post breaks feed indexing | Med | Filter post collections immutably by `post.id !== targetId` |
-| Non-authors seeing edit/delete controls | High | Strictly assert `author.id === currentUser.id` in `PostCard` |
-| Modal state desynchronizing during edit | Low | Initialize form state directly from target post props |
+| Wide 3-column layout overflowing smaller screens | High | Implement CSS media queries: hide right rail `< 1280px`, stack left rail `< 1024px` |
+| Filtered feed showing empty state confusing user | Med | Active filter banner clearly states count and provides 1-click "Clear filter" button |
+| Follow toggle desynchronizing between rail and feed | Med | Use unified user ID lookup and share single `handleToggleFollow` handler |
