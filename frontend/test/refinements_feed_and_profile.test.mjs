@@ -94,22 +94,28 @@ test('News Feed, Post Composer & Profile Refinements Flow', async (t) => {
   }
   assert.ok(appReady, 'Application mounted in DOM');
 
-  await t.test('1. Left profile card is sticky and feed container is centered', async () => {
+  await t.test('1. Left profile card is fixed/sticky and feed container is centered to screen', async () => {
     const layout = await evaluate(`
       (() => {
         const card = document.querySelector('[data-testid="user-profile-card"]');
         if (!card) return null;
         const aside = card.closest('aside') || card.parentElement;
-        const style = window.getComputedStyle(aside);
+        const main = document.querySelector('main main') || document.querySelector('main');
+        const asideStyle = window.getComputedStyle(aside);
         const cardStyle = window.getComputedStyle(card);
-        const isSticky = style.position === 'sticky' || cardStyle.position === 'sticky';
-        const hasStickyTop = style.top === '24px' || cardStyle.top === '24px';
-        return { isSticky, hasStickyTop };
+        const isFixed = asideStyle.position === 'fixed' || cardStyle.position === 'fixed' || asideStyle.position === 'sticky';
+        
+        const mainRect = main ? main.getBoundingClientRect() : null;
+        const viewportCenter = document.documentElement.clientWidth / 2;
+        const feedCenter = mainRect ? (mainRect.left + mainRect.width / 2) : 0;
+        const isCentered = Math.abs(feedCenter - viewportCenter) <= 5;
+        
+        return { isFixed, isCentered, feedCenter, viewportCenter };
       })()
     `);
     assert.ok(layout, 'Profile card exists');
-    assert.strictEqual(layout.isSticky, true, 'Profile card or container must be position: sticky');
-    assert.strictEqual(layout.hasStickyTop, true, 'Sticky element must have top: 24px');
+    assert.strictEqual(layout.isFixed, true, 'Profile card or container must be position: fixed or sticky');
+    assert.strictEqual(layout.isCentered, true, 'Main feed stream must be centered to the screen');
   });
 
   await t.test('2. Post composer has unified model: no multi-type tabs and media file input present', async () => {

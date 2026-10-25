@@ -119,38 +119,40 @@ export function NewsFeedPage({
       height="fill"
       content={
         <LayoutContent padding={6}>
-          <div
-            style={{
-              maxWidth: 1060,
-              margin: '0 auto',
-              width: '100%',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 32,
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-            }}
-          >
-            {/* Sticky Left Sidebar Profile Card */}
-            <aside
-              style={{
-                flex: '0 0 280px',
-                width: 280,
-                maxWidth: '100%',
-                position: 'sticky',
-                top: 24,
-                alignSelf: 'flex-start',
-                zIndex: 10,
-              }}
-            >
+          <style>{`
+            .newsfeed-layout {
+              max-width: 680px;
+              width: 100%;
+              margin: 0 auto;
+              position: relative;
+            }
+            .newsfeed-fixed-sidebar {
+              position: fixed;
+              top: 88px;
+              left: max(16px, calc(50vw - 648px));
+              width: 280px;
+              z-index: 20;
+            }
+            @media (max-width: 1024px) {
+              .newsfeed-fixed-sidebar {
+                position: static;
+                width: 100%;
+                margin-bottom: 24px;
+              }
+            }
+          `}</style>
+
+          <div className="newsfeed-layout">
+            {/* Fixed Left Sidebar Profile Card */}
+            <aside className="newsfeed-fixed-sidebar">
               <UserProfileCard
                 user={user}
                 onOpenProfile={handleOpenProfile}
               />
             </aside>
 
-            {/* Main Chronological News Feed */}
-            <main style={{ flex: '1 1 640px', minWidth: 0, maxWidth: 680 }}>
+            {/* Main Chronological News Feed - Centered to Screen */}
+            <main style={{ width: '100%', maxWidth: 680, minWidth: 0 }}>
               <VStack gap={6}>
                 {/* Post Composer */}
                 <PostComposer
