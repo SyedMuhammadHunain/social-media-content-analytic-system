@@ -107,6 +107,8 @@ export function NewsFeedPage({
         posts={posts.filter(p => p.author.id === user.id)}
         onBack={() => setViewMode('feed')}
         onUpdateBio={(newBio) => setUser(prev => ({ ...prev, bio: newBio }))}
+        onUpdateAvatar={(newAvatarUrl) => setUser(prev => ({ ...prev, avatarUrl: newAvatarUrl }))}
+        onUpdateBanner={(newBannerUrl) => setUser(prev => ({ ...prev, coverBannerUrl: newBannerUrl }))}
         onToggleLike={handleToggleLike}
         onToggleFollow={handleToggleFollow}
         onAddComment={handleAddComment}

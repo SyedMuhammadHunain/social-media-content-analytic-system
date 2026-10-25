@@ -66,14 +66,14 @@
 ## Task 4: Correct Avatar Placement & Add Avatar/Banner Upload Pickers
 **Description:** In `frontend/src/components/profile/UserProfileView.tsx`, anchor the profile avatar overlapping the bottom-left edge of the cover banner with a 4px ring border matching the background. Add a "Change Photo" action overlay on the avatar and an "Upload Banner" button on the cover banner, triggering hidden file inputs and calling `onUpdateAvatar` and `onUpdateBanner` handlers. Wire state in `NewsFeedPage.tsx`.
 **Acceptance criteria:**
-- [ ] Avatar sits overlapping the bottom-left of the cover banner with a 4px ring border.
-- [ ] Clicking avatar or "Change Photo" opens local file picker and updates avatar.
-- [ ] Clicking "Upload Banner" opens local file picker and updates cover banner image.
-- [ ] Changes propagate to `user` state and reflect across full profile and left feed card.
+- [x] Avatar sits overlapping the bottom-left of the cover banner with a 4px ring border.
+- [x] Clicking avatar or "Change Photo" opens local file picker and updates avatar.
+- [x] Clicking "Upload Banner" opens local file picker and updates cover banner image.
+- [x] Changes propagate to `user` state and reflect across full profile and left feed card.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] All tests in `refinements_feed_and_profile.test.mjs` turn GREEN.
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] All tests in `refinements_feed_and_profile.test.mjs` turn GREEN.
 **Dependencies:** Task 3
 **Files likely touched:**
 - `frontend/src/components/profile/UserProfileView.tsx`
@@ -83,7 +83,7 @@
 ---
 
 ## Checkpoint 3: Profile Overhaul Complete
-- [ ] Profile layout and photo/banner uploaders functional, all automated tests green.
+- [x] Profile layout and photo/banner uploaders functional, all automated tests green.
 
 ---
 
@@ -94,13 +94,13 @@
 - `profile_overlapping_avatar_and_banner.png`
 Run full test suite and build check, then commit and push to `origin/Hunain-Frontend`.
 **Acceptance criteria:**
-- [ ] All 17+ tests in `npm test` pass.
-- [ ] `tsc -b`, `oxlint`, `vite build` pass with zero errors.
-- [ ] Screenshots captured in artifact directory.
-- [ ] Changes committed and pushed to `Hunain-Frontend`.
+- [x] All 18 tests in `npm test` pass.
+- [x] `tsc -b`, `oxlint`, `vite build` pass with zero errors.
+- [x] Screenshots captured in artifact directory.
+- [x] Changes committed and pushed to `Hunain-Frontend`.
 **Verification:**
-- [ ] Run `node /tmp/verify_refinements.mjs`
-- [ ] Run `git status`
+- [x] Run `cd frontend && npm test`
+- [x] Run `git status`
 **Dependencies:** Task 4
 **Files likely touched:** Verification script, tasks/
 **Estimated scope:** Verification only
@@ -108,4 +108,4 @@ Run full test suite and build check, then commit and push to `origin/Hunain-Fron
 ---
 
 ## Checkpoint 4: Complete
-- [ ] All 4 refinements implemented, verified, and pushed to `Hunain-Frontend`.
+- [x] All 4 refinements implemented, verified, and pushed to `Hunain-Frontend`.
