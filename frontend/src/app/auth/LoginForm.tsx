@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { FC, FormEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
@@ -18,19 +18,45 @@ export interface LoginFormProps {
 
 export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
   const { login, error, isLoading, clearError } = useAuth();
+  const formRef = useRef<HTMLFormElement>(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!identifier || !password) {
+
+    const emailEl = formRef.current?.querySelector<HTMLInputElement>(
+      'input[name="email"], input[type="email"], input[placeholder*="email" i], input[type="text"]'
+    );
+    const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
+
+    const finalIdentifier = (emailEl?.value !== undefined && emailEl.value !== '') ? emailEl.value : identifier;
+    const finalPassword = (passEl?.value !== undefined && passEl.value !== '') ? passEl.value : password;
+
+    if (!finalIdentifier || !finalPassword) {
       return;
     }
-    await login(identifier, password);
+    await login(finalIdentifier, finalPassword);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+    <form
+      ref={formRef}
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(e);
+      }}
+      onInput={(e) => {
+        const target = e.target as HTMLInputElement;
+        if (target.type === 'password') {
+          setPassword(target.value);
+        } else {
+          setIdentifier(target.value);
+        }
+      }}
+      style={{ width: '100%' }}
+    >
       <VStack gap={4} hAlign="stretch" width="100%">
         <VStack gap={1}>
           <Heading level={2}>Welcome back</Heading>
@@ -50,7 +76,8 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
         <VStack gap={3}>
           <TextInput
             label="Email or Username"
-            type="email"
+            type="text"
+            htmlName="email"
             placeholder="name@example.com or @username"
             value={identifier}
             onChange={(v) => {
@@ -80,7 +107,10 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
           size="lg"
           type="submit"
           isLoading={isLoading}
-          onClick={() => handleSubmit()}
+          onClick={(e) => {
+            e?.preventDefault?.();
+            handleSubmit(e);
+          }}
         />
 
         <VStack hAlign="center" style={{ marginTop: 8 }}>

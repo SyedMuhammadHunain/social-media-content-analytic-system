@@ -66,13 +66,13 @@
 ## Task 4: Wire Authentication to App & TopNav
 **Description:** Update `frontend/src/App.tsx` and `frontend/src/components/nav/AppTopNav.tsx` to wrap app in `AuthProvider`. Show `AuthPage` when unauthenticated. In `AppTopNav`, show current user avatar, name, and "Log Out" action. Clicking "Log Out" returns user to `AuthPage`.
 **Acceptance criteria:**
-- [ ] App renders `AuthPage` when unauthenticated.
-- [ ] App renders protected `NewsFeedPage` or `DashboardTemplate` when authenticated.
-- [ ] TopNav displays active user and functional "Log Out" button.
-- [ ] Tests 1-5 in `authentication_flow.test.mjs` turn GREEN.
+- [x] App renders `AuthPage` when unauthenticated.
+- [x] App renders protected `NewsFeedPage` or `DashboardTemplate` when authenticated.
+- [x] TopNav displays active user and functional "Log Out" button.
+- [x] Tests 1-5 in `authentication_flow.test.mjs` turn GREEN.
 **Verification:**
-- [ ] Run `cd frontend && node --test test/authentication_flow.test.mjs`
-- [ ] Run `cd frontend && npm test`
+- [x] Run `cd frontend && node --test test/authentication_flow.test.mjs`
+- [x] Run `cd frontend && npm test`
 **Dependencies:** Task 3
 **Files likely touched:**
 - `frontend/src/App.tsx`
@@ -82,7 +82,7 @@
 ---
 
 ## Checkpoint 2: Auth Flow Green
-- [ ] All authentication tests pass green.
+- [x] All authentication tests pass green.
 
 ---
 

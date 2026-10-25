@@ -13,6 +13,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Icon } from '@astryxdesign/core/Icon';
 import { HStack } from '@astryxdesign/core/Layout';
+import type { UserProfile } from '../../types/social';
 
 import {
   SunIcon,
@@ -20,6 +21,7 @@ import {
   SparklesIcon,
   NewspaperIcon,
   ChartBarSquareIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
 export interface AppTopNavProps {
@@ -27,6 +29,8 @@ export interface AppTopNavProps {
   onToggleTheme: () => void;
   activeTab: 'feed' | 'dashboard';
   onSelectTab: (tab: 'feed' | 'dashboard') => void;
+  currentUser?: UserProfile | null;
+  onLogout?: () => void;
 }
 
 export const AppTopNav: FC<AppTopNavProps> = ({
@@ -34,6 +38,8 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   onToggleTheme,
   activeTab,
   onSelectTab,
+  currentUser,
+  onLogout,
 }) => {
   return (
     <TopNav
@@ -70,7 +76,19 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             icon={<Icon icon={mode === 'dark' ? SunIcon : MoonIcon} size="sm" />}
             onClick={onToggleTheme}
           />
-          <Avatar name="Syed Muhammad Hunain" size="sm" />
+          <Button
+            data-testid="nav-logout-btn"
+            label="Log Out"
+            variant="secondary"
+            size="sm"
+            icon={<Icon icon={ArrowRightOnRectangleIcon} size="xsm" />}
+            onClick={onLogout}
+          />
+          <Avatar
+            name={currentUser?.name || 'Syed Muhammad Hunain'}
+            src={currentUser?.avatarUrl}
+            size="sm"
+          />
         </HStack>
       }
     />

@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { FC, FormEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
@@ -18,25 +18,60 @@ export interface RegisterFormProps {
 
 export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
   const { register, error, isLoading, clearError } = useAuth();
+  const formRef = useRef<HTMLFormElement>(null);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!username || !email || !password) {
+
+    const userEl = formRef.current?.querySelector<HTMLInputElement>(
+      'input[name="username"], input[placeholder*="username" i]'
+    );
+    const emailEl = formRef.current?.querySelector<HTMLInputElement>(
+      'input[type="email"], input[placeholder*="email" i]'
+    );
+    const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
+
+    const finalUsername = (userEl?.value !== undefined && userEl.value !== '') ? userEl.value : username;
+    const finalEmail = (emailEl?.value !== undefined && emailEl.value !== '') ? emailEl.value : email;
+    const finalPassword = (passEl?.value !== undefined && passEl.value !== '') ? passEl.value : password;
+
+    if (!finalUsername || !finalEmail || !finalPassword) {
       return;
     }
-    await register(username, email, password);
+    await register(finalUsername, finalEmail, finalPassword);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+    <form
+      ref={formRef}
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(e);
+      }}
+      onInput={(e) => {
+        const target = e.target as HTMLInputElement;
+        if (target.type === 'password') {
+          setPassword(target.value);
+        } else if (
+          target.type === 'email' ||
+          target.placeholder?.toLowerCase().includes('email')
+        ) {
+          setEmail(target.value);
+        } else {
+          setUsername(target.value);
+        }
+      }}
+      style={{ width: '100%' }}
+    >
       <VStack gap={4} hAlign="stretch" width="100%">
         <VStack gap={1}>
-          <Heading level={2}>Create an Account</Heading>
+          <Heading level={2}>Create an account</Heading>
           <Text type="body" color="secondary" size="sm">
-            Join the 500M DAU Social Media Content Analysis System
+            Join the real-time social media content analysis network
           </Text>
         </VStack>
 
@@ -51,7 +86,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
         <VStack gap={3}>
           <TextInput
             label="Username"
-            placeholder="Choose a username"
+            placeholder="Choose a username (e.g. alex_creator)"
             value={username}
             onChange={(v) => {
               setUsername(v);
@@ -63,7 +98,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
           <TextInput
             label="Email"
             type="email"
-            placeholder="name@company.com"
+            placeholder="alex@example.com"
             value={email}
             onChange={(v) => {
               setEmail(v);
@@ -92,7 +127,10 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
           size="lg"
           type="submit"
           isLoading={isLoading}
-          onClick={() => handleSubmit()}
+          onClick={(e) => {
+            e?.preventDefault?.();
+            handleSubmit(e);
+          }}
         />
 
         <VStack hAlign="center" style={{ marginTop: 8 }}>

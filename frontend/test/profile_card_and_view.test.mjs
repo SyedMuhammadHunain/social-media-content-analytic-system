@@ -74,6 +74,25 @@ test('User Profile Card & Full Profile View Flow', async (t) => {
   await send('Runtime.enable');
   await send('DOM.enable');
 
+  await send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `
+      localStorage.setItem('smcas_session_user', JSON.stringify({
+        id: 'usr_me_01',
+        username: 'hunain_creator',
+        name: 'Syed Muhammad Hunain',
+        avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+        coverBannerUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
+        isFollowed: false,
+        headline: 'Staff Infrastructure Architect • Distributed Media Systems',
+        tags: ['Systems Architecture', 'Distributed Systems', 'Meta Astryx', '500M DAU'],
+        bio: 'Building large-scale content processing pipelines and real-time social telemetry. Passionate about sub-second fan-out, cache hierarchies, and accessible design system engineering.',
+        followerCount: 14200,
+        followingCount: 486,
+      }));
+    `,
+  });
+  await send('Page.reload');
+
   const evaluate = async expr => {
     const res = await send('Runtime.evaluate', {
       expression: expr,
