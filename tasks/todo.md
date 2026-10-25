@@ -93,13 +93,13 @@
 - `auth_error_validation.png`
 Run full test suite, lint, and build. Commit and push to `origin/Hunain-Frontend`.
 **Acceptance criteria:**
-- [ ] All tests in `npm test` pass.
-- [ ] `tsc -b`, `oxlint`, `vite build` pass with zero errors.
-- [ ] Screenshot artifacts saved in artifact directory.
-- [ ] Changes pushed to `origin/Hunain-Frontend`.
+- [x] All tests in `npm test` pass.
+- [x] `tsc -b`, `oxlint`, `vite build` pass with zero errors.
+- [x] Screenshot artifacts saved in artifact directory.
+- [x] Changes pushed to `origin/Hunain-Frontend`.
 **Verification:**
-- [ ] Run `cd frontend && npm test && npx tsc -b && npm run lint && npm run build`
-- [ ] Run `git status`
+- [x] Run `cd frontend && npm test && npx tsc -b && npm run lint && npm run build`
+- [x] Run `git status`
 **Dependencies:** Task 4
 **Files likely touched:** Artifacts, documentation
 **Estimated scope:** Small

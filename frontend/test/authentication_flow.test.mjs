@@ -2,9 +2,11 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
 
 const PORT = 9226;
 const TARGET_URL = 'http://127.0.0.1:5173/';
+const ARTIFACT_DIR = '/home/hunain/.gemini/antigravity-cli/brain/b60459bf-1c43-4639-bbef-e1bee06cb513';
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
@@ -111,6 +113,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
     assert.ok(authCard, 'Auth split card must be present when unauthenticated');
     assert.strictEqual(authCard.hasBrandPane, true, 'Brand pane must be present');
     assert.strictEqual(authCard.hasFormPane, true, 'Form pane must be present');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/auth_login_split_card.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
   });
 
   await t.test('2. Can toggle between Sign In and Create Account modes', async () => {
@@ -130,6 +139,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
     `);
     assert.ok(toggleResult, 'Auth toggle button/link must exist');
     assert.strictEqual(toggleResult.hasUsernameInput, true, 'Register form must reveal username input');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/auth_register_mode.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
   });
 
   await t.test('3. Submitting invalid credentials displays an Astryx error banner', async () => {
@@ -167,6 +183,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
 
     const bannerFound = await evaluate('!!document.querySelector("[data-testid=\'auth-error-banner\'], [data-astryx-theme*=\'banner\']")');
     assert.strictEqual(bannerFound, true, 'Error banner must display upon invalid credentials');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/auth_error_validation.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
   });
 
   await t.test('4. Submitting valid credentials transitions to News Feed', async () => {
