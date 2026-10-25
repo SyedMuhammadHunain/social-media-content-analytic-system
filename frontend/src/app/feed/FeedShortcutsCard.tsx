@@ -4,10 +4,12 @@
 'use client';
 
 import { Card } from '@astryxdesign/core/Card';
-import { VStack, HStack } from '@astryxdesign/core/Layout';
-import { Heading, Text } from '@astryxdesign/core/Text';
+import { VStack } from '@astryxdesign/core/Layout';
+import { Heading } from '@astryxdesign/core/Text';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Divider } from '@astryxdesign/core/Divider';
+import { Item } from '@astryxdesign/core/Item';
+import { Icon } from '@astryxdesign/core/Icon';
 import {
   NewspaperIcon,
   PhotoIcon,
@@ -63,52 +65,23 @@ export function FeedShortcutsCard({
 
         <VStack gap={1}>
           {items.map(item => {
-            const Icon = item.icon;
             const isActive = activeFilterType === item.type;
 
             return (
-              <button
+              <Item
                 key={item.type}
-                type="button"
                 data-testid={`shortcut-${item.type.toLowerCase()}`}
+                label={item.label}
+                density="compact"
+                isSelected={isActive}
+                startContent={<Icon icon={item.icon} size="sm" />}
+                endContent={
+                  item.badge !== undefined ? (
+                    <Badge variant="neutral" label={item.badge} />
+                  ) : undefined
+                }
                 onClick={() => onSelectShortcut(item.type)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: isActive ? 'var(--astryx-color-fill-secondary, rgba(0, 0, 0, 0.06))' : 'transparent',
-                  color: isActive ? 'var(--astryx-color-primary, #1877F2)' : 'inherit',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background 0.15s ease',
-                  fontFamily: 'inherit',
-                }}
-              >
-                <HStack gap={3} vAlign="center">
-                  <Icon
-                    style={{
-                      width: 18,
-                      height: 18,
-                      color: isActive ? 'var(--astryx-color-primary, #1877F2)' : 'currentColor',
-                    }}
-                  />
-                  <Text
-                    type="body"
-                    weight={isActive ? 'semibold' : 'normal'}
-                    color={isActive ? 'primary' : 'inherit'}
-                  >
-                    {item.label}
-                  </Text>
-                </HStack>
-
-                {item.badge !== undefined && (
-                  <Badge variant={isActive ? 'neutral' : 'neutral'} label={item.badge} />
-                )}
-              </button>
+              />
             );
           })}
         </VStack>
@@ -116,36 +89,19 @@ export function FeedShortcutsCard({
         <Divider />
 
         {/* Quick jump to Creator Analytics */}
-        <button
-          type="button"
+        <Item
           data-testid="shortcut-creator-analytics"
+          label="Creator Analytics"
+          density="compact"
+          startContent={<Icon icon={ChartBarIcon} size="sm" />}
+          endContent={
+            <Badge
+              variant="success"
+              label={followerCount !== undefined ? `${(followerCount / 1000).toFixed(1)}k` : 'Live'}
+            />
+          }
           onClick={onNavigateAnalytics}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            padding: '10px 12px',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            textAlign: 'left',
-            transition: 'background 0.15s ease',
-            fontFamily: 'inherit',
-          }}
-        >
-          <HStack gap={3} vAlign="center">
-            <ChartBarIcon style={{ width: 18, height: 18, color: '#10B981' }} />
-            <Text type="body" weight="medium">
-              Creator Analytics
-            </Text>
-          </HStack>
-          <Badge
-            variant="success"
-            label={followerCount !== undefined ? `${(followerCount / 1000).toFixed(1)}k` : 'Live'}
-          />
-        </button>
+        />
       </VStack>
     </Card>
   );

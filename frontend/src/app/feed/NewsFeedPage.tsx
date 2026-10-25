@@ -5,10 +5,11 @@
 
 import { useState } from 'react';
 import { Layout, LayoutContent, VStack, HStack } from '@astryxdesign/core/Layout';
-import { Text, Heading } from '@astryxdesign/core/Text';
+import { Text } from '@astryxdesign/core/Text';
 import { Card } from '@astryxdesign/core/Card';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
 
 import type {
   CreatePostInput,
@@ -349,22 +350,25 @@ export function NewsFeedPage({
                 <VStack gap={4}>
                   {filteredPosts.length === 0 ? (
                     <Card padding={6}>
-                      <VStack gap={2} hAlign="center">
-                        <Heading level={3}>No Posts Found</Heading>
-                        <Text type="body" color="secondary">
-                          {activeFilter.type === 'BOOKMARKS'
+                      <EmptyState
+                        headingLevel={3}
+                        title="No Posts Found"
+                        description={
+                          activeFilter.type === 'BOOKMARKS'
                             ? 'You have not saved any posts yet. Click the bookmark icon on any post to save it here.'
-                            : 'No posts match the active filter criteria.'}
-                        </Text>
-                        {activeFilter.type !== 'ALL' && (
-                          <Button
-                            size="sm"
-                            variant="primary"
-                            label="Reset to All Posts"
-                            onClick={handleClearFilter}
-                          />
-                        )}
-                      </VStack>
+                            : 'No posts match the active filter criteria.'
+                        }
+                        actions={
+                          activeFilter.type !== 'ALL' ? (
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              label="Reset to All Posts"
+                              onClick={handleClearFilter}
+                            />
+                          ) : undefined
+                        }
+                      />
                     </Card>
                   ) : (
                     filteredPosts.map(post => (
