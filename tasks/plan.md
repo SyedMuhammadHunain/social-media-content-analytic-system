@@ -1,55 +1,24 @@
-# Implementation Plan: Dedicated Creator Analytical Dashboard & Real-Time Sync
+# Implementation Plan: Post Edit and Delete Capabilities (PDF Section 4.1.ii)
 
 ## Overview
-Implement the 3 dedicated creator analytical graphs specified in the project PDF (Section 1.2, Section 4.1.vii–ix, and Section 4.2):
-1. **Like / Unlike Graph (Req 4.1.vii):** Comparative BarChart for post likes vs. unlikes over time.
-2. **Followers Graph (Req 4.1.viii):** Follower trend LineChart tracking audience gain/loss over time.
-3. **Engagement Graph (Req 4.1.ix):** Comments directly proportional to creator engagement LineChart/AreaChart.
-4. **2-Second Real-Time Synchronization (Req 4.2):** User interactions in News Feed (like/unlike, follow/unfollow, comment) directly update the analytical graphs and metrics within 2 seconds.
-
----
+Implement post edit and delete capabilities for authored social media posts in the News Feed and Profile View, ensuring full compliance with PDF Report Section 4.1.ii.
 
 ## Architecture Decisions
-1. **Astryx Component Reuse (Zero Reinvention):**
-   - Reuse existing Astryx dashboard primitives (`LineChart`, `BarChart`, `MetricCard`, `Card`, `VStack`, `HStack`, `Heading`, `Text`, `Badge`, `Icon`) already present in `dashboard/page.tsx`.
-   - Strip out irrelevant website-traffic tables (`/pricing`, bounce rate, country visits) and replace them with the 3 social media creator performance graphs.
-2. **Shared Telemetry State (`AnalyticsContext`):**
-   - Provide a shared React context (`AnalyticsProvider` / `useAnalytics`) storing creator telemetry:
-     - `likeUnlikeData: Array<{ date: string; likes: number; unlikes: number }>`
-     - `followersData: Array<{ date: string; followers: number }>`
-     - `engagementData: Array<{ date: string; comments: number; engagementScore: number }>`
-     - Summary counters: `totalLikes`, `totalUnlikes`, `totalFollowers`, `totalComments`, `engagementRate`.
-   - Expose mutators: `recordLikeToggle(isLiked)`, `recordFollowToggle(isFollowed)`, `recordComment()`.
-   - Wrap `AppContent` in `AnalyticsProvider` alongside `AuthProvider` so both News Feed and Dashboard share live telemetry.
-3. **2-Second Real-Time Synchronization:**
-   - When a user performs an action in `NewsFeedPage` (like post, follow author, add comment), the interaction mutates `AnalyticsContext` state, updating the dashboard graphs in real time (satisfying Section 4.2 eventual consistency under 2s).
-
----
+1. **Author-Only Scoping:** Post action controls (Edit and Delete) only render when `post.author.id === currentUser.id` (or matches active session user). Non-authored posts omit these controls.
+2. **Astryx Modal Editing:** Use official Astryx `Card`/`Dialog` layout (`PostEditModal.tsx`) for non-destructive editing of text, captions, media URLs, and hashtags.
+3. **Safe Deletion Guard:** Include confirmation before post removal to prevent accidental data loss.
+4. **Synchronized State:** Updating or deleting a post instantly reflects across both the News Feed and the Profile view post history.
 
 ## Task Breakdown
-
-### Phase 1: Test Suite & Shared Telemetry Foundation
-- [ ] **Task 1:** Create Failing TDD Integration Test Suite (`frontend/test/creator_dashboard_analytics.test.mjs`)
-- [ ] **Task 2:** Implement Shared `AnalyticsContext` & Seed Data (`frontend/src/context/AnalyticsContext.tsx`, `useAnalytics.ts`, `types/analytics.ts`, `mock/analyticsSeedData.ts`)
-
-### Checkpoint 1: Analytics Foundation Verified
-- `AnalyticsContext` compiles cleanly and provides state & mutators; tests run cleanly against foundation.
-
-### Phase 2: Dedicated Creator Dashboard & News Feed Synchronization
-- [ ] **Task 3:** Implement 3 Dedicated PDF Graphs in `frontend/src/app/dashboard/page.tsx`
-- [ ] **Task 4:** Wire News Feed Actions (`NewsFeedPage.tsx`) to `useAnalytics` with 2-Second Synchronization
-
-### Checkpoint 2: Real-Time Sync & Visual Graphs Green
-- Dashboard displays 3 PDF graphs; feed likes, follows, and comments update dashboard metrics live within 2s; all tests pass.
-
-### Phase 3: Verification, Artifacts & Commit
-- [ ] **Task 5:** Capture Dashboard Screenshot Artifacts, Run Full Test Suite, and Push to `Hunain-Frontend`
-
----
+- **Task 1:** Create Failing TDD Test Suite (`frontend/test/post_edit_and_delete.test.mjs`)
+- **Task 2:** Add Update Post Types and State Mutators (`social.ts`, `NewsFeedPage.tsx`)
+- **Task 3:** Implement Author Action Controls & `PostEditModal` in `PostCard.tsx`
+- **Task 4:** Wire Edit and Delete into `UserProfileView.tsx`
+- **Task 5:** Automated Test Verification, High-Res Screenshots & Branch Push
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 | :--- | :--- | :--- |
-| Existing 24 tests broken by App state changes | High | Keep `AnalyticsProvider` non-blocking with default seed state matching existing test expectations. |
-| Recharts chart animation delay during automated tests | Medium | Set `isAnimationActive={false}` in automated test mode or allow 300ms transition buffer. |
-| Dark/Light mode color token discrepancies | Low | Use official Astryx theme variables (`var(--color-data-categorical-blue)`, `var(--color-border)`, `var(--color-text-secondary)`). |
+| Deleting post breaks feed indexing | Med | Filter post collections immutably by `post.id !== targetId` |
+| Non-authors seeing edit/delete controls | High | Strictly assert `author.id === currentUser.id` in `PostCard` |
+| Modal state desynchronizing during edit | Low | Initialize form state directly from target post props |

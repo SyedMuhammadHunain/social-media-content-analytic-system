@@ -1,117 +1,98 @@
-# Task List: Dedicated Creator Analytical Dashboard & Real-Time Sync
+# Task List: Post Edit and Delete Capabilities (PDF Section 4.1.ii)
 
-## Task 1: Create Failing TDD Test Suite for Creator Analytics Dashboard
-**Description:** Implement `frontend/test/creator_dashboard_analytics.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) to verify:
-1. Navigating to Dashboard displays the 3 required PDF graphs:
-   - Like / Unlike Graph (`data-testid="like-unlike-graph"`)
-   - Followers Trend Graph (`data-testid="followers-trend-graph"`)
-   - Engagement & Comments Graph (`data-testid="engagement-graph"`)
-2. Summary metric cards display total likes, followers, and engagement rate.
-3. Liking a post in the News Feed updates the Like/Unlike metric and graph data within 2 seconds.
-4. Following an author in the News Feed updates the Followers metric and graph data within 2 seconds.
-5. Posting a comment in the News Feed updates the Engagement metric and graph data within 2 seconds.
+## Task 1: Create Failing TDD Test Suite
+**Description:** Implement `frontend/test/post_edit_and_delete.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9229` to verify:
+1. Authored posts display Edit and Delete buttons (`data-testid="post-edit-btn"`, `data-testid="post-delete-btn"`).
+2. Non-authored posts do NOT display Edit and Delete buttons.
+3. Clicking Edit opens the edit modal, saving modified text updates post in the feed.
+4. Clicking Delete prompts confirmation and removes post from the feed.
+5. Deletion/edits reflect in User Profile authored post view.
 **Acceptance criteria:**
-- [x] Test file created and added to test suite.
-- [x] Tests run and fail cleanly against current dashboard (RED).
+- [x] Test file created and integrated into test suite.
+- [x] Tests run and fail cleanly (RED) against current implementation.
 **Verification:**
-- [x] Run `cd frontend && node --test test/creator_dashboard_analytics.test.mjs`
+- [x] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
 **Dependencies:** None
 **Files likely touched:**
-- `frontend/test/creator_dashboard_analytics.test.mjs`
+- `frontend/test/post_edit_and_delete.test.mjs`
 **Estimated scope:** Small (1 file)
 
 ---
 
-## Task 2: Implement Shared AnalyticsContext & Creator Telemetry Store
-**Description:** Create `frontend/src/context/AnalyticsContext.tsx`, `useAnalytics.ts`, `types/analytics.ts`, and `mock/analyticsSeedData.ts` to manage:
-- Creator metrics data: `likeUnlikeData`, `followersData`, `engagementData`.
-- Summary counters: `totalLikes`, `totalUnlikes`, `totalFollowers`, `totalComments`, `engagementScore`.
-- Mutators: `recordLikeToggle(isLiked)`, `recordFollowToggle(isFollowed)`, `recordComment()`.
-- Wrap `AppContent` in `AnalyticsProvider` in `frontend/src/App.tsx`.
+## Task 2: Implement Update Post Types and State Mutators
+**Description:** Define `UpdatePostInput` in `types/social.ts` and add `handleEditPost(postId, input)` and `handleDeletePost(postId)` in `NewsFeedPage.tsx`.
 **Acceptance criteria:**
-- [x] Types exported in `frontend/src/types/analytics.ts`.
-- [x] `AnalyticsProvider` provides reactive state and update mutators.
-- [x] Compiles cleanly with zero TypeScript errors.
+- [ ] `UpdatePostInput` exported in `types/social.ts`.
+- [ ] `handleEditPost` immutably updates matching post in `posts` state.
+- [ ] `handleDeletePost` removes matching post from `posts` state.
+- [ ] Zero TypeScript or lint errors.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
-- `frontend/src/types/analytics.ts`
-- `frontend/src/mock/analyticsSeedData.ts`
-- `frontend/src/context/AnalyticsContext.tsx`
-- `frontend/src/context/useAnalytics.ts`
-- `frontend/src/App.tsx`
-**Estimated scope:** Medium (4-5 files)
+- `frontend/src/types/social.ts`
+- `frontend/src/app/feed/NewsFeedPage.tsx`
+**Estimated scope:** Small (2 files)
 
 ---
 
-## Checkpoint 1: Analytics Foundation Ready
-- [x] `AnalyticsContext` compiles cleanly and is accessible throughout the app.
+## Checkpoint 1: State Mutators Ready
+- [ ] Post edit and delete handlers compile and exist in feed container.
 
 ---
 
-## Task 3: Implement 3 Dedicated PDF Graphs in Dashboard
-**Description:** Update `frontend/src/app/dashboard/page.tsx` to:
-1. Strip out irrelevant website marketing tables (top pages `/pricing`, bounce rate, country geolocation).
-2. Render the 3 dedicated creator analytical graphs reusing Astryx `LineChart`, `BarChart`, and `MetricCard` primitives:
-   - Like / Unlike Bar Graph (`data-testid="like-unlike-graph"`)
-   - Followers Trend Line Graph (`data-testid="followers-trend-graph"`)
-   - Comments / Engagement Area Graph (`data-testid="engagement-graph"`)
-3. Connect charts to `useAnalytics` telemetry state so they render dynamic data points.
+## Task 3: Implement PostCard Author Action Controls & PostEditModal
+**Description:** Update `PostCard.tsx` to conditionally render Edit and Delete buttons for authored posts. Create `PostEditModal.tsx` using Astryx components to edit text, media, and hashtags. Add confirmation before deleting.
 **Acceptance criteria:**
-- [x] All 3 graph components mounted with proper `data-testid` selectors.
-- [x] Graphs utilize Astryx theme tokens and responsive containers.
-- [x] Top creator metric cards display live counters.
+- [ ] Author check (`currentUser.id === post.author.id`) gates action visibility.
+- [ ] `PostEditModal.tsx` provides form fields for text, caption, hashtags.
+- [ ] Edit saves and updates post text in DOM.
+- [ ] Delete prompts confirmation and dispatches deletion.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
-- [x] Run `cd frontend && npm run build`
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
 **Dependencies:** Task 2
 **Files likely touched:**
-- `frontend/src/app/dashboard/page.tsx`
-**Estimated scope:** Small (1 file)
+- `frontend/src/app/feed/PostCard.tsx`
+- `frontend/src/app/feed/PostEditModal.tsx`
+**Estimated scope:** Medium (2 files)
 
 ---
 
-## Task 4: Wire News Feed User Interactions to Real-Time Telemetry
-**Description:** Update `frontend/src/app/feed/NewsFeedPage.tsx` to wire user interactions to `useAnalytics`:
-- Liking/unliking a post calls `recordLikeToggle(isLiked)`.
-- Following/unfollowing an author calls `recordFollowToggle(isFollowed)`.
-- Adding a comment calls `recordComment()`.
-- Ensure changes propagate to the dashboard immediately (<2 seconds).
+## Task 4: Integrate Edit and Delete in UserProfileView
+**Description:** Update `UserProfileView.tsx` so authored posts shown in user profile post history also support edit and delete actions.
 **Acceptance criteria:**
-- [x] News feed actions update `AnalyticsContext` state.
-- [x] Switching between News Feed and Dashboard tabs displays updated metrics.
-- [x] Tests 1-5 in `creator_dashboard_analytics.test.mjs` turn GREEN.
+- [ ] `UserProfileView` forwards `onEditPost` and `onDeletePost` to post cards.
+- [ ] Editing/deleting in profile view updates author post count and feed state.
+- [ ] Tests 1-5 in `post_edit_and_delete.test.mjs` turn GREEN.
 **Verification:**
-- [x] Run `cd frontend && node --test test/creator_dashboard_analytics.test.mjs`
-- [x] Run `cd frontend && npm test`
+- [ ] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
 **Dependencies:** Task 3
 **Files likely touched:**
-- `frontend/src/app/feed/NewsFeedPage.tsx`
-**Estimated scope:** Small (1 file)
+- `frontend/src/components/profile/UserProfileView.tsx`
+**Estimated scope:** Small (1-2 files)
 
 ---
 
-## Checkpoint 2: Real-Time Sync & Visual Graphs Green
-- [x] Dashboard displays 3 PDF graphs and feed interactions update metrics in real time; all automated tests pass.
+## Checkpoint 2: All Post Actions Green
+- [ ] Full post lifecycle (Create, Edit, Delete) working and verified by automated tests.
 
 ---
 
-## Task 5: Automated Verification, High-Res Screenshots & Branch Push
-**Description:** Run full automated test suite (all 5 suites), capture high-resolution screenshot artifacts of the new Creator Analytics Dashboard in both Dark and Light themes, verify zero errors on lint and build, and push to `Hunain-Frontend`.
+## Task 5: End-to-End Verification, High-Res Screenshots & Branch Push
+**Description:** Run all 6 test suites (`npm test`), capture high-resolution screenshot artifacts of the edit modal and post deletion, verify clean build, and push to `Hunain-Frontend`.
 **Acceptance criteria:**
-- [x] High-res screenshot artifacts saved in artifact directory:
-  - `creator_dashboard_overview.png`
-  - `creator_dashboard_realtime_sync.png`
-- [x] Full test suite (`npm test`) passes 100% (30/30 tests pass).
-- [x] `tsc -b`, `oxlint`, and `vite build` pass with 0 errors.
-- [x] Changes committed and pushed to `origin/Hunain-Frontend`.
+- [ ] High-res screenshot artifacts saved in artifact directory:
+  - `post_edit_modal.png`
+  - `post_deleted_state.png`
+- [ ] All test suites (35+ tests) pass 100%.
+- [ ] `tsc -b`, `oxlint`, and `vite build` pass with 0 errors.
+- [ ] Changes committed and pushed to `origin/Hunain-Frontend`.
 **Verification:**
-- [x] Run `cd frontend && npm test`
-- [x] Run `cd frontend && npm run build`
-- [x] Run `git status`
+- [ ] Run `cd frontend && npm test`
+- [ ] Run `cd frontend && npm run build`
+- [ ] Run `git status`
 **Dependencies:** Task 4
 **Files likely touched:**
 - `tasks/todo.md`
