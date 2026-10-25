@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { FC } from 'react';
 import { Layout, LayoutContent, HStack, VStack } from '@astryxdesign/core/Layout';
 import { Card } from '@astryxdesign/core/Card';
@@ -43,11 +43,23 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   const [activeTab, setActiveTab] = useState<string>('all');
   const [bio, setBio] = useState<string>(user.bio);
   const [isTabLoading, setIsTabLoading] = useState<boolean>(false);
+  const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (tabTimerRef.current) {
+        clearTimeout(tabTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleTabChange = (val: string) => {
     setActiveTab(val);
     setIsTabLoading(true);
-    setTimeout(() => {
+    if (tabTimerRef.current) {
+      clearTimeout(tabTimerRef.current);
+    }
+    tabTimerRef.current = setTimeout(() => {
       setIsTabLoading(false);
     }, 250);
   };
