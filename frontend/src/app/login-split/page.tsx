@@ -20,71 +20,9 @@ import { Link } from '@astryxdesign/core/Link';
 import { Divider } from '@astryxdesign/core/Divider';
 import { useAuth } from '../../context/useAuth';
 
-const COVER_IMAGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0b0f19"/>
-      <stop offset="50%" stop-color="#111827"/>
-      <stop offset="100%" stop-color="#070a12"/>
-    </linearGradient>
-    <linearGradient id="glowBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0171e3" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#0171e3" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="glowPurple" x1="100%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="chartFill" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#0171e3" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#0171e3" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <rect width="600" height="750" rx="16" fill="url(#bgGrad)"/>
-  <circle cx="160" cy="180" r="180" fill="url(#glowBlue)"/>
-  <circle cx="440" cy="500" r="190" fill="url(#glowPurple)"/>
-  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
-    <line x1="50" y1="0" x2="50" y2="750"/>
-    <line x1="150" y1="0" x2="150" y2="750"/>
-    <line x1="250" y1="0" x2="250" y2="750"/>
-    <line x1="350" y1="0" x2="350" y2="750"/>
-    <line x1="450" y1="0" x2="450" y2="750"/>
-    <line x1="550" y1="0" x2="550" y2="750"/>
-    <line x1="0" y1="130" x2="600" y2="130"/>
-    <line x1="0" y1="260" x2="600" y2="260"/>
-    <line x1="0" y1="390" x2="600" y2="390"/>
-    <line x1="0" y1="520" x2="600" y2="520"/>
-    <line x1="0" y1="650" x2="600" y2="650"/>
-  </g>
-  <g transform="translate(48, 64)">
-    <rect width="504" height="154" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <rect x="24" y="24" width="134" height="26" rx="13" fill="rgba(1,113,227,0.18)"/>
-    <text x="36" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#60a5fa" letter-spacing="0.5">500M DAU SCALE</text>
-    <rect x="170" y="24" width="166" height="26" rx="13" fill="rgba(16,185,129,0.18)"/>
-    <text x="182" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="#34d399" letter-spacing="0.5">REAL-TIME TELEMETRY</text>
-    <text x="24" y="94" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="30" font-weight="800" fill="#ffffff">2.5B Interactions</text>
-    <text x="24" y="122" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#94a3b8">Pre-computed feed fan-out cached to Redis Cluster</text>
-  </g>
-  <g transform="translate(48, 246)">
-    <rect width="504" height="270" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <text x="24" y="38" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#f1f5f9">Chronological Fan-out Throughput</text>
-    <text x="440" y="38" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" fill="#10b981">+34.8%</text>
-    <path d="M 30 200 Q 100 130, 160 160 T 280 100 T 380 130 T 474 60 L 474 220 L 30 220 Z" fill="url(#chartFill)"/>
-    <path d="M 30 200 Q 100 130, 160 160 T 280 100 T 380 130 T 474 60" fill="none" stroke="#0171e3" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="280" cy="100" r="5" fill="#60a5fa" stroke="#ffffff" stroke-width="2"/>
-    <circle cx="474" cy="60" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
-  </g>
-  <g transform="translate(48, 544)">
-    <rect width="504" height="136" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-    <circle cx="44" cy="48" r="20" fill="rgba(236,72,153,0.18)"/>
-    <path d="M 38 48 L 42 52 L 50 44" fill="none" stroke="#ec4899" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="76" y="44" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Meta Astryx Design Architecture</text>
-    <text x="76" y="66" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#94a3b8">OOAD CT-263 Course Project</text>
-    <text x="76" y="86" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" fill="#64748b">Decoupled Microservices • NoSQL Interaction DB • Redis Cache</text>
-  </g>
-</svg>`;
-
-const COVER_IMAGE_URL = `data:image/svg+xml,${encodeURIComponent(COVER_IMAGE_SVG)}`;
+// Cinematic high-resolution 3D abstract fluid artwork for creative & data analytics studio
+const COVER_IMAGE_URL =
+  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80';
 
 const APPLE_LOGO_URL =
   'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20170%20170%22%20fill%3D%22white%22%3E%3Cpath%20d%3D%22M150.37%20130.25c-2.45%205.66-5.35%2010.87-8.71%2015.66-4.58%206.53-8.33%2011.05-11.22%2013.56-4.48%204.12-9.28%206.23-14.42%206.35-3.69%200-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58%200-9.49%201.05-14.75%203.17-5.26%202.13-9.5%203.24-12.74%203.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.86-12-14.45-6.96-10.65-12.28-22.75-15.96-36.31-3.69-13.56-5.53-26.31-5.53-38.26%200-14.99%203.52-27.42%2010.57-37.3%207.05-9.87%2016.32-14.9%2027.81-15.08%204.13%200%209.07%201.06%2014.83%203.17%205.76%202.12%209.61%203.23%2011.55%203.35%201.52-.12%205.56-1.28%2012.12-3.48%206.56-2.2%2012.06-3.16%2016.5-2.88%2012.59.87%2022.84%205.37%2030.74%2013.51-11.06%206.74-16.48%2016.14-16.27%2028.2.22%209.68%203.99%2017.75%2011.31%2024.2%207.32%206.45%2016.12%2010.15%2026.4%2011.11-2.28%207.18-5.18%2014.75-8.7%2022.71zM119.22%2031.84c0-7.39%202.65-14.28%207.95-20.67%205.3-6.39%2011.83-10.42%2019.59-12.09.22%201.3.33%202.5.33%203.6%200%207.39-2.8%2014.53-8.4%2021.43-5.6%206.9-12.33%2010.9-20.19%2012-0.21-1.3-.32-2.31-.32-4.27z%22%2F%3E%3C%2Fsvg%3E';
@@ -112,6 +50,7 @@ const coverImage: CSSProperties = {
   width: '100%',
   height: '100%',
   objectFit: 'cover',
+  display: 'block',
 };
 
 // Container query lives in a plain <style> tag so it needs NO CSS compiler.
@@ -262,9 +201,39 @@ export default function LoginSplitPage() {
                               <Text type="body" color="secondary" size="sm">
                                 {isRegister
                                   ? 'Join the Social Media Content Analysis System'
-                                  : 'Login to your SMCAS account'}
+                                  : 'Login to access your news feed and analytics'}
                               </Text>
                             </VStack>
+
+                            {/* Quick Demo Sign In Shortcut */}
+                            {!isRegister && (
+                              <div
+                                style={{
+                                  padding: '8px 12px',
+                                  borderRadius: 10,
+                                  backgroundColor: 'rgba(1, 113, 227, 0.08)',
+                                  border: '1px dashed rgba(1, 113, 227, 0.3)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                }}
+                              >
+                                <Text type="supporting" color="secondary" size="sm">
+                                  Default: <strong style={{ color: '#93c5fd' }}>hunain_creator</strong>
+                                </Text>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  label="One-Click Demo Sign In"
+                                  onClick={async (ev) => {
+                                    ev.preventDefault();
+                                    setEmail('hunain_creator');
+                                    setPassword('password123');
+                                    await login('hunain_creator', 'password123');
+                                  }}
+                                />
+                              </div>
+                            )}
 
                             {/* Authentication Error Banner */}
                             {error && (
@@ -440,12 +409,78 @@ export default function LoginSplitPage() {
                   padding={0}
                   width="100%"
                   height="100%"
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: 16,
+                    minHeight: 460,
+                  }}
                 >
                   <img
                     style={coverImage}
                     src={COVER_IMAGE_URL}
-                    alt="Social media analytics platform visualization"
+                    alt="Social media content analysis studio"
                   />
+                  {/* Subtle ambient gradient overlay & platform badges */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background:
+                        'linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(10, 15, 29, 0.75) 100%)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      padding: 24,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    <VStack gap={2}>
+                      <HStack gap={2} vAlign="center">
+                        <span
+                          style={{
+                            backgroundColor: 'rgba(1, 113, 227, 0.35)',
+                            color: '#93c5fd',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 12,
+                            letterSpacing: '0.05em',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(1, 113, 227, 0.4)',
+                          }}
+                        >
+                          500M DAU SCALE
+                        </span>
+                        <span
+                          style={{
+                            backgroundColor: 'rgba(16, 185, 129, 0.35)',
+                            color: '#6ee7b7',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: '4px 10px',
+                            borderRadius: 12,
+                            letterSpacing: '0.05em',
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(16, 185, 129, 0.4)',
+                          }}
+                        >
+                          REAL-TIME TELEMETRY
+                        </span>
+                      </HStack>
+                      <Text
+                        type="display-2"
+                        as="h3"
+                        weight="bold"
+                        style={{ color: '#ffffff', margin: 0 }}
+                      >
+                        High-Throughput Analytics &amp; Feed
+                      </Text>
+                      <Text type="supporting" size="sm" style={{ color: '#cbd5e1' }}>
+                        Sub-50ms fan-out caching, event-driven metrics &amp; creator intelligence.
+                      </Text>
+                    </VStack>
+                  </div>
                 </Card>
               </div>
             </Grid>
