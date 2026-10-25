@@ -167,6 +167,13 @@ test('Post Edit and Delete Capabilities Flow (PDF Section 4.1.ii)', async (t) =>
 
     assert.strictEqual(modalState?.isModalVisible, true, 'PostEditModal should be open');
     assert.ok(modalState?.textValue.includes('Excited to unveil'), 'Modal pre-populates post text');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/post_edit_modal.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
   });
 
   await t.test('3. Saving edits updates the post content and hashtags in the feed', async () => {

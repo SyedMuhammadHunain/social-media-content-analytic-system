@@ -83,16 +83,16 @@
 ## Task 5: End-to-End Verification, High-Res Screenshots & Branch Push
 **Description:** Run all 6 test suites (`npm test`), capture high-resolution screenshot artifacts of the edit modal and post deletion, verify clean build, and push to `Hunain-Frontend`.
 **Acceptance criteria:**
-- [ ] High-res screenshot artifacts saved in artifact directory:
+- [x] High-res screenshot artifacts saved in artifact directory:
   - `post_edit_modal.png`
-  - `post_deleted_state.png`
-- [ ] All test suites (35+ tests) pass 100%.
-- [ ] `tsc -b`, `oxlint`, and `vite build` pass with 0 errors.
-- [ ] Changes committed and pushed to `origin/Hunain-Frontend`.
+  - `post_delete_confirmed.png`
+- [x] All test suites (36 tests across 6 suites) pass 100%.
+- [x] `tsc -b`, `oxlint`, and `vite build` pass with 0 errors.
+- [x] Changes committed and pushed to `origin/Hunain-Frontend`.
 **Verification:**
-- [ ] Run `cd frontend && npm test`
-- [ ] Run `cd frontend && npm run build`
-- [ ] Run `git status`
+- [x] Run `cd frontend && npm test`
+- [x] Run `cd frontend && npm run build`
+- [x] Run `git status`
 **Dependencies:** Task 4
 **Files likely touched:**
 - `tasks/todo.md`
