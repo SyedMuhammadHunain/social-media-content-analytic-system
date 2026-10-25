@@ -47,16 +47,18 @@ export function CommentSection({
       <HStack gap={2} vAlign="center">
         <div style={{ flex: 1 }}>
           <TextInput
+            data-testid="comment-input"
             label="Write a comment"
             isLabelHidden
-            placeholder="Write a constructive response..."
+            placeholder="Write a comment..."
             value={commentText}
             onChange={(val: string) => setCommentText(val)}
             onEnter={handleSubmit}
           />
         </div>
         <Button
-          label="Reply"
+          data-testid="comment-submit-btn"
+          label="Post"
           variant="primary"
           size="sm"
           isDisabled={!commentText.trim()}

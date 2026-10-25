@@ -14,6 +14,7 @@ import { PostComposer } from './PostComposer';
 import { PostCard } from './PostCard';
 import { UserProfileCard } from '../../components/profile/UserProfileCard';
 import { UserProfileView } from '../../components/profile/UserProfileView';
+import { useAnalytics } from '../../context/useAnalytics';
 
 interface NewsFeedPageProps {
   currentUser?: UserProfile;
@@ -24,6 +25,7 @@ export function NewsFeedPage({
   currentUser = CURRENT_USER,
   onOpenProfile,
 }: NewsFeedPageProps) {
+  const { recordLikeToggle, recordFollowToggle, recordComment } = useAnalytics();
   const [user, setUser] = useState<UserProfile>(currentUser);
   const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
@@ -50,27 +52,33 @@ export function NewsFeedPage({
   };
 
   const handleToggleLike = (postId: string) => {
+    let nextIsLiked = false;
     setPosts(prev =>
       prev.map(p => {
         if (p.id !== postId) return p;
         const isLiked = !p.isLiked;
+        nextIsLiked = isLiked;
         const likesCount = isLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1);
         return { ...p, isLiked, likesCount };
       })
     );
+    recordLikeToggle(nextIsLiked);
   };
 
   const handleToggleFollow = (userId: string) => {
+    let nextIsFollowed = false;
     setPosts(prev =>
       prev.map(p => {
         if (p.author.id !== userId) return p;
         const isFollowed = !p.author.isFollowed;
+        nextIsFollowed = isFollowed;
         return {
           ...p,
           author: { ...p.author, isFollowed },
         };
       })
     );
+    recordFollowToggle(nextIsFollowed);
   };
 
   const handleAddComment = (postId: string, text: string) => {
@@ -93,6 +101,7 @@ export function NewsFeedPage({
         };
       })
     );
+    recordComment();
   };
 
   const handleOpenProfile = () => {

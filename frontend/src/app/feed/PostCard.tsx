@@ -73,6 +73,7 @@ export function PostCard({
 
           {/* Follow / Unfollow Toggle (Req 4.1.iv) */}
           <Button
+            data-testid="post-follow-btn"
             label={post.author.isFollowed ? 'Following' : 'Follow'}
             variant={post.author.isFollowed ? 'secondary' : 'primary'}
             size="sm"
@@ -150,6 +151,7 @@ export function PostCard({
           <HStack gap={3} vAlign="center">
             {/* Like / Unlike Button (Req 4.1.iii) */}
             <Button
+              data-testid="post-like-btn"
               label={`${post.likesCount.toLocaleString()} ${post.isLiked ? 'Liked' : 'Like'}`}
               variant={post.isLiked ? 'primary' : 'secondary'}
               size="sm"
@@ -165,6 +167,7 @@ export function PostCard({
 
             {/* Comment Drawer Toggle (Req 4.1.v) */}
             <Button
+              data-testid="post-comment-btn"
               label={`${post.commentsCount} Comments`}
               variant="secondary"
               size="sm"

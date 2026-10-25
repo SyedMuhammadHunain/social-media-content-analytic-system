@@ -125,7 +125,7 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);
-    await sleep(400);
+    await sleep(600);
 
     const graphs = await evaluate(`
       (() => {
@@ -187,10 +187,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Click like on first post
     const likeClicked = await evaluate(`
       (() => {
-        const likeBtns = Array.from(document.querySelectorAll('button')).filter(b => {
-          return b.innerText && (b.innerText.includes('Like') || b.querySelector('svg'));
-        });
-        const postLikeBtn = likeBtns.find(b => b.closest('[class*="Card"], div'));
+        const postLikeBtn = document.querySelector('[data-testid="post-like-btn"]') ||
+          Array.from(document.querySelectorAll('button')).find(b => b.innerText && (b.innerText.includes('Like') || b.querySelector('svg')));
         if (postLikeBtn) {
           postLikeBtn.click();
           return true;
@@ -234,9 +232,10 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Toggle follow on an author
     const followClicked = await evaluate(`
       (() => {
-        const followBtn = Array.from(document.querySelectorAll('button')).find(b => 
-          b.innerText && (b.innerText.includes('Follow') || b.innerText.includes('Following'))
-        );
+        const followBtn = document.querySelector('[data-testid="post-follow-btn"]') ||
+          Array.from(document.querySelectorAll('button')).find(b => 
+            b.innerText && (b.innerText.includes('Follow') || b.innerText.includes('Following'))
+          );
         if (followBtn) {
           followBtn.click();
           return true;
@@ -276,23 +275,30 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     `);
     await sleep(400);
 
-    // Open comments and post a comment
+    // Open comments
+    await evaluate(`
+      (() => {
+        const commentToggleBtn = document.querySelector('[data-testid="post-comment-btn"]') ||
+          Array.from(document.querySelectorAll('button')).find(b => 
+            b.innerText && b.innerText.includes('Comment')
+          );
+        if (commentToggleBtn) commentToggleBtn.click();
+      })()
+    `);
+    await sleep(300);
+
     const commentAdded = await evaluate(`
       (() => {
-        const commentToggleBtn = Array.from(document.querySelectorAll('button')).find(b => 
-          b.innerText && b.innerText.includes('Comment')
-        );
-        if (commentToggleBtn) commentToggleBtn.click();
-
-        const input = document.querySelector('input[placeholder*="comment" i], textarea[placeholder*="comment" i]');
+        const input = document.querySelector('[data-testid="comment-input"] input, input[placeholder*="comment" i], textarea[placeholder*="comment" i]');
         if (!input) return false;
 
         input.value = 'Real-time telemetry verification comment';
         input.dispatchEvent(new Event('input', { bubbles: true }));
 
-        const submitBtn = Array.from(document.querySelectorAll('button')).find(b => 
-          b.innerText && b.innerText.includes('Post')
-        );
+        const submitBtn = document.querySelector('[data-testid="comment-submit-btn"]') ||
+          Array.from(document.querySelectorAll('button')).find(b => 
+            b.innerText && (b.innerText.includes('Post') || b.innerText.includes('Reply'))
+          );
         if (submitBtn) {
           submitBtn.click();
           return true;

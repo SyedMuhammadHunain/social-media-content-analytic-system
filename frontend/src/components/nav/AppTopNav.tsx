@@ -54,16 +54,24 @@ export const AppTopNav: FC<AppTopNavProps> = ({
         <>
           <TopNavItem
             data-testid="nav-news-feed"
+            href="#feed"
             label="News Feed"
             isSelected={activeTab === 'feed'}
-            onClick={() => onSelectTab('feed')}
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('feed');
+            }}
             icon={<Icon icon={NewspaperIcon} size="sm" />}
           />
           <TopNavItem
             data-testid="nav-analytics-dashboard"
+            href="#dashboard"
             label="Analytics Dashboard"
             isSelected={activeTab === 'dashboard'}
-            onClick={() => onSelectTab('dashboard')}
+            onClick={(e) => {
+              e.preventDefault();
+              onSelectTab('dashboard');
+            }}
             icon={<Icon icon={ChartBarSquareIcon} size="sm" />}
           />
         </>

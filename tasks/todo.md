@@ -81,12 +81,12 @@
 - Adding a comment calls `recordComment()`.
 - Ensure changes propagate to the dashboard immediately (<2 seconds).
 **Acceptance criteria:**
-- [ ] News feed actions update `AnalyticsContext` state.
-- [ ] Switching between News Feed and Dashboard tabs displays updated metrics.
-- [ ] Tests 1-5 in `creator_dashboard_analytics.test.mjs` turn GREEN.
+- [x] News feed actions update `AnalyticsContext` state.
+- [x] Switching between News Feed and Dashboard tabs displays updated metrics.
+- [x] Tests 1-5 in `creator_dashboard_analytics.test.mjs` turn GREEN.
 **Verification:**
-- [ ] Run `cd frontend && node --test test/creator_dashboard_analytics.test.mjs`
-- [ ] Run `cd frontend && npm test`
+- [x] Run `cd frontend && node --test test/creator_dashboard_analytics.test.mjs`
+- [x] Run `cd frontend && npm test`
 **Dependencies:** Task 3
 **Files likely touched:**
 - `frontend/src/app/feed/NewsFeedPage.tsx`
@@ -95,7 +95,7 @@
 ---
 
 ## Checkpoint 2: Real-Time Sync & Visual Graphs Green
-- [ ] Dashboard displays 3 PDF graphs and feed interactions update metrics in real time; all automated tests pass.
+- [x] Dashboard displays 3 PDF graphs and feed interactions update metrics in real time; all automated tests pass.
 
 ---
 
