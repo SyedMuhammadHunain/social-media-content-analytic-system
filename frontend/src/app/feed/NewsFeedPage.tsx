@@ -121,25 +121,36 @@ export function NewsFeedPage({
         <LayoutContent padding={6}>
           <div
             style={{
-              maxWidth: 1100,
+              maxWidth: 1060,
               margin: '0 auto',
               width: '100%',
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 24,
+              gap: 32,
               alignItems: 'flex-start',
+              justifyContent: 'center',
             }}
           >
-            {/* Left Sidebar Profile Card */}
-            <div style={{ flex: '0 0 300px', width: 300, maxWidth: '100%' }}>
+            {/* Sticky Left Sidebar Profile Card */}
+            <aside
+              style={{
+                flex: '0 0 280px',
+                width: 280,
+                maxWidth: '100%',
+                position: 'sticky',
+                top: 24,
+                alignSelf: 'flex-start',
+                zIndex: 10,
+              }}
+            >
               <UserProfileCard
                 user={user}
                 onOpenProfile={handleOpenProfile}
               />
-            </div>
+            </aside>
 
             {/* Main Chronological News Feed */}
-            <div style={{ flex: '1 1 600px', minWidth: 0, maxWidth: 740 }}>
+            <main style={{ flex: '1 1 640px', minWidth: 0, maxWidth: 680 }}>
               <VStack gap={6}>
                 {/* Post Composer */}
                 <PostComposer
@@ -171,7 +182,7 @@ export function NewsFeedPage({
                   )}
                 </VStack>
               </VStack>
-            </div>
+            </main>
           </div>
         </LayoutContent>
       }

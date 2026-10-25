@@ -18,10 +18,10 @@ Implement four key UX refinements across the news feed, post composer, and user 
 
 ### Phase 1: Layout & TDD Red State
 - [x] Task 1: Create Failing TDD Test Suite for All Four Refinements (`frontend/test/refinements_feed_and_profile.test.mjs`)
-- [ ] Task 2: Implement Sticky Sidebar and Centered Feed Layout (`frontend/src/app/feed/NewsFeedPage.tsx`)
+- [x] Task 2: Implement Sticky Sidebar and Centered Feed Layout (`frontend/src/app/feed/NewsFeedPage.tsx`)
 
 ### Checkpoint 1: Layout Sticky & Tests RED
-- [ ] Sidebar sticky verified, test suite fails cleanly on unbuilt composer/profile upload features.
+- [x] Sidebar sticky verified, test suite fails cleanly on unbuilt composer/profile upload features.
 
 ### Phase 2: Unified Post Composer
 - [ ] Task 3: Refactor PostComposer to Unified Model with PC Media Selection (`frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)

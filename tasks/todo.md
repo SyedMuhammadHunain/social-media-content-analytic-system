@@ -21,13 +21,13 @@
 ## Task 2: Implement Sticky Sidebar and Centered Feed Layout
 **Description:** Update `frontend/src/app/feed/NewsFeedPage.tsx` to wrap the profile card in a sticky sidebar container (`position: sticky; top: 24px; alignSelf: flex-start;`) and center the 680px main feed stream in the page container.
 **Acceptance criteria:**
-- [ ] Left profile card remains sticky during feed scroll.
-- [ ] News feed stream is horizontally centered.
-- [ ] Responsive flex-wrap preserved on smaller viewports.
+- [x] Left profile card remains sticky during feed scroll.
+- [x] News feed stream is horizontally centered.
+- [x] Responsive flex-wrap preserved on smaller viewports.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] Test 1 in `refinements_feed_and_profile.test.mjs` passes.
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] Test 1 in `refinements_feed_and_profile.test.mjs` passes.
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/app/feed/NewsFeedPage.tsx`
@@ -36,7 +36,7 @@
 ---
 
 ## Checkpoint 1: Layout Sticky & Tests RED
-- [ ] Sidebar is sticky, feed centered, tests 2-4 fail cleanly on remaining features.
+- [x] Sidebar is sticky, feed centered, tests 2-4 fail cleanly on remaining features.
 
 ---
 
