@@ -24,10 +24,10 @@ Implement four key UX refinements across the news feed, post composer, and user 
 - [x] Sidebar sticky verified, test suite fails cleanly on unbuilt composer/profile upload features.
 
 ### Phase 2: Unified Post Composer
-- [ ] Task 3: Refactor PostComposer to Unified Model with PC Media Selection (`frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
+- [x] Task 3: Refactor PostComposer to Unified Model with PC Media Selection (`frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
 
 ### Checkpoint 2: Composer Functional
-- [ ] Unified composer allows media upload from PC, previews inline, posts with proper type.
+- [x] Unified composer allows media upload from PC, previews inline, posts with proper type.
 
 ### Phase 3: Profile Avatar Placement & Uploads
 - [ ] Task 4: Correct Avatar Placement & Add Avatar/Banner Upload Pickers (`frontend/src/components/profile/UserProfileView.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)

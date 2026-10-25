@@ -43,14 +43,14 @@
 ## Task 3: Refactor PostComposer to Unified Model with PC Media Selection
 **Description:** Overhaul `frontend/src/app/feed/PostComposer.tsx`: remove the three post-type tabs (`Text`, `Image`, `Video`). Render a unified text composer with an "Attach Media" button triggering a hidden `<input type="file" accept="image/*,video/*" />`. Generate local object URL for preview, display inline preview with remove action, and pass chosen media URL and auto-detected post type (`IMAGE`, `VIDEO`, or `TEXT`) to `onCreatePost`.
 **Acceptance criteria:**
-- [ ] Tabs removed; single unified composer displayed.
-- [ ] Local file picker selects image or video from PC.
-- [ ] Inline media preview with remove button renders when media is attached.
-- [ ] Form submission dispatches post with correct `type` and media URL.
+- [x] Tabs removed; single unified composer displayed.
+- [x] Local file picker selects image or video from PC.
+- [x] Inline media preview with remove button renders when media is attached.
+- [x] Form submission dispatches post with correct `type` and media URL.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] Test 2 in `refinements_feed_and_profile.test.mjs` passes.
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] Test 2 in `refinements_feed_and_profile.test.mjs` passes.
 **Dependencies:** Task 2
 **Files likely touched:**
 - `frontend/src/app/feed/PostComposer.tsx`
@@ -59,7 +59,7 @@
 ---
 
 ## Checkpoint 2: Unified Composer Functional
-- [ ] Unified composer allows local media upload and creates posts smoothly.
+- [x] Unified composer allows local media upload and creates posts smoothly.
 
 ---
 

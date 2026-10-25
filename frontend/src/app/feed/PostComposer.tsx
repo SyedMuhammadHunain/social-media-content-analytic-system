@@ -1,9 +1,10 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
-// Social Media Content Analysis System - Post Composer (PDF Section 4.1.ii)
+// Social Media Content Analysis System - Unified Post Composer
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
@@ -16,10 +17,9 @@ import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
 
 import {
-  DocumentTextIcon,
   PhotoIcon,
-  VideoCameraIcon,
   PaperAirplaneIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 import type { CreatePostInput, PostType, User } from '../../types/social';
@@ -30,166 +30,177 @@ interface PostComposerProps {
 }
 
 export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
-  const [postType, setPostType] = useState<PostType>('TEXT');
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
-  const [description, setDescription] = useState('');
+  const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO'>('IMAGE');
   const [hashtagsRaw, setHashtagsRaw] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isValid =
-    postType === 'TEXT'
-      ? text.trim().length > 0
-      : mediaUrl.trim().length > 0;
+  const isValid = text.trim().length > 0 || mediaUrl.length > 0;
+
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (mediaUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(mediaUrl);
+    }
+
+    const isVideo = file.type.startsWith('video/');
+    const localUrl = URL.createObjectURL(file);
+    setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
+    setMediaUrl(localUrl);
+
+    // Reset input so re-selecting same file triggers change
+    e.target.value = '';
+  };
+
+  const handleRemoveMedia = () => {
+    if (mediaUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(mediaUrl);
+    }
+    setMediaUrl('');
+  };
 
   const handleSubmit = () => {
     if (!isValid) return;
 
     const hashtags = hashtagsRaw
       .split(' ')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-      .map(tag => (tag.startsWith('#') ? tag : `#${tag}`));
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0)
+      .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
+
+    const effectiveType: PostType = mediaUrl.length > 0 ? mediaType : 'TEXT';
 
     onCreatePost({
-      type: postType,
-      text: postType === 'TEXT' ? text.trim() : undefined,
-      description: postType !== 'TEXT' ? description.trim() : undefined,
-      mediaUrl: postType !== 'TEXT' ? mediaUrl.trim() : undefined,
+      type: effectiveType,
+      text: text.trim(),
+      description: mediaUrl.length > 0 ? text.trim() : undefined,
+      mediaUrl: mediaUrl || undefined,
       hashtags,
     });
 
     // Reset inputs
     setText('');
-    setMediaUrl('');
-    setDescription('');
+    handleRemoveMedia();
     setHashtagsRaw('');
   };
 
   return (
     <Card padding={5}>
       <VStack gap={4}>
-        {/* Header: User Avatar & Format Selector */}
+        {/* Header: User Avatar & Context */}
         <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
           <HStack gap={3} vAlign="center">
-            <Avatar name={currentUser.name} src={currentUser.avatarUrl} size="md" />
+            <Avatar
+              name={currentUser.name}
+              src={currentUser.avatarUrl}
+              size="md"
+            />
             <VStack gap={0}>
               <Heading level={4}>{currentUser.name}</Heading>
               <Text type="supporting" color="secondary">
-                @{currentUser.username} • Create New Post
+                @{currentUser.username} • Create Post
               </Text>
             </VStack>
           </HStack>
 
-          {/* Post Format Selector */}
-          <HStack gap={2} vAlign="center">
-            <Button
-              label="Text Post"
-              variant={postType === 'TEXT' ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<Icon icon={DocumentTextIcon} size="xsm" />}
-              onClick={() => setPostType('TEXT')}
+          {mediaUrl.length > 0 && (
+            <Badge
+              variant={mediaType === 'VIDEO' ? 'purple' : 'teal'}
+              label={mediaType === 'VIDEO' ? 'Video Attached' : 'Photo Attached'}
             />
-            <Button
-              label="Image Post"
-              variant={postType === 'IMAGE' ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<Icon icon={PhotoIcon} size="xsm" />}
-              onClick={() => setPostType('IMAGE')}
-            />
-            <Button
-              label="Video Post"
-              variant={postType === 'VIDEO' ? 'primary' : 'secondary'}
-              size="sm"
-              icon={<Icon icon={VideoCameraIcon} size="xsm" />}
-              onClick={() => setPostType('VIDEO')}
-            />
-          </HStack>
+          )}
         </HStack>
 
         <Divider />
 
-        {/* Dynamic Fields by Format */}
-        {postType === 'TEXT' ? (
-          <TextArea
-            label="What's happening?"
-            isLabelHidden
-            placeholder="Share your thoughts, architectural insights, or questions with your followers..."
-            value={text}
-            onChange={(val: string) => setText(val)}
-            rows={4}
-          />
-        ) : (
-          <VStack gap={3}>
-            <TextInput
-              label={postType === 'IMAGE' ? 'Image Media URL (S3 / Pre-Signed)' : 'Video Stream URL (S3 / Pre-Signed)'}
-              placeholder={
-                postType === 'IMAGE'
-                  ? 'https://images.unsplash.com/... or S3 object URL'
-                  : 'https://...mp4 or S3 video URL'
-              }
-              value={mediaUrl}
-              onChange={(val: string) => setMediaUrl(val)}
-            />
-            <TextArea
-              label="Caption / Description"
-              isLabelHidden
-              placeholder={`Write a caption for this ${postType.toLowerCase()} post...`}
-              value={description}
-              onChange={(val: string) => setDescription(val)}
-              rows={2}
-            />
+        {/* Unified Text Composer */}
+        <TextArea
+          label="What's happening?"
+          isLabelHidden
+          placeholder="Share your thoughts, architectural insights, or attach media from your PC..."
+          value={text}
+          onChange={setText}
+          rows={3}
+        />
 
-            {/* Media Preview Box */}
-            {mediaUrl.trim().length > 0 && (
-              <div
+        {/* Hidden Local File Input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+        />
+
+        {/* Inline Media Preview */}
+        {mediaUrl.length > 0 && (
+          <div
+            style={{
+              position: 'relative',
+              borderRadius: 8,
+              overflow: 'hidden',
+              maxHeight: 260,
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
+          >
+            {mediaType === 'IMAGE' ? (
+              <img
+                src={mediaUrl}
+                alt="Upload preview"
                 style={{
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  maxHeight: 220,
-                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  maxWidth: '100%',
+                  maxHeight: 260,
+                  objectFit: 'contain',
                 }}
-              >
-                {postType === 'IMAGE' ? (
-                  <img
-                    src={mediaUrl}
-                    alt="Post preview"
-                    style={{ maxWidth: '100%', maxHeight: 220, objectFit: 'cover' }}
-                    onError={e => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <video
-                    src={mediaUrl}
-                    controls
-                    style={{ maxWidth: '100%', maxHeight: 220 }}
-                  />
-                )}
-              </div>
+              />
+            ) : (
+              <video
+                src={mediaUrl}
+                controls
+                style={{ maxWidth: '100%', maxHeight: 260 }}
+              />
             )}
-          </VStack>
+
+            {/* Remove Attached Media Button */}
+            <div style={{ position: 'absolute', top: 8, right: 8 }}>
+              <Button
+                label="Remove"
+                variant="secondary"
+                size="sm"
+                icon={<Icon icon={XMarkIcon} size="xsm" />}
+                onClick={handleRemoveMedia}
+              />
+            </div>
+          </div>
         )}
 
         {/* Hashtags Input */}
         <TextInput
           label="Hashtags (space separated)"
-          placeholder="#systemdesign #microservices #nosql"
+          placeholder="#systemdesign #astryx #webdev"
           value={hashtagsRaw}
-          onChange={(val: string) => setHashtagsRaw(val)}
+          onChange={setHashtagsRaw}
         />
 
         <Divider />
 
         {/* Action Footer */}
         <HStack hAlign="between" vAlign="center">
-          <Badge
-            variant={postType === 'VIDEO' ? 'purple' : postType === 'IMAGE' ? 'teal' : 'neutral'}
-            label={`${postType} POST FORMAT`}
+          <Button
+            label={mediaUrl ? 'Change Media' : 'Attach Media'}
+            variant="secondary"
+            size="sm"
+            icon={<Icon icon={PhotoIcon} size="xsm" />}
+            onClick={() => fileInputRef.current?.click()}
           />
+
           <Button
             label="Publish Post"
             variant="primary"
@@ -203,3 +214,5 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
     </Card>
   );
 }
+
+export default PostComposer;
