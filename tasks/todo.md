@@ -41,13 +41,13 @@
 - `WhoToFollowCard`: lists 3 suggested creators with avatar, headline, and interactive Follow/Following button.
 - `PlatformInfoFooter`: lightweight card with course metadata ("OOAD Content Analysis System • Meta Astryx • Spring 2026").
 **Acceptance criteria:**
-- [ ] `TrendingTopicsCard` displays hashtags and count pills; triggers `onSelectHashtag`.
-- [ ] `WhoToFollowCard` displays creators with interactive `Follow` button triggering `onToggleFollow`.
-- [ ] `PlatformInfoFooter` renders course metadata.
-- [ ] Zero TypeScript or lint errors.
+- [x] `TrendingTopicsCard` displays hashtags and count pills; triggers `onSelectHashtag`.
+- [x] `WhoToFollowCard` displays creators with interactive `Follow` button triggering `onToggleFollow`.
+- [x] `PlatformInfoFooter` renders course metadata.
+- [x] Zero TypeScript or lint errors.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/app/feed/TrendingTopicsCard.tsx`
@@ -58,8 +58,8 @@
 ---
 
 ## Checkpoint 1: Foundation & Components Ready
-- [ ] All new types and components compile with zero TypeScript errors (`cd frontend && npx tsc -b`)
-- [ ] Existing 36/36 tests continue to pass (`cd frontend && npm test`)
+- [x] All new types and components compile with zero TypeScript errors (`cd frontend && npx tsc -b`)
+- [x] Existing 36/36 tests continue to pass (`cd frontend && npm test`)
 
 ---
 
