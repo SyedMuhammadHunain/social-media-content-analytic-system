@@ -96,7 +96,7 @@
 ---
 
 ## Task 5: Native Test Suite & Chrome DevTools Visual Verification
-**Description:** Implement `frontend/test/feed_3_column_layout.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9229` to verify:
+**Description:** Implement `frontend/test/feed_3_column_layout.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9231` to verify:
 1. Left rail shortcuts and profile card are visible on desktop.
 2. Right rail trending topics and who-to-follow are visible on desktop.
 3. Clicking trending hashtag filters feed posts to matching hashtag and displays active filter chip.
@@ -104,13 +104,13 @@
 5. Clicking "Follow" in Who to Follow updates button state and syncs author state.
 6. Capture high-resolution screenshot artifacts (`newsfeed_3_column_desktop.png`, `newsfeed_filtered_hashtag.png`, `newsfeed_tablet_responsive.png`).
 **Acceptance criteria:**
-- [ ] All tests in `feed_3_column_layout.test.mjs` pass cleanly (100% GREEN).
-- [ ] All existing test suites continue to pass (now 7 suites).
-- [ ] Screenshots captured in artifact directory.
-- [ ] Production build succeeds (`cd frontend && npm run build`).
+- [x] All tests in `feed_3_column_layout.test.mjs` pass cleanly (100% GREEN).
+- [x] All existing test suites continue to pass (now 7 suites).
+- [x] Screenshots captured in artifact directory.
+- [x] Production build succeeds (`cd frontend && npm run build`).
 **Verification:**
-- [ ] Run `cd frontend && npm test`
-- [ ] Run `cd frontend && npm run build`
+- [x] Run `cd frontend && npm test`
+- [x] Run `cd frontend && npm run build`
 **Dependencies:** Task 4
 **Files likely touched:**
 - `frontend/test/feed_3_column_layout.test.mjs`
@@ -119,6 +119,6 @@
 ---
 
 ## Checkpoint 3: Complete & Ready for Review
-- [ ] 100% test pass rate across all 7 test suites
-- [ ] TypeScript check and lint pass with 0 errors
-- [ ] Clean build and verified layout
+- [x] 100% test pass rate across all 7 test suites
+- [x] TypeScript check and lint pass with 0 errors
+- [x] Clean build and verified layout
