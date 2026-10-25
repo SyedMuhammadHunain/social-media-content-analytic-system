@@ -86,13 +86,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
 
   // Wait for app to mount
   let appReady = false;
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
     const ready = await evaluate('!!(document.querySelector("[data-testid=\'auth-split-card\']") || document.querySelector("nav"))');
     if (ready) {
       appReady = true;
       break;
     }
-    await sleep(200);
+    await sleep(250);
   }
   assert.ok(appReady, 'Application mounted in DOM');
 

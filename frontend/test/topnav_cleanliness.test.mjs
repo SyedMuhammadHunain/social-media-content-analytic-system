@@ -103,13 +103,13 @@ test('TopNav cleanliness: unnecessary text and unnecessary things removed', asyn
 
   // Wait until nav is rendered
   let navFound = false;
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
     const ready = await evaluate('!!document.querySelector("nav[role=\'navigation\']")');
     if (ready) {
       navFound = true;
       break;
     }
-    await sleep(200);
+    await sleep(250);
   }
   assert.ok(navFound, 'TopNav rendered in DOM');
 

@@ -8,7 +8,7 @@ import { Theme } from '@astryxdesign/core/theme';
 import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/useAuth';
-import AuthPage from './app/auth/AuthPage';
+import LoginSplitPage from './app/login-split/page';
 import AppTopNav from './components/nav/AppTopNav';
 import DashboardTemplate from './app/dashboard/page';
 import NewsFeedPage from './app/feed/NewsFeedPage';
@@ -27,7 +27,7 @@ function AppContent({
   const [activeTab, setActiveTab] = useState<AppTab>('feed');
 
   if (!isAuthenticated) {
-    return <AuthPage />;
+    return <LoginSplitPage />;
   }
 
   return (
