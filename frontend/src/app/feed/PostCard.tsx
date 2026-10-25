@@ -12,6 +12,7 @@ import { Avatar } from '@astryxdesign/core/Avatar';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
+import { MoreMenu } from '@astryxdesign/core/MoreMenu';
 
 import {
   HeartIcon as HeartOutline,
@@ -87,25 +88,26 @@ export function PostCard({
 
             {/* Author Controls (PDF Req 4.1.ii) or Follow Toggle (Req 4.1.iv) */}
             {isAuthor ? (
-              <HStack gap={2} vAlign="center">
-                <Button
-                  data-testid={`post-edit-btn-${post.id}`}
-                  label="Edit"
-                  variant="secondary"
-                  size="sm"
-                  icon={<Icon icon={PencilSquareIcon} size="xsm" />}
-                  onClick={() => setIsEditing(true)}
-                />
-                <Button
-                  data-testid={`post-delete-btn-${post.id}`}
-                  label="Delete"
-                  variant="destructive"
-                  size="sm"
-                  icon={<Icon icon={TrashIcon} size="xsm" />}
-                  onClick={() => setIsConfirmingDelete(true)}
-                />
-              </HStack>
+              <MoreMenu
+                size="sm"
+                label="Post options"
+                data-testid={`post-more-menu-${post.id}`}
+                items={[
+                  {
+                    label: 'Edit',
+                    icon: <Icon icon={PencilSquareIcon} size="xsm" />,
+                    onClick: () => setIsEditing(true),
+                  },
+                  {
+                    label: 'Delete',
+                    variant: 'destructive',
+                    icon: <Icon icon={TrashIcon} size="xsm" />,
+                    onClick: () => setIsConfirmingDelete(true),
+                  },
+                ]}
+              />
             ) : (
+
               <Button
                 data-testid="post-follow-btn"
                 label={post.author.isFollowed ? 'Following' : 'Follow'}
