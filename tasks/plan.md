@@ -1,44 +1,49 @@
-# Implementation Plan: User Profile Card & Full Profile View
+# Implementation Plan: Feed, Post Composer & Profile Refinements
 
 ## Overview
-Implement an official Meta Astryx Left Profile Card (`ClickableCard`) on the News Feed for the active user (`Syed Muhammad Hunain`). Clicking anywhere on this card transitions to a dedicated full-page User Profile View featuring an `AspectRatio` cover banner, `Avatar`, `Badge` tags, an interactive `ProfileBioEditor` (`TextArea`, `Toolbar`, `Markdown`, `Banner`), and the user's past post history (`Card`, `TabList`, `Skeleton`, `PostCard`), with a "Back to Feed" `Button`.
+Implement four key UX refinements across the news feed, post composer, and user profile page:
+1. Pinned sticky left profile card alongside a centered chronological feed stream.
+2. Unified single post composer allowing local image and video media selection from the user's PC.
+3. Corrected profile avatar placement overlapping the bottom-left of the cover banner with a ring border.
+4. Direct local file upload for changing both the profile avatar photo and the cover banner image.
 
 ## Architecture Decisions
-1. **Official Astryx Primitives Only:** Use strictly `@astryxdesign/core` components (`ClickableCard`, `Card`, `Avatar`, `AspectRatio`, `Banner`, `Skeleton`, `Badge`, `TextArea`, `Toolbar`, `Markdown`, `Button`, `TabList`, `Heading`, `Text`, `HStack`, `VStack`, `Divider`, `Icon`). Zero custom HTML card wrappers or un-themed CSS classes.
-2. **View State Architecture:** Manage view state inside `NewsFeedPage` (`activeView: 'feed' | 'profile'`), preserving top navigation and theme mode while giving the profile full canvas width.
-3. **Reactive Bio Editing & Banner Feedback:** Bio state lives in reactive state. Switching to edit mode displays `TextArea` with `Toolbar`; saving updates the bio, restores `Markdown` preview, and triggers an Astryx success `Banner`.
-4. **Author Post Filtering & Skeleton Loading:** Filter existing `mockPosts` by `author.id === currentUser.id` to show authored posts, preceded by simulated `Skeleton` loaders on initial tab selection.
-5. **Git Branch Discipline:** All development stays on `Hunain-Frontend`.
+1. **Layout Strategy:** Use CSS sticky sidebar (`position: sticky; top: 24px; align-self: flex-start;`) inside a centered flex container (`maxWidth: 1140px; margin: 0 auto; justify-content: center;`), allowing the 680px main feed stream to scroll independently without layout jitter.
+2. **Unified Composer Flow:** Eliminate the three tabs (`Text`, `Image`, `Video`). Single text composer with an "Attach Media" button triggering a hidden `<input type="file" accept="image/*,video/*" />`. Selected media generates an object URL (`URL.createObjectURL`) for immediate inline preview and assigns post `type: 'IMAGE' | 'VIDEO' | 'TEXT'`.
+3. **Overlapping Avatar Anatomy:** Position the avatar container at the bottom-left edge of the cover banner with an offset (`transform: translateY(50%)` or negative margin) and a 4px protective border (`border: 4px solid var(--color-background-body, #111111)`), with an accessible "Change Photo" action overlay.
+4. **Local Profile Media Updates:** Avatar and cover banner uploads read chosen files via `URL.createObjectURL` or `FileReader`, updating `currentUser` state in `NewsFeedPage` so changes reflect in both the full profile page and the left feed card.
+5. **Git Discipline:** All changes developed on branch `Hunain-Frontend`.
 
 ## Task List
 
-### Phase 1: Foundation & TDD Test Suite
-- [x] Task 1: Extend User Types, Mock Data, and Add Failing TDD Test Suite (`frontend/src/types/social.ts`, `frontend/src/mock/socialSeedData.ts`, `frontend/test/profile_card_and_view.test.mjs`)
+### Phase 1: Layout & TDD Red State
+- [x] Task 1: Create Failing TDD Test Suite for All Four Refinements (`frontend/test/refinements_feed_and_profile.test.mjs`)
+- [ ] Task 2: Implement Sticky Sidebar and Centered Feed Layout (`frontend/src/app/feed/NewsFeedPage.tsx`)
 
-### Checkpoint 1: RED Test State Verified
-- [x] Tests fail cleanly on missing components.
+### Checkpoint 1: Layout Sticky & Tests RED
+- [ ] Sidebar sticky verified, test suite fails cleanly on unbuilt composer/profile upload features.
 
-### Phase 2: Left Profile Card & Feed Layout
-- [x] Task 2: Build Official Astryx `UserProfileCard` & 2-Column Feed Layout (`frontend/src/components/profile/UserProfileCard.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
+### Phase 2: Unified Post Composer
+- [ ] Task 3: Refactor PostComposer to Unified Model with PC Media Selection (`frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
 
-### Checkpoint 2: Left Card Rendered
-- [x] Profile Card renders on left of news feed with Avatar, name, tags, and stats.
+### Checkpoint 2: Composer Functional
+- [ ] Unified composer allows media upload from PC, previews inline, posts with proper type.
 
-### Phase 3: Full Profile View & Rich Bio Editor
-- [x] Task 3: Build `ProfileBioEditor` and `UserProfileView` (`frontend/src/components/profile/ProfileBioEditor.tsx`, `frontend/src/components/profile/UserProfileView.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
+### Phase 3: Profile Avatar Placement & Uploads
+- [ ] Task 4: Correct Avatar Placement & Add Avatar/Banner Upload Pickers (`frontend/src/components/profile/UserProfileView.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`)
 
-### Checkpoint 3: Profile View Interactive
-- [x] Full profile navigable from card with cover banner, bio editor with Banner feedback, post history with Skeleton loading, and "Back to Feed" button.
+### Checkpoint 3: Profile Overhaul Complete
+- [ ] Avatar overlaps banner with border ring, photo and banner upload pickers work smoothly, all tests turn GREEN.
 
-### Phase 4: Verification & Branch Commit
-- [x] Task 4: Automated Verification, Screenshot Artifacts, and Branch Commit
+### Phase 4: Verification, Artifacts & Commit
+- [ ] Task 5: Automated DevTools Verification, Screenshot Artifacts, and Branch Commit (`/tmp/verify_refinements.mjs`)
 
-### Checkpoint 4: Feature Complete
-- [x] `npm test` passes 100%. Build and linter clean. Committed and pushed to `Hunain-Frontend`.
+### Checkpoint 4: Complete
+- [ ] 100% green test suite, clean build/lint, screenshots generated, committed to `Hunain-Frontend`.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| 2-Column feed layout overflow on mobile | Medium | Use responsive CSS grid / flex wrap with `minmax(280px, 1fr)` |
-| `ClickableCard` nested button conflict | Low | Astryx `ClickableCard` uses `useClickableContainer` to safely ignore nested button clicks |
-| Markdown parsing complexity | Low | Astryx `@astryxdesign/core/Markdown` component natively renders formatted markdown |
+| Object URLs memory leak | Low | Revoke object URLs on component unmount or when media is discarded |
+| Layout collision on small screens | Medium | Use responsive `@media` or CSS flex-wrap rules with `min-width: 0` |
+| Video file size in browser | Low | Limit preview to HTML `<video>` element with `controls` and object URL |
