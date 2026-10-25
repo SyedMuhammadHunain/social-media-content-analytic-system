@@ -22,13 +22,13 @@
 ## Task 2: Implement Update Post Types and State Mutators
 **Description:** Define `UpdatePostInput` in `types/social.ts` and add `handleEditPost(postId, input)` and `handleDeletePost(postId)` in `NewsFeedPage.tsx`.
 **Acceptance criteria:**
-- [ ] `UpdatePostInput` exported in `types/social.ts`.
-- [ ] `handleEditPost` immutably updates matching post in `posts` state.
-- [ ] `handleDeletePost` removes matching post from `posts` state.
-- [ ] Zero TypeScript or lint errors.
+- [x] `UpdatePostInput` exported in `types/social.ts`.
+- [x] `handleEditPost` immutably updates matching post in `posts` state.
+- [x] `handleDeletePost` removes matching post from `posts` state.
+- [x] Zero TypeScript or lint errors.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
 **Dependencies:** Task 1
 **Files likely touched:**
 - `frontend/src/types/social.ts`
@@ -38,7 +38,7 @@
 ---
 
 ## Checkpoint 1: State Mutators Ready
-- [ ] Post edit and delete handlers compile and exist in feed container.
+- [x] Post edit and delete handlers compile and exist in feed container.
 
 ---
 

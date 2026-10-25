@@ -8,7 +8,7 @@ import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Card } from '@astryxdesign/core/Card';
 
-import type { CreatePostInput, Post, UserProfile } from '../../types/social';
+import type { CreatePostInput, UpdatePostInput, Post, UserProfile } from '../../types/social';
 import { CURRENT_USER, INITIAL_POSTS } from '../../mock/socialSeedData';
 import { PostComposer } from './PostComposer';
 import { PostCard } from './PostCard';
@@ -49,6 +49,25 @@ export function NewsFeedPage({
 
     // Prepend new post to the top (newest first - Req 4.1.vi)
     setPosts(prev => [newPost, ...prev]);
+  };
+
+  const handleEditPost = (postId: string, input: UpdatePostInput) => {
+    setPosts(prev =>
+      prev.map(p => {
+        if (p.id !== postId) return p;
+        return {
+          ...p,
+          text: input.text !== undefined ? input.text : p.text,
+          description: input.description !== undefined ? input.description : p.description,
+          mediaUrls: input.mediaUrls !== undefined ? input.mediaUrls : p.mediaUrls,
+          hashtags: input.hashtags !== undefined ? input.hashtags : p.hashtags,
+        };
+      })
+    );
+  };
+
+  const handleDeletePost = (postId: string) => {
+    setPosts(prev => prev.filter(p => p.id !== postId));
   };
 
   const handleToggleLike = (postId: string) => {
@@ -187,9 +206,12 @@ export function NewsFeedPage({
                       <PostCard
                         key={post.id}
                         post={post}
+                        currentUser={user}
                         onToggleLike={handleToggleLike}
                         onToggleFollow={handleToggleFollow}
                         onAddComment={handleAddComment}
+                        onEditPost={handleEditPost}
+                        onDeletePost={handleDeletePost}
                       />
                     ))
                   )}

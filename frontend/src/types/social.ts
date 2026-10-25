@@ -52,3 +52,11 @@ export interface CreatePostInput {
   description?: string;
   hashtags: string[];
 }
+
+export interface UpdatePostInput {
+  text?: string;
+  description?: string;
+  mediaUrls?: string[];
+  hashtags?: string[];
+}
+

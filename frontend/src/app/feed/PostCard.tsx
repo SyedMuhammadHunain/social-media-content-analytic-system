@@ -22,21 +22,27 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 
-import type { Post } from '../../types/social';
+import type { Post, UpdatePostInput, UserProfile } from '../../types/social';
 import { CommentSection } from './CommentSection';
 
 interface PostCardProps {
   post: Post;
+  currentUser?: UserProfile;
   onToggleLike: (postId: string) => void;
   onToggleFollow: (userId: string) => void;
   onAddComment: (postId: string, text: string) => void;
+  onEditPost?: (postId: string, input: UpdatePostInput) => void;
+  onDeletePost?: (postId: string) => void;
 }
 
 export function PostCard({
   post,
+  currentUser: _currentUser,
   onToggleLike,
   onToggleFollow,
   onAddComment,
+  onEditPost: _onEditPost,
+  onDeletePost: _onDeletePost,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
 
