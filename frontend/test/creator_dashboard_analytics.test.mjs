@@ -120,8 +120,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Navigate to Analytics Dashboard
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const dashboardBtn = items.find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
+        const dashboardBtn = document.querySelector('[data-testid="nav-analytics-dashboard"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);
@@ -177,8 +177,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Return to News Feed
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const feedBtn = items.find(el => el.innerText && el.innerText.includes('News Feed'));
+        const feedBtn = document.querySelector('[data-testid="nav-news-feed"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('News Feed'));
         if (feedBtn) feedBtn.click();
       })()
     `);
@@ -203,8 +203,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Switch back to Dashboard
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const dashboardBtn = items.find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
+        const dashboardBtn = document.querySelector('[data-testid="nav-analytics-dashboard"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);
@@ -224,8 +224,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Return to News Feed
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const feedBtn = items.find(el => el.innerText && el.innerText.includes('News Feed'));
+        const feedBtn = document.querySelector('[data-testid="nav-news-feed"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('News Feed'));
         if (feedBtn) feedBtn.click();
       })()
     `);
@@ -249,8 +249,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Return to Dashboard
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const dashboardBtn = items.find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
+        const dashboardBtn = document.querySelector('[data-testid="nav-analytics-dashboard"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);
@@ -269,8 +269,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Return to News Feed
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const feedBtn = items.find(el => el.innerText && el.innerText.includes('News Feed'));
+        const feedBtn = document.querySelector('[data-testid="nav-news-feed"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('News Feed'));
         if (feedBtn) feedBtn.click();
       })()
     `);
@@ -305,8 +305,8 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
     // Return to Dashboard
     await evaluate(`
       (() => {
-        const items = Array.from(document.querySelectorAll('nav [role="button"], nav button, nav *'));
-        const dashboardBtn = items.find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
+        const dashboardBtn = document.querySelector('[data-testid="nav-analytics-dashboard"]') ||
+          Array.from(document.querySelectorAll('nav a, nav button')).find(el => el.innerText && el.innerText.includes('Analytics Dashboard'));
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);

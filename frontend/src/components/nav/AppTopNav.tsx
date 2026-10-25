@@ -53,12 +53,14 @@ export const AppTopNav: FC<AppTopNavProps> = ({
       startContent={
         <>
           <TopNavItem
+            data-testid="nav-news-feed"
             label="News Feed"
             isSelected={activeTab === 'feed'}
             onClick={() => onSelectTab('feed')}
             icon={<Icon icon={NewspaperIcon} size="sm" />}
           />
           <TopNavItem
+            data-testid="nav-analytics-dashboard"
             label="Analytics Dashboard"
             isSelected={activeTab === 'dashboard'}
             onClick={() => onSelectTab('dashboard')}

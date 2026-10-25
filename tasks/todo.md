@@ -60,13 +60,13 @@
    - Comments / Engagement Area Graph (`data-testid="engagement-graph"`)
 3. Connect charts to `useAnalytics` telemetry state so they render dynamic data points.
 **Acceptance criteria:**
-- [ ] All 3 graph components mounted with proper `data-testid` selectors.
-- [ ] Graphs utilize Astryx theme tokens and responsive containers.
-- [ ] Top creator metric cards display live counters.
+- [x] All 3 graph components mounted with proper `data-testid` selectors.
+- [x] Graphs utilize Astryx theme tokens and responsive containers.
+- [x] Top creator metric cards display live counters.
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] Run `cd frontend && npm run build`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && npm run build`
 **Dependencies:** Task 2
 **Files likely touched:**
 - `frontend/src/app/dashboard/page.tsx`
