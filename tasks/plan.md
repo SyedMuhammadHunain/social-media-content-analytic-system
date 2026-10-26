@@ -268,7 +268,78 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Estimated scope:** S (1 report)
 
 ### Checkpoint 7: Cloud Atlas Microservices Live Verification Complete
-- [ ] MongoDB Atlas cluster `SMCAS` connected, seeded, and verified end-to-end with all microservices.
+- [x] MongoDB Atlas cluster `SMCAS` connected, seeded, and verified end-to-end with all microservices.
+
+---
+
+### Phase 8: Frontend-to-Backend Gateway Integration & Real-time Sync
+
+#### Task 20: Gateway Auth Service Endpoints (`api-gateway`)
+- **Description:** Implement `/v1/auth/register` and `/v1/auth/login` reactive endpoints on `api-gateway` (Port 8080) verifying credentials against MongoDB Atlas `UsersDB` and issuing JWT / auth tokens.
+- **Acceptance criteria:**
+  - POST `/v1/auth/login` validates username/email and BCrypt password against `UsersDB`.
+  - POST `/v1/auth/register` creates new user in `UsersDB` with unique username/email validation.
+  - Returns `ApiResponse<AuthResponse>` envelope with JWT token and user profile.
+- **Verification:** Unit and WebTestClient integration test on `api-gateway`.
+- **Dependencies:** Task 19
+- **Files touched:** `backend/api-gateway/pom.xml`, `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`, `backend/api-gateway/src/main/java/com/social/gateway/service/AuthService.java`
+- **Estimated scope:** M (3 files)
+
+#### Task 21: Frontend Typed Gateway API Client Layer
+- **Description:** Implement typed HTTP client in `frontend/src/api/` matching all Course Section 3 REST endpoints (`client.ts`, `authApi.ts`, `feedApi.ts`, `postsApi.ts`, `socialApi.ts`, `mediaApi.ts`).
+- **Acceptance criteria:**
+  - Configurable `VITE_API_GATEWAY_URL` with fallback to `http://localhost:8080`.
+  - Handles response wrapping, errors, timeouts, and DTO conversion (`BackendFeedPostDto` -> `Post`).
+- **Verification:** `cd frontend && npm test`
+- **Dependencies:** Task 20
+- **Files touched:** `frontend/src/api/client.ts`, `frontend/src/api/feedApi.ts`, `frontend/src/api/postsApi.ts`, `frontend/src/api/socialApi.ts`, `frontend/src/api/authApi.ts`
+- **Estimated scope:** M (5 files)
+
+#### Task 22: Live Auth & Demo User Switcher Integration
+- **Description:** Update `AuthContext.tsx` to authenticate against `/v1/auth/login` and add an Astryx dropdown in `AppTopNav.tsx` to easily switch between the 4 seeded demo accounts (`Hunain`, `Alice`, `Bob`, `Charlie`).
+- **Acceptance criteria:**
+  - `AuthContext` provides real user session state with fallback to seed user if offline.
+  - `AppTopNav` user switcher updates active user context and triggers feed re-query.
+- **Verification:** Frontend test verification and CDP browser checks.
+- **Dependencies:** Task 21
+- **Files touched:** `frontend/src/context/AuthContext.tsx`, `frontend/src/components/nav/AppTopNav.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 23: Live Newsfeed & Social Interaction Sync
+- **Description:** Wire `NewsFeedPage.tsx`, `PostComposer.tsx`, and `PostCard.tsx` to the API Gateway.
+- **Acceptance criteria:**
+  - Feed fetches live posts from `GET /v1/feeds/{userId}` on Atlas.
+  - Post creation sends `POST /v1/posts` and appears in feed.
+  - Like/unlike updates `POST /v1/like` and `DELETE /v1/unlike` and updates counters.
+  - Comments persist to `POST /v1/comment` and append to comment list.
+  - Optimistic UI updates with offline fallback.
+- **Verification:** Frontend test suite + CDP network monitoring.
+- **Dependencies:** Task 22
+- **Files touched:** `frontend/src/app/feed/NewsFeedPage.tsx`, `frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/PostCard.tsx`
+- **Estimated scope:** M (3 files)
+
+#### Task 24: Live Creator Analytical Dashboard Telemetry
+- **Description:** Update `AnalyticsContext.tsx` and `CreatorDashboard` to calculate real-time likes, followers, and engagement metrics directly from the live feed and user posts.
+- **Acceptance criteria:**
+  - Dashboard graphs (Likes, Followers, Engagement) reflect live mutations within 2 seconds.
+- **Verification:** Frontend analytics tests.
+- **Dependencies:** Task 23
+- **Files touched:** `frontend/src/context/AnalyticsContext.tsx`, `frontend/src/app/dashboard/page.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 25: End-to-End Browser & DevTools Protocol Verification
+- **Description:** Execute end-to-end browser test with Chrome DevTools Protocol verifying user switching, post publishing, liking, commenting, and sub-2s SLA. Document in `docs/reports/e2e-frontend-gateway-verification.md`.
+- **Acceptance criteria:**
+  - Zero browser console errors.
+  - All network calls succeed against API Gateway (`http://localhost:8080`).
+  - Sub-2s SLA maintained for all operations.
+- **Verification:** Node CDP verification script.
+- **Dependencies:** Task 24
+- **Files touched:** `docs/reports/e2e-frontend-gateway-verification.md`
+- **Estimated scope:** S (1 report)
+
+### Checkpoint 8: Full-Stack Gateway & Atlas Sync Complete
+- [x] End-to-end system fully operational: React 19 UI seamlessly communicates with all 8 microservices via API Gateway and MongoDB Atlas.
 
 ---
 

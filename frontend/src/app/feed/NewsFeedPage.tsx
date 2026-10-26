@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, LayoutContent, VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { Card } from '@astryxdesign/core/Card';
@@ -19,22 +19,26 @@ import type {
   FeedFilter,
   FeedFilterType,
   SuggestedCreator,
-} from '../../types/social';
+} from '../../types/social.ts';
 import {
   CURRENT_USER,
   INITIAL_POSTS,
   TRENDING_TOPICS,
   SUGGESTED_CREATORS,
-} from '../../mock/socialSeedData';
-import { PostComposer } from './PostComposer';
-import { PostCard } from './PostCard';
-import { FeedShortcutsCard } from './FeedShortcutsCard';
-import { TrendingTopicsCard } from './TrendingTopicsCard';
-import { WhoToFollowCard } from './WhoToFollowCard';
-import { PlatformInfoFooter } from './PlatformInfoFooter';
-import { UserProfileCard } from '../../components/profile/UserProfileCard';
-import { UserProfileView } from '../../components/profile/UserProfileView';
-import { useAnalytics } from '../../context/useAnalytics';
+} from '../../mock/socialSeedData.ts';
+import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
+import { PostComposer } from './PostComposer.tsx';
+import { PostCard } from './PostCard.tsx';
+import { FeedShortcutsCard } from './FeedShortcutsCard.tsx';
+import { TrendingTopicsCard } from './TrendingTopicsCard.tsx';
+import { WhoToFollowCard } from './WhoToFollowCard.tsx';
+import { PlatformInfoFooter } from './PlatformInfoFooter.tsx';
+import { UserProfileCard } from '../../components/profile/UserProfileCard.tsx';
+import { UserProfileView } from '../../components/profile/UserProfileView.tsx';
+import { useAnalytics } from '../../context/useAnalytics.ts';
+import { feedApi } from '../../api/feedApi.ts';
+import { postsApi } from '../../api/postsApi.ts';
+import { socialApi } from '../../api/socialApi.ts';
 
 interface NewsFeedPageProps {
   currentUser?: UserProfile;
@@ -56,10 +60,32 @@ export function NewsFeedPage({
     type: 'ALL',
     label: 'All Posts',
   });
+  const backendUserId = normalizeBackendUserId(user.id);
 
-  const handleCreatePost = (input: CreatePostInput) => {
+  // Load live newsfeed from API Gateway on user switch or mount
+  useEffect(() => {
+    let isMounted = true;
+
+    feedApi
+      .getFeedPostsUi(backendUserId, 0, 20)
+      .then((feedPosts) => {
+        if (!isMounted || !feedPosts || feedPosts.length === 0) return;
+        setPosts(feedPosts);
+      })
+      .catch(() => {
+        // Gateway offline: retain INITIAL_POSTS fallback
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [backendUserId]);
+
+  const handleCreatePost = async (input: CreatePostInput) => {
+    const tempId = `post_${Date.now()}`;
+
     const newPost: Post = {
-      id: `post_${Date.now()}`,
+      id: tempId,
       userId: user.id,
       author: user,
       type: input.type,
@@ -76,12 +102,30 @@ export function NewsFeedPage({
     };
 
     // Prepend new post to the top (newest first - Req 4.1.vi)
-    setPosts(prev => [newPost, ...prev]);
+    setPosts((prev) => [newPost, ...prev]);
+
+    try {
+      const created = await postsApi.createPost({
+        userId: backendUserId,
+        text: input.text,
+        mediaUrl: input.mediaUrl,
+        mediaType: input.type,
+        hashtags: input.hashtags,
+      });
+
+      if (created && created.id) {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === tempId ? { ...p, id: created.id } : p))
+        );
+      }
+    } catch {
+      // Offline fallback: keep optimistic post
+    }
   };
 
-  const handleEditPost = (postId: string, input: UpdatePostInput) => {
-    setPosts(prev =>
-      prev.map(p => {
+  const handleEditPost = async (postId: string, input: UpdatePostInput) => {
+    setPosts((prev) =>
+      prev.map((p) => {
         if (p.id !== postId) return p;
         return {
           ...p,
@@ -92,62 +136,105 @@ export function NewsFeedPage({
         };
       })
     );
+
+    try {
+      await postsApi.updatePost(postId, {
+        userId: backendUserId,
+        text: input.text,
+        hashtags: input.hashtags,
+      });
+    } catch {
+      // Offline fallback
+    }
   };
 
-  const handleDeletePost = (postId: string) => {
-    setPosts(prev => prev.filter(p => p.id !== postId));
+  const handleDeletePost = async (postId: string) => {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+
+    try {
+      await postsApi.deletePost(postId, backendUserId);
+    } catch {
+      // Offline fallback
+    }
   };
 
-  const handleToggleLike = (postId: string) => {
-    const post = posts.find(p => p.id === postId);
+  const handleToggleLike = async (postId: string) => {
+    const post = posts.find((p) => p.id === postId);
     if (!post) return;
 
     const nextIsLiked = !post.isLiked;
-    setPosts(prev =>
-      prev.map(p => {
+
+    setPosts((prev) =>
+      prev.map((p) => {
         if (p.id !== postId) return p;
         const likesCount = nextIsLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1);
         return { ...p, isLiked: nextIsLiked, likesCount };
       })
     );
     recordLikeToggle(nextIsLiked);
+
+    try {
+      const res = nextIsLiked
+        ? await socialApi.likePost(backendUserId, postId)
+        : await socialApi.unlikePost(backendUserId, postId);
+
+      if (res && typeof res.totalLikes === 'number') {
+        setPosts((prev) =>
+          prev.map((p) => (p.id === postId ? { ...p, likesCount: res.totalLikes } : p))
+        );
+      }
+    } catch {
+      // Offline fallback: retain optimistic state
+    }
   };
 
-  const handleToggleFollow = (userId: string) => {
-    const creator = suggestedCreators.find(c => c.id === userId);
-    const post = posts.find(p => p.author.id === userId);
+  const handleToggleFollow = async (userId: string) => {
+    const creator = suggestedCreators.find((c) => c.id === userId);
+    const post = posts.find((p) => p.author.id === userId);
     const nextIsFollowed = creator ? !creator.isFollowed : post ? !post.author.isFollowed : true;
 
     // 1. Toggle in suggested creators list
-    setSuggestedCreators(prev =>
-      prev.map(c => (c.id === userId ? { ...c, isFollowed: nextIsFollowed } : c))
+    setSuggestedCreators((prev) =>
+      prev.map((c) => (c.id === userId ? { ...c, isFollowed: nextIsFollowed } : c))
     );
 
     // 2. Toggle author state across all feed posts
-    setPosts(prev =>
-      prev.map(p =>
+    setPosts((prev) =>
+      prev.map((p) =>
         p.author.id === userId ? { ...p, author: { ...p.author, isFollowed: nextIsFollowed } } : p
       )
     );
 
     // 3. Update current user following counter
-    setUser(prev => ({
+    setUser((prev) => ({
       ...prev,
       followingCount: nextIsFollowed ? prev.followingCount + 1 : Math.max(0, prev.followingCount - 1),
     }));
 
     recordFollowToggle(nextIsFollowed);
+
+    try {
+      if (nextIsFollowed) {
+        await socialApi.followUser(backendUserId, userId);
+      } else {
+        await socialApi.unfollowUser(backendUserId, userId);
+      }
+    } catch {
+      // Offline fallback
+    }
   };
 
   const handleToggleBookmark = (postId: string) => {
-    setPosts(prev =>
-      prev.map(p => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p))
+    setPosts((prev) =>
+      prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p))
     );
   };
 
-  const handleAddComment = (postId: string, text: string) => {
+  const handleAddComment = async (postId: string, text: string) => {
+    const tempCommentId = `c_${Date.now()}`;
+
     const newComment = {
-      id: `c_${Date.now()}`,
+      id: tempCommentId,
       postId,
       userId: user.id,
       author: user,
@@ -155,8 +242,8 @@ export function NewsFeedPage({
       createdAt: 'Just now',
     };
 
-    setPosts(prev =>
-      prev.map(p => {
+    setPosts((prev) =>
+      prev.map((p) => {
         if (p.id !== postId) return p;
         return {
           ...p,
@@ -166,6 +253,28 @@ export function NewsFeedPage({
       })
     );
     recordComment();
+
+    try {
+      const saved = await socialApi.addComment({
+        userId: backendUserId,
+        postId,
+        content: text,
+      });
+
+      if (saved && saved.id) {
+        setPosts((prev) =>
+          prev.map((p) => {
+            if (p.id !== postId) return p;
+            return {
+              ...p,
+              comments: p.comments.map((c) => (c.id === tempCommentId ? { ...c, id: saved.id } : c)),
+            };
+          })
+        );
+      }
+    } catch {
+      // Offline fallback
+    }
   };
 
   const SHORTCUT_LABELS: Record<FeedFilterType, string> = {

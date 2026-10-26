@@ -12,7 +12,9 @@ import { Avatar } from '@astryxdesign/core/Avatar';
 import { Icon } from '@astryxdesign/core/Icon';
 import { HStack } from '@astryxdesign/core/Layout';
 import { MoreMenu } from '@astryxdesign/core/MoreMenu';
-import type { UserProfile } from '../../types/social';
+import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
+import type { UserProfile } from '../../types/social.ts';
+import type { DemoUserSummary } from '../../context/auth-context-def.ts';
 
 import {
   SunIcon,
@@ -20,6 +22,7 @@ import {
   NewspaperIcon,
   ChartBarSquareIcon,
   ArrowRightOnRectangleIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
 
 export interface AppTopNavProps {
@@ -29,6 +32,8 @@ export interface AppTopNavProps {
   onSelectTab: (tab: 'feed' | 'dashboard') => void;
   currentUser?: UserProfile | null;
   onLogout?: () => void;
+  demoUsers?: DemoUserSummary[];
+  onSwitchUser?: (userId: string) => void;
 }
 
 export const AppTopNav: FC<AppTopNavProps> = ({
@@ -38,8 +43,53 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   onSelectTab,
   currentUser,
   onLogout,
+  demoUsers,
+  onSwitchUser,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const userSwitcherItems = (demoUsers || []).map((u) => ({
+    id: `switch-${u.id}`,
+    label: `${u.name}${currentUser?.id === u.id ? ' (Active)' : ''}`,
+    description: `@${u.username}`,
+    icon: <Avatar name={u.name} src={u.avatarUrl} size="sm" />,
+    onClick: () => onSwitchUser?.(u.id),
+  }));
+
+  const mobileMenuItems = [
+    {
+      id: 'nav-feed',
+      label: 'News Feed',
+      icon: <Icon icon={NewspaperIcon} size="sm" />,
+      onClick: () => onSelectTab('feed'),
+    },
+    {
+      id: 'nav-analytics',
+      label: 'Analytics Dashboard',
+      icon: <Icon icon={ChartBarSquareIcon} size="sm" />,
+      onClick: () => onSelectTab('dashboard'),
+    },
+    ...(demoUsers && demoUsers.length > 0 && onSwitchUser
+      ? demoUsers.map((u) => ({
+          id: `mobile-switch-${u.id}`,
+          label: `Switch to ${u.name}${currentUser?.id === u.id ? ' ✓' : ''}`,
+          icon: <Avatar name={u.name} src={u.avatarUrl} size="sm" />,
+          onClick: () => onSwitchUser(u.id),
+        }))
+      : []),
+    {
+      id: 'theme-toggle',
+      label: mode === 'dark' ? 'Light Mode' : 'Dark Mode',
+      icon: <Icon icon={mode === 'dark' ? SunIcon : MoonIcon} size="sm" />,
+      onClick: onToggleTheme,
+    },
+    {
+      id: 'logout',
+      label: 'Logout',
+      icon: <Icon icon={ArrowRightOnRectangleIcon} size="sm" />,
+      onClick: onLogout,
+    },
+  ];
 
   return (
     <>
@@ -119,6 +169,20 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             {/* Desktop Actions */}
             <div className="desktop-nav-actions">
               <HStack gap={2} vAlign="center">
+                {/* Demo User Switcher Dropdown */}
+                {userSwitcherItems.length > 0 && onSwitchUser && (
+                  <DropdownMenu
+                    data-testid="nav-user-switcher"
+                    button={{
+                      label: currentUser ? currentUser.name.split(' ')[0] : 'Switch User',
+                      variant: 'secondary',
+                      size: 'sm',
+                      icon: <Icon icon={UsersIcon} size="sm" />,
+                    }}
+                    items={userSwitcherItems}
+                  />
+                )}
+
                 <Button
                   label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                   isIconOnly
@@ -144,32 +208,7 @@ export const AppTopNav: FC<AppTopNavProps> = ({
                 label="Navigation options"
                 size="sm"
                 presentation="adaptive"
-                items={[
-                  {
-                    id: 'nav-feed',
-                    label: 'News Feed',
-                    icon: <Icon icon={NewspaperIcon} size="sm" />,
-                    onClick: () => onSelectTab('feed'),
-                  },
-                  {
-                    id: 'nav-analytics',
-                    label: 'Analytics Dashboard',
-                    icon: <Icon icon={ChartBarSquareIcon} size="sm" />,
-                    onClick: () => onSelectTab('dashboard'),
-                  },
-                  {
-                    id: 'theme-toggle',
-                    label: mode === 'dark' ? 'Light Mode' : 'Dark Mode',
-                    icon: <Icon icon={mode === 'dark' ? SunIcon : MoonIcon} size="sm" />,
-                    onClick: onToggleTheme,
-                  },
-                  {
-                    id: 'logout',
-                    label: 'Logout',
-                    icon: <Icon icon={ArrowRightOnRectangleIcon} size="sm" />,
-                    onClick: onLogout,
-                  },
-                ]}
+                items={mobileMenuItems}
               />
             </div>
 

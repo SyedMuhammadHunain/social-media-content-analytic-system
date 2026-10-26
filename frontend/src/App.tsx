@@ -24,7 +24,7 @@ function AppContent({
   mode: ThemeMode;
   onToggleTheme: () => void;
 }) {
-  const { isAuthenticated, currentUser, logout } = useAuth();
+  const { isAuthenticated, currentUser, logout, demoUsers, switchUser } = useAuth();
   const [activeTab, setActiveTab] = useState<AppTab>('feed');
 
   if (!isAuthenticated) {
@@ -57,13 +57,19 @@ function AppContent({
         onSelectTab={setActiveTab}
         currentUser={currentUser}
         onLogout={logout}
+        demoUsers={demoUsers}
+        onSwitchUser={switchUser}
       />
 </header>
 
       {/* Main Content Area */}
       <main>
         {activeTab === 'feed' ? (
-          <NewsFeedPage onNavigateAnalytics={() => setActiveTab('dashboard')} />
+          <NewsFeedPage
+            key={currentUser?.id}
+            currentUser={currentUser || undefined}
+            onNavigateAnalytics={() => setActiveTab('dashboard')}
+          />
         ) : (
           <DashboardTemplate />
         )}

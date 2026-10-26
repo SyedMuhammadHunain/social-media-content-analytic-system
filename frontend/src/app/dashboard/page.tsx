@@ -150,6 +150,7 @@ export default function DashboardPage() {
     summary,
     timeRange,
     setTimeRange,
+    refreshMetrics,
   } = useAnalytics();
 
   const followerSparkline = followersData.map(d => d.followers);
@@ -206,10 +207,12 @@ export default function DashboardPage() {
                   />
                 ))}
                 <Button
+                  data-testid="refresh-metrics-btn"
                   label="Refresh"
                   variant="secondary"
                   size="sm"
                   icon={<Icon icon={ArrowPathIcon} size="xsm" />}
+                  onClick={refreshMetrics}
                 />
               </HStack>
             </HStack>

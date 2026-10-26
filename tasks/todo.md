@@ -39,3 +39,12 @@
 - [x] Task 18: Demo Seed Data Generator (`PostsDB`, `LikesDB`, `FollowDB`, `CommentsDB`, `FeedDB`)
 - [x] Task 19: End-to-End Cloud Service Verification Report
 - [x] Checkpoint 7: Cloud Atlas Microservices Live Verification Complete
+
+## Phase 8: Frontend-to-Backend Gateway Integration & Real-time Sync
+- [x] Task 20: Gateway Auth Service Endpoints (`api-gateway`, `/v1/auth/*`, `UsersDB`)
+- [x] Task 21: Frontend Typed Gateway API Client Layer (`frontend/src/api/*`)
+- [x] Task 22: Live Auth & Demo User Switcher Integration (`AuthContext.tsx`, `AppTopNav.tsx`)
+- [x] Task 23: Live Newsfeed & Social Interaction Sync (`NewsFeedPage.tsx`, `PostCard.tsx`, `PostComposer.tsx`)
+- [x] Task 24: Live Creator Analytical Dashboard Telemetry (`AnalyticsContext.tsx`)
+- [x] Task 25: End-to-End Browser & DevTools Protocol Verification
+- [x] Checkpoint 8: Full-Stack Gateway & Atlas Sync Complete

@@ -23,12 +23,13 @@ import {
   BookmarkIcon as BookmarkSolid,
 } from '@heroicons/react/24/solid';
 
-import type { Post, UpdatePostInput, UserProfile } from '../../types/social';
-import { CommentSection } from './CommentSection';
-import { PostEditModal } from './PostEditModal';
-import { PostHeader } from './PostHeader';
-import { PostMediaViewer } from './PostMediaViewer';
-import { PostDeleteModal } from './PostDeleteModal';
+import type { Post, UpdatePostInput, UserProfile, Comment } from '../../types/social.ts';
+import { CommentSection } from './CommentSection.tsx';
+import { PostEditModal } from './PostEditModal.tsx';
+import { PostHeader } from './PostHeader.tsx';
+import { PostMediaViewer } from './PostMediaViewer.tsx';
+import { PostDeleteModal } from './PostDeleteModal.tsx';
+import { socialApi } from '../../api/socialApi.ts';
 
 interface PostCardProps {
   post: Post;
@@ -52,11 +53,42 @@ export function PostCard({
   onDeletePost,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
+  const [remoteComments, setRemoteComments] = useState<Comment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const isAuthor = Boolean(currentUser && currentUser.id === post.author.id);
   const postContent = post.text || post.description;
+
+  const handleToggleComments = async () => {
+    const nextShow = !showComments;
+    setShowComments(nextShow);
+
+    if (nextShow && post.comments.length === 0 && post.commentsCount > 0 && remoteComments.length === 0) {
+      try {
+        const backendComments = await socialApi.getComments(post.id);
+        if (backendComments && backendComments.length > 0) {
+          const mapped: Comment[] = backendComments.map((c) => ({
+            id: c.id,
+            postId: c.postId,
+            userId: c.userId,
+            author: {
+              id: c.userId,
+              username: c.userId.replace(/^user_/, ''),
+              name: c.userId === currentUser?.id ? currentUser.name : c.userId.replace(/^user_/, ''),
+              avatarUrl: c.userId === currentUser?.id ? currentUser.avatarUrl : undefined,
+              isFollowed: false,
+            },
+            text: c.content,
+            createdAt: new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          }));
+          setRemoteComments(mapped);
+        }
+      } catch {
+        // Offline fallback
+      }
+    }
+  };
 
   return (
     <div data-testid={`post-card-${post.id}`}>
@@ -125,7 +157,7 @@ export function PostCard({
                 variant="secondary"
                 size="sm"
                 icon={<Icon icon={ChatBubbleBottomCenterTextIcon} size="sm" />}
-                onClick={() => setShowComments(!showComments)}
+                onClick={handleToggleComments}
               />
             </HStack>
 
@@ -157,7 +189,7 @@ export function PostCard({
           {showComments && (
             <CommentSection
               postId={post.id}
-              comments={post.comments}
+              comments={[...post.comments, ...remoteComments]}
               onAddComment={onAddComment}
             />
           )}

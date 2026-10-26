@@ -3,14 +3,53 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { UserProfile } from '../types/social';
-import { SEED_ACCOUNTS, type AuthUserAccount } from '../mock/authSeedData';
-import { AuthContext } from './auth-context-def';
-export type { AuthContextType } from './auth-context-def';
+import type { UserProfile } from '../types/social.ts';
+import { SEED_ACCOUNTS, type AuthUserAccount } from '../mock/authSeedData.ts';
+import { AuthContext, type DemoUserSummary } from './auth-context-def.ts';
+import { authApi } from '../api/authApi.ts';
+import { setAuthToken } from '../api/client.ts';
+
+export type { AuthContextType, DemoUserSummary } from './auth-context-def.ts';
 
 const AUTH_STORAGE_KEY = 'smcas_session_user';
+const TOKEN_STORAGE_KEY = 'smcas_auth_token';
+
+const DEFAULT_DEMO_USERS: DemoUserSummary[] = [
+  {
+    id: 'user_hunain',
+    username: 'hunain',
+    name: 'Syed Muhammad Hunain',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    headline: 'Staff Infrastructure Architect • Distributed Media Systems',
+  },
+  {
+    id: 'user_alice',
+    username: 'alice',
+    name: 'Alice Walker',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    headline: 'Distributed Systems & Cloud Lead',
+  },
+  {
+    id: 'user_bob',
+    username: 'bob',
+    name: 'Bob Creator',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    headline: 'Creative Media Director & Video Producer',
+  },
+  {
+    id: 'user_charlie',
+    username: 'charlie',
+    name: 'Charlie Dev',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    headline: 'Full-Stack Engineer & Reactive Microservices Dev',
+  },
+];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
@@ -22,8 +61,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const [accounts, setAccounts] = useState<AuthUserAccount[]>(SEED_ACCOUNTS);
+  const [demoUsers, setDemoUsers] = useState<DemoUserSummary[]>(DEFAULT_DEMO_USERS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Restore stored token if present
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (token) {
+        setAuthToken(token);
+      }
+    } catch {}
+  }, []);
+
+  // Fetch demo users from API Gateway with graceful fallback
+  useEffect(() => {
+    let isMounted = true;
+    authApi
+      .getDemoUsers()
+      .then((users) => {
+        if (!isMounted || !users || users.length === 0) return;
+        const mapped: DemoUserSummary[] = users.map((u) => {
+          const matchedSeed = SEED_ACCOUNTS.find(
+            (a) => a.user.id === u.id || a.user.username.toLowerCase() === u.username.toLowerCase()
+          );
+          return {
+            id: u.id,
+            username: u.username,
+            name: u.name || (matchedSeed ? matchedSeed.user.name : u.username),
+            avatarUrl: u.avatarUrl || (matchedSeed ? matchedSeed.user.avatarUrl : undefined),
+            headline: matchedSeed?.user.headline,
+          };
+        });
+        setDemoUsers(mapped);
+      })
+      .catch(() => {
+        // Gateway offline: silently retain DEFAULT_DEMO_USERS
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const clearError = () => setError(null);
 
@@ -31,29 +111,81 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
 
-    // Simulate async network latency
-    await new Promise((r) => setTimeout(r, 150));
-
     const normalized = emailOrUsername.trim().toLowerCase();
-    const account = accounts.find(
+
+    // 1. Attempt API Gateway login first
+    try {
+      const res = await authApi.login({ usernameOrEmail: emailOrUsername.trim(), password });
+      if (res && res.token) {
+        setAuthToken(res.token);
+        try {
+          localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
+        } catch {}
+
+        const seedMatch = accounts.find(
+          (a) =>
+            a.user.id === res.userId ||
+            a.user.username.toLowerCase() === res.username.toLowerCase() ||
+            a.email.toLowerCase() === normalized
+        );
+
+        const profile: UserProfile = seedMatch
+          ? {
+              ...seedMatch.user,
+              id: res.userId,
+              username: res.username,
+              name: res.fullName || seedMatch.user.name,
+            }
+          : {
+              id: res.userId,
+              username: res.username,
+              name: res.fullName || res.username,
+              avatarUrl:
+                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+              isFollowed: false,
+              headline: 'Social Media Creator',
+              tags: ['Creator', 'Meta Astryx'],
+              bio: 'Active creator on Social Media Content Analysis System',
+              followerCount: 0,
+              followingCount: 0,
+            };
+
+        setCurrentUser(profile);
+        try {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
+        } catch {}
+
+        setIsLoading(false);
+        return true;
+      }
+    } catch {
+      // API call failed or gateway offline -> continue to offline fallback check
+    }
+
+    // 2. Offline fallback check against seed accounts
+    const localAccount = accounts.find(
       (a) =>
         (a.email.toLowerCase() === normalized ||
-          a.user.username.toLowerCase() === normalized) &&
+          a.user.username.toLowerCase() === normalized ||
+          a.user.id.toLowerCase() === normalized) &&
         a.passwordHash === password
     );
 
     setIsLoading(false);
 
-    if (account) {
-      setCurrentUser(account.user);
+    if (localAccount) {
+      setCurrentUser(localAccount.user);
+      const mockToken = `mock_token_${localAccount.user.id}`;
+      setAuthToken(mockToken);
       try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(account.user));
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(localAccount.user));
+        localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
       } catch {}
       return true;
-    } else {
-      setError('Invalid username/email or password. Please try again.');
-      return false;
     }
+
+    setError('Invalid username/email or password. Please try again.');
+    return false;
   };
 
   const register = async (
@@ -64,8 +196,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
 
-    await new Promise((r) => setTimeout(r, 150));
-
     const cleanUsername = username.trim();
     const cleanEmail = email.trim();
 
@@ -75,6 +205,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
+    // 1. Attempt API Gateway registration
+    try {
+      const res = await authApi.register({
+        username: cleanUsername,
+        email: cleanEmail,
+        password,
+        fullName: cleanUsername,
+      });
+
+      if (res && res.token) {
+        setAuthToken(res.token);
+        try {
+          localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
+        } catch {}
+
+        const newUser: UserProfile = {
+          id: res.userId,
+          username: res.username,
+          name: res.fullName || res.username,
+          avatarUrl:
+            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+          isFollowed: false,
+          headline: 'Social Media Creator',
+          tags: ['Creator', 'Meta Astryx'],
+          bio: 'Excited to join the Social Media Content Analysis System platform!',
+          followerCount: 0,
+          followingCount: 0,
+        };
+
+        setCurrentUser(newUser);
+        try {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
+        } catch {}
+
+        setIsLoading(false);
+        return true;
+      }
+    } catch {
+      // Offline fallback
+    }
+
+    // 2. Offline fallback registration
     if (
       accounts.some(
         (a) =>
@@ -116,11 +288,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const switchUser = async (userId: string): Promise<boolean> => {
+    const matchedAccount = accounts.find(
+      (a) => a.user.id === userId || a.user.username.toLowerCase() === userId.toLowerCase()
+    );
+
+    if (matchedAccount) {
+      setCurrentUser(matchedAccount.user);
+      const token = `token_${matchedAccount.user.id}`;
+      setAuthToken(token);
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(matchedAccount.user));
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      } catch {}
+      return true;
+    }
+
+    const matchedDemo = demoUsers.find((d) => d.id === userId || d.username === userId);
+    if (matchedDemo) {
+      const userProfile: UserProfile = {
+        id: matchedDemo.id,
+        username: matchedDemo.username,
+        name: matchedDemo.name,
+        avatarUrl: matchedDemo.avatarUrl,
+        isFollowed: false,
+        headline: matchedDemo.headline || 'Social Media Creator',
+        tags: ['Creator', 'Meta Astryx'],
+        bio: 'Creator on Social Media Content Analysis System',
+        followerCount: 1000,
+        followingCount: 100,
+      };
+      setCurrentUser(userProfile);
+      const token = `token_${matchedDemo.id}`;
+      setAuthToken(token);
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      } catch {}
+      return true;
+    }
+
+    return false;
+  };
+
   const logout = () => {
+    authApi.logout();
     setCurrentUser(null);
     setError(null);
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
     } catch {}
   };
 
@@ -131,9 +348,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!currentUser,
         isLoading,
         error,
+        demoUsers,
         login,
         register,
         logout,
+        switchUser,
         clearError,
       }}
     >
@@ -141,4 +360,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
-

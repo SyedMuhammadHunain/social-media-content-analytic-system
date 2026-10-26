@@ -39,4 +39,6 @@ export interface AnalyticsContextType {
   recordLikeToggle: (isLiked: boolean) => void;
   recordFollowToggle: (isFollowed: boolean) => void;
   recordComment: () => void;
+  refreshMetrics?: () => Promise<void>;
+  syncUserMetrics?: (userId: string) => void;
 }

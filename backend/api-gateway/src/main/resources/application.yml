@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: api-gateway
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/SocialMediaContentAnalysisSystem}
   cloud:
     gateway:
       routes:

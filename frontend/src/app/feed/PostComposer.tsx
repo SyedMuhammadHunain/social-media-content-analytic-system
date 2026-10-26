@@ -22,7 +22,9 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
-import type { CreatePostInput, PostType, User } from '../../types/social';
+import type { CreatePostInput, PostType, User } from '../../types/social.ts';
+import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
+import { mediaApi } from '../../api/mediaApi.ts';
 
 interface PostComposerProps {
   currentUser: User;
@@ -34,11 +36,12 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO'>('IMAGE');
   const [hashtagsRaw, setHashtagsRaw] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isValid = text.trim().length > 0 || mediaUrl.length > 0;
 
-  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -53,6 +56,38 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
 
     // Reset input so re-selecting same file triggers change
     e.target.value = '';
+
+    // Asynchronously generate presigned SAS URL and upload to Azure Blob if online
+    try {
+      setIsUploading(true);
+      const effectiveUserId = normalizeBackendUserId(currentUser.id);
+      const presign = await mediaApi.getPresignedUploadUrl({
+        userId: effectiveUserId,
+        fileName: file.name,
+        contentType: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
+      });
+
+      if (presign && presign.uploadUrl) {
+        try {
+          await mediaApi.uploadBlob(
+            presign.uploadUrl,
+            file,
+            file.type || (isVideo ? 'video/mp4' : 'image/jpeg')
+          );
+          if (presign.publicBlobUrl) {
+            setMediaUrl(presign.publicBlobUrl);
+          }
+        } catch {
+          if (presign.publicBlobUrl) {
+            setMediaUrl(presign.publicBlobUrl);
+          }
+        }
+      }
+    } catch {
+      // Offline fallback: retain local object preview URL
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleRemoveMedia = () => {
@@ -202,10 +237,10 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
           />
 
           <Button
-            label="Publish Post"
+            label={isUploading ? 'Uploading...' : 'Publish Post'}
             variant="primary"
             size="md"
-            isDisabled={!isValid}
+            isDisabled={!isValid || isUploading}
             icon={<Icon icon={PaperAirplaneIcon} size="sm" />}
             onClick={handleSubmit}
           />
