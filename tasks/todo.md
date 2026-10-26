@@ -23,15 +23,15 @@
 3. `PostHeader.tsx`: author avatar, username, format badge, timestamp, and edit/delete/follow controls.
 Refactor `PostCard.tsx` to orchestrate these subcomponents cleanly in ~120 lines.
 **Acceptance criteria:**
-- [ ] `PostDeleteModal.tsx`, `PostMediaViewer.tsx`, and `PostHeader.tsx` implemented using Astryx components.
-- [ ] `PostCard.tsx` imports and renders subcomponents with clean props.
-- [ ] All `data-testid` attributes preserved exactly.
-- [ ] Zero TypeScript errors (`cd frontend && npx tsc -b`).
-- [ ] Zero lint errors (`cd frontend && npm run lint`).
+- [x] `PostDeleteModal.tsx`, `PostMediaViewer.tsx`, and `PostHeader.tsx` implemented using Astryx components.
+- [x] `PostCard.tsx` imports and renders subcomponents with clean props.
+- [x] All `data-testid` attributes preserved exactly.
+- [x] Zero TypeScript errors (`cd frontend && npx tsc -b`).
+- [x] Zero lint errors (`cd frontend && npm run lint`).
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] Run `cd frontend && node --test test/post_edit_delete.test.mjs`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && node --test test/post_edit_and_delete.test.mjs`
 **Dependencies:** None
 **Files likely touched:**
 - `frontend/src/app/feed/PostHeader.tsx`
@@ -43,9 +43,9 @@ Refactor `PostCard.tsx` to orchestrate these subcomponents cleanly in ~120 lines
 ---
 
 ## Checkpoint 1: PostCard Refactor Verified
-- [ ] TypeScript check clean (`npx tsc -b`)
-- [ ] Lint check clean (`npm run lint`)
-- [ ] Post edit/delete tests pass (`test/post_edit_delete.test.mjs`)
+- [x] TypeScript check clean (`npx tsc -b`)
+- [x] Lint check clean (`npm run lint`)
+- [x] Post edit/delete tests pass (`test/post_edit_and_delete.test.mjs`)
 
 ---
 

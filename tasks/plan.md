@@ -19,15 +19,15 @@ Decompose monolithic UI components (`PostCard.tsx` and `UserProfileView.tsx`) in
 ## Task List
 
 ### Phase 1: CodeScene Rule Setup
-- [ ] Task 1: CodeScene Configuration & Test Exclusion Rules (`.codescene/code-health-rules.json`, `docs/reports/codescene-configuration-guide.md`)
+- [x] Task 1: CodeScene Configuration & Test Exclusion Rules (`.codescene/code-health-rules.json`, `docs/reports/codescene-configuration-guide.md`)
 
 ### Phase 2: PostCard Component Decomposition
-- [ ] Task 2: Decompose `PostCard.tsx` into `PostHeader`, `PostMediaViewer`, and `PostDeleteModal`
+- [x] Task 2: Decompose `PostCard.tsx` into `PostHeader`, `PostMediaViewer`, and `PostDeleteModal`
 
 ### Checkpoint 1: PostCard Refactor Verified
-- [ ] `cd frontend && npx tsc -b` passes with 0 errors
-- [ ] `cd frontend && npm run lint` passes with 0 warnings
-- [ ] Post edit/delete test suite passes (`post_edit_delete.test.mjs`)
+- [x] `cd frontend && npx tsc -b` passes with 0 errors
+- [x] `cd frontend && npm run lint` passes with 0 warnings
+- [x] Post edit/delete test suite passes (`post_edit_and_delete.test.mjs`)
 
 ### Phase 3: UserProfileView Component Decomposition
 - [ ] Task 3: Decompose `UserProfileView.tsx` into `ProfileHeaderBanner` and `ProfileMetaDetails`
