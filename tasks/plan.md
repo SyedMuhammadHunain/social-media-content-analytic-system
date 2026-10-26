@@ -200,6 +200,78 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files likely touched:** `docs/reports/backend-verification.md`
 - **Estimated scope:** S (1 file)
 
+### Checkpoint 6: Full Verification Complete
+- [x] All 8 microservices compile, pass tests, start up cleanly, and satisfy latency SLAs.
+
+---
+
+### Phase 7: MongoDB Atlas Cloud Integration & Data Seeding
+
+#### Task 15: Secret & Git Hygiene Setup
+- **Description:** Exclude `.env` files from Git tracking, copy Atlas credentials from `~/Downloads/atlas-credentials.env` to `backend/.env` with target database `SocialMediaContentAnalysisSystem`, provide `.env.example`, and update runner scripts to source `.env`.
+- **Acceptance criteria:**
+  - `git check-ignore backend/.env` confirms `.env` is ignored.
+  - `backend/.env` contains valid `MONGODB_URI` pointing to database `SocialMediaContentAnalysisSystem`.
+  - `scripts/start-backend.sh` automatically reads `backend/.env`.
+- **Verification:** `git status` confirms no `.env` tracked; variable check confirms `MONGODB_URI` exported.
+- **Dependencies:** Task 14
+- **Files touched:** `.gitignore`, `backend/.env`, `backend/.env.example`, `scripts/start-backend.sh`
+- **Estimated scope:** S (3 files)
+
+#### Task 16: Atlas Connectivity & Cluster Health Check
+- **Description:** Implement and execute a lightweight MongoDB Atlas connectivity tester to verify network reachability, TLS handshake, credentials, and ping latency against `SMCAS` (`smcas.d8avoun.mongodb.net`).
+- **Acceptance criteria:**
+  - Successfully connects and executes MongoDB `ping` command.
+  - Returns authenticated cluster status and latency.
+- **Verification:** Execute connectivity check tool or test harness.
+- **Dependencies:** Task 15
+- **Files touched:** `backend/seed/MongoAtlasHealthCheck.java` or script runner
+- **Estimated scope:** S (1-2 files)
+
+#### Task 17: Database Clean Wipe & Index Initializer
+- **Description:** Provide a clean-slate wiping mechanism that drops existing collections (`posts`, `likes`, `follows`, `comments`, `feeds`) and initializes required indexes.
+- **Acceptance criteria:**
+  - Collections wiped cleanly.
+  - Indexes created:
+    - `posts`: `authorId`, `createdAt`, `tags`
+    - `follows`: `followerId`, `followeeId`, compound unique `followerId + followeeId`
+    - `likes`: `postId`, `userId`, compound unique `postId + userId`
+    - `comments`: `postId`, `createdAt`
+    - `feeds`: `userId`, `publishedAt`
+- **Verification:** Verify index list and collection status on Atlas.
+- **Dependencies:** Task 16
+- **Files touched:** Seeder / indexer script
+- **Estimated scope:** M (2 files)
+
+#### Task 18: Demo Seed Data Generator
+- **Description:** Populate `SocialMediaContentAnalysisSystem` on Atlas with realistic course demonstration data matching domain models.
+- **Acceptance criteria:**
+  - 4 Users created (`hunain`, `alice_tech`, `bob_creator`, `charlie_dev`).
+  - 12 Posts created spanning TEXT, IMAGE, and VIDEO types with hashtags.
+  - Follow relationships established among users.
+  - Likes and Comments populated with consistent denormalized counts in `posts`.
+  - News feeds populated in `feeds` (`FeedDB`) according to the fan-out relationship graph.
+- **Verification:** Query collections count and sample records from Atlas.
+- **Dependencies:** Task 17
+- **Files touched:** `backend/seed/seed-data.json`, `backend/seed/MongoAtlasDatabaseSeeder.java` (or runner)
+- **Estimated scope:** M (2 files)
+
+#### Task 19: End-to-End Cloud Service Verification Report
+- **Description:** Boot microservices with Atlas configuration and verify live read/write operations against the cloud cluster. Document findings in `docs/reports/mongodb-atlas-cloud-verification.md`.
+- **Acceptance criteria:**
+  - Microservices boot without error using cloud `MONGODB_URI`.
+  - Gateway routes requests to services; services query and mutate cloud Atlas documents.
+  - Sub-2s SLA maintained.
+- **Verification:** Run multi-service test / curl through gateway port 8080.
+- **Dependencies:** Task 18
+- **Files touched:** `docs/reports/mongodb-atlas-cloud-verification.md`
+- **Estimated scope:** S (1 report)
+
+### Checkpoint 7: Cloud Atlas Microservices Live Verification Complete
+- [ ] MongoDB Atlas cluster `SMCAS` connected, seeded, and verified end-to-end with all microservices.
+
+---
+
 ---
 
 ## Risks and Mitigations

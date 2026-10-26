@@ -10,6 +10,21 @@ rm -f "$PIDFILE"
 echo "=== Starting Social Media Backend Microservices (Java 21) ==="
 echo "Memory cap: 128MB per service"
 
+# Load environment variables from backend/.env or root .env if present
+if [ -f "$DIR/backend/.env" ]; then
+    echo "Loading environment from backend/.env..."
+    set -a
+    # shellcheck disable=SC1091
+    source "$DIR/backend/.env"
+    set +a
+elif [ -f "$DIR/.env" ]; then
+    echo "Loading environment from .env..."
+    set -a
+    # shellcheck disable=SC1091
+    source "$DIR/.env"
+    set +a
+fi
+
 # Export local defaults if not already present
 export MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/social_db}"
 export AZURE_STORAGE_CONNECTION_STRING="${AZURE_STORAGE_CONNECTION_STRING:-}"

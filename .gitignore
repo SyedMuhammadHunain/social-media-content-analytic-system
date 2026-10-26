@@ -9,3 +9,10 @@ target/
 .DS_Store
 scripts/*.log
 scripts/.backend.pids
+
+# Environment and secrets
+.env
+*.env
+.env.local
+backend/.env
+
