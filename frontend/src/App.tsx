@@ -41,6 +41,15 @@ function AppContent({
       }}
     >
       {/* Official Astryx Mega TopNav */}
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        backgroundColor: 'var(--color-background-body, #111111)',
+        borderBottom: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08))',
+      }}
+    >
       <AppTopNav
         mode={mode}
         onToggleTheme={onToggleTheme}
@@ -49,6 +58,7 @@ function AppContent({
         currentUser={currentUser}
         onLogout={logout}
       />
+</header>
 
       {/* Main Content Area */}
       <main>
