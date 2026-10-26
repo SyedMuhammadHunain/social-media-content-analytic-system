@@ -34,6 +34,9 @@
         <module>api-gateway</module>
         <module>presigned-url-service</module>
         <module>post-writer-service</module>
+        <module>like-unlike-service</module>
+        <module>comment-service</module>
+        <module>follow-service</module>
     </modules>
 
     <dependencyManagement>

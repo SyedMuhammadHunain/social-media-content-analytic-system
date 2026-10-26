@@ -17,10 +17,10 @@
 - [x] Checkpoint 3: Ingestion Pipeline Verified
 
 ## Phase 4: Social Engagement Services
-- [ ] Task 8: Like / Unlike Service (`like-unlike-service`, Port 8083, `LikesDB`)
-- [ ] Task 9: Comment Service (`comment-service`, Port 8085, `CommentsDB`)
-- [ ] Task 10: Follow Service (`follow-service`, Port 8084, `FollowDB`)
-- [ ] Checkpoint 4: Social Services Verified
+- [x] Task 8: Like / Unlike Service (`like-unlike-service`, Port 8083, `LikesDB`)
+- [x] Task 9: Comment Service (`comment-service`, Port 8085, `CommentsDB`)
+- [x] Task 10: Follow Service (`follow-service`, Port 8084, `FollowDB`)
+- [x] Checkpoint 4: Social Services Verified
 
 ## Phase 5: Newsfeed Fan-out & Reader Services
 - [ ] Task 11: Newsfeed Generator Service (`newsfeed-generator-service`, Port 8086, Fan-out Engine)
