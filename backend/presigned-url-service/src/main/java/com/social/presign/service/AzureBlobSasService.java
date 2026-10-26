@@ -43,46 +43,48 @@ public class AzureBlobSasService {
 
         if (connectionString != null && !connectionString.isBlank()) {
             try {
-                BlobServiceClient serviceClient = new BlobServiceClientBuilder()
-                        .connectionString(connectionString)
-                        .buildClient();
-
-                BlobContainerClient containerClient = serviceClient.getBlobContainerClient(containerName);
-                if (!containerClient.exists()) {
-                    containerClient.create();
-                }
-
-                BlobClient blobClient = containerClient.getBlobClient(uniqueBlobName);
-
-                BlobSasPermission permissions = new BlobSasPermission()
-                        .setCreatePermission(true)
-                        .setWritePermission(true);
-
-                BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
-                        OffsetDateTime.now().plusMinutes(expiryMinutes),
-                        permissions
-                ).setContentType(request.getContentType());
-
-                String sasToken = blobClient.generateSas(sasValues);
-                String uploadUrl = blobClient.getBlobUrl() + "?" + sasToken;
-                String publicBlobUrl = blobClient.getBlobUrl();
-
-                return PresignResponse.builder()
-                        .uploadUrl(uploadUrl)
-                        .publicBlobUrl(publicBlobUrl)
-                        .expiresAt(expiresAt)
-                        .build();
-
+                return generateAzureSas(request, uniqueBlobName, expiresAt);
             } catch (Exception e) {
                 log.warn("Azure Storage connection error, falling back to local simulated SAS URL: {}", e.getMessage());
             }
         }
 
-        // Development/Offline Fallback URL
+        return generateSimulatedSas(uniqueBlobName, expiresAt);
+    }
+
+    private PresignResponse generateAzureSas(PresignRequest request, String blobName, Instant expiresAt) {
+        BlobServiceClient serviceClient = new BlobServiceClientBuilder()
+                .connectionString(connectionString)
+                .buildClient();
+
+        BlobContainerClient containerClient = serviceClient.getBlobContainerClient(containerName);
+        if (!containerClient.exists()) {
+            containerClient.create();
+        }
+
+        BlobClient blobClient = containerClient.getBlobClient(blobName);
+        BlobSasPermission permissions = new BlobSasPermission()
+                .setCreatePermission(true)
+                .setWritePermission(true);
+
+        BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
+                OffsetDateTime.now().plusMinutes(expiryMinutes),
+                permissions
+        ).setContentType(request.getContentType());
+
+        String sasToken = blobClient.generateSas(sasValues);
+        return PresignResponse.builder()
+                .uploadUrl(blobClient.getBlobUrl() + "?" + sasToken)
+                .publicBlobUrl(blobClient.getBlobUrl())
+                .expiresAt(expiresAt)
+                .build();
+    }
+
+    private PresignResponse generateSimulatedSas(String blobName, Instant expiresAt) {
         String mockUploadUrl = String.format("http://localhost:8082/mock-storage/%s/%s?sig=mock-sas-token&se=%s",
-                containerName, uniqueBlobName, expiresAt.toString());
+                containerName, blobName, expiresAt);
         String mockPublicUrl = String.format("http://localhost:8082/mock-storage/%s/%s",
-                containerName, uniqueBlobName);
+                containerName, blobName);
 
         return PresignResponse.builder()
                 .uploadUrl(mockUploadUrl)

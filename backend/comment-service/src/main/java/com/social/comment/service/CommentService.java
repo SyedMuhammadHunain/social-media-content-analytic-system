@@ -35,12 +35,7 @@ public class CommentService {
                 .build();
 
         Comment saved = commentRepository.save(comment);
-
-        // Atomically increment post comment counter in PostsDB
-        Query query = new Query(Criteria.where("id").is(request.getPostId()));
-        Update update = new Update().inc("commentCount", 1);
-        mongoTemplate.updateFirst(query, update, Post.class);
-
+        adjustPostCommentCount(request.getPostId(), 1);
         return saved;
     }
 
@@ -57,12 +52,16 @@ public class CommentService {
         }
 
         commentRepository.deleteById(commentId);
-
-        // Atomically decrement post comment counter in PostsDB
-        Query query = new Query(Criteria.where("id").is(comment.getPostId()).and("commentCount").gt(0));
-        Update update = new Update().inc("commentCount", -1);
-        mongoTemplate.updateFirst(query, update, Post.class);
-
+        adjustPostCommentCount(comment.getPostId(), -1);
         return true;
+    }
+
+    private void adjustPostCommentCount(String postId, int delta) {
+        Query query = new Query(Criteria.where("id").is(postId));
+        if (delta < 0) {
+            query.addCriteria(Criteria.where("commentCount").gt(0));
+        }
+        Update update = new Update().inc("commentCount", delta);
+        mongoTemplate.updateFirst(query, update, Post.class);
     }
 }

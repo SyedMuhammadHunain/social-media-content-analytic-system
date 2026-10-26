@@ -47,32 +47,34 @@ public class FeedReaderService {
         Map<String, Post> postMap = posts.stream()
                 .collect(Collectors.toMap(Post::getId, Function.identity(), (a, b) -> a));
 
-        List<FeedResponse.FeedPostDto> feedPosts = new ArrayList<>();
-        for (FeedItem item : items) {
-            Post post = postMap.get(item.getPostId());
-            if (post != null) {
-                feedPosts.add(FeedResponse.FeedPostDto.builder()
-                        .postId(post.getId())
-                        .authorId(post.getUserId())
-                        .authorName(post.getUserId())
-                        .authorAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=" + post.getUserId())
-                        .text(post.getText())
-                        .mediaUrl(post.getMediaUrl())
-                        .mediaType(post.getMediaType())
-                        .hashtags(post.getHashtags())
-                        .likeCount(post.getLikeCount())
-                        .commentCount(post.getCommentCount())
-                        .likedByCurrentUser(false)
-                        .createdAt(post.getCreatedAt())
-                        .build());
-            }
-        }
+        List<FeedResponse.FeedPostDto> feedPosts = items.stream()
+                .map(item -> postMap.get(item.getPostId()))
+                .filter(Objects::nonNull)
+                .map(this::toFeedPostDto)
+                .toList();
 
         return FeedResponse.builder()
                 .userId(userId)
                 .page(page)
                 .size(size)
                 .posts(feedPosts)
+                .build();
+    }
+
+    private FeedResponse.FeedPostDto toFeedPostDto(Post post) {
+        return FeedResponse.FeedPostDto.builder()
+                .postId(post.getId())
+                .authorId(post.getUserId())
+                .authorName(post.getUserId())
+                .authorAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=" + post.getUserId())
+                .text(post.getText())
+                .mediaUrl(post.getMediaUrl())
+                .mediaType(post.getMediaType())
+                .hashtags(post.getHashtags())
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .likedByCurrentUser(false)
+                .createdAt(post.getCreatedAt())
                 .build();
     }
 }

@@ -34,11 +34,7 @@ public class LikeService {
                     .likedAt(Instant.now())
                     .build();
             likeRepository.save(like);
-
-            // Atomically increment post like counter in PostsDB
-            Query query = new Query(Criteria.where("id").is(request.getPostId()));
-            Update update = new Update().inc("likeCount", 1);
-            mongoTemplate.updateFirst(query, update, Post.class);
+            adjustPostLikeCount(request.getPostId(), 1);
         }
 
         long totalLikes = likeRepository.countByPostId(request.getPostId());
@@ -54,11 +50,7 @@ public class LikeService {
 
         if (wasLiked) {
             likeRepository.deleteByUserIdAndPostId(request.getUserId(), request.getPostId());
-
-            // Atomically decrement post like counter in PostsDB
-            Query query = new Query(Criteria.where("id").is(request.getPostId()).and("likeCount").gt(0));
-            Update update = new Update().inc("likeCount", -1);
-            mongoTemplate.updateFirst(query, update, Post.class);
+            adjustPostLikeCount(request.getPostId(), -1);
         }
 
         long totalLikes = likeRepository.countByPostId(request.getPostId());
@@ -67,6 +59,15 @@ public class LikeService {
                 .liked(false)
                 .totalLikes(totalLikes)
                 .build();
+    }
+
+    private void adjustPostLikeCount(String postId, int delta) {
+        Query query = new Query(Criteria.where("id").is(postId));
+        if (delta < 0) {
+            query.addCriteria(Criteria.where("likeCount").gt(0));
+        }
+        Update update = new Update().inc("likeCount", delta);
+        mongoTemplate.updateFirst(query, update, Post.class);
     }
 
     public LikeResponse getLikeStatus(String postId, String userId) {
