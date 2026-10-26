@@ -37,12 +37,12 @@ Decompose monolithic UI components (`PostCard.tsx` and `UserProfileView.tsx`) in
 - [x] Profile view test suites pass (`profile_card_and_view.test.mjs`, `refinements_feed_and_profile.test.mjs`)
 
 ### Phase 4: Full Suite Verification & Build
-- [ ] Task 4: Full Quality Gate, DevTools Audit, and Production Build
+- [x] Task 4: Full Quality Gate, DevTools Audit, and Production Build
 
 ### Checkpoint 3: Complete & Ready for Review
-- [ ] 43/43 tests green across all 7 suites
-- [ ] Production build succeeds (`cd frontend && npm run build`)
-- [ ] Changes committed and pushed to git
+- [x] 43/43 tests green across all 7 suites
+- [x] Production build succeeds (`cd frontend && npm run build`)
+- [x] Changes committed and pushed to git
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

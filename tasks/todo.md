@@ -83,12 +83,12 @@ Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio e
 ## Task 4: Full Quality Gate, Verification, and Build
 **Description:** Execute the entire test suite (all 7 suites), verify production build, commit changes, and push.
 **Acceptance criteria:**
-- [ ] 100% test pass rate (43/43 tests green).
-- [ ] Production build succeeds (`cd frontend && npm run build`).
-- [ ] Clean git working tree, committed, and pushed.
+- [x] 100% test pass rate (43/43 tests green).
+- [x] Production build succeeds (`cd frontend && npm run build`).
+- [x] Clean git working tree, committed, and pushed.
 **Verification:**
-- [ ] Run `cd frontend && npm test`
-- [ ] Run `cd frontend && npm run build`
+- [x] Run `cd frontend && npm test`
+- [x] Run `cd frontend && npm run build`
 **Dependencies:** Task 1, Task 2, Task 3
 **Files likely touched:**
 - Git repository state
@@ -97,6 +97,6 @@ Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio e
 ---
 
 ## Checkpoint 3: Complete & Ready for Review
-- [ ] All 4 tasks completed and verified
+- [x] All 4 tasks completed and verified
 - [ ] Code health improved with zero hotspot warnings
 - [ ] Ready for `/incremental-implementation`
