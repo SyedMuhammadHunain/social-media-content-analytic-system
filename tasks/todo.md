@@ -7,9 +7,9 @@
 - [x] Checkpoint 1: Foundation Clean Build (`mvn clean install -pl common-models`)
 
 ## Phase 2: Edge Gateway (`api-gateway`)
-- [ ] Task 4: Spring Cloud Gateway Routing Configuration (Port 8080)
-- [ ] Task 5: Gateway CORS & Security Filters
-- [ ] Checkpoint 2: Gateway Routing Verified
+- [x] Task 4: Spring Cloud Gateway Routing Configuration (Port 8080)
+- [x] Task 5: Gateway CORS & Security Filters
+- [x] Checkpoint 2: Gateway Routing Verified
 
 ## Phase 3: Media & Content Ingestion Pipeline
 - [ ] Task 6: Pre-Signed URL Service (`presigned-url-service`, Port 8082, Azure Blob SAS)

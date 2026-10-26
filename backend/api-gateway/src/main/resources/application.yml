@@ -1,0 +1,44 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: post-writer-service
+          uri: ${POST_WRITER_URI:http://localhost:8081}
+          predicates:
+            - Path=/v1/posts/**
+
+        - id: presigned-url-service
+          uri: ${PRESIGN_URI:http://localhost:8082}
+          predicates:
+            - Path=/v1/media/**
+
+        - id: like-unlike-service
+          uri: ${LIKE_URI:http://localhost:8083}
+          predicates:
+            - Path=/v1/like/**, /v1/unlike/**
+
+        - id: follow-service
+          uri: ${FOLLOW_URI:http://localhost:8084}
+          predicates:
+            - Path=/v1/follow/**, /v1/unfollow/**
+
+        - id: comment-service
+          uri: ${COMMENT_URI:http://localhost:8085}
+          predicates:
+            - Path=/v1/comment/**
+
+        - id: newsfeed-reader-service
+          uri: ${FEED_READER_URI:http://localhost:8087}
+          predicates:
+            - Path=/v1/feeds/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
