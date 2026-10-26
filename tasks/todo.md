@@ -51,20 +51,20 @@ Refactor `PostCard.tsx` to orchestrate these subcomponents cleanly in ~120 lines
 
 ## Task 3: Decompose UserProfileView into Single-Responsibility Subcomponents
 **Description:** Refactor `frontend/src/components/profile/UserProfileView.tsx` (355 lines) by extracting:
-1. `ProfileHeaderBanner.tsx`: cover banner display, banner upload input/trigger, overlapping avatar with ring border, and camera upload trigger (`user-profile-banner`, `user-profile-avatar-trigger`).
+1. `ProfileHeaderBanner.tsx`: cover banner display, banner upload input/trigger, overlapping avatar with ring border, and camera upload trigger (`profile-cover-banner`, `profile-avatar-wrapper`, `upload-banner-trigger`, `upload-avatar-trigger`).
 2. `ProfileMetaDetails.tsx`: headline, tags/badges, and follower/following stats bar.
-Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio editor, and authored post list in ~140 lines.
+Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio editor, and authored post list in ~170 lines.
 **Acceptance criteria:**
-- [ ] `ProfileHeaderBanner.tsx` and `ProfileMetaDetails.tsx` implemented with Astryx components.
-- [ ] `UserProfileView.tsx` imports and renders subcomponents cleanly.
-- [ ] All `data-testid` attributes preserved.
-- [ ] Zero TypeScript errors (`cd frontend && npx tsc -b`).
-- [ ] Zero lint errors (`cd frontend && npm run lint`).
+- [x] `ProfileHeaderBanner.tsx` and `ProfileMetaDetails.tsx` implemented with Astryx components.
+- [x] `UserProfileView.tsx` imports and renders subcomponents cleanly.
+- [x] All `data-testid` attributes preserved.
+- [x] Zero TypeScript errors (`cd frontend && npx tsc -b`).
+- [x] Zero lint errors (`cd frontend && npm run lint`).
 **Verification:**
-- [ ] Run `cd frontend && npx tsc -b`
-- [ ] Run `cd frontend && npm run lint`
-- [ ] Run `cd frontend && node --test test/profile_view.test.mjs`
-- [ ] Run `cd frontend && node --test test/feed_profile_refinements.test.mjs`
+- [x] Run `cd frontend && npx tsc -b`
+- [x] Run `cd frontend && npm run lint`
+- [x] Run `cd frontend && node --test test/profile_card_and_view.test.mjs`
+- [x] Run `cd frontend && node --test test/refinements_feed_and_profile.test.mjs`
 **Dependencies:** None
 **Files likely touched:**
 - `frontend/src/components/profile/ProfileHeaderBanner.tsx`
@@ -75,8 +75,8 @@ Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio e
 ---
 
 ## Checkpoint 2: Profile View Refactor Verified
-- [ ] TypeScript check clean (`npx tsc -b`)
-- [ ] Profile view tests pass (`profile_view.test.mjs`, `feed_profile_refinements.test.mjs`)
+- [x] TypeScript check clean (`npx tsc -b`)
+- [x] Profile view tests pass (`profile_card_and_view.test.mjs`, `refinements_feed_and_profile.test.mjs`)
 
 ---
 

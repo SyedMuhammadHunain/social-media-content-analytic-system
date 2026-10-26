@@ -30,11 +30,11 @@ Decompose monolithic UI components (`PostCard.tsx` and `UserProfileView.tsx`) in
 - [x] Post edit/delete test suite passes (`post_edit_and_delete.test.mjs`)
 
 ### Phase 3: UserProfileView Component Decomposition
-- [ ] Task 3: Decompose `UserProfileView.tsx` into `ProfileHeaderBanner` and `ProfileMetaDetails`
+- [x] Task 3: Decompose `UserProfileView.tsx` into `ProfileHeaderBanner` and `ProfileMetaDetails`
 
 ### Checkpoint 2: Profile View Refactor Verified
-- [ ] `cd frontend && npx tsc -b` passes with 0 errors
-- [ ] Profile view test suites pass (`profile_view.test.mjs`, `feed_profile_refinements.test.mjs`)
+- [x] `cd frontend && npx tsc -b` passes with 0 errors
+- [x] Profile view test suites pass (`profile_card_and_view.test.mjs`, `refinements_feed_and_profile.test.mjs`)
 
 ### Phase 4: Full Suite Verification & Build
 - [ ] Task 4: Full Quality Gate, DevTools Audit, and Production Build
