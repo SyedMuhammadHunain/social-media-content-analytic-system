@@ -1,2 +1,9 @@
 config.bat
 node_modules
+target/
+*.class
+*.jar
+.idea/
+*.iml
+.vscode/
+.DS_Store
