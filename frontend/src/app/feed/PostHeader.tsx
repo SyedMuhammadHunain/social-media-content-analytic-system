@@ -9,6 +9,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Icon } from '@astryxdesign/core/Icon';
+import { MoreMenu } from '@astryxdesign/core/MoreMenu';
 
 import {
   UserPlusIcon,
@@ -86,6 +87,24 @@ export function PostHeader({
             size="sm"
             icon={<Icon icon={TrashIcon} size="xsm" />}
             onClick={onDelete}
+          />
+          <MoreMenu
+            size="sm"
+            label="Post options"
+            data-testid={`post-more-menu-${postId}`}
+            items={[
+              {
+                label: 'Edit',
+                icon: <Icon icon={PencilSquareIcon} size="xsm" />,
+                onClick: onEdit,
+              },
+              {
+                label: 'Delete',
+                variant: 'destructive',
+                icon: <Icon icon={TrashIcon} size="xsm" />,
+                onClick: onDelete,
+              },
+            ]}
           />
         </HStack>
       ) : (

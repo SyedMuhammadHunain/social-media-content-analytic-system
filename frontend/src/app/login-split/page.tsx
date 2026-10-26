@@ -13,16 +13,15 @@ import { Text } from '@astryxdesign/core/Text';
 import { Icon } from '@astryxdesign/core/Icon';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Banner } from '@astryxdesign/core/Banner';
-import { SquaresPlusIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { TextInput } from '@astryxdesign/core/TextInput';
+import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Button } from '@astryxdesign/core/Button';
 import { Link } from '@astryxdesign/core/Link';
 import { Divider } from '@astryxdesign/core/Divider';
 import { useAuth } from '../../context/useAuth';
 
 // Cinematic high-resolution 3D abstract fluid artwork for creative & data analytics studio
-const COVER_IMAGE_URL =
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80';
+const COVER_IMAGE_URL = '/favicon.png';
 
 const APPLE_LOGO_URL =
   'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20170%20170%22%20fill%3D%22white%22%3E%3Cpath%20d%3D%22M150.37%20130.25c-2.45%205.66-5.35%2010.87-8.71%2015.66-4.58%206.53-8.33%2011.05-11.22%2013.56-4.48%204.12-9.28%206.23-14.42%206.35-3.69%200-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58%200-9.49%201.05-14.75%203.17-5.26%202.13-9.5%203.24-12.74%203.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.86-12-14.45-6.96-10.65-12.28-22.75-15.96-36.31-3.69-13.56-5.53-26.31-5.53-38.26%200-14.99%203.52-27.42%2010.57-37.3%207.05-9.87%2016.32-14.9%2027.81-15.08%204.13%200%209.07%201.06%2014.83%203.17%205.76%202.12%209.61%203.23%2011.55%203.35%201.52-.12%205.56-1.28%2012.12-3.48%206.56-2.2%2012.06-3.16%2016.5-2.88%2012.59.87%2022.84%205.37%2030.74%2013.51-11.06%206.74-16.48%2016.14-16.27%2028.2.22%209.68%203.99%2017.75%2011.31%2024.2%207.32%206.45%2016.12%2010.15%2026.4%2011.11-2.28%207.18-5.18%2014.75-8.7%2022.71zM119.22%2031.84c0-7.39%202.65-14.28%207.95-20.67%205.3-6.39%2011.83-10.42%2019.59-12.09.22%201.3.33%202.5.33%203.6%200%207.39-2.8%2014.53-8.4%2021.43-5.6%206.9-12.33%2010.9-20.19%2012-0.21-1.3-.32-2.31-.32-4.27z%22%2F%3E%3C%2Fsvg%3E';
@@ -177,7 +176,17 @@ export default function LoginSplitPage() {
                   <VStack gap={4} height="100%">
                     {/* Header Logo */}
                     <HStack gap={2} vAlign="center">
-                      <Icon icon={SquaresPlusIcon} />
+                      <img
+                        src="/favicon.png"
+                        alt="Social Media Content Analysis Logo"
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 6,
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
                       <Text type="body" weight="bold">
                         Social Media Content Analysis
                       </Text>
