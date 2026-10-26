@@ -28,6 +28,6 @@
 - [x] Checkpoint 5: Feed Pipeline Verified (<2.0s SLA)
 
 ## Phase 6: Unified Dev Profile & Final Verification
-- [ ] Task 13: Lightweight Composite Local Dev Profile (<500 MB RAM)
-- [ ] Task 14: Verification Report & Quality Gate (`docs/reports/backend-verification.md`)
-- [ ] Checkpoint 6: Full Backend Verification Complete
+- [x] Task 13: Lightweight Composite Local Dev Profile (<500 MB RAM)
+- [x] Task 14: Verification Report & Quality Gate (`docs/reports/backend-verification.md`)
+- [x] Checkpoint 6: Full Backend Verification Complete
