@@ -56,6 +56,7 @@ export function PostCard({
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const isAuthor = Boolean(currentUser && currentUser.id === post.author.id);
+  const postContent = post.text || post.description;
 
   return (
     <div data-testid={`post-card-${post.id}`}>
@@ -74,9 +75,9 @@ export function PostCard({
           />
 
           {/* Text Content / Description */}
-          {(post.text || post.description) && (
+          {postContent && (
             <Text type="body">
-              {post.text || post.description}
+              {postContent}
             </Text>
           )}
 

@@ -19,6 +19,12 @@ import {
 
 import type { PostType, User } from '../../types/social';
 
+const TYPE_BADGE_VARIANTS: Record<PostType, 'purple' | 'teal' | 'neutral'> = {
+  VIDEO: 'purple',
+  IMAGE: 'teal',
+  TEXT: 'neutral',
+};
+
 export interface PostHeaderProps {
   author: User;
   type: PostType;
@@ -52,13 +58,7 @@ export function PostHeader({
           <HStack gap={2} vAlign="center">
             <Heading level={4}>{author.name}</Heading>
             <Badge
-              variant={
-                type === 'VIDEO'
-                  ? 'purple'
-                  : type === 'IMAGE'
-                    ? 'teal'
-                    : 'neutral'
-              }
+              variant={TYPE_BADGE_VARIANTS[type] || 'neutral'}
               label={type}
             />
           </HStack>

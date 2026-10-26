@@ -25,19 +25,14 @@ export function ProfileHeaderBanner({
 }: ProfileHeaderBannerProps) {
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    callback?: (url: string) => void
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const newAvatarUrl = URL.createObjectURL(file);
-    onUpdateAvatar?.(newAvatarUrl);
-    e.target.value = '';
-  };
-
-  const handleBannerChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const newBannerUrl = URL.createObjectURL(file);
-    onUpdateBanner?.(newBannerUrl);
+    const newUrl = URL.createObjectURL(file);
+    callback?.(newUrl);
     e.target.value = '';
   };
 
@@ -84,7 +79,7 @@ export function ProfileHeaderBanner({
             type="file"
             accept="image/*"
             style={{ display: 'none' }}
-            onChange={handleBannerChange}
+            onChange={e => handleFileChange(e, onUpdateBanner)}
           />
           <Button
             data-testid="upload-banner-trigger"
@@ -123,7 +118,7 @@ export function ProfileHeaderBanner({
             type="file"
             accept="image/*"
             style={{ display: 'none' }}
-            onChange={handleAvatarChange}
+            onChange={e => handleFileChange(e, onUpdateAvatar)}
           />
 
           {/* Upload/Change Photo Button */}
