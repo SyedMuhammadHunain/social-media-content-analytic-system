@@ -1,124 +1,102 @@
-# Task List: News Feed 3-Column Social Discovery Architecture
+# Task List: CodeScene Code Health Refactoring & Modularity Enhancement
 
-## Task 1: Seed Data and Types for Trending Topics & Suggested Creators
-**Description:** Add TypeScript interfaces for `TrendingTopic`, `SuggestedCreator`, and `FeedFilter` in `types/social.ts`. Export seed data for trending topics (with post volume) and suggested creators in `socialSeedData.ts`.
+## Task 1: CodeScene Configuration & Test Exclusion Rules
+**Description:** Configure repository-level rules to exclude test files (`frontend/test/**`) from production complexity calculations. Provide both `.codescene/code-health-rules.json` and a clear reference guide for web UI settings.
 **Acceptance criteria:**
-- [x] `TrendingTopic`, `SuggestedCreator`, and `FeedFilter` types exported from `types/social.ts`.
-- [x] `TRENDING_TOPICS` (5 hashtags with volume) exported from `socialSeedData.ts`.
-- [x] `SUGGESTED_CREATORS` (3 suggested creators with avatar, username, headline, isFollowed) exported from `socialSeedData.ts`.
-- [x] Zero TypeScript or lint errors.
+- [x] `.codescene/code-health-rules.json` created in repo root with `frontend/test/**` marked as test code.
+- [x] `docs/reports/codescene-configuration-guide.md` created with step-by-step UI instructions.
+- [x] Valid JSON syntax with no linting errors.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
+- [x] Inspect `.codescene/code-health-rules.json` syntax.
 **Dependencies:** None
 **Files likely touched:**
-- `frontend/src/types/social.ts`
-- `frontend/src/mock/socialSeedData.ts`
+- `.codescene/code-health-rules.json`
+- `docs/reports/codescene-configuration-guide.md`
 **Estimated scope:** Small (2 files)
 
 ---
 
-## Task 2: Implement Left Rail FeedShortcutsCard
-**Description:** Create `FeedShortcutsCard.tsx` using Astryx components (`Card`, `VStack`, `HStack`, `Button`, `Badge`, `Text`, `Heading`). Render shortcuts for "All Posts", "Media Only", "Bookmarks", and "Creator Analytics" (with follower badge). Wire click handler to update active feed filter or navigate to analytics.
+## Task 2: Decompose PostCard into Single-Responsibility Subcomponents
+**Description:** Refactor `frontend/src/app/feed/PostCard.tsx` (318 lines) by extracting:
+1. `PostDeleteModal.tsx`: modal overlay with backdrop, confirmation text, Cancel and Delete Post buttons (`post-delete-confirm-modal`, `confirm-delete-btn`).
+2. `PostMediaViewer.tsx`: image and video media elements with aspect-ratio container.
+3. `PostHeader.tsx`: author avatar, username, format badge, timestamp, and edit/delete/follow controls.
+Refactor `PostCard.tsx` to orchestrate these subcomponents cleanly in ~120 lines.
 **Acceptance criteria:**
-- [x] Renders all 4 shortcuts cleanly with Astryx typography and icons/badges.
-- [x] Active shortcut is visually highlighted.
-- [x] Emits filter change callback when shortcut is clicked.
-- [x] Zero TypeScript or lint errors.
+- [ ] `PostDeleteModal.tsx`, `PostMediaViewer.tsx`, and `PostHeader.tsx` implemented using Astryx components.
+- [ ] `PostCard.tsx` imports and renders subcomponents with clean props.
+- [ ] All `data-testid` attributes preserved exactly.
+- [ ] Zero TypeScript errors (`cd frontend && npx tsc -b`).
+- [ ] Zero lint errors (`cd frontend && npm run lint`).
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
-**Dependencies:** Task 1
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
+- [ ] Run `cd frontend && node --test test/post_edit_delete.test.mjs`
+**Dependencies:** None
 **Files likely touched:**
-- `frontend/src/app/feed/FeedShortcutsCard.tsx`
-**Estimated scope:** Small (1 file)
+- `frontend/src/app/feed/PostHeader.tsx`
+- `frontend/src/app/feed/PostMediaViewer.tsx`
+- `frontend/src/app/feed/PostDeleteModal.tsx`
+- `frontend/src/app/feed/PostCard.tsx`
+**Estimated scope:** Medium (4 files)
 
 ---
 
-## Task 3: Implement Right Rail Discovery Cards
-**Description:** Create `TrendingTopicsCard.tsx`, `WhoToFollowCard.tsx`, and `PlatformInfoFooter.tsx` using Astryx components.
-- `TrendingTopicsCard`: lists top 5 hashtags with post count badge; triggers hashtag filter on click.
-- `WhoToFollowCard`: lists 3 suggested creators with avatar, headline, and interactive Follow/Following button.
-- `PlatformInfoFooter`: lightweight card with course metadata ("OOAD Content Analysis System • Meta Astryx • Spring 2026").
+## Checkpoint 1: PostCard Refactor Verified
+- [ ] TypeScript check clean (`npx tsc -b`)
+- [ ] Lint check clean (`npm run lint`)
+- [ ] Post edit/delete tests pass (`test/post_edit_delete.test.mjs`)
+
+---
+
+## Task 3: Decompose UserProfileView into Single-Responsibility Subcomponents
+**Description:** Refactor `frontend/src/components/profile/UserProfileView.tsx` (355 lines) by extracting:
+1. `ProfileHeaderBanner.tsx`: cover banner display, banner upload input/trigger, overlapping avatar with ring border, and camera upload trigger (`user-profile-banner`, `user-profile-avatar-trigger`).
+2. `ProfileMetaDetails.tsx`: headline, tags/badges, and follower/following stats bar.
+Refactor `UserProfileView.tsx` to orchestrate header banner, meta details, bio editor, and authored post list in ~140 lines.
 **Acceptance criteria:**
-- [x] `TrendingTopicsCard` displays hashtags and count pills; triggers `onSelectHashtag`.
-- [x] `WhoToFollowCard` displays creators with interactive `Follow` button triggering `onToggleFollow`.
-- [x] `PlatformInfoFooter` renders course metadata.
-- [x] Zero TypeScript or lint errors.
+- [ ] `ProfileHeaderBanner.tsx` and `ProfileMetaDetails.tsx` implemented with Astryx components.
+- [ ] `UserProfileView.tsx` imports and renders subcomponents cleanly.
+- [ ] All `data-testid` attributes preserved.
+- [ ] Zero TypeScript errors (`cd frontend && npx tsc -b`).
+- [ ] Zero lint errors (`cd frontend && npm run lint`).
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
-**Dependencies:** Task 1
+- [ ] Run `cd frontend && npx tsc -b`
+- [ ] Run `cd frontend && npm run lint`
+- [ ] Run `cd frontend && node --test test/profile_view.test.mjs`
+- [ ] Run `cd frontend && node --test test/feed_profile_refinements.test.mjs`
+**Dependencies:** None
 **Files likely touched:**
-- `frontend/src/app/feed/TrendingTopicsCard.tsx`
-- `frontend/src/app/feed/WhoToFollowCard.tsx`
-- `frontend/src/app/feed/PlatformInfoFooter.tsx`
+- `frontend/src/components/profile/ProfileHeaderBanner.tsx`
+- `frontend/src/components/profile/ProfileMetaDetails.tsx`
+- `frontend/src/components/profile/UserProfileView.tsx`
 **Estimated scope:** Medium (3 files)
 
 ---
 
-## Checkpoint 1: Foundation & Components Ready
-- [x] All new types and components compile with zero TypeScript errors (`cd frontend && npx tsc -b`)
-- [x] Existing 36/36 tests continue to pass (`cd frontend && npm test`)
+## Checkpoint 2: Profile View Refactor Verified
+- [ ] TypeScript check clean (`npx tsc -b`)
+- [ ] Profile view tests pass (`profile_view.test.mjs`, `feed_profile_refinements.test.mjs`)
 
 ---
 
-## Task 4: Integrate 3-Column Layout, In-Place Filtering, and State Sync
-**Description:** Update `NewsFeedPage.tsx` and `PostCard.tsx`:
-1. Expand layout container to 3 columns on desktop (`280px` left rail, `680px` center, `320px` right rail).
-2. Add media queries: hide right rail on `< 1280px`, stack left rail on `< 1024px`.
-3. Add `activeFilter` state (`ALL`, `MEDIA`, `BOOKMARKS`, `HASHTAG`).
-4. Display active filter indicator banner with post count and "Clear filter" button.
-5. Compute filtered post list dynamically based on active filter.
-6. Add bookmark toggle button on `PostCard` to save/unsave posts.
-7. Connect `WhoToFollowCard` follow toggle to update both local recommended creators state, feed post authors state, and call `recordFollowToggle`.
+## Task 4: Full Quality Gate, Verification, and Build
+**Description:** Execute the entire test suite (all 7 suites), verify production build, commit changes, and push.
 **Acceptance criteria:**
-- [x] 3 columns render side-by-side on wide screens.
-- [x] Clicking hashtag or shortcut filters feed in-place without page reload.
-- [x] "Clear filter" restores complete post feed.
-- [x] Following creator in right rail updates button to "Following" and syncs follow status on their feed posts.
-- [x] Bookmark toggle saves post and shows in "Bookmarks" filter.
+- [ ] 100% test pass rate (43/43 tests green).
+- [ ] Production build succeeds (`cd frontend && npm run build`).
+- [ ] Clean git working tree, committed, and pushed.
 **Verification:**
-- [x] Run `cd frontend && npx tsc -b`
-- [x] Run `cd frontend && npm run lint`
-**Dependencies:** Task 2, Task 3
+- [ ] Run `cd frontend && npm test`
+- [ ] Run `cd frontend && npm run build`
+**Dependencies:** Task 1, Task 2, Task 3
 **Files likely touched:**
-- `frontend/src/app/feed/NewsFeedPage.tsx`
-- `frontend/src/app/feed/PostCard.tsx`
-**Estimated scope:** Medium (2 files)
-
----
-
-## Checkpoint 2: Layout & State Verification
-- [x] Responsive 3-column layout operational
-- [x] Filter state and follow state fully synchronized
-
----
-
-## Task 5: Native Test Suite & Chrome DevTools Visual Verification
-**Description:** Implement `frontend/test/feed_3_column_layout.test.mjs` using `node:test` and Chrome DevTools Protocol (CDP) on port `9231` to verify:
-1. Left rail shortcuts and profile card are visible on desktop.
-2. Right rail trending topics and who-to-follow are visible on desktop.
-3. Clicking trending hashtag filters feed posts to matching hashtag and displays active filter chip.
-4. Clicking "Clear filter" resets feed to full list.
-5. Clicking "Follow" in Who to Follow updates button state and syncs author state.
-6. Capture high-resolution screenshot artifacts (`newsfeed_3_column_desktop.png`, `newsfeed_filtered_hashtag.png`, `newsfeed_tablet_responsive.png`).
-**Acceptance criteria:**
-- [x] All tests in `feed_3_column_layout.test.mjs` pass cleanly (100% GREEN).
-- [x] All existing test suites continue to pass (now 7 suites).
-- [x] Screenshots captured in artifact directory.
-- [x] Production build succeeds (`cd frontend && npm run build`).
-**Verification:**
-- [x] Run `cd frontend && npm test`
-- [x] Run `cd frontend && npm run build`
-**Dependencies:** Task 4
-**Files likely touched:**
-- `frontend/test/feed_3_column_layout.test.mjs`
-**Estimated scope:** Small (1 file)
+- Git repository state
+**Estimated scope:** Small
 
 ---
 
 ## Checkpoint 3: Complete & Ready for Review
-- [x] 100% test pass rate across all 7 test suites
-- [x] TypeScript check and lint pass with 0 errors
-- [x] Clean build and verified layout
+- [ ] All 4 tasks completed and verified
+- [ ] Code health improved with zero hotspot warnings
+- [ ] Ready for `/incremental-implementation`

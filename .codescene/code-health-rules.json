@@ -1,0 +1,18 @@
+{
+  "$schema": "https://raw.githubusercontent.com/empear-analytics/codescene-ci-cd/master/schema/code-health-rules-schema.json",
+  "version": 1,
+  "test_code_patterns": [
+    "frontend/test/**",
+    "**/*.test.mjs",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
+  "exclusions": [
+    "frontend/test/**",
+    "docs/**",
+    "tasks/**"
+  ],
+  "rules": []
+}
