@@ -32,6 +32,8 @@
     <modules>
         <module>common-models</module>
         <module>api-gateway</module>
+        <module>presigned-url-service</module>
+        <module>post-writer-service</module>
     </modules>
 
     <dependencyManagement>

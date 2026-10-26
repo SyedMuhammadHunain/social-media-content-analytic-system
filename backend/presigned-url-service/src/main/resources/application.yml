@@ -1,0 +1,12 @@
+server:
+  port: ${PORT:8082}
+
+spring:
+  application:
+    name: presigned-url-service
+
+azure:
+  storage:
+    connection-string: ${AZURE_STORAGE_CONNECTION_STRING:}
+    container-name: ${AZURE_STORAGE_CONTAINER_NAME:media-assets}
+    sas-expiry-minutes: ${AZURE_STORAGE_SAS_EXPIRY:15}

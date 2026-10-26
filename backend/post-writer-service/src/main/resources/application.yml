@@ -1,0 +1,13 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: post-writer-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/social_db}
+
+social:
+  feedgen:
+    url: ${FEEDGEN_URL:http://localhost:8086}

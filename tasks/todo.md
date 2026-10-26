@@ -12,9 +12,9 @@
 - [x] Checkpoint 2: Gateway Routing Verified
 
 ## Phase 3: Media & Content Ingestion Pipeline
-- [ ] Task 6: Pre-Signed URL Service (`presigned-url-service`, Port 8082, Azure Blob SAS)
-- [ ] Task 7: Post Writer Service (`post-writer-service`, Port 8081, `PostsDB`)
-- [ ] Checkpoint 3: Ingestion Pipeline Verified
+- [x] Task 6: Pre-Signed URL Service (`presigned-url-service`, Port 8082, Azure Blob SAS)
+- [x] Task 7: Post Writer Service (`post-writer-service`, Port 8081, `PostsDB`)
+- [x] Checkpoint 3: Ingestion Pipeline Verified
 
 ## Phase 4: Social Engagement Services
 - [ ] Task 8: Like / Unlike Service (`like-unlike-service`, Port 8083, `LikesDB`)
