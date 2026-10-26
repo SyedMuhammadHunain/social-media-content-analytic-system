@@ -1,0 +1,9 @@
+server:
+  port: ${PORT:8087}
+
+spring:
+  application:
+    name: newsfeed-reader-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/social_db}

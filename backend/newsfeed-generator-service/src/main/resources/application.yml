@@ -1,0 +1,13 @@
+server:
+  port: ${PORT:8086}
+
+spring:
+  application:
+    name: newsfeed-generator-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/social_db}
+
+social:
+  follow-service:
+    url: ${FOLLOW_SERVICE_URL:http://localhost:8084}

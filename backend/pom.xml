@@ -37,6 +37,8 @@
         <module>like-unlike-service</module>
         <module>comment-service</module>
         <module>follow-service</module>
+        <module>newsfeed-generator-service</module>
+        <module>newsfeed-reader-service</module>
     </modules>
 
     <dependencyManagement>

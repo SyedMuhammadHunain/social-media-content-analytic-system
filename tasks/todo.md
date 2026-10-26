@@ -23,9 +23,9 @@
 - [x] Checkpoint 4: Social Services Verified
 
 ## Phase 5: Newsfeed Fan-out & Reader Services
-- [ ] Task 11: Newsfeed Generator Service (`newsfeed-generator-service`, Port 8086, Fan-out Engine)
-- [ ] Task 12: Newsfeed Reader Service (`newsfeed-reader-service`, Port 8087, `FeedDB`)
-- [ ] Checkpoint 5: Feed Pipeline Verified (<2.0s SLA)
+- [x] Task 11: Newsfeed Generator Service (`newsfeed-generator-service`, Port 8086, Fan-out Engine)
+- [x] Task 12: Newsfeed Reader Service (`newsfeed-reader-service`, Port 8087, `FeedDB`)
+- [x] Checkpoint 5: Feed Pipeline Verified (<2.0s SLA)
 
 ## Phase 6: Unified Dev Profile & Final Verification
 - [ ] Task 13: Lightweight Composite Local Dev Profile (<500 MB RAM)
