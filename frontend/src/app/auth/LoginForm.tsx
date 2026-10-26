@@ -16,11 +16,39 @@ export interface LoginFormProps {
   onToggleRegister: () => void;
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
   const { login, error, isLoading, clearError } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
+  const [touched, setTouched] = useState<{ identifier?: boolean; password?: boolean }>({});
+
+  const validateField = (field: 'identifier' | 'password', val: string) => {
+    const trimmed = val.trim();
+    if (field === 'identifier') {
+      if (!trimmed) return 'Email or username is required.';
+      if (trimmed.includes('@') && !EMAIL_REGEX.test(trimmed)) {
+        return 'Please enter a valid email address.';
+      }
+      if (!trimmed.includes('@') && trimmed.length < 3) {
+        return 'Username must be at least 3 characters.';
+      }
+    }
+    if (field === 'password') {
+      if (!val) return 'Password is required.';
+      if (val.length < 6) return 'Password must be at least 6 characters.';
+    }
+    return undefined;
+  };
+
+  const handleBlur = (field: 'identifier' | 'password', val: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const err = validateField(field, val);
+    setErrors((prev) => ({ ...prev, [field]: err }));
+  };
 
   const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
@@ -30,13 +58,18 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
     );
     const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
 
-    // Prefer active DOM input value to handle automated testing and direct input
-    const finalIdentifier = emailEl?.value || identifier;
-    const finalPassword = passEl?.value || password;
+    const finalIdentifier = emailEl?.value ?? identifier;
+    const finalPassword = passEl?.value ?? password;
 
-    if (!finalIdentifier || !finalPassword) {
+    const idError = validateField('identifier', finalIdentifier);
+    const passError = validateField('password', finalPassword);
+
+    if (idError || passError) {
+      setErrors({ identifier: idError, password: passError });
+      setTouched({ identifier: true, password: true });
       return;
     }
+
     await login(finalIdentifier, finalPassword);
   };
 
@@ -78,10 +111,17 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
             htmlName="email"
             placeholder="name@example.com or @username"
             value={identifier}
+            status={
+              touched.identifier && errors.identifier
+                ? { type: 'error', message: errors.identifier }
+                : undefined
+            }
             onChange={(v) => {
               setIdentifier(v);
               clearError();
+              if (errors.identifier) setErrors((prev) => ({ ...prev, identifier: undefined }));
             }}
+            onBlur={() => handleBlur('identifier', identifier)}
             size="lg"
           />
 
@@ -90,10 +130,17 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
             type="password"
             placeholder="Enter your password"
             value={password}
+            status={
+              touched.password && errors.password
+                ? { type: 'error', message: errors.password }
+                : undefined
+            }
             onChange={(v) => {
               setPassword(v);
               clearError();
+              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
             }}
+            onBlur={() => handleBlur('password', password)}
             size="lg"
           />
         </VStack>
