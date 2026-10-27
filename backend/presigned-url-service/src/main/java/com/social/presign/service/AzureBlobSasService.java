@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.PublicAccessType;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.social.common.dto.PresignRequest;
@@ -59,7 +60,12 @@ public class AzureBlobSasService {
 
         BlobContainerClient containerClient = serviceClient.getBlobContainerClient(containerName);
         if (!containerClient.exists()) {
-            containerClient.create();
+            containerClient.createWithResponse(null, PublicAccessType.BLOB, null, null);
+        } else {
+            try {
+                containerClient.setAccessPolicy(PublicAccessType.BLOB, null);
+            } catch (Exception ignored) {
+            }
         }
 
         BlobClient blobClient = containerClient.getBlobClient(blobName);
