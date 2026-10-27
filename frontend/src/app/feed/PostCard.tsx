@@ -11,6 +11,7 @@ import { Badge } from '@astryxdesign/core/Badge';
 import { Divider } from '@astryxdesign/core/Divider';
 
 import type { Post, UpdatePostInput, UserProfile, Comment } from '../../types/social.ts';
+import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { CommentSection } from './CommentSection.tsx';
 import { PostEditModal } from './PostEditModal.tsx';
 import { PostHeader } from './PostHeader.tsx';
@@ -19,15 +20,25 @@ import { PostDeleteModal } from './PostDeleteModal.tsx';
 import { PostCardActionBar } from './PostCardActionBar.tsx';
 import { shouldFetchRemoteComments, fetchRemoteCommentsForPost } from './postCommentUtils.ts';
 
+function formatTag(tag: string): string {
+  return tag.startsWith('#') ? tag : `#${tag}`;
+}
+
 function PostHashtags({ hashtags }: { hashtags: string[] }) {
   if (hashtags.length === 0) return null;
   return (
     <HStack gap={2} wrap="wrap">
       {hashtags.map((tag) => (
-        <Badge key={tag} variant="neutral" label={tag} />
+        <Badge key={tag} variant="neutral" label={formatTag(tag)} />
       ))}
     </HStack>
   );
+}
+
+function checkIsAuthor(currentUserId?: string, authorId?: string): boolean {
+  if (!currentUserId || !authorId) return false;
+  if (currentUserId === authorId) return true;
+  return normalizeBackendUserId(currentUserId) === normalizeBackendUserId(authorId);
 }
 
 interface PostCardProps {
@@ -56,7 +67,7 @@ export function PostCard({
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  const isAuthor = Boolean(currentUser?.id === post.author.id);
+  const isAuthor = checkIsAuthor(currentUser?.id, post.author.id);
   const postContent = post.text || post.description;
 
   const handleToggleComments = async () => {

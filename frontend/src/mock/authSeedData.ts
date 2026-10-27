@@ -14,8 +14,11 @@ export interface AuthUserAccount {
  * Normalizes legacy or mock user IDs to backend Atlas user IDs.
  */
 export function normalizeBackendUserId(userId?: string | null): string {
-  if (!userId || userId === 'usr_me_01' || userId === 'usr_alex_02') {
+  if (!userId || userId === 'usr_me_01') {
     return 'user_hunain';
+  }
+  if (userId === 'usr_alex_02') {
+    return 'user_alice';
   }
   return userId;
 }

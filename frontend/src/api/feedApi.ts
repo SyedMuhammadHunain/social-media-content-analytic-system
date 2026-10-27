@@ -27,6 +27,11 @@ export interface FeedResponse {
   posts: BackendFeedPostDto[];
 }
 
+function formatHashtags(tags?: string[]): string[] {
+  if (!tags) return [];
+  return tags.map((t) => (t.startsWith('#') ? t : `#${t}`));
+}
+
 export function mapBackendPostToUi(dto: BackendFeedPostDto): Post {
   const authorUsername = dto.authorName
     ? dto.authorName.toLowerCase().replace(/\s+/g, '_')
@@ -48,7 +53,7 @@ export function mapBackendPostToUi(dto: BackendFeedPostDto): Post {
     text: dto.text,
     description: dto.text,
     mediaUrls: dto.mediaUrl ? [dto.mediaUrl] : undefined,
-    hashtags: dto.hashtags || [],
+    hashtags: formatHashtags(dto.hashtags),
     likesCount: dto.likeCount ?? 0,
     commentsCount: dto.commentCount ?? 0,
     isLiked: !!dto.likedByCurrentUser,
@@ -73,7 +78,7 @@ export function mapBackendModelPostToUi(backendPost: BackendPost, authorUser?: U
     text: backendPost.text,
     description: backendPost.text,
     mediaUrls: backendPost.mediaUrl ? [backendPost.mediaUrl] : undefined,
-    hashtags: backendPost.hashtags || [],
+    hashtags: formatHashtags(backendPost.hashtags),
     likesCount: backendPost.likeCount ?? 0,
     commentsCount: backendPost.commentCount ?? 0,
     isLiked: false,

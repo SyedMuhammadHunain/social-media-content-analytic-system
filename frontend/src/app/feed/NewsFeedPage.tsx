@@ -81,6 +81,10 @@ const NEWSFEED_CSS = `
 }
 `;
 
+function normalizeTag(tag: string): string {
+  return tag.replace(/^#/, '').toLowerCase();
+}
+
 function filterPosts(posts: Post[], activeFilter: FeedFilter): Post[] {
   if (activeFilter.type === 'MEDIA') {
     return posts.filter(
@@ -91,8 +95,8 @@ function filterPosts(posts: Post[], activeFilter: FeedFilter): Post[] {
     return posts.filter((p) => Boolean(p.isBookmarked));
   }
   if (activeFilter.type === 'HASHTAG' && activeFilter.value) {
-    const targetTag = activeFilter.value.toLowerCase();
-    return posts.filter((p) => p.hashtags.some((h) => h.toLowerCase() === targetTag));
+    const targetTag = normalizeTag(activeFilter.value);
+    return posts.filter((p) => p.hashtags.some((h) => normalizeTag(h) === targetTag));
   }
   return posts;
 }

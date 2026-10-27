@@ -18,6 +18,12 @@ function hasFeedItems(posts: unknown): posts is Post[] {
   return Array.isArray(posts) && posts.length > 0;
 }
 
+function mergeFeedPosts(livePosts: Post[], prevPosts: Post[]): Post[] {
+  const liveIds = new Set(livePosts.map((p) => p.id));
+  const retainedMock = prevPosts.filter((p) => !liveIds.has(p.id) && p.id.startsWith('post_0'));
+  return [...livePosts, ...retainedMock];
+}
+
 export function useFeedLoader(backendUserId: string, setPosts: Dispatch<SetStateAction<Post[]>>) {
   useEffect(() => {
     let isMounted = true;
@@ -27,7 +33,7 @@ export function useFeedLoader(backendUserId: string, setPosts: Dispatch<SetState
       .then((feedPosts) => {
         if (!isMounted) return;
         if (!hasFeedItems(feedPosts)) return;
-        setPosts(feedPosts);
+        setPosts((prev) => mergeFeedPosts(feedPosts, prev));
       })
       .catch(() => {
         // Gateway offline: retain INITIAL_POSTS fallback
