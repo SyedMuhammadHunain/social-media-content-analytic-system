@@ -419,15 +419,16 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `backend/like-unlike-service/**`, `backend/follow-service/**`, `frontend/src/api/socialApi.ts`
 - **Estimated scope:** S (3 files)
 
-#### Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
+#### Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI) [COMPLETED]
 - **Description:** Implement `parentCommentId` support in `backend/common-models` and `comment-service` to satisfy Section 10.3 (`Comment.reply()`) and Section 8.1 (`CommentsDB supports nested comments/replies`). Wire indented reply thread in `PostCard.tsx` using strictly Astryx components.
+- **Status:** COMPLETED. Verified `parentCommentId` in `backend/common-models` and `comment-service`, added unit tests in `CommentControllerTest.java`, implemented hierarchical comment reply engine and inline reply composer in `CommentSection.tsx` and `PostCard.tsx` using strictly Meta Astryx components, verified with 35 frontend unit tests and production build.
 - **Acceptance criteria:**
   - `CommentRequest` accepts optional `parentCommentId`.
   - Child replies render indented with visual hierarchy under parent comment.
   - UI strictly uses Meta Astryx components (`Button`, `Text`, `Avatar`, `VStack`, `HStack`).
 - **Verification:** `mvn test -pl comment-service` and `npm run test:unit`
 - **Dependencies:** Task 31
-- **Files touched:** `backend/common-models/**`, `backend/comment-service/**`, `frontend/src/app/feed/PostCard.tsx`
+- **Files touched:** `backend/common-models/**`, `backend/comment-service/**`, `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/CommentSection.tsx`
 - **Estimated scope:** M (4 files)
 
 #### Task 33: Notification Service Backend & Reactive Gateway Endpoints

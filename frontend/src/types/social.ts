@@ -26,6 +26,7 @@ export interface Comment {
   userId: string;
   author: User;
   text: string;
+  parentCommentId?: string;
   createdAt: string;
 }
 

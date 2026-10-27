@@ -61,6 +61,36 @@ class CommentControllerTest {
     }
 
     @Test
+    void testAddNestedCommentReplyEndpoint() throws Exception {
+        CommentRequest request = CommentRequest.builder()
+                .userId("user_102")
+                .postId("post_999")
+                .content("I agree with your point!")
+                .parentCommentId("comm_1")
+                .build();
+
+        Comment comment = Comment.builder()
+                .id("comm_2")
+                .userId("user_102")
+                .postId("post_999")
+                .content("I agree with your point!")
+                .parentCommentId("comm_1")
+                .createdAt(Instant.now())
+                .build();
+
+        when(commentService.addComment(any(CommentRequest.class))).thenReturn(comment);
+
+        mockMvc.perform(post("/v1/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.id").value("comm_2"))
+                .andExpect(jsonPath("$.data.parentCommentId").value("comm_1"))
+                .andExpect(jsonPath("$.data.content").value("I agree with your point!"));
+    }
+
+    @Test
     void testGetCommentsForPost() throws Exception {
         Comment c1 = Comment.builder().id("comm_1").postId("post_999").content("First").build();
         Comment c2 = Comment.builder().id("comm_2").postId("post_999").content("Second").build();

@@ -59,7 +59,7 @@
 
 ## Phase 10: Complete CT-263 PDF Gap Resolution (100% Diagram & Spec Fidelity)
 - [x] Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`)
-- [ ] Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
+- [x] Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
 - [ ] Task 33: Notification Service Backend & Reactive Gateway Endpoints
 - [ ] Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
 - [ ] Task 35: Logout Confirmation Feedback Toast in Auth View

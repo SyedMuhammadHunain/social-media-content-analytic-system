@@ -36,7 +36,7 @@ interface PostCardProps {
   currentUser?: UserProfile;
   onToggleLike: (postId: string) => void;
   onToggleFollow: (userId: string) => void;
-  onAddComment: (postId: string, text: string) => void;
+  onAddComment: (postId: string, text: string, parentCommentId?: string) => void;
   onToggleBookmark?: (postId: string) => void;
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
@@ -80,6 +80,7 @@ export function PostCard({
               isFollowed: false,
             },
             text: c.content,
+            parentCommentId: c.parentCommentId,
             createdAt: new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           }));
           setRemoteComments(mapped);

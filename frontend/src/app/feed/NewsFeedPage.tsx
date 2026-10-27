@@ -15,6 +15,7 @@ import type {
   CreatePostInput,
   UpdatePostInput,
   Post,
+  Comment,
   UserProfile,
   FeedFilter,
   FeedFilterType,
@@ -230,15 +231,16 @@ export function NewsFeedPage({
     );
   };
 
-  const handleAddComment = async (postId: string, text: string) => {
+  const handleAddComment = async (postId: string, text: string, parentCommentId?: string) => {
     const tempCommentId = `c_${Date.now()}`;
 
-    const newComment = {
+    const newComment: Comment = {
       id: tempCommentId,
       postId,
       userId: user.id,
       author: user,
       text,
+      parentCommentId,
       createdAt: 'Just now',
     };
 
@@ -248,7 +250,7 @@ export function NewsFeedPage({
         return {
           ...p,
           commentsCount: p.commentsCount + 1,
-          comments: [newComment, ...p.comments],
+          comments: [...p.comments, newComment],
         };
       })
     );
@@ -259,6 +261,7 @@ export function NewsFeedPage({
         userId: backendUserId,
         postId,
         content: text,
+        parentCommentId,
       });
 
       if (saved && saved.id) {
@@ -267,7 +270,9 @@ export function NewsFeedPage({
             if (p.id !== postId) return p;
             return {
               ...p,
-              comments: p.comments.map((c) => (c.id === tempCommentId ? { ...c, id: saved.id } : c)),
+              comments: p.comments.map((c) =>
+                c.id === tempCommentId ? { ...c, id: saved.id, parentCommentId: saved.parentCommentId } : c
+              ),
             };
           })
         );
