@@ -21,7 +21,7 @@ public class PresignedUrlController {
         this.sasService = sasService;
     }
 
-    @PostMapping("/presign")
+    @PostMapping({"/presign", "/presign-upload"})
     public ResponseEntity<ApiResponse<PresignResponse>> generatePresignedUrl(@Valid @RequestBody PresignRequest request) {
         PresignResponse response = sasService.generatePresignedUploadUrl(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Presigned SAS URL generated successfully."));

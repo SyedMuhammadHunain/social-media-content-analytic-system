@@ -16,7 +16,7 @@ export interface PresignResponse {
 }
 
 export const mediaApi = {
-  async getPresignedUploadUrl(request: PresignRequest): Promise<PresignResponse> {
+  getPresignedUploadUrl(request: PresignRequest): Promise<PresignResponse> {
     return api.post<PresignResponse>('/v1/media/presign', request);
   },
 

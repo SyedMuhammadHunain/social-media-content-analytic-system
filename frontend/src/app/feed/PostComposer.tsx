@@ -141,10 +141,22 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
             </VStack>
           </HStack>
 
-          {mediaUrl.length > 0 && (
+          {isUploading && (
+            <Badge
+              variant="blue"
+              label="Uploading to Azure..."
+            />
+          )}
+          {!isUploading && mediaUrl.length > 0 && (
             <Badge
               variant={mediaType === 'VIDEO' ? 'purple' : 'teal'}
-              label={mediaType === 'VIDEO' ? 'Video Attached' : 'Photo Attached'}
+              label={
+                mediaUrl.includes('blob.core.windows.net')
+                  ? 'Uploaded to Azure Blob'
+                  : mediaType === 'VIDEO'
+                    ? 'Video Attached'
+                    : 'Photo Attached'
+              }
             />
           )}
         </HStack>
