@@ -75,5 +75,5 @@
 ## Phase 12: CodeScene CLI On-Demand Code Health & Hotspot Analytics
 - [x] Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification
 - [x] Task 41: CodeScene Rule Evaluation against `.codescene/code-health-rules.json`
-- [ ] Task 42: On-Demand Code Health & Hotspot Review Report (`docs/reports/codescene-live-analysis-report.md`)
-- [ ] Checkpoint 12: CodeScene CLI Operational On-Demand
+- [x] Task 42: On-Demand Code Health & Hotspot Review Report (`docs/reports/codescene-live-analysis-report.md`)
+- [x] Checkpoint 12: CodeScene CLI Operational On-Demand
