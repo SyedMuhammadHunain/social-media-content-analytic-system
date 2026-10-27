@@ -644,16 +644,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ### Phase 14: NewsFeedPage Code Health Optimization to 10.0 / 10.0
 
-#### Task 49: Extract `useFeedMutations.ts` Custom Hook
-- **Description:** Extract optimistic post CRUD and social graph mutations (`handleCreatePost`, `handleEditPost`, `handleDeletePost`, `handleToggleLike`, `handleToggleFollow`, `handleToggleBookmark`, `handleAddComment`) into an isolated, strongly-typed custom hook `useFeedMutations.ts`.
+#### Task 49: Extract `useFeedMutations.ts` Custom Hook [COMPLETED]
+- **Description:** Extract optimistic post CRUD and social graph mutations (`handleCreatePost`, `handleEditPost`, `handleDeletePost`, `handleToggleLike`, `handleToggleFollow`, `handleToggleBookmark`, `handleAddComment`) into an isolated, strongly-typed custom hook `useFeedMutations.ts` (composed of `usePostCrud.ts`, `useLikeAction.ts`, `useFollowAction.ts`, and `useCommentAction.ts`).
+- **Status:** COMPLETED. Extracted 5 focused mutation hooks, each scoring **10.0 / 10.0 ✅** in CodeScene review. TypeScript check and 43/43 unit tests passing.
 - **Acceptance criteria:**
   - `useFeedMutations` manages optimistic state updates and async gateway dispatch.
   - `cs review frontend/src/app/feed/useFeedMutations.ts` scores 10.0 / 10.0 ✅.
   - Typecheck passes without errors.
 - **Verification:** `npx tsc -b` and `cs review frontend/src/app/feed/useFeedMutations.ts`
 - **Dependencies:** Checkpoint 13
-- **Files touched:** `frontend/src/app/feed/useFeedMutations.ts`
-- **Estimated scope:** S (1 file)
+- **Files touched:** `frontend/src/app/feed/useFeedMutations.ts`, `frontend/src/app/feed/usePostCrud.ts`, `frontend/src/app/feed/useSocialInteractions.ts`, `frontend/src/app/feed/useLikeAction.ts`, `frontend/src/app/feed/useFollowAction.ts`, `frontend/src/app/feed/useCommentAction.ts`
+- **Estimated scope:** S (5 files)
 
 #### Task 50: Extract `FeedPostList.tsx` Presentation Component
 - **Description:** Extract post list iteration, empty state rendering, and `PostCard` prop dispatching into a dedicated Astryx presentation component `FeedPostList.tsx`.
