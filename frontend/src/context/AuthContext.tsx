@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [demoUsers, setDemoUsers] = useState<DemoUserSummary[]>(DEFAULT_DEMO_USERS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoutMessage, setLogoutMessage] = useState<string | null>(null);
 
   // Restore stored token if present
   useEffect(() => {
@@ -106,10 +107,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearError = () => setError(null);
+  const clearLogoutMessage = () => setLogoutMessage(null);
 
   const login = async (emailOrUsername: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
+    setLogoutMessage(null);
 
     const normalized = emailOrUsername.trim().toLowerCase();
 
@@ -195,6 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
+    setLogoutMessage(null);
 
     const cleanUsername = username.trim();
     const cleanEmail = email.trim();
@@ -289,6 +293,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const switchUser = async (userId: string): Promise<boolean> => {
+    setLogoutMessage(null);
     const matchedAccount = accounts.find(
       (a) => a.user.id === userId || a.user.username.toLowerCase() === userId.toLowerCase()
     );
@@ -335,6 +340,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authApi.logout();
     setCurrentUser(null);
     setError(null);
+    setLogoutMessage('You have been logged out successfully.');
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -348,12 +354,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!currentUser,
         isLoading,
         error,
+        logoutMessage,
         demoUsers,
         login,
         register,
         logout,
         switchUser,
         clearError,
+        clearLogoutMessage,
       }}
     >
       {children}

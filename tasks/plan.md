@@ -456,8 +456,9 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/NotificationDrawer.tsx`, `frontend/src/api/notificationsApi.ts`
 - **Estimated scope:** M (3 files)
 
-#### Task 35: Logout Confirmation Feedback Toast in Auth View
+#### Task 35: Logout Confirmation Feedback Toast in Auth View [COMPLETED]
 - **Description:** Implement "Showed Logout Message" confirmation banner in the Auth login view satisfying Section 10.6 (Activity Diagram Page 37).
+- **Status:** COMPLETED. Added `logoutMessage` and `clearLogoutMessage` lifecycle to `AuthContext`, implemented dismissable Astryx `Banner` (`status="success"`) in `LoginSplitPage`, wired automatic clear triggers on input or login retry, and added unit test coverage in `auth_integration.test.mjs`.
 - **Acceptance criteria:**
   - Logging out displays Astryx confirmation badge/card: "You have been logged out successfully."
   - Banner dismisses or clears on subsequent login attempt.

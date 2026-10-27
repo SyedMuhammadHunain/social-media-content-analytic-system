@@ -76,7 +76,7 @@ const LOGIN_SPLIT_CSS = `
 `;
 
 export default function LoginSplitPage() {
-  const { login, register, error, isLoading, clearError } = useAuth();
+  const { login, register, error, isLoading, clearError, logoutMessage, clearLogoutMessage } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [isRegister, setIsRegister] = useState(false);
@@ -88,6 +88,7 @@ export default function LoginSplitPage() {
 
   const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
+    clearLogoutMessage();
 
     // Query active DOM input values for automated browser testing compatibility
     const emailEl = formRef.current?.querySelector<HTMLInputElement>(
@@ -131,6 +132,7 @@ export default function LoginSplitPage() {
   const handleToggleMode = (e?: MouseEvent) => {
     if (e) e.preventDefault();
     clearError();
+    clearLogoutMessage();
     setLoginFailed(false);
     setIsRegister(!isRegister);
   };
@@ -170,6 +172,7 @@ export default function LoginSplitPage() {
                     }
                     setLoginFailed(false);
                     clearError();
+                    clearLogoutMessage();
                   }}
                   style={{ height: '100%' }}
                 >
@@ -236,10 +239,24 @@ export default function LoginSplitPage() {
                                   label="One-Click Demo Sign In"
                                   onClick={async (ev) => {
                                     ev.preventDefault();
+                                    clearLogoutMessage();
                                     setEmail('hunain_creator');
                                     setPassword('password123');
                                     await login('hunain_creator', 'password123');
                                   }}
+                                />
+                              </div>
+                            )}
+
+                            {/* Logout Confirmation Feedback Banner (CT-263 Section 10.6) */}
+                            {logoutMessage && !error && (
+                              <div data-testid="auth-logout-banner">
+                                <Banner
+                                  status="success"
+                                  title="Logged Out"
+                                  description={logoutMessage}
+                                  isDismissable
+                                  onDismiss={clearLogoutMessage}
                                 />
                               </div>
                             )}

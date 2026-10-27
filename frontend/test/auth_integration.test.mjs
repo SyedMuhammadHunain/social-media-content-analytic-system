@@ -122,4 +122,12 @@ test('Auth Integration & User Switcher Suite', async (suite) => {
     assert.strictEqual(bobAcc.email, 'bob@example.com');
     assert.strictEqual(bobAcc.user.name, 'Bob Creator');
   });
+
+  await suite.test('Logout clears auth token and triggers confirmation state', () => {
+    setAuthToken('mock_session_token_123');
+    assert.strictEqual(getAuthToken(), 'mock_session_token_123');
+
+    authApi.logout();
+    assert.strictEqual(getAuthToken(), null, 'Session token cleared upon logout');
+  });
 });

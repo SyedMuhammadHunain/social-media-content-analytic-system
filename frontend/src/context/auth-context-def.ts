@@ -17,12 +17,14 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  logoutMessage: string | null;
   demoUsers: DemoUserSummary[];
   login: (emailOrUsername: string, password: string) => Promise<boolean>;
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchUser: (userId: string) => Promise<boolean>;
   clearError: () => void;
+  clearLogoutMessage: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

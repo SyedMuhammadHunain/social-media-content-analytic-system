@@ -62,6 +62,6 @@
 - [x] Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
 - [x] Task 33: Notification Service Backend & Reactive Gateway Endpoints
 - [x] Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
-- [ ] Task 35: Logout Confirmation Feedback Toast in Auth View
+- [x] Task 35: Logout Confirmation Feedback Toast in Auth View
 - [ ] Task 36: End-to-End Chrome CDP Verification & Final 100% Compliance Certification
 - [ ] Checkpoint 10: 100% CT-263 PDF Compliance Verified
