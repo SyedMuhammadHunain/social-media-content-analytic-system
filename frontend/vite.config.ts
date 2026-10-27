@@ -14,6 +14,9 @@ export default defineConfig({
           if (id.includes('node_modules/@astryxdesign/')) {
             return 'vendor-astryx'
           }
+          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
+            return 'vendor-charts'
+          }
           if (id.includes('node_modules/lucide-react/')) {
             return 'vendor-icons'
           }
