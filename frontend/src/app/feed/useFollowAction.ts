@@ -17,6 +17,12 @@ interface UseFollowActionParams {
   recordFollowToggle: (isFollowed: boolean) => void;
 }
 
+function resolveNextFollowState(creator?: SuggestedCreator, post?: Post): boolean {
+  if (creator) return !creator.isFollowed;
+  if (post) return !post.author.isFollowed;
+  return true;
+}
+
 export function useFollowAction({
   backendUserId,
   posts,
@@ -29,7 +35,7 @@ export function useFollowAction({
   const handleToggleFollow = useCallback(async (userId: string) => {
     const creator = suggestedCreators.find((c) => c.id === userId);
     const post = posts.find((p) => p.author.id === userId);
-    const nextIsFollowed = creator ? !creator.isFollowed : post ? !post.author.isFollowed : true;
+    const nextIsFollowed = resolveNextFollowState(creator, post);
 
     setSuggestedCreators((prev) =>
       prev.map((c) => (c.id === userId ? { ...c, isFollowed: nextIsFollowed } : c))
