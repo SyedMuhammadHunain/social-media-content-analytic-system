@@ -613,16 +613,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/useNotificationPolling.ts`, `frontend/src/components/nav/DesktopNavTabs.tsx`, `frontend/src/components/nav/DesktopNavActions.tsx`, `frontend/src/components/nav/MobileNavMenu.tsx`
 - **Estimated scope:** S (5 files)
 
-#### Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`)
-- **Description:** Decompose `PostCard.tsx` (221 lines, currently 8.71) by extracting `PostCardActionBar.tsx` (Like, Comment, Share buttons).
+#### Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`) [COMPLETED]
+- **Description:** Decompose `PostCard.tsx` (221 lines, previously 8.71) by extracting `PostCardActionBar.tsx` (Like, Comment, Bookmark, Share buttons), `postCommentUtils.ts` (remote comments fetch & mapping logic), and `PostHashtags` helper.
+- **Status:** COMPLETED. Extracted 2 modular files and helpers, reducing `PostCard.tsx` complexity and method size. Achieved **10.0 / 10.0 ✅** across all 3 files in CodeScene review. 43/43 unit tests passing.
 - **Acceptance criteria:**
-  - `PostCard.tsx` Code Health score jumps from 8.71 to ≥ 9.5.
+  - `PostCard.tsx` Code Health score jumps from 8.71 to ≥ 9.5 (Achieved: 10.0 / 10.0).
   - Like toggles, comment count, and drawer toggle function with 100% fidelity.
   - Unit tests (`newsfeed_social_sync.test.mjs`) pass.
 - **Verification:** `npm run test:unit` and `cs review frontend/src/app/feed/PostCard.tsx`
 - **Dependencies:** Task 46
-- **Files touched:** `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostCardActionBar.tsx`
-- **Estimated scope:** S (2 files)
+- **Files touched:** `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostCardActionBar.tsx`, `frontend/src/app/feed/postCommentUtils.ts`
+- **Estimated scope:** S (3 files)
 
 #### Task 48: Live CodeScene CLI Full Re-Scan & Updated Quality Certification
 - **Description:** Execute full CodeScene CLI re-scan (`cs review` across all 5 refactored modules + `cs delta main`), verify all files score ≥ 9.5 (with controllers at 10.0), and update `docs/reports/codescene-live-analysis-report.md`.
