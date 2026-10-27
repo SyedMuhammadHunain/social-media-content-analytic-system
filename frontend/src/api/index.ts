@@ -7,3 +7,4 @@ export * from './feedApi.ts';
 export * from './postsApi.ts';
 export * from './socialApi.ts';
 export * from './mediaApi.ts';
+export * from './notificationsApi.ts';

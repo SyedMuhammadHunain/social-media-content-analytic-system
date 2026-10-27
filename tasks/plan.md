@@ -431,15 +431,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `backend/common-models/**`, `backend/comment-service/**`, `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/CommentSection.tsx`
 - **Estimated scope:** M (4 files)
 
-#### Task 33: Notification Service Backend & Reactive Gateway Endpoints
+#### Task 33: Notification Service Backend & Reactive Gateway Endpoints [COMPLETED]
 - **Description:** Implement `Notification` domain model and service in Gateway / API backend satisfying Section 10.1 (Use Case Diagram), Section 10.3 (Class Diagram), Section 10.4 (Communication Diagram), and Section 10.6 (Activity Diagram). Expose `/v1/notifications/{userId}` and mark-as-read endpoints.
+- **Status:** COMPLETED. Implemented `NotificationType`, `Notification`, and `NotificationRequest` in `common-models`, created `ReactiveNotificationRepository`, `GatewayNotificationService`, and `NotificationController` in `api-gateway`, wired `notificationsApi.ts` in frontend, and verified with 12 backend WebFlux tests, 42 frontend unit tests, and live Atlas cluster queries.
 - **Acceptance criteria:**
   - Notifications auto-created for post owner when like, comment, or follow occurs.
   - `GET /v1/notifications/{userId}` returns chronological notifications.
   - `PUT /v1/notifications/{id}/read` marks notification as read.
-- **Verification:** Unit tests for Notification endpoints.
+  - `POST /v1/notifications` endpoint triggers notifications.
+- **Verification:** Unit tests for Notification endpoints and live Gateway integration tests.
 - **Dependencies:** Task 31
-- **Files touched:** `backend/common-models/**`, `backend/api-gateway/**`
+- **Files touched:** `backend/common-models/**`, `backend/api-gateway/**`, `frontend/src/api/notificationsApi.ts`
 - **Estimated scope:** M (4 files)
 
 #### Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
