@@ -1,18 +1,37 @@
 {
-  "$schema": "https://raw.githubusercontent.com/empear-analytics/codescene-ci-cd/master/schema/code-health-rules-schema.json",
-  "version": 1,
-  "test_code_patterns": [
-    "frontend/test/**",
-    "**/*.test.mjs",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx"
-  ],
-  "exclusions": [
-    "frontend/test/**",
-    "docs/**",
-    "tasks/**"
-  ],
-  "rules": []
+  "usage": "Custom CodeScene rules for SMCAS repository: relaxing structural metrics for automated tests and browser automation suites.",
+  "rule_sets": [
+    {
+      "matching_content_path": "frontend/test/**",
+      "matching_content_path_doc": "Relax structural rules for frontend unit and node:test suites",
+      "rules": [
+        { "name": "Bumpy Road Ahead", "weight": 0.0 },
+        { "name": "Complex Method", "weight": 0.0 },
+        { "name": "Deep, Nested Complexity", "weight": 0.0 },
+        { "name": "Excess Number of Function Arguments", "weight": 0.0 },
+        { "name": "Large Method", "weight": 0.0 },
+        { "name": "Code Duplication", "weight": 0.0 }
+      ]
+    },
+    {
+      "matching_content_path": "tests/**",
+      "matching_content_path_doc": "Relax structural rules for end-to-end Chrome CDP automation scripts",
+      "rules": [
+        { "name": "Bumpy Road Ahead", "weight": 0.0 },
+        { "name": "Complex Method", "weight": 0.0 },
+        { "name": "Deep, Nested Complexity", "weight": 0.0 },
+        { "name": "Large Method", "weight": 0.0 }
+      ]
+    },
+    {
+      "matching_content_path": "**/src/test/**",
+      "matching_content_path_doc": "Relax structural rules for Java Spring Boot JUnit/WebFlux test suites",
+      "rules": [
+        { "name": "Bumpy Road Ahead", "weight": 0.0 },
+        { "name": "Complex Method", "weight": 0.0 },
+        { "name": "Deep, Nested Complexity", "weight": 0.0 },
+        { "name": "Large Method", "weight": 0.0 }
+      ]
+    }
+  ]
 }

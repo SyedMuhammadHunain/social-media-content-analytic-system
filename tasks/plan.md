@@ -525,8 +525,9 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ### Phase 12: CodeScene CLI On-Demand Code Health & Hotspot Analytics
 
-#### Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification
+#### Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification [COMPLETED]
 - **Description:** Download and install the official CodeScene standalone CLI tool (`cs`) to `~/.local/bin/cs` via the official installer, ensure executable permissions, and verify version output.
+- **Status:** COMPLETED. Installed `cs` version 1.0.55 in `~/.local/bin/cs`, added to PATH in `~/.bashrc`, verified with `cs version`.
 - **Acceptance criteria:**
   - `~/.local/bin/cs` exists and is executable.
   - `cs --version` returns valid semver.
@@ -535,8 +536,9 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `~/.local/bin/cs`
 - **Estimated scope:** S (1 file)
 
-#### Task 41: CodeScene Rule Evaluation against `.codescene/code-health-rules.json`
+#### Task 41: CodeScene Rule Evaluation against `.codescene/code-health-rules.json` [COMPLETED]
 - **Description:** Verify `.codescene/code-health-rules.json` configuration properly excludes procedural test suites (`frontend/test/**`, `**/*.test.mjs`, `**/*.test.ts`, `**/*.test.java`) and scopes analysis to production microservices and Meta Astryx UI components.
+- **Status:** COMPLETED. Upgraded `.codescene/code-health-rules.json` to official `rule_sets` schema with 3 rule sets (frontend tests, CDP tests, Java tests) with zero-weight relaxation, verified with `cs rules-config validate` (valid, 14 overrides), and verified file matching with `cs check-rules`.
 - **Acceptance criteria:**
   - CodeScene configuration syntax valid.
   - Test suites correctly excluded from production complexity scoring.
