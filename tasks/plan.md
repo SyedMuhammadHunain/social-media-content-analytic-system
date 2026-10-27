@@ -405,6 +405,78 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 10: Complete CT-263 PDF Gap Resolution (100% Diagram & Spec Fidelity)
+
+#### Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`)
+- **Description:** Implement `DELETE` HTTP mapping in `LikeController` and `FollowController` to strictly match Section 6 (Page 15) while preserving `POST` for compatibility. Update Gateway CORS routing and `socialApi.ts`.
+- **Acceptance criteria:**
+  - `DELETE /v1/unlike` decrements like count and removes like ledger entry.
+  - `DELETE /v1/unfollow` removes edge from `FollowDB`.
+  - Both `POST` and `DELETE` pass unit and integration tests.
+- **Verification:** `mvn test -pl like-unlike-service,follow-service`
+- **Dependencies:** Checkpoint 9
+- **Files touched:** `backend/like-unlike-service/**`, `backend/follow-service/**`, `frontend/src/api/socialApi.ts`
+- **Estimated scope:** S (3 files)
+
+#### Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
+- **Description:** Implement `parentCommentId` support in `backend/common-models` and `comment-service` to satisfy Section 10.3 (`Comment.reply()`) and Section 8.1 (`CommentsDB supports nested comments/replies`). Wire indented reply thread in `PostCard.tsx` using strictly Astryx components.
+- **Acceptance criteria:**
+  - `CommentRequest` accepts optional `parentCommentId`.
+  - Child replies render indented with visual hierarchy under parent comment.
+  - UI strictly uses Meta Astryx components (`Button`, `Text`, `Avatar`, `VStack`, `HStack`).
+- **Verification:** `mvn test -pl comment-service` and `npm run test:unit`
+- **Dependencies:** Task 31
+- **Files touched:** `backend/common-models/**`, `backend/comment-service/**`, `frontend/src/app/feed/PostCard.tsx`
+- **Estimated scope:** M (4 files)
+
+#### Task 33: Notification Service Backend & Reactive Gateway Endpoints
+- **Description:** Implement `Notification` domain model and service in Gateway / API backend satisfying Section 10.1 (Use Case Diagram), Section 10.3 (Class Diagram), Section 10.4 (Communication Diagram), and Section 10.6 (Activity Diagram). Expose `/v1/notifications/{userId}` and mark-as-read endpoints.
+- **Acceptance criteria:**
+  - Notifications auto-created for post owner when like, comment, or follow occurs.
+  - `GET /v1/notifications/{userId}` returns chronological notifications.
+  - `PUT /v1/notifications/{id}/read` marks notification as read.
+- **Verification:** Unit tests for Notification endpoints.
+- **Dependencies:** Task 31
+- **Files touched:** `backend/common-models/**`, `backend/api-gateway/**`
+- **Estimated scope:** M (4 files)
+
+#### Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
+- **Description:** Implement an Astryx Notification Bell button with live unread count badge in `AppTopNav.tsx` and an interactive Notification Drawer/Popover using strictly `@astryxdesign/core` components.
+- **Acceptance criteria:**
+  - Bell icon shows unread badge counter.
+  - Drawer shows timestamped notifications with user avatars.
+  - Strictly Meta Astryx design tokens (`Button`, `Badge`, `Card`, `Text`, `Avatar`, `VStack`, `HStack`, `Divider`).
+- **Verification:** `npm run test:unit` and `npx tsc -b`
+- **Dependencies:** Task 33
+- **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/NotificationDrawer.tsx`, `frontend/src/api/notificationsApi.ts`
+- **Estimated scope:** M (3 files)
+
+#### Task 35: Logout Confirmation Feedback Toast in Auth View
+- **Description:** Implement "Showed Logout Message" confirmation banner in the Auth login view satisfying Section 10.6 (Activity Diagram Page 37).
+- **Acceptance criteria:**
+  - Logging out displays Astryx confirmation badge/card: "You have been logged out successfully."
+  - Banner dismisses or clears on subsequent login attempt.
+- **Verification:** `npx tsc -b` and frontend unit tests.
+- **Dependencies:** Task 34
+- **Files touched:** `frontend/src/context/AuthContext.tsx`, `frontend/src/app/auth/AuthPage.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 36: End-to-End Chrome CDP Verification & Final 100% Compliance Certification
+- **Description:** Build and execute an exhaustive headless Chrome CDP test verifying all 4 resolved gaps: trigger interaction -> verify notification bell badge -> open drawer -> reply to comment -> logout and verify confirmation message. Generate certification report.
+- **Acceptance criteria:**
+  - CDP automated test passes 100% of assertion steps.
+  - Screenshots captured and saved to brain directory.
+  - Deliver `docs/reports/ct263-final-gap-resolution-report.md`.
+- **Verification:** `node tests/e2e-final-compliance.test.mjs`
+- **Dependencies:** Tasks 31-35
+- **Files touched:** `tests/e2e-final-compliance.test.mjs`, `docs/reports/ct263-final-gap-resolution-report.md`
+- **Estimated scope:** M (2 files)
+
+### Checkpoint 10: 100% CT-263 PDF Compliance Verified
+- [ ] All 4 gaps resolved, tested, verified by Chrome CDP, and committed. Zero discrepancies remaining with NED CT-263 PDF.
+
+---
+
 ---
 
 ## Risks and Mitigations

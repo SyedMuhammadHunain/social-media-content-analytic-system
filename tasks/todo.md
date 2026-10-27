@@ -56,3 +56,12 @@
 - [x] Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report (`tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`)
 - [x] Task 30: Multi-Axis Code Review & Quality Certification (`docs/reports/code-review-azure-blob-storage.md`)
 - [x] Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
+
+## Phase 10: Complete CT-263 PDF Gap Resolution (100% Diagram & Spec Fidelity)
+- [ ] Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`)
+- [ ] Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
+- [ ] Task 33: Notification Service Backend & Reactive Gateway Endpoints
+- [ ] Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
+- [ ] Task 35: Logout Confirmation Feedback Toast in Auth View
+- [ ] Task 36: End-to-End Chrome CDP Verification & Final 100% Compliance Certification
+- [ ] Checkpoint 10: 100% CT-263 PDF Compliance Verified
