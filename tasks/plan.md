@@ -563,6 +563,79 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 13: CodeScene Code Health Optimization to 9.5+ Across Identified Targets
+
+#### Task 43: Backend Controller Parameter Resolution Simplification
+- **Description:** Refactor `resolveRequest` in `LikeController.java` (currently 9.24) and `FollowController.java` (currently 8.95) to eliminate complex conditionals (CC = 10 -> CC = 1) using a clean helper.
+- **Acceptance criteria:**
+  - `LikeController.java` Code Health score reaches 10.0 / 10.0.
+  - `FollowController.java` Code Health score reaches 10.0 / 10.0.
+  - Existing JUnit unit tests (`LikeControllerTest.java`, `FollowControllerTest.java`) pass 100%.
+- **Verification:** `mvn test -pl like-unlike-service,follow-service` and `cs review`
+- **Dependencies:** Checkpoint 12
+- **Files touched:** `backend/like-unlike-service/.../LikeController.java`, `backend/follow-service/.../FollowController.java`
+- **Estimated scope:** S (2 files)
+
+#### Task 44: Login Split Page Decomposition (`login-split/page.tsx`)
+- **Description:** Decompose `LoginSplitPage` (543 lines, currently 7.69) by extracting `AuthBrandingPane.tsx` and `AuthQuickDemoBar.tsx`. Reduce main component lines from 543 to < 120 and cyclomatic complexity from 42 to < 10.
+- **Acceptance criteria:**
+  - `LoginSplitPage` Code Health score jumps from 7.69 to ≥ 9.5.
+  - Preserves 100% Meta Astryx design tokens and authentication functionality.
+  - Unit tests (`auth_integration.test.mjs`) and CDP tests pass.
+- **Verification:** `npm run test:unit` and `cs review frontend/src/app/login-split/page.tsx`
+- **Dependencies:** Task 43
+- **Files touched:** `frontend/src/app/login-split/page.tsx`, `frontend/src/app/login-split/AuthBrandingPane.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 45: Creator Dashboard Component Decomposition (`dashboard/page.tsx`)
+- **Description:** Decompose `DashboardPage` (519 lines, currently 8.15) by extracting `DashboardKpiCards.tsx` (the 4 KPI metrics cards) and `DashboardTopPostsTable.tsx` (top performing posts table).
+- **Acceptance criteria:**
+  - `DashboardPage` Code Health score jumps from 8.15 to ≥ 9.5.
+  - Preserves all real-time telemetry from `AnalyticsContext`.
+  - Unit tests (`creator_analytics_telemetry.test.mjs`) pass.
+- **Verification:** `npm run test:unit` and `cs review frontend/src/app/dashboard/page.tsx`
+- **Dependencies:** Task 44
+- **Files touched:** `frontend/src/app/dashboard/page.tsx`, `frontend/src/app/dashboard/DashboardKpiCards.tsx`, `frontend/src/app/dashboard/DashboardTopPostsTable.tsx`
+- **Estimated scope:** M (3 files)
+
+#### Task 46: Top Navigation Component Decomposition (`AppTopNav.tsx`)
+- **Description:** Decompose `AppTopNav.tsx` (335 lines, currently 8.57) by extracting `DesktopNavActions.tsx` (encompassing User Switcher, Notification Bell, Theme Toggle, and Logout buttons).
+- **Acceptance criteria:**
+  - `AppTopNav.tsx` Code Health score jumps from 8.57 to ≥ 9.5.
+  - Notification drawer toggle, user switcher, and theme toggle continue working seamlessly.
+  - Unit tests (`notifications.test.mjs`, `api_client.test.mjs`) pass.
+- **Verification:** `npm run test:unit` and `cs review frontend/src/components/nav/AppTopNav.tsx`
+- **Dependencies:** Task 45
+- **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/DesktopNavActions.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`)
+- **Description:** Decompose `PostCard.tsx` (221 lines, currently 8.71) by extracting `PostCardActionBar.tsx` (Like, Comment, Share buttons).
+- **Acceptance criteria:**
+  - `PostCard.tsx` Code Health score jumps from 8.71 to ≥ 9.5.
+  - Like toggles, comment count, and drawer toggle function with 100% fidelity.
+  - Unit tests (`newsfeed_social_sync.test.mjs`) pass.
+- **Verification:** `npm run test:unit` and `cs review frontend/src/app/feed/PostCard.tsx`
+- **Dependencies:** Task 46
+- **Files touched:** `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostCardActionBar.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 48: Live CodeScene CLI Full Re-Scan & Updated Quality Certification
+- **Description:** Execute full CodeScene CLI re-scan (`cs review` across all 5 refactored modules + `cs delta main`), verify all files score ≥ 9.5 (with controllers at 10.0), and update `docs/reports/codescene-live-analysis-report.md`.
+- **Acceptance criteria:**
+  - 100% of refactored targets achieve Green Code Health (≥ 9.5).
+  - Clean delta against main.
+  - Deliver updated certification report.
+- **Verification:** `cs review` and `node tests/e2e-final-compliance.test.mjs`
+- **Dependencies:** Tasks 43-47
+- **Files touched:** `docs/reports/codescene-live-analysis-report.md`
+- **Estimated scope:** S (1 file)
+
+### Checkpoint 13: 100% Green Code Health (≥ 9.5) Across All Targets Certified
+- [ ] Every identified hotspot refactored and certified ≥ 9.5 by CodeScene CLI.
+
+---
+
 ---
 
 ## Risks and Mitigations
