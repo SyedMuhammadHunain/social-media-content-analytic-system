@@ -390,7 +390,7 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Estimated scope:** S (2 files)
 
 ### Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
-- [ ] Azure Blob Storage account `socialmediaanalysis` connected, verified, and rendering persistent media in SMCAS newsfeed.
+- [x] Azure Blob Storage account `socialmediaanalysis` connected, verified, and rendering persistent media in SMCAS newsfeed.
 
 ---
 

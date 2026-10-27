@@ -29,6 +29,7 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
     >
       {type === 'IMAGE' ? (
         <img
+          data-testid="post-media-image"
           src={mediaUrls[0]}
           alt={description || 'Post image'}
           style={{

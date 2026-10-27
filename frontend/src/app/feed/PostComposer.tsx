@@ -249,6 +249,7 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
           />
 
           <Button
+            data-testid="composer-publish-btn"
             label={isUploading ? 'Uploading...' : 'Publish Post'}
             variant="primary"
             size="md"

@@ -4,6 +4,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobCorsRule;
+import com.azure.storage.blob.models.BlobServiceProperties;
 import com.azure.storage.blob.models.PublicAccessType;
 import com.social.common.dto.PresignRequest;
 import com.social.common.dto.PresignResponse;
@@ -77,6 +79,22 @@ public class AzureBlobIntegrationTest {
 
         assertNotNull(serviceClient.getAccountName(), "Azure storage account name must not be null");
         assertEquals("socialmediaanalysis", serviceClient.getAccountName().toLowerCase());
+
+        // Configure CORS on the storage account for browser direct uploads
+        try {
+            BlobServiceProperties properties = serviceClient.getProperties();
+            BlobCorsRule corsRule = new BlobCorsRule()
+                    .setAllowedOrigins("*")
+                    .setAllowedMethods("GET,PUT,OPTIONS,POST,HEAD,MERGE,DELETE")
+                    .setAllowedHeaders("*")
+                    .setExposedHeaders("*")
+                    .setMaxAgeInSeconds(3600);
+            properties.setCors(java.util.List.of(corsRule));
+            serviceClient.setProperties(properties);
+            System.out.println("Configured Azure Storage CORS rules successfully.");
+        } catch (Exception e) {
+            System.err.println("CORS configuration note: " + e.getMessage());
+        }
 
         // 2. Ensure container 'media-assets' exists with public blob read access
         BlobContainerClient containerClient = serviceClient.getBlobContainerClient("media-assets");

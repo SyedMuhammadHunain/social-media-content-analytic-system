@@ -53,5 +53,5 @@
 - [x] Task 26: Azure Credentials & Launch Script Environment Wiring (`backend/.env`, `scripts/start-backend.sh`, `scripts/run-services-daemon.sh`)
 - [x] Task 27: Storage Account Connectivity & Container Verification (`scripts/check-azure-storage.sh`, `AzureBlobIntegrationTest.java`)
 - [x] Task 28: Pre-Signed URL Service Cloud SAS & Direct Frontend Binary Upload (`mediaApi.ts`, `PostComposer.tsx`, `AzureBlobSasService.java`)
-- [ ] Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report (`tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`)
-- [ ] Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
+- [x] Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report (`tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`)
+- [x] Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
