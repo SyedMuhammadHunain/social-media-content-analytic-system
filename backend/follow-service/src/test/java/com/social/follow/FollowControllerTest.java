@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,6 +75,47 @@ class FollowControllerTest {
         mockMvc.perform(post("/v1/unfollow")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.isFollowing").value(false));
+    }
+
+    @Test
+    void testUnfollowUserEndpointDeleteMethodWithBody() throws Exception {
+        FollowRequest request = FollowRequest.builder()
+                .followerId("user_101")
+                .followingId("user_102")
+                .build();
+
+        FollowResponse response = FollowResponse.builder()
+                .followerId("user_101")
+                .followingId("user_102")
+                .isFollowing(false)
+                .build();
+
+        when(followService.unfollowUser(any(FollowRequest.class))).thenReturn(response);
+
+        mockMvc.perform(delete("/v1/unfollow")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.isFollowing").value(false));
+    }
+
+    @Test
+    void testUnfollowUserEndpointDeleteMethodWithQueryParams() throws Exception {
+        FollowResponse response = FollowResponse.builder()
+                .followerId("user_101")
+                .followingId("user_102")
+                .isFollowing(false)
+                .build();
+
+        when(followService.unfollowUser(any(FollowRequest.class))).thenReturn(response);
+
+        mockMvc.perform(delete("/v1/unfollow")
+                        .param("followerId", "user_101")
+                        .param("followingId", "user_102"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.data.isFollowing").value(false));

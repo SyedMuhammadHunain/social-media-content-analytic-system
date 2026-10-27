@@ -48,7 +48,10 @@ export const socialApi = {
     return api.post<LikeResponse>('/v1/like', { userId, postId });
   },
 
-  unlikePost(userId: string, postId: string): Promise<LikeResponse> {
+  unlikePost(userId: string, postId: string, method: 'DELETE' | 'POST' = 'DELETE'): Promise<LikeResponse> {
+    if (method === 'DELETE') {
+      return api.del<LikeResponse>('/v1/unlike', { userId, postId });
+    }
     return api.post<LikeResponse>('/v1/unlike', { userId, postId });
   },
 
@@ -81,7 +84,10 @@ export const socialApi = {
     return api.post<FollowResponse>('/v1/follow', { followerId, followingId });
   },
 
-  unfollowUser(followerId: string, followingId: string): Promise<FollowResponse> {
+  unfollowUser(followerId: string, followingId: string, method: 'DELETE' | 'POST' = 'DELETE'): Promise<FollowResponse> {
+    if (method === 'DELETE') {
+      return api.del<FollowResponse>('/v1/unfollow', { followerId, followingId });
+    }
     return api.post<FollowResponse>('/v1/unfollow', { followerId, followingId });
   },
 

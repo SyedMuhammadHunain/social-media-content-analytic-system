@@ -407,13 +407,14 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ### Phase 10: Complete CT-263 PDF Gap Resolution (100% Diagram & Spec Fidelity)
 
-#### Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`)
+#### Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`) [COMPLETED]
 - **Description:** Implement `DELETE` HTTP mapping in `LikeController` and `FollowController` to strictly match Section 6 (Page 15) while preserving `POST` for compatibility. Update Gateway CORS routing and `socialApi.ts`.
+- **Status:** COMPLETED. Added `DELETE` method to `/v1/unlike` and `/v1/unfollow` endpoints with request body and query param resolution, updated `socialApi.ts` and `client.ts` to execute `DELETE` by default, verified with unit and live Gateway tests.
 - **Acceptance criteria:**
   - `DELETE /v1/unlike` decrements like count and removes like ledger entry.
   - `DELETE /v1/unfollow` removes edge from `FollowDB`.
   - Both `POST` and `DELETE` pass unit and integration tests.
-- **Verification:** `mvn test -pl like-unlike-service,follow-service`
+- **Verification:** `mvn test -pl like-unlike-service,follow-service` and `npm run test:unit`
 - **Dependencies:** Checkpoint 9
 - **Files touched:** `backend/like-unlike-service/**`, `backend/follow-service/**`, `frontend/src/api/socialApi.ts`
 - **Estimated scope:** S (3 files)

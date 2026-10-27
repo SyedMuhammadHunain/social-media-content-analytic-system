@@ -258,6 +258,7 @@ test('API Client Suite', async (suite) => {
     };
     const unlikeRes = await socialApi.unlikePost('user_hunain', 'post_01');
     assert.strictEqual(unlikeRes.liked, false);
+    assert.strictEqual(lastRequest.method, 'DELETE');
     assert.strictEqual(lastRequest.url, '/v1/unlike');
 
     // Comment
@@ -290,6 +291,16 @@ test('API Client Suite', async (suite) => {
     assert.strictEqual(followRes.isFollowing, true);
     assert.strictEqual(lastRequest.method, 'POST');
     assert.strictEqual(lastRequest.url, '/v1/follow');
+
+    // Unfollow
+    mockResponse = {
+      status: 'SUCCESS',
+      data: { followerId: 'user_hunain', followingId: 'user_alice', isFollowing: false },
+    };
+    const unfollowRes = await socialApi.unfollowUser('user_hunain', 'user_alice');
+    assert.strictEqual(unfollowRes.isFollowing, false);
+    assert.strictEqual(lastRequest.method, 'DELETE');
+    assert.strictEqual(lastRequest.url, '/v1/unfollow');
 
     // Follow Status
     mockResponse = { status: 'SUCCESS', data: { isFollowing: true } };

@@ -143,8 +143,29 @@ export const api = {
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  del: <T>(path: string, options?: RequestOptions) =>
-    apiRequest<T>(path, { ...options, method: 'DELETE' }),
+  del: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) => {
+    const isOptions =
+      bodyOrOptions &&
+      typeof bodyOrOptions === 'object' &&
+      !Array.isArray(bodyOrOptions) &&
+      options === undefined &&
+      ('timeoutMs' in bodyOrOptions || 'skipAuth' in bodyOrOptions || 'headers' in bodyOrOptions || 'signal' in bodyOrOptions);
+
+    if (isOptions) {
+      return apiRequest<T>(path, { ...(bodyOrOptions as RequestOptions), method: 'DELETE' });
+    }
+
+    return apiRequest<T>(path, {
+      ...options,
+      method: 'DELETE',
+      body:
+        bodyOrOptions !== undefined
+          ? bodyOrOptions instanceof FormData
+            ? bodyOrOptions
+            : JSON.stringify(bodyOrOptions)
+          : undefined,
+    });
+  },
 };
 
 export async function checkGatewayHealth(): Promise<boolean> {

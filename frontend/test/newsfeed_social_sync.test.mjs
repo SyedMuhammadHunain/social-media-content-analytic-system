@@ -133,7 +133,7 @@ test('Newsfeed & Social Interaction Sync Suite', async (suite) => {
           return;
         }
 
-        if (req.url === '/v1/unlike' && req.method === 'POST') {
+        if (req.url === '/v1/unlike' && (req.method === 'POST' || req.method === 'DELETE')) {
           const parsed = JSON.parse(body);
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
@@ -190,7 +190,7 @@ test('Newsfeed & Social Interaction Sync Suite', async (suite) => {
           return;
         }
 
-        if (req.url === '/v1/unfollow' && req.method === 'POST') {
+        if (req.url === '/v1/unfollow' && (req.method === 'POST' || req.method === 'DELETE')) {
           const parsed = JSON.parse(body);
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
@@ -264,6 +264,7 @@ test('Newsfeed & Social Interaction Sync Suite', async (suite) => {
     const unlikeRes = await socialApi.unlikePost('user_hunain', 'post_atlas_01');
     assert.strictEqual(unlikeRes.liked, false);
     assert.strictEqual(unlikeRes.totalLikes, 15);
+    assert.strictEqual(lastRequest.method, 'DELETE');
     assert.strictEqual(lastRequest.url, '/v1/unlike');
   });
 
@@ -293,6 +294,7 @@ test('Newsfeed & Social Interaction Sync Suite', async (suite) => {
 
     const unfollowRes = await socialApi.unfollowUser('user_hunain', 'user_charlie');
     assert.strictEqual(unfollowRes.isFollowing, false);
+    assert.strictEqual(lastRequest.method, 'DELETE');
     assert.strictEqual(lastRequest.url, '/v1/unfollow');
   });
 

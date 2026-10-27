@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,6 +74,49 @@ class LikeControllerTest {
         mockMvc.perform(post("/v1/unlike")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.liked").value(false))
+                .andExpect(jsonPath("$.data.totalLikes").value(0));
+    }
+
+    @Test
+    void testUnlikePostEndpointDeleteMethodWithBody() throws Exception {
+        LikeRequest request = LikeRequest.builder()
+                .userId("user_101")
+                .postId("post_999")
+                .build();
+
+        LikeResponse response = LikeResponse.builder()
+                .postId("post_999")
+                .liked(false)
+                .totalLikes(0)
+                .build();
+
+        when(likeService.unlikePost(any(LikeRequest.class))).thenReturn(response);
+
+        mockMvc.perform(delete("/v1/unlike")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.liked").value(false))
+                .andExpect(jsonPath("$.data.totalLikes").value(0));
+    }
+
+    @Test
+    void testUnlikePostEndpointDeleteMethodWithQueryParams() throws Exception {
+        LikeResponse response = LikeResponse.builder()
+                .postId("post_999")
+                .liked(false)
+                .totalLikes(0)
+                .build();
+
+        when(likeService.unlikePost(any(LikeRequest.class))).thenReturn(response);
+
+        mockMvc.perform(delete("/v1/unlike")
+                        .param("userId", "user_101")
+                        .param("postId", "post_999"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
                 .andExpect(jsonPath("$.data.liked").value(false))

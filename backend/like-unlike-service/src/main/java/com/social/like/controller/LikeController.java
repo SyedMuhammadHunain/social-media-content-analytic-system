@@ -5,8 +5,10 @@ import com.social.common.dto.LikeRequest;
 import com.social.common.dto.LikeResponse;
 import com.social.like.service.LikeService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/v1")
@@ -24,9 +26,13 @@ public class LikeController {
         return ResponseEntity.ok(ApiResponse.success(response, "Post liked successfully."));
     }
 
-    @PostMapping("/unlike")
-    public ResponseEntity<ApiResponse<LikeResponse>> unlikePost(@Valid @RequestBody LikeRequest request) {
-        LikeResponse response = likeService.unlikePost(request);
+    @RequestMapping(value = "/unlike", method = {RequestMethod.POST, RequestMethod.DELETE})
+    public ResponseEntity<ApiResponse<LikeResponse>> unlikePost(
+            @RequestBody(required = false) LikeRequest request,
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String postId) {
+        LikeRequest resolved = resolveRequest(request, userId, postId);
+        LikeResponse response = likeService.unlikePost(resolved);
         return ResponseEntity.ok(ApiResponse.success(response, "Post unliked successfully."));
     }
 
@@ -36,5 +42,14 @@ public class LikeController {
             @RequestParam(required = false) String userId) {
         LikeResponse response = likeService.getLikeStatus(postId, userId);
         return ResponseEntity.ok(ApiResponse.success(response, "Like status retrieved successfully."));
+    }
+
+    private LikeRequest resolveRequest(LikeRequest request, String userId, String postId) {
+        String finalUserId = request != null && request.getUserId() != null ? request.getUserId() : userId;
+        String finalPostId = request != null && request.getPostId() != null ? request.getPostId() : postId;
+        if (finalUserId == null || finalUserId.isBlank() || finalPostId == null || finalPostId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and postId are required");
+        }
+        return LikeRequest.builder().userId(finalUserId).postId(finalPostId).build();
     }
 }
