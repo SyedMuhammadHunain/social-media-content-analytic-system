@@ -61,11 +61,6 @@ public class AzureBlobSasService {
         BlobContainerClient containerClient = serviceClient.getBlobContainerClient(containerName);
         if (!containerClient.exists()) {
             containerClient.createWithResponse(null, PublicAccessType.BLOB, null, null);
-        } else {
-            try {
-                containerClient.setAccessPolicy(PublicAccessType.BLOB, null);
-            } catch (Exception ignored) {
-            }
         }
 
         BlobClient blobClient = containerClient.getBlobClient(blobName);
@@ -74,7 +69,7 @@ public class AzureBlobSasService {
                 .setWritePermission(true);
 
         BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(
-                OffsetDateTime.now().plusMinutes(expiryMinutes),
+                OffsetDateTime.ofInstant(expiresAt, java.time.ZoneOffset.UTC),
                 permissions
         ).setContentType(request.getContentType());
 

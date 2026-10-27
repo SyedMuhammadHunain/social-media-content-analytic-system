@@ -12,7 +12,8 @@ export interface PostMediaViewerProps {
 }
 
 export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewerProps) {
-  if (!mediaUrls || mediaUrls.length === 0) return null;
+  const mediaUrl = mediaUrls?.[0];
+  if (!mediaUrl) return null;
 
   return (
     <div
@@ -30,7 +31,7 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
       {type === 'IMAGE' ? (
         <img
           data-testid="post-media-image"
-          src={mediaUrls[0]}
+          src={mediaUrl}
           alt={description || 'Post image'}
           style={{
             width: '100%',
@@ -41,7 +42,7 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
         />
       ) : (
         <video
-          src={mediaUrls[0]}
+          src={mediaUrl}
           controls
           style={{
             width: '100%',

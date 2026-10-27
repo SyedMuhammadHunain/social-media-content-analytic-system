@@ -31,6 +31,13 @@ interface PostComposerProps {
   onCreatePost: (post: CreatePostInput) => void;
 }
 
+function getMediaBadgeLabel(mediaUrl: string, mediaType: PostType): string {
+  if (mediaUrl.includes('blob.core.windows.net')) {
+    return 'Uploaded to Azure Blob';
+  }
+  return mediaType === 'VIDEO' ? 'Video Attached' : 'Photo Attached';
+}
+
 export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
@@ -51,6 +58,7 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
 
     const isVideo = file.type.startsWith('video/');
     const localUrl = URL.createObjectURL(file);
+    const contentType = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
     setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
     setMediaUrl(localUrl);
 
@@ -64,16 +72,12 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
       const presign = await mediaApi.getPresignedUploadUrl({
         userId: effectiveUserId,
         fileName: file.name,
-        contentType: file.type || (isVideo ? 'video/mp4' : 'image/jpeg'),
+        contentType,
       });
 
       if (presign && presign.uploadUrl) {
         try {
-          await mediaApi.uploadBlob(
-            presign.uploadUrl,
-            file,
-            file.type || (isVideo ? 'video/mp4' : 'image/jpeg')
-          );
+          await mediaApi.uploadBlob(presign.uploadUrl, file, contentType);
           if (presign.publicBlobUrl) {
             setMediaUrl(presign.publicBlobUrl);
           }
@@ -99,9 +103,8 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
     if (!isValid) return;
 
     const hashtags = hashtagsRaw
-      .split(' ')
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0)
+      .split(/\s+/)
+      .filter(Boolean)
       .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
 
     const effectiveType: PostType = mediaUrl.length > 0 ? mediaType : 'TEXT';
@@ -148,13 +151,7 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
           {!isUploading && mediaUrl.length > 0 && (
             <Badge
               variant={mediaType === 'VIDEO' ? 'purple' : 'teal'}
-              label={
-                mediaUrl.includes('blob.core.windows.net')
-                  ? 'Uploaded to Azure Blob'
-                  : mediaType === 'VIDEO'
-                    ? 'Video Attached'
-                    : 'Photo Attached'
-              }
+              label={getMediaBadgeLabel(mediaUrl, mediaType)}
             />
           )}
         </HStack>
