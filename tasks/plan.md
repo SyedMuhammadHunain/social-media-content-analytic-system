@@ -656,16 +656,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `frontend/src/app/feed/useFeedMutations.ts`, `frontend/src/app/feed/usePostCrud.ts`, `frontend/src/app/feed/useSocialInteractions.ts`, `frontend/src/app/feed/useLikeAction.ts`, `frontend/src/app/feed/useFollowAction.ts`, `frontend/src/app/feed/useCommentAction.ts`
 - **Estimated scope:** S (5 files)
 
-#### Task 50: Extract `FeedPostList.tsx` Presentation Component
-- **Description:** Extract post list iteration, empty state rendering, and `PostCard` prop dispatching into a dedicated Astryx presentation component `FeedPostList.tsx`.
+#### Task 50: Extract `FeedPostList.tsx` Presentation Component [COMPLETED]
+- **Description:** Extract post list iteration, empty state rendering, and `PostCard` prop dispatching into a dedicated Astryx presentation component `FeedPostList.tsx` and `FeedFilterPill.tsx`.
+- **Status:** COMPLETED. Extracted `FeedPostList.tsx` and `FeedFilterPill.tsx`, preserving all test IDs (`post-card-${post.id}`, `clear-filter-btn`) and `PostCardProps` callbacks. Achieved **10.0 / 10.0 ✅** across both files in CodeScene review. 43/43 unit tests passing.
 - **Acceptance criteria:**
   - Renders all filtered posts with `post-card-${post.id}` test IDs.
   - Dispatches all 6 `PostCardProps` callbacks cleanly without intermediate prop drilling bugs.
   - `cs review frontend/src/app/feed/FeedPostList.tsx` scores 10.0 / 10.0 ✅.
 - **Verification:** `npm run test:unit` and `cs review frontend/src/app/feed/FeedPostList.tsx`
 - **Dependencies:** Task 49
-- **Files touched:** `frontend/src/app/feed/FeedPostList.tsx`
-- **Estimated scope:** S (1 file)
+- **Files touched:** `frontend/src/app/feed/FeedPostList.tsx`, `frontend/src/app/feed/FeedFilterPill.tsx`
+- **Estimated scope:** S (2 files)
 
 #### Task 51: Refactor `NewsFeedPage.tsx` & Eliminate Complex Conditionals
 - **Description:** Decompose `NewsFeedPage.tsx` into an orchestrator (< 180 lines) using `useFeedMutations` and `FeedPostList`. Replace line 73 complex conditional (`!isMounted || !feedPosts || feedPosts.length === 0`) with a clean boolean helper function.
