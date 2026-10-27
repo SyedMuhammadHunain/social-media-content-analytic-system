@@ -33,6 +33,8 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
           data-testid="post-media-image"
           src={mediaUrl}
           alt={description || 'Post image'}
+          loading="lazy"
+          decoding="async"
           style={{
             width: '100%',
             maxHeight: 480,
@@ -44,6 +46,7 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
         <video
           src={mediaUrl}
           controls
+          preload="metadata"
           style={{
             width: '100%',
             maxHeight: 480,
