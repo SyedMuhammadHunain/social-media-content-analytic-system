@@ -48,3 +48,10 @@
 - [x] Task 24: Live Creator Analytical Dashboard Telemetry (`AnalyticsContext.tsx`)
 - [x] Task 25: End-to-End Browser & DevTools Protocol Verification
 - [x] Checkpoint 8: Full-Stack Gateway & Atlas Sync Complete
+
+## Phase 9: Azure Blob Storage Cloud Integration for Media Uploads
+- [x] Task 26: Azure Credentials & Launch Script Environment Wiring (`backend/.env`, `scripts/start-backend.sh`, `scripts/run-services-daemon.sh`)
+- [ ] Task 27: Storage Account Connectivity & Container Verification (`scripts/check-azure-storage.sh`, `AzureBlobIntegrationTest.java`)
+- [ ] Task 28: Pre-Signed URL Service Cloud SAS & Direct Frontend Binary Upload (`mediaApi.ts`, `PostComposer.tsx`, `AzureBlobSasService.java`)
+- [ ] Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report (`tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`)
+- [ ] Checkpoint 9: Azure Cloud Media Pipeline 100% Operational

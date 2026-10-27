@@ -343,6 +343,57 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 9: Azure Blob Storage Cloud Integration for Media Uploads
+
+#### Task 26: Azure Credentials & Launch Script Environment Wiring
+- **Description:** Securely store the Azure connection string in untracked `backend/.env`, document format in `backend/.env.example`, and ensure `start-backend.sh` and `run-services-daemon.sh` propagate `AZURE_STORAGE_CONNECTION_STRING` into `presigned-url-service` JVM launch properties.
+- **Acceptance criteria:**
+  - `git check-ignore backend/.env` confirms no secrets exposed to version control.
+  - `backend/.env` contains valid `AZURE_STORAGE_CONNECTION_STRING` for account `socialmediaanalysis`.
+  - Service launch scripts export and pass `-Dazure.storage.connection-string="$AZURE_STORAGE_CONNECTION_STRING"` to `presigned-url-service`.
+- **Verification:** `git status --short` confirms `.env` untracked; verify environment variable load.
+- **Dependencies:** Checkpoint 8
+- **Files touched:** `backend/.env`, `backend/.env.example`, `scripts/start-backend.sh`, `scripts/run-services-daemon.sh`
+- **Estimated scope:** S (3 files)
+
+#### Task 27: Storage Account Connectivity & Container Verification
+- **Description:** Implement a standalone Azure health check script (`scripts/check-azure-storage.sh`) and Spring Boot integration test (`AzureBlobIntegrationTest.java`) that authenticates with `socialmediaanalysis`, ensures container `media-assets` exists with public blob read access (`PublicAccessType.BLOB`), performs test blob write, and verifies retrieval.
+- **Acceptance criteria:**
+  - Authenticates with Azure Blob Storage REST endpoint without error.
+  - Creates container `media-assets` if not present with public blob read access.
+  - Test write SAS token uploads sample bytes and verifies HTTP 200 on public blob URL.
+- **Verification:** `./scripts/check-azure-storage.sh` and `mvn test -pl presigned-url-service`
+- **Dependencies:** Task 26
+- **Files touched:** `scripts/check-azure-storage.sh`, `backend/presigned-url-service/src/test/java/com/social/presign/AzureBlobIntegrationTest.java`
+- **Estimated scope:** S (2 files)
+
+#### Task 28: Pre-Signed URL Service Cloud SAS & Direct Frontend Binary Upload
+- **Description:** Refine `AzureBlobSasService.java` to set public blob permissions on container creation, ensure `frontend/src/api/mediaApi.ts` includes `x-ms-blob-type: BlockBlob` on binary PUT requests, and wire `PostComposer.tsx` to display upload progress and save the public Azure blob URL into created post payload.
+- **Acceptance criteria:**
+  - `/v1/media/presign-upload` returns valid SAS URL pointing to `https://socialmediaanalysis.blob.core.windows.net/media-assets/...`.
+  - Frontend binary PUT upload successfully stores media file on Azure.
+  - Created post includes permanent public Azure URL in `mediaUrls`.
+- **Verification:** `cd frontend && npm run test:unit`
+- **Dependencies:** Task 27
+- **Files touched:** `backend/presigned-url-service/src/main/java/com/social/presign/service/AzureBlobSasService.java`, `frontend/src/api/mediaApi.ts`, `frontend/src/app/feed/PostComposer.tsx`
+- **Estimated scope:** M (3 files)
+
+#### Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report
+- **Description:** Execute end-to-end headless Chrome browser test verifying real user file upload from Post Composer, direct PUT to Azure Blob Storage, post persistence, and image rendering in Newsfeed post card. Generate certification report in `docs/reports/azure-blob-storage-verification.md`.
+- **Acceptance criteria:**
+  - E2E script attaches real image file, completes Azure PUT, and posts to feed.
+  - Post card renders image hosted on `socialmediaanalysis.blob.core.windows.net`.
+  - Certification report generated with network logs, latency metrics, and screenshots.
+- **Verification:** `node tests/e2e-azure-upload.test.mjs`
+- **Dependencies:** Task 28
+- **Files touched:** `tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`
+- **Estimated scope:** S (2 files)
+
+### Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
+- [ ] Azure Blob Storage account `socialmediaanalysis` connected, verified, and rendering persistent media in SMCAS newsfeed.
+
+---
+
 ---
 
 ## Risks and Mitigations

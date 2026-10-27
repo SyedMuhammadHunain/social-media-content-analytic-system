@@ -41,7 +41,7 @@ start_service() {
     fi
 
     echo "Starting $name on port $port..."
-    nohup java -Xms64m -Xmx128m -Dserver.port=$port -DMONGODB_URI="$MONGODB_URI" -Dspring.data.mongodb.uri="$MONGODB_URI" -jar "$jar" > "$logfile" 2>&1 &
+    nohup java -Xms64m -Xmx128m -Dserver.port=$port -DMONGODB_URI="$MONGODB_URI" -Dspring.data.mongodb.uri="$MONGODB_URI" -Dazure.storage.connection-string="$AZURE_STORAGE_CONNECTION_STRING" -jar "$jar" > "$logfile" 2>&1 &
     local pid=$!
     echo "$pid" >> "$PIDFILE"
     echo "  -> PID $pid (logging to $logfile)"

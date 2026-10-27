@@ -22,6 +22,7 @@ start_svc() {
         -Dserver.port=$port \
         -DMONGODB_URI="$MONGODB_URI" \
         -Dspring.data.mongodb.uri="$MONGODB_URI" \
+        -Dazure.storage.connection-string="$AZURE_STORAGE_CONNECTION_STRING" \
         -jar "$jar" > "$logfile" 2>&1 &
 }
 
