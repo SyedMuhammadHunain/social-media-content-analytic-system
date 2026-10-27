@@ -5,14 +5,11 @@ target/
 *.jar
 .idea/
 *.iml
-.vscode/
 .DS_Store
 scripts/*.log
 scripts/.backend.pids
 
 # Environment and secrets
-.env
 *.env
-.env.local
 backend/.env
 

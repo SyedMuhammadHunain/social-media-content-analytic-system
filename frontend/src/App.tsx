@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Theme } from '@astryxdesign/core/theme';
 import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
@@ -11,8 +11,9 @@ import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
 import LoginSplitPage from './app/login-split/page';
 import AppTopNav from './components/nav/AppTopNav';
-import DashboardTemplate from './app/dashboard/page';
 import NewsFeedPage from './app/feed/NewsFeedPage';
+
+const DashboardTemplate = lazy(() => import('./app/dashboard/page'));
 
 type AppTab = 'feed' | 'dashboard';
 type ThemeMode = 'dark' | 'light';
@@ -71,7 +72,9 @@ function AppContent({
             onNavigateAnalytics={() => setActiveTab('dashboard')}
           />
         ) : (
-          <DashboardTemplate />
+          <Suspense fallback={null}>
+            <DashboardTemplate />
+          </Suspense>
         )}
       </main>
     </div>
