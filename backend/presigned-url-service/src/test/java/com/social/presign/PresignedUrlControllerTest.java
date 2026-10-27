@@ -42,6 +42,23 @@ class PresignedUrlControllerTest {
     }
 
     @Test
+    void testPresignUploadAliasEndpointSuccess() throws Exception {
+        PresignRequest request = PresignRequest.builder()
+                .userId("user_102")
+                .fileName("alias-image.png")
+                .contentType("image/png")
+                .build();
+
+        mockMvc.perform(post("/v1/media/presign-upload")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.uploadUrl").isNotEmpty())
+                .andExpect(jsonPath("$.data.publicBlobUrl").isNotEmpty());
+    }
+
+    @Test
     void testPresignValidationFailure() throws Exception {
         PresignRequest invalidRequest = PresignRequest.builder()
                 .userId("") // invalid

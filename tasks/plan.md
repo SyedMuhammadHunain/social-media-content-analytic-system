@@ -389,6 +389,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`
 - **Estimated scope:** S (2 files)
 
+#### Task 30: Multi-Axis Code Review & Quality Certification
+- **Description:** Perform multi-dimensional 5-axis code review (Correctness, Readability, Architecture, Security, Performance) on all Phase 9 commits (`73b1e5e` through `a212f52`), verify all quality gates, and deliver formal review report in `docs/reports/code-review-azure-blob-storage.md`.
+- **Acceptance criteria:**
+  - Full 5-axis review documented with severity labels.
+  - Review findings addressed and verified green (`mvn test`, `npx tsc -b`, `oxlint`, `node:test`).
+  - Approval verdict documented.
+- **Verification:** `docs/reports/code-review-azure-blob-storage.md`
+- **Dependencies:** Task 29
+- **Files touched:** `docs/reports/code-review-azure-blob-storage.md`
+- **Estimated scope:** S (1 file)
+
 ### Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
 - [x] Azure Blob Storage account `socialmediaanalysis` connected, verified, and rendering persistent media in SMCAS newsfeed.
 

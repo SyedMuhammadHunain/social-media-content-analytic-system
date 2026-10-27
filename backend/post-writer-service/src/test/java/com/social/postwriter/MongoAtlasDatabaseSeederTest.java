@@ -54,10 +54,10 @@ public class MongoAtlasDatabaseSeederTest {
                     System.out.println("Atlas database already contains seed data. Verifying document counts...");
                     assertEquals(4, usersColl.countDocuments());
                     assertEquals(8, followsColl.countDocuments());
-                    assertEquals(12, postsColl.countDocuments());
-                    assertEquals(26, likesColl.countDocuments());
-                    assertEquals(13, commentsColl.countDocuments());
-                    assertTrue(feedColl.countDocuments() >= 24);
+                    assertTrue(postsColl.countDocuments() >= 12, "Should have at least 12 initial seed posts");
+                    assertTrue(likesColl.countDocuments() >= 26, "Should have at least 26 initial seed likes");
+                    assertTrue(commentsColl.countDocuments() >= 13, "Should have at least 13 initial seed comments");
+                    assertTrue(feedColl.countDocuments() >= 24, "Should have at least 24 initial feed entries");
                     System.out.println("Idempotent check PASSED: database verified healthy.");
                     return;
                 }

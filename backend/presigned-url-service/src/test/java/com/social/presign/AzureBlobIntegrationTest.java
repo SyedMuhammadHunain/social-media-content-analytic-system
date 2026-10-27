@@ -72,6 +72,9 @@ public class AzureBlobIntegrationTest {
             return;
         }
 
+        // Ensure Spring service has the connection string even if not passed via JVM argument
+        org.springframework.test.util.ReflectionTestUtils.setField(sasService, "connectionString", connectionString);
+
         // 1. Connect and verify account
         BlobServiceClient serviceClient = new BlobServiceClientBuilder()
                 .connectionString(connectionString)

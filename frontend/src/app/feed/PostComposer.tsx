@@ -77,10 +77,8 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
           if (presign.publicBlobUrl) {
             setMediaUrl(presign.publicBlobUrl);
           }
-        } catch {
-          if (presign.publicBlobUrl) {
-            setMediaUrl(presign.publicBlobUrl);
-          }
+        } catch (uploadErr) {
+          console.warn('Azure cloud upload failed, retaining local media preview:', uploadErr);
         }
       }
     } catch {
