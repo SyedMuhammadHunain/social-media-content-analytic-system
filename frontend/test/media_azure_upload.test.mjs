@@ -69,7 +69,7 @@ test('Azure Blob Media Upload Suite', async (suite) => {
     // Check if live Gateway on port 8080 is reachable
     let isGatewayLive = false;
     try {
-      const ping = await originalFetch('http://localhost:8080/actuator/health', { signal: AbortSignal.timeout(1000) });
+      const ping = await originalFetch('http://127.0.0.1:8080/actuator/health', { signal: AbortSignal.timeout(2000) });
       isGatewayLive = ping.ok;
     } catch {
       isGatewayLive = false;

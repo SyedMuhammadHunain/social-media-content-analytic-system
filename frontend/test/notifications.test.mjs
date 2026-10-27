@@ -174,7 +174,7 @@ test('Notification System Client Suite', async (suite) => {
   });
 
   await suite.test('Live Gateway /v1/notifications integration test', async () => {
-    setApiGatewayUrl('http://localhost:8080');
+    setApiGatewayUrl('http://127.0.0.1:8080');
     try {
       const liveList = await notificationsApi.getNotifications('user_hunain');
       assert.ok(Array.isArray(liveList));

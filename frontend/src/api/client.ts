@@ -35,7 +35,7 @@ export function getApiGatewayUrl(): string {
       ? import.meta.env.VITE_API_GATEWAY_URL
       : globalObj?.process?.env?.VITE_API_GATEWAY_URL;
 
-  return envUrl || 'http://localhost:8080';
+  return envUrl || 'http://127.0.0.1:8080';
 }
 
 export function setApiGatewayUrl(url: string | null): void {
