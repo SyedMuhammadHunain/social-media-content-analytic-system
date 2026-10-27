@@ -60,11 +60,18 @@ public class FollowController {
     }
 
     private FollowRequest resolveRequest(FollowRequest request, String followerId, String followingId) {
-        String finalFollowerId = request != null && request.getFollowerId() != null ? request.getFollowerId() : followerId;
-        String finalFollowingId = request != null && request.getFollowingId() != null ? request.getFollowingId() : followingId;
-        if (finalFollowerId == null || finalFollowerId.isBlank() || finalFollowingId == null || finalFollowingId.isBlank()) {
+        String finalFollowerId = firstNonBlank(request != null ? request.getFollowerId() : null, followerId);
+        String finalFollowingId = firstNonBlank(request != null ? request.getFollowingId() : null, followingId);
+        if (finalFollowerId.isEmpty() || finalFollowingId.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "followerId and followingId are required");
         }
         return FollowRequest.builder().followerId(finalFollowerId).followingId(finalFollowingId).build();
+    }
+
+    private String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) {
+            return primary.trim();
+        }
+        return (fallback != null) ? fallback.trim() : "";
     }
 }

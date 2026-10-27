@@ -79,7 +79,7 @@
 - [x] Checkpoint 12: CodeScene CLI Operational On-Demand
 
 ## Phase 13: CodeScene Code Health Optimization to 9.5+ Across Identified Targets
-- [ ] Task 43: Backend Controller Parameter Resolution Simplification (`LikeController.java`, `FollowController.java`)
+- [x] Task 43: Backend Controller Parameter Resolution Simplification (`LikeController.java`, `FollowController.java`)
 - [ ] Task 44: Login Split Page Decomposition (`login-split/page.tsx`)
 - [ ] Task 45: Creator Dashboard Component Decomposition (`dashboard/page.tsx`)
 - [ ] Task 46: Top Navigation Component Decomposition (`AppTopNav.tsx`)

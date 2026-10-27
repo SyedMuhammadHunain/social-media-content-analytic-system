@@ -45,11 +45,18 @@ public class LikeController {
     }
 
     private LikeRequest resolveRequest(LikeRequest request, String userId, String postId) {
-        String finalUserId = request != null && request.getUserId() != null ? request.getUserId() : userId;
-        String finalPostId = request != null && request.getPostId() != null ? request.getPostId() : postId;
-        if (finalUserId == null || finalUserId.isBlank() || finalPostId == null || finalPostId.isBlank()) {
+        String finalUserId = firstNonBlank(request != null ? request.getUserId() : null, userId);
+        String finalPostId = firstNonBlank(request != null ? request.getPostId() : null, postId);
+        if (finalUserId.isEmpty() || finalPostId.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId and postId are required");
         }
         return LikeRequest.builder().userId(finalUserId).postId(finalPostId).build();
+    }
+
+    private String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) {
+            return primary.trim();
+        }
+        return (fallback != null) ? fallback.trim() : "";
     }
 }
