@@ -444,8 +444,9 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `backend/common-models/**`, `backend/api-gateway/**`, `frontend/src/api/notificationsApi.ts`
 - **Estimated scope:** M (4 files)
 
-#### Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
+#### Task 34: Astryx Notification Bell & Drawer UI in Top Navigation [COMPLETED]
 - **Description:** Implement an Astryx Notification Bell button with live unread count badge in `AppTopNav.tsx` and an interactive Notification Drawer/Popover using strictly `@astryxdesign/core` components.
+- **Status:** COMPLETED. Built `NotificationDrawer.tsx` with Astryx `Drawer`, `DrawerHeader`, `Layout`, `Avatar`, `Badge`, `EmptyState`, and `VStack`/`HStack`. Added Notification Bell button with real-time unread badge in `AppTopNav.tsx` (desktop + mobile menu), verified with 42 frontend unit tests, type check, lint, and production build.
 - **Acceptance criteria:**
   - Bell icon shows unread badge counter.
   - Drawer shows timestamped notifications with user avatars.

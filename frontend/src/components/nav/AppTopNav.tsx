@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { useMediaQuery } from '@astryxdesign/core/hooks';
 import {
   TopNav,
@@ -15,6 +15,8 @@ import { MoreMenu } from '@astryxdesign/core/MoreMenu';
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu';
 import type { UserProfile } from '../../types/social.ts';
 import type { DemoUserSummary } from '../../context/auth-context-def.ts';
+import { notificationsApi, type Notification } from '../../api/notificationsApi.ts';
+import { NotificationDrawer } from './NotificationDrawer.tsx';
 
 import {
   SunIcon,
@@ -23,6 +25,7 @@ import {
   ChartBarSquareIcon,
   ArrowRightOnRectangleIcon,
   UsersIcon,
+  BellIcon,
 } from '@heroicons/react/24/outline';
 
 export interface AppTopNavProps {
@@ -47,6 +50,57 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   onSwitchUser,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!currentUser?.id) return;
+    let isMounted = true;
+
+    const fetchNotifications = async () => {
+      try {
+        const list = await notificationsApi.getNotifications(currentUser.id);
+        if (isMounted) {
+          setNotifications(list);
+          setUnreadCount(list.filter((n) => !n.read).length);
+        }
+      } catch {
+        // Offline fallback
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [currentUser?.id]);
+
+  const handleMarkAsRead = async (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    try {
+      await notificationsApi.markAsRead(id);
+    } catch {
+      // Offline fallback
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+    if (currentUser?.id) {
+      try {
+        await notificationsApi.markAllAsRead(currentUser.id);
+      } catch {
+        // Offline fallback
+      }
+    }
+  };
 
   const userSwitcherItems = (demoUsers || []).map((u) => ({
     id: `switch-${u.id}`,
@@ -68,6 +122,12 @@ export const AppTopNav: FC<AppTopNavProps> = ({
       label: 'Analytics Dashboard',
       icon: <Icon icon={ChartBarSquareIcon} size="sm" />,
       onClick: () => onSelectTab('dashboard'),
+    },
+    {
+      id: 'nav-notifications',
+      label: `Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`,
+      icon: <Icon icon={BellIcon} size="sm" />,
+      onClick: () => setIsNotificationsOpen(true),
     },
     ...(demoUsers && demoUsers.length > 0 && onSwitchUser
       ? demoUsers.map((u) => ({
@@ -183,6 +243,44 @@ export const AppTopNav: FC<AppTopNavProps> = ({
                   />
                 )}
 
+                {/* Notification Bell Button */}
+                <div style={{ position: 'relative' }}>
+                  <Button
+                    data-testid="nav-notifications-btn"
+                    label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+                    isIconOnly
+                    variant={isNotificationsOpen ? 'secondary' : 'ghost'}
+                    size="sm"
+                    icon={<Icon icon={BellIcon} size="sm" />}
+                    onClick={() => setIsNotificationsOpen((prev) => !prev)}
+                  />
+                  {unreadCount > 0 && (
+                    <span
+                      data-testid="nav-notifications-badge"
+                      style={{
+                        position: 'absolute',
+                        top: -4,
+                        right: -4,
+                        backgroundColor: '#EF4444',
+                        color: '#FFFFFF',
+                        borderRadius: '9999px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        padding: '0 5px',
+                        minWidth: '16px',
+                        height: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        pointerEvents: 'none',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </div>
+
                 <Button
                   label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                   isIconOnly
@@ -220,6 +318,15 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             />
           </HStack>
         }
+      />
+
+      <NotificationDrawer
+        isOpen={isNotificationsOpen}
+        onOpenChange={setIsNotificationsOpen}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
       />
     </>
   );
