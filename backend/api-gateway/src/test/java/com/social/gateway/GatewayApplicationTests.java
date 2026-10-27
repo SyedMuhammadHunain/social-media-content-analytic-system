@@ -33,4 +33,16 @@ class GatewayApplicationTests {
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:5173");
     }
+
+    @Test
+    void testSecurityHeadersPresent() {
+        webTestClient.get()
+                .uri("/v1/gateway/status")
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("X-Content-Type-Options", "nosniff")
+                .expectHeader().valueEquals("X-Frame-Options", "DENY")
+                .expectHeader().valueEquals("X-XSS-Protection", "1; mode=block")
+                .expectHeader().valueEquals("Referrer-Policy", "strict-origin-when-cross-origin");
+    }
 }

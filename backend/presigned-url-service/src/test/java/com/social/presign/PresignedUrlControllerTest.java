@@ -71,4 +71,21 @@ class PresignedUrlControllerTest {
                         .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void testPresignPathTraversalSanitization() throws Exception {
+        PresignRequest request = PresignRequest.builder()
+                .userId("user/../../attacker")
+                .fileName("../../secret/passwords.txt")
+                .contentType("text/plain")
+                .build();
+
+        mockMvc.perform(post("/v1/media/presign")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.uploadUrl").value(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(".."))))
+                .andExpect(jsonPath("$.data.publicBlobUrl").value(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(".."))));
+    }
 }

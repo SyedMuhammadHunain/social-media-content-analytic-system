@@ -37,7 +37,7 @@ Connect all 8 backend microservices to the live MongoDB Atlas cloud cluster and 
   ```
 - **Connection Verification:**
   ```bash
-  export MONGODB_URI="mongodb+srv://hunain4700570_db_user:QTV6Uh0SyTFdM1BP@smcas.d8avoun.mongodb.net/social_db?retryWrites=true&w=majority"
+  export MONGODB_URI="mongodb+srv://<db_username>:<db_password>@smcas.d8avoun.mongodb.net/SocialMediaContentAnalysisSystem?retryWrites=true&w=majority"
   mvn test -pl post-writer-service,like-unlike-service,follow-service,comment-service,newsfeed-reader-service,newsfeed-generator-service
   ```
 - **Database Seeding Execution:**

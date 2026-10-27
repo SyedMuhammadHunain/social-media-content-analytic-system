@@ -34,10 +34,12 @@ public class AzureBlobSasService {
     private int expiryMinutes;
 
     public PresignResponse generatePresignedUploadUrl(PresignRequest request) {
+        String sanitizedUserId = sanitizeIdentifier(request.getUserId());
+        String sanitizedFile = sanitizeFileName(request.getFileName());
         String uniqueBlobName = String.format("%s/%s_%s",
-                request.getUserId(),
+                sanitizedUserId,
                 UUID.randomUUID().toString().substring(0, 8),
-                sanitizeFileName(request.getFileName())
+                sanitizedFile
         );
 
         Instant expiresAt = Instant.now().plus(Duration.ofMinutes(expiryMinutes));
@@ -94,10 +96,23 @@ public class AzureBlobSasService {
                 .build();
     }
 
+    private String sanitizeIdentifier(String id) {
+        if (id == null || id.isBlank()) {
+            return "anonymous";
+        }
+        return id.replaceAll("[^a-zA-Z0-9_-]", "_");
+    }
+
     private String sanitizeFileName(String fileName) {
         if (fileName == null || fileName.isBlank()) {
             return "media.bin";
         }
-        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String baseName = fileName.replace('\\', '/');
+        int lastSlash = baseName.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            baseName = baseName.substring(lastSlash + 1);
+        }
+        String sanitized = baseName.replaceAll("^\\.+", "").replaceAll("[^a-zA-Z0-9._-]", "_");
+        return sanitized.isBlank() ? "media.bin" : sanitized;
     }
 }
