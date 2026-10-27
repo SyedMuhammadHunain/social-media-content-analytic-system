@@ -67,10 +67,10 @@
 - [x] Checkpoint 10: 100% CT-263 PDF Compliance Verified
 
 ## Phase 11: Academic Submission & Defense Materials Package
-- [ ] Task 37: Comprehensive Academic Project Report (`docs/academic/CT263-Final-Comprehensive-Project-Report.md`)
-- [ ] Task 38: 15-Slide Presentation Deck (`docs/academic/CT263-Project-Defense-Presentation-Slides.md`)
-- [ ] Task 39: Viva Defense Q&A Manual & 5-Minute Live Demo Protocol (`docs/academic/CT263-Viva-Defense-QnA-and-Demo-Script.md`)
-- [ ] Checkpoint 11: Academic Submission & Viva Defense Package 100% Complete & Certified
+- [x] Task 37: Comprehensive Academic Project Report (`docs/academic/CT263-Final-Comprehensive-Project-Report.md`)
+- [x] Task 38: 15-Slide Presentation Deck (`docs/academic/CT263-Project-Defense-Presentation-Slides.md`)
+- [x] Task 39: Viva Defense Q&A Manual & 5-Minute Live Demo Protocol (`docs/academic/CT263-Viva-Defense-QnA-and-Demo-Script.md`)
+- [x] Checkpoint 11: Academic Submission & Viva Defense Package 100% Complete & Certified
 
 ## Phase 12: CodeScene CLI On-Demand Code Health & Hotspot Analytics
 - [x] Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification
