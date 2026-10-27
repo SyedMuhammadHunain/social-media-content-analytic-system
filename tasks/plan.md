@@ -523,6 +523,43 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 12: CodeScene CLI On-Demand Code Health & Hotspot Analytics
+
+#### Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification
+- **Description:** Download and install the official CodeScene standalone CLI tool (`cs`) to `~/.local/bin/cs` via the official installer, ensure executable permissions, and verify version output.
+- **Acceptance criteria:**
+  - `~/.local/bin/cs` exists and is executable.
+  - `cs --version` returns valid semver.
+- **Verification:** `~/.local/bin/cs --version`
+- **Dependencies:** None
+- **Files touched:** `~/.local/bin/cs`
+- **Estimated scope:** S (1 file)
+
+#### Task 41: CodeScene Rule Evaluation against `.codescene/code-health-rules.json`
+- **Description:** Verify `.codescene/code-health-rules.json` configuration properly excludes procedural test suites (`frontend/test/**`, `**/*.test.mjs`, `**/*.test.ts`, `**/*.test.java`) and scopes analysis to production microservices and Meta Astryx UI components.
+- **Acceptance criteria:**
+  - CodeScene configuration syntax valid.
+  - Test suites correctly excluded from production complexity scoring.
+- **Verification:** JSON validation and dry-run scan.
+- **Dependencies:** Task 40
+- **Files touched:** `.codescene/code-health-rules.json`
+- **Estimated scope:** S (1 file)
+
+#### Task 42: On-Demand Code Health & Hotspot Review Report (`docs/reports/codescene-live-analysis-report.md`)
+- **Description:** Execute on-demand code health evaluation across key frontend and backend modules using CodeScene CLI, document code health scores, hotspot analysis, and refactoring outcomes into `docs/reports/codescene-live-analysis-report.md`.
+- **Acceptance criteria:**
+  - Report documents production code health score (Target: ≥ 9.5).
+  - Outlines key files reviewed, architectural health, and hotspot absence.
+- **Verification:** Markdown formatting and score confirmation.
+- **Dependencies:** Task 41
+- **Files touched:** `docs/reports/codescene-live-analysis-report.md`
+- **Estimated scope:** M (1 file)
+
+### Checkpoint 12: CodeScene CLI Operational On-Demand
+- [ ] CodeScene CLI tool installed, verified, and live code health assessment report delivered.
+
+---
+
 ---
 
 ## Risks and Mitigations
