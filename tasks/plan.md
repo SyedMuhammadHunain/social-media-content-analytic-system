@@ -642,6 +642,58 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 14: NewsFeedPage Code Health Optimization to 10.0 / 10.0
+
+#### Task 49: Extract `useFeedMutations.ts` Custom Hook
+- **Description:** Extract optimistic post CRUD and social graph mutations (`handleCreatePost`, `handleEditPost`, `handleDeletePost`, `handleToggleLike`, `handleToggleFollow`, `handleToggleBookmark`, `handleAddComment`) into an isolated, strongly-typed custom hook `useFeedMutations.ts`.
+- **Acceptance criteria:**
+  - `useFeedMutations` manages optimistic state updates and async gateway dispatch.
+  - `cs review frontend/src/app/feed/useFeedMutations.ts` scores 10.0 / 10.0 ✅.
+  - Typecheck passes without errors.
+- **Verification:** `npx tsc -b` and `cs review frontend/src/app/feed/useFeedMutations.ts`
+- **Dependencies:** Checkpoint 13
+- **Files touched:** `frontend/src/app/feed/useFeedMutations.ts`
+- **Estimated scope:** S (1 file)
+
+#### Task 50: Extract `FeedPostList.tsx` Presentation Component
+- **Description:** Extract post list iteration, empty state rendering, and `PostCard` prop dispatching into a dedicated Astryx presentation component `FeedPostList.tsx`.
+- **Acceptance criteria:**
+  - Renders all filtered posts with `post-card-${post.id}` test IDs.
+  - Dispatches all 6 `PostCardProps` callbacks cleanly without intermediate prop drilling bugs.
+  - `cs review frontend/src/app/feed/FeedPostList.tsx` scores 10.0 / 10.0 ✅.
+- **Verification:** `npm run test:unit` and `cs review frontend/src/app/feed/FeedPostList.tsx`
+- **Dependencies:** Task 49
+- **Files touched:** `frontend/src/app/feed/FeedPostList.tsx`
+- **Estimated scope:** S (1 file)
+
+#### Task 51: Refactor `NewsFeedPage.tsx` & Eliminate Complex Conditionals
+- **Description:** Decompose `NewsFeedPage.tsx` into an orchestrator (< 180 lines) using `useFeedMutations` and `FeedPostList`. Replace line 73 complex conditional (`!isMounted || !feedPosts || feedPosts.length === 0`) with a clean boolean helper function.
+- **Acceptance criteria:**
+  - `NewsFeedPage.tsx` lines drop from 516 to < 180 lines.
+  - Line 73 complex conditional completely resolved.
+  - `cs review frontend/src/app/feed/NewsFeedPage.tsx` achieves **10.0 / 10.0 ✅**.
+- **Verification:** `cs review frontend/src/app/feed/NewsFeedPage.tsx` and `npm run test:unit`
+- **Dependencies:** Tasks 49, 50
+- **Files touched:** `frontend/src/app/feed/NewsFeedPage.tsx`
+- **Estimated scope:** S (1 file)
+
+#### Task 52: Full CodeScene Verification & Quality Certification across Feed Module
+- **Description:** Execute CodeScene CLI review on `NewsFeedPage.tsx`, `PostCard.tsx`, and all extracted subcomponents. Run full unit test suite (43/43 tests) and end-to-end Chrome CDP verification. Update `docs/reports/codescene-live-analysis-report.md`.
+- **Acceptance criteria:**
+  - Both `NewsFeedPage.tsx` and `PostCard.tsx` certified **10.0 / 10.0 ✅**.
+  - All 43 unit tests passing in < 1 second.
+  - Real browser Chrome CDP test passes with zero regressions.
+- **Verification:** `cs review` and `node tests/e2e-final-compliance.test.mjs`
+- **Dependencies:** Task 51
+- **Files touched:** `docs/reports/codescene-live-analysis-report.md`
+- **Estimated scope:** S (1 file)
+
+### Checkpoint 14: Feed Module 100% Certified 10.0 / 10.0
+- [ ] `NewsFeedPage.tsx` and `PostCard.tsx` both score 10.0 / 10.0 on CodeScene CLI.
+- [ ] 100% unit tests and browser tests passing.
+
+---
+
 ---
 
 ## Risks and Mitigations

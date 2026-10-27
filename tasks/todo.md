@@ -86,3 +86,10 @@
 - [x] Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`)
 - [x] Task 48: Live CodeScene CLI Full Re-Scan & Updated Quality Certification
 - [x] Checkpoint 13: 100% Green Code Health (≥ 9.5) Across All Targets Certified
+
+## Phase 14: NewsFeedPage Code Health Optimization to 10.0 / 10.0
+- [ ] Task 49: Extract `useFeedMutations.ts` Custom Hook
+- [ ] Task 50: Extract `FeedPostList.tsx` Presentation Component
+- [ ] Task 51: Refactor `NewsFeedPage.tsx` & Eliminate Complex Conditionals
+- [ ] Task 52: Full CodeScene Verification & Quality Certification across Feed Module
+- [ ] Checkpoint 14: Feed Module 100% Certified 10.0 / 10.0
