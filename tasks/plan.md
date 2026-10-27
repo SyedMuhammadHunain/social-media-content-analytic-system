@@ -601,16 +601,17 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 - **Files touched:** `frontend/src/app/dashboard/page.tsx`, `frontend/src/app/dashboard/DashboardHeader.tsx`, `frontend/src/app/dashboard/DashboardKpiCards.tsx`, `frontend/src/app/dashboard/DashboardSentimentCharts.tsx`, `frontend/src/app/dashboard/DashboardSentimentBarChart.tsx`, `frontend/src/app/dashboard/DashboardFollowerTrendChart.tsx`, `frontend/src/app/dashboard/DashboardEngagementChart.tsx`, `frontend/src/app/dashboard/ChartTooltip.tsx`
 - **Estimated scope:** M (8 files)
 
-#### Task 46: Top Navigation Component Decomposition (`AppTopNav.tsx`)
-- **Description:** Decompose `AppTopNav.tsx` (335 lines, currently 8.57) by extracting `DesktopNavActions.tsx` (encompassing User Switcher, Notification Bell, Theme Toggle, and Logout buttons).
+#### Task 46: Top Navigation Component Decomposition (`AppTopNav.tsx`) [COMPLETED]
+- **Description:** Decompose `AppTopNav.tsx` (335 lines, previously 8.57) by extracting `useNotificationPolling.ts`, `DesktopNavTabs.tsx`, `DesktopNavActions.tsx` (with `UserSwitcherDropdown` and `NotificationBellButton`), and `MobileNavMenu.tsx`.
+- **Status:** COMPLETED. Extracted 4 modular subcomponents and hooks, reducing `AppTopNav.tsx` lines and cyclomatic complexity. Achieved **10.0 / 10.0 ✅** across all 5 navigation files in CodeScene review. 43/43 unit tests passing.
 - **Acceptance criteria:**
-  - `AppTopNav.tsx` Code Health score jumps from 8.57 to ≥ 9.5.
+  - `AppTopNav.tsx` Code Health score jumps from 8.57 to ≥ 9.5 (Achieved: 10.0 / 10.0).
   - Notification drawer toggle, user switcher, and theme toggle continue working seamlessly.
   - Unit tests (`notifications.test.mjs`, `api_client.test.mjs`) pass.
 - **Verification:** `npm run test:unit` and `cs review frontend/src/components/nav/AppTopNav.tsx`
 - **Dependencies:** Task 45
-- **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/DesktopNavActions.tsx`
-- **Estimated scope:** S (2 files)
+- **Files touched:** `frontend/src/components/nav/AppTopNav.tsx`, `frontend/src/components/nav/useNotificationPolling.ts`, `frontend/src/components/nav/DesktopNavTabs.tsx`, `frontend/src/components/nav/DesktopNavActions.tsx`, `frontend/src/components/nav/MobileNavMenu.tsx`
+- **Estimated scope:** S (5 files)
 
 #### Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`)
 - **Description:** Decompose `PostCard.tsx` (221 lines, currently 8.71) by extracting `PostCardActionBar.tsx` (Like, Comment, Share buttons).
