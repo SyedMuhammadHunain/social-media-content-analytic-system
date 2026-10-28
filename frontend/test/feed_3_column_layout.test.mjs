@@ -6,7 +6,7 @@ import fs from 'node:fs';
 
 const PORT = 9231;
 const TARGET_URL = 'http://127.0.0.1:5173/';
-const ARTIFACT_DIR = '/home/hunain/.gemini/antigravity-cli/brain/b60459bf-1c43-4639-bbef-e1bee06cb513';
+const ARTIFACT_DIR = process.env.ARTIFACT_DIR || '/tmp';
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));

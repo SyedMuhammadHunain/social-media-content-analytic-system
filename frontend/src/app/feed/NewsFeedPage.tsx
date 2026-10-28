@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 
 import type {
@@ -21,6 +21,7 @@ import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { PostComposer } from './PostComposer.tsx';
 import { UserProfileView } from '../../components/profile/UserProfileView.tsx';
 import { useAnalytics } from '../../context/useAnalytics.ts';
+import { useAuth } from '../../context/useAuth.ts';
 import { useFeedMutations } from './useFeedMutations.ts';
 import { useFeedLoader, useFeedFilter } from './useFeedState.ts';
 import { FeedPostList } from './FeedPostList.tsx';
@@ -113,11 +114,38 @@ export function NewsFeedPage({
   onNavigateAnalytics,
 }: NewsFeedPageProps) {
   const { recordLikeToggle, recordFollowToggle, recordComment } = useAnalytics();
+  const { updateUser, demoUsers } = useAuth();
   const [user, setUser] = useState<UserProfile>(currentUser);
   const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [suggestedCreators, setSuggestedCreators] = useState<SuggestedCreator[]>(SUGGESTED_CREATORS);
   const backendUserId = normalizeBackendUserId(user.id);
+
+  useEffect(() => {
+    setUser(currentUser);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (demoUsers && demoUsers.length > 0) {
+      const dynamicSuggestions: SuggestedCreator[] = demoUsers
+        .filter((d) => d.id !== user.id && d.username.toLowerCase() !== user.username.toLowerCase())
+        .map((d) => ({
+          id: d.id,
+          username: d.username,
+          name: d.name,
+          avatarUrl: d.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+          headline: d.headline || 'Active Creator',
+          isFollowed: false,
+        }));
+      if (dynamicSuggestions.length > 0) {
+        setSuggestedCreators((prev) => {
+          const dynamicIds = new Set(dynamicSuggestions.map((s) => s.id));
+          const existingPreserved = prev.filter((p) => !dynamicIds.has(p.id));
+          return [...existingPreserved, ...dynamicSuggestions];
+        });
+      }
+    }
+  }, [demoUsers, user.id, user.username]);
 
   useFeedLoader(backendUserId, setPosts);
 
@@ -148,9 +176,18 @@ export function NewsFeedPage({
         user={user}
         posts={posts.filter((p) => p.author.id === user.id)}
         onBack={() => setViewMode('feed')}
-        onUpdateBio={(newBio) => setUser((prev) => ({ ...prev, bio: newBio }))}
-        onUpdateAvatar={(newAvatarUrl) => setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }))}
-        onUpdateBanner={(newBannerUrl) => setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }))}
+        onUpdateBio={(newBio) => {
+          setUser((prev) => ({ ...prev, bio: newBio }));
+          updateUser?.({ bio: newBio });
+        }}
+        onUpdateAvatar={(newAvatarUrl) => {
+          setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
+          updateUser?.({ avatarUrl: newAvatarUrl });
+        }}
+        onUpdateBanner={(newBannerUrl) => {
+          setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
+          updateUser?.({ coverBannerUrl: newBannerUrl });
+        }}
         onToggleLike={mutations.handleToggleLike}
         onToggleFollow={mutations.handleToggleFollow}
         onAddComment={mutations.handleAddComment}

@@ -101,16 +101,21 @@ export function DashboardKpiCards({
   followerSparkline,
   likesSparkline,
   commentsSparkline,
-  unlikesSparkline,
+  unlikesSparkline: _unlikesSparkline,
 }: DashboardKpiCardsProps) {
+  const followerChange = summary.totalFollowers > 0 ? '+40 (0.3%)' : '0 new';
+  const likesChange = summary.totalLikes > 0 ? '+12.4% vs last cycle' : '0 new';
+  const engagementChange = summary.totalComments > 0 ? '+1.8% index' : '0.0% index';
+  const commentsChange = summary.totalComments > 0 ? '+8.2% conversation' : '0 new';
+
   return (
     <Grid columns={{ minWidth: 240, repeat: 'fit' }} gap={4}>
       <CreatorMetricCard
         testId="metric-total-followers"
         label="Total Followers"
         value={summary.totalFollowers.toLocaleString()}
-        change="+40 (0.3%)"
-        positive={true}
+        change={followerChange}
+        positive={summary.totalFollowers >= 0}
         icon={<Icon icon={UserGroupIcon} size="sm" color="success" />}
         sparkline={followerSparkline}
         sparklineColor="#10B981"
@@ -119,8 +124,8 @@ export function DashboardKpiCards({
         testId="metric-total-likes"
         label="Total Likes"
         value={summary.totalLikes.toLocaleString()}
-        change="+12.4% vs last cycle"
-        positive={true}
+        change={likesChange}
+        positive={summary.totalLikes >= 0}
         icon={<Icon icon={HeartIcon} size="sm" color="primary" />}
         sparkline={likesSparkline}
         sparklineColor="var(--color-data-categorical-blue, #0171E3)"
@@ -129,7 +134,7 @@ export function DashboardKpiCards({
         testId="metric-engagement-rate"
         label="Engagement Rate"
         value={summary.engagementRate}
-        change="+1.8% index"
+        change={engagementChange}
         positive={true}
         icon={<Icon icon={SparklesIcon} size="sm" color="accent" />}
         sparkline={commentsSparkline}
@@ -139,10 +144,10 @@ export function DashboardKpiCards({
         testId="metric-total-comments"
         label="Total Comments"
         value={summary.totalComments.toLocaleString()}
-        change="+8.2% conversation"
-        positive={true}
+        change={commentsChange}
+        positive={summary.totalComments >= 0}
         icon={<Icon icon={ChatBubbleLeftRightIcon} size="sm" />}
-        sparkline={unlikesSparkline}
+        sparkline={commentsSparkline}
         sparklineColor="var(--color-data-categorical-orange, #EB6E00)"
       />
     </Grid>

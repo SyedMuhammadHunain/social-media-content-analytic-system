@@ -6,7 +6,7 @@ import fs from 'node:fs';
 
 const PORT = 9228;
 const TARGET_URL = 'http://127.0.0.1:5173/';
-const ARTIFACT_DIR = '/home/hunain/.gemini/antigravity-cli/brain/b60459bf-1c43-4639-bbef-e1bee06cb513';
+const ARTIFACT_DIR = process.env.ARTIFACT_DIR || '/tmp';
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
@@ -125,20 +125,27 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
         if (dashboardBtn) dashboardBtn.click();
       })()
     `);
-    await sleep(600);
-
-    const graphs = await evaluate(`
-      (() => {
-        const likeUnlike = document.querySelector('[data-testid="like-unlike-graph"]');
-        const followers = document.querySelector('[data-testid="followers-trend-graph"]');
-        const engagement = document.querySelector('[data-testid="engagement-graph"]');
-        return {
-          hasLikeUnlikeGraph: !!likeUnlike,
-          hasFollowersGraph: !!followers,
-          hasEngagementGraph: !!engagement,
-        };
-      })()
-    `);
+    let graphs = null;
+    for (let i = 0; i < 30; i++) {
+      graphs = await evaluate(`
+        (() => {
+          const likeUnlike = document.querySelector('[data-testid="like-unlike-graph"]');
+          const followers = document.querySelector('[data-testid="followers-trend-graph"]');
+          const engagement = document.querySelector('[data-testid="engagement-graph"]');
+          if (likeUnlike && followers && engagement) {
+            return {
+              hasLikeUnlikeGraph: true,
+              hasFollowersGraph: true,
+              hasEngagementGraph: true,
+            };
+          }
+          return null;
+        })()
+      `);
+      if (graphs) break;
+      await sleep(200);
+    }
+    assert.ok(graphs, 'Dashboard graphs must be resolved');
 
     assert.strictEqual(graphs.hasLikeUnlikeGraph, true, 'Like/Unlike comparative bar graph must be present');
     assert.strictEqual(graphs.hasFollowersGraph, true, 'Followers trend line graph must be present');
@@ -330,6 +337,66 @@ test('Creator Analytics Dashboard & Real-Time Sync Flow', async (t) => {
       const res = await send('Page.captureScreenshot', { format: 'png' });
       if (res?.data) {
         fs.writeFileSync(`${ARTIFACT_DIR}/creator_dashboard_realtime_sync.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
+  });
+
+  await t.test('6. Dashboard dynamically synchronizes realistic metrics strictly for respective user', async () => {
+    // Open user switcher in TopNav
+    const switchClicked = await evaluate(`
+      (() => {
+        const switcher = document.querySelector('[data-testid="nav-user-switcher"] button');
+        if (switcher) {
+          switcher.click();
+          return true;
+        }
+        return false;
+      })()
+    `);
+    assert.ok(switchClicked, 'User switcher dropdown opened in TopNav');
+    await sleep(300);
+
+    // Select Alice
+    const aliceSelected = await evaluate(`
+      (() => {
+        const aliceItem = Array.from(document.querySelectorAll('[role="menuitem"], button')).find(
+          el => el.innerText && (el.innerText.includes('Alice') || el.innerText.includes('alice'))
+        );
+        if (aliceItem) {
+          aliceItem.click();
+          return true;
+        }
+        return false;
+      })()
+    `);
+    assert.ok(aliceSelected, 'Alice selected from user switcher');
+    await sleep(600);
+
+    // Verify Dashboard metrics updated to Alice's realistic baseline (8,900 followers, 3,420 likes)
+    const aliceMetrics = await evaluate(`
+      (() => {
+        const followersCard = document.querySelector('[data-testid="metric-total-followers"]');
+        const likesCard = document.querySelector('[data-testid="metric-total-likes"]');
+        return {
+          followersText: followersCard ? followersCard.innerText : '',
+          likesText: likesCard ? likesCard.innerText : '',
+        };
+      })()
+    `);
+
+    assert.ok(
+      aliceMetrics.followersText.includes('8,900') || aliceMetrics.followersText.includes('8900'),
+      'Followers updated to Alice (8,900)'
+    );
+    assert.ok(
+      aliceMetrics.likesText.includes('3,420') || aliceMetrics.likesText.includes('3420'),
+      'Likes updated to Alice (3,420)'
+    );
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/creator_dashboard_alice_perspective.png`, Buffer.from(res.data, 'base64'));
       }
     } catch {}
   });

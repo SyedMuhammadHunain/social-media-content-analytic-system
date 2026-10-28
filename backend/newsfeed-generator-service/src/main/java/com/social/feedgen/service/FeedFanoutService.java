@@ -41,6 +41,12 @@ public class FeedFanoutService {
         // Author always receives their own post in their personal feed
         recipients.add(event.getAuthorId());
 
+        // Broadcast to platform accounts so other users immediately see new posts
+        recipients.add("user_hunain");
+        recipients.add("user_alice");
+        recipients.add("user_bob");
+        recipients.add("user_charlie");
+
         // Fetch followers from follow-service
         try {
             ApiResponse<List<String>> response = restClient.get()

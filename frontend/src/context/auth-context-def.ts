@@ -23,6 +23,7 @@ export interface AuthContextType {
   register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   switchUser: (userId: string) => Promise<boolean>;
+  updateUser: (partial: Partial<UserProfile>) => Promise<void>;
   clearError: () => void;
   clearLogoutMessage: () => void;
 }

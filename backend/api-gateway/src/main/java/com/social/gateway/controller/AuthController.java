@@ -64,4 +64,17 @@ public class AuthController {
                 .collectList()
                 .map(users -> ResponseEntity.ok(ApiResponse.success(users, "Demo users fetched")));
     }
+
+    @PutMapping("/profile")
+    public Mono<ResponseEntity<ApiResponse<User>>> updateProfile(@RequestBody Map<String, String> payload) {
+        String userId = payload.get("userId");
+        if (userId == null || userId.isBlank()) {
+            return Mono.just(ResponseEntity.badRequest()
+                    .body(ApiResponse.<User>builder().status("ERROR").message("userId is required").build()));
+        }
+        return authService.updateProfile(userId, payload)
+                .map(u -> ResponseEntity.ok(ApiResponse.success(u, "Profile updated successfully")))
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.<User>builder().status("ERROR").message("User not found: " + userId).build()));
+    }
 }

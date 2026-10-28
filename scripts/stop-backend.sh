@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PIDFILE="$DIR/scripts/.backend.pids"
 
 if [ ! -f "$PIDFILE" ]; then

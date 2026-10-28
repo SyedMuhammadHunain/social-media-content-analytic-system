@@ -9,14 +9,16 @@ import { Button } from '@astryxdesign/core/Button';
 import { Icon } from '@astryxdesign/core/Icon';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import type { TimeRange } from '../../types/analytics';
+import type { UserProfile } from '../../types/social';
 
 interface DashboardHeaderProps {
   timeRange: TimeRange;
   setTimeRange: (range: TimeRange) => void;
   refreshMetrics?: () => Promise<void>;
+  currentUser?: UserProfile | null;
 }
 
-export function DashboardHeader({ timeRange, setTimeRange, refreshMetrics }: DashboardHeaderProps) {
+export function DashboardHeader({ timeRange, setTimeRange, refreshMetrics, currentUser }: DashboardHeaderProps) {
   return (
     <HStack hAlign="between" vAlign="center" wrap="wrap" gap={4}>
       <VStack gap={1}>
@@ -45,7 +47,7 @@ export function DashboardHeader({ timeRange, setTimeRange, refreshMetrics }: Das
           </HStack>
         </HStack>
         <Text type="body" color="secondary">
-          Real-time sentiment reaction distribution, audience growth velocity, and engagement tracking (PDF Sections 4.1.vii-ix &amp; 4.2).
+          Live analytics for <strong style={{ color: 'var(--color-text-primary, #fff)' }}>{currentUser?.name || 'Creator'}</strong>{currentUser?.username ? ` (@${currentUser.username})` : ''} • Real-time sentiment reaction distribution, audience growth velocity, and engagement tracking (PDF Sections 4.1.vii-ix &amp; 4.2).
         </Text>
       </VStack>
 

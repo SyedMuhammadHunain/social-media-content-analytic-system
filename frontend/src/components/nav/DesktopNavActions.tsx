@@ -41,16 +41,17 @@ function UserSwitcherDropdown({
   const buttonLabel = currentUser ? currentUser.name.split(' ')[0] : 'Switch User';
 
   return (
-    <DropdownMenu
-      data-testid="nav-user-switcher"
-      button={{
-        label: buttonLabel,
-        variant: 'secondary',
-        size: 'sm',
-        icon: <Icon icon={UsersIcon} size="sm" />,
-      }}
-      items={items}
-    />
+    <div data-testid="nav-user-switcher">
+      <DropdownMenu
+        button={{
+          label: buttonLabel,
+          variant: 'secondary',
+          size: 'sm',
+          icon: <Icon icon={UsersIcon} size="sm" />,
+        }}
+        items={items}
+      />
+    </div>
   );
 }
 

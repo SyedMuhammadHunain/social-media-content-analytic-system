@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 1. Attempt API Gateway login first
     try {
-      const res = await authApi.login({ usernameOrEmail: emailOrUsername.trim(), password });
+      const res = await authApi.login({ usernameOrEmail: normalized, password });
       if (res && res.token) {
         setAuthToken(res.token);
         try {
@@ -138,12 +138,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: res.userId,
               username: res.username,
               name: res.fullName || seedMatch.user.name,
+              avatarUrl: res.avatarUrl || seedMatch.user.avatarUrl,
             }
           : {
               id: res.userId,
               username: res.username,
               name: res.fullName || res.username,
               avatarUrl:
+                res.avatarUrl ||
                 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
               isFollowed: false,
               headline: 'Social Media Creator',
@@ -161,8 +163,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         return true;
       }
-    } catch {
-      // API call failed or gateway offline -> continue to offline fallback check
+    } catch (err: any) {
+      if (err?.status === 401 || err?.name === 'ApiError') {
+        const localAccount = accounts.find(
+          (a) =>
+            (a.email.toLowerCase() === normalized ||
+              a.user.username.toLowerCase() === normalized ||
+              a.user.id.toLowerCase() === normalized) &&
+            a.passwordHash === password
+        );
+        if (!localAccount) {
+          setIsLoading(false);
+          setError(err?.message || 'Invalid username/email or password. Please try again.');
+          return false;
+        }
+      }
+      // Gateway unreachable -> continue to offline fallback check below
     }
 
     // 2. Offline fallback check against seed accounts
@@ -229,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: res.username,
           name: res.fullName || res.username,
           avatarUrl:
+            res.avatarUrl ||
             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
           isFollowed: false,
           headline: 'Social Media Creator',
@@ -243,11 +260,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
         } catch {}
 
+        // Refresh demo users so user appears in dropdown
+        authApi.getDemoUsers().then((users) => {
+          if (users && users.length > 0) {
+            setDemoUsers(users.map((u) => ({
+              id: u.id,
+              username: u.username,
+              name: u.name,
+              avatarUrl: u.avatarUrl,
+            })));
+          }
+        }).catch(() => {});
+
         setIsLoading(false);
         return true;
       }
-    } catch {
-      // Offline fallback
+    } catch (err: any) {
+      // If server explicitly returned an error (e.g. 409 Conflict, duplicate email), do NOT fall back to offline mode
+      if (err?.status === 409 || err?.status === 400 || err?.name === 'ApiError') {
+        setIsLoading(false);
+        setError(err.message || 'Account with this email or username already exists.');
+        return false;
+      }
+      // Offline fallback only for genuine connectivity failure
     }
 
     // 2. Offline fallback registration
@@ -290,6 +325,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
     } catch {}
     return true;
+  };
+
+  const updateUser = async (partial: Partial<UserProfile>): Promise<void> => {
+    setCurrentUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, ...partial };
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    if (currentUser?.id) {
+      try {
+        await authApi.updateProfile({
+          userId: currentUser.id,
+          fullName: partial.name,
+          avatarUrl: partial.avatarUrl,
+          bio: partial.bio,
+          coverBannerUrl: partial.coverBannerUrl,
+        });
+
+        const users = await authApi.getDemoUsers();
+        if (users && users.length > 0) {
+          setDemoUsers(users.map((u) => ({
+            id: u.id,
+            username: u.username,
+            name: u.name,
+            avatarUrl: u.avatarUrl,
+          })));
+        }
+      } catch (e) {
+        console.warn('Failed to sync profile update to backend:', e);
+      }
+    }
   };
 
   const switchUser = async (userId: string): Promise<boolean> => {
@@ -360,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         switchUser,
+        updateUser,
         clearError,
         clearLogoutMessage,
       }}

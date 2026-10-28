@@ -34,6 +34,8 @@ public class User {
     private String authProvider = "LOCAL"; // LOCAL, GOOGLE, APPLE
 
     private String avatarUrl;
+    private String bio;
+    private String coverBannerUrl;
 
     @Builder.Default
     private Instant createdAt = Instant.now();

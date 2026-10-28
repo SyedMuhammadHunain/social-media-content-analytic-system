@@ -31,8 +31,13 @@ export function ProfileHeaderBanner({
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const newUrl = URL.createObjectURL(file);
-    callback?.(newUrl);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        callback?.(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
     e.target.value = '';
   };
 

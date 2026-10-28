@@ -22,6 +22,7 @@ export interface AuthResponse {
   email: string;
   fullName?: string;
   authProvider?: string;
+  avatarUrl?: string;
   token: string;
 }
 
@@ -30,6 +31,14 @@ export interface DemoUser {
   username: string;
   name: string;
   avatarUrl?: string;
+}
+
+export interface UpdateProfileRequest {
+  userId: string;
+  fullName?: string;
+  avatarUrl?: string;
+  bio?: string;
+  coverBannerUrl?: string;
 }
 
 export const authApi = {
@@ -51,6 +60,10 @@ export const authApi = {
 
   getDemoUsers(): Promise<DemoUser[]> {
     return api.get<DemoUser[]>('/v1/auth/users', { skipAuth: true });
+  },
+
+  updateProfile(payload: UpdateProfileRequest): Promise<any> {
+    return api.put<any>('/v1/auth/profile', payload);
   },
 
   logout(): void {

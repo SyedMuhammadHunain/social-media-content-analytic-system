@@ -6,7 +6,7 @@ import fs from 'node:fs';
 
 const PORT = 9226;
 const TARGET_URL = 'http://127.0.0.1:5173/';
-const ARTIFACT_DIR = '/home/hunain/.gemini/antigravity-cli/brain/b60459bf-1c43-4639-bbef-e1bee06cb513';
+const ARTIFACT_DIR = process.env.ARTIFACT_DIR || '/tmp';
 
 async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
@@ -179,9 +179,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
       })()
     `);
     assert.ok(errorResult, 'Credential inputs and submit button found');
-    await sleep(400);
-
-    const bannerFound = await evaluate('!!document.querySelector("[data-testid=\'auth-error-banner\'], [data-astryx-theme*=\'banner\']")');
+    
+    let bannerFound = false;
+    for (let i = 0; i < 30; i++) {
+      bannerFound = await evaluate('!!document.querySelector("[data-testid=\'auth-error-banner\'], [data-astryx-theme*=\'banner\']")');
+      if (bannerFound) break;
+      await sleep(200);
+    }
     assert.strictEqual(bannerFound, true, 'Error banner must display upon invalid credentials');
 
     try {
@@ -211,9 +215,13 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
         submitBtn.click();
       })()
     `);
-    await sleep(600);
-
-    const feedMounted = await evaluate('!!document.querySelector("[data-testid=\'user-profile-card\'], nav")');
+    
+    let feedMounted = false;
+    for (let i = 0; i < 30; i++) {
+      feedMounted = await evaluate('!!document.querySelector("[data-testid=\'user-profile-card\'], nav")');
+      if (feedMounted) break;
+      await sleep(200);
+    }
     assert.strictEqual(feedMounted, true, 'News Feed must mount upon valid login');
   });
 
