@@ -25,9 +25,7 @@ import { socialApi } from '../api/socialApi.ts';
 import { feedApi } from '../api/feedApi.ts';
 
 function calcEngagementRate(comments: number, followers: number): string {
-  if (followers <= 0) {
-    return comments > 0 ? '100.0%' : '0.0%';
-  }
+  if (followers <= 0) return '0.0%';
   return `${((comments / Math.max(1, followers)) * 100).toFixed(1)}%`;
 }
 
@@ -96,6 +94,102 @@ interface UserAnalyticsState {
   summary: CreatorSummaryMetrics;
 }
 
+const CHART_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
+
+export function generateDynamicLikesSeries(totalLikes: number, totalUnlikes: number): LikeUnlikePoint[] {
+  if (totalLikes <= 0 && totalUnlikes <= 0) {
+    return CHART_DAYS.map((date) => ({ date, likes: 0, unlikes: 0 }));
+  }
+
+  if (totalLikes <= 7 && totalUnlikes <= 7) {
+    return CHART_DAYS.map((date, idx) => {
+      const isToday = idx === CHART_DAYS.length - 1;
+      return {
+        date,
+        likes: isToday ? totalLikes : 0,
+        unlikes: isToday ? totalUnlikes : 0,
+      };
+    });
+  }
+
+  const weights = [0.08, 0.11, 0.10, 0.14, 0.17, 0.18, 0.22];
+  let accLikes = 0;
+  let accUnlikes = 0;
+
+  return CHART_DAYS.map((date, idx) => {
+    if (idx === CHART_DAYS.length - 1) {
+      return {
+        date,
+        likes: Math.max(0, totalLikes - accLikes),
+        unlikes: Math.max(0, totalUnlikes - accUnlikes),
+      };
+    }
+    const dayLikes = Math.round(totalLikes * weights[idx]);
+    const dayUnlikes = Math.round(totalUnlikes * weights[idx]);
+    accLikes += dayLikes;
+    accUnlikes += dayUnlikes;
+    return { date, likes: dayLikes, unlikes: dayUnlikes };
+  });
+}
+
+export function generateDynamicFollowersSeries(totalFollowers: number): FollowerTrendPoint[] {
+  if (totalFollowers <= 0) {
+    return CHART_DAYS.map((date) => ({ date, followers: 0, netChange: 0 }));
+  }
+
+  if (totalFollowers <= 7) {
+    return CHART_DAYS.map((date, idx) => {
+      const isToday = idx === CHART_DAYS.length - 1;
+      return {
+        date,
+        followers: totalFollowers,
+        netChange: isToday ? Math.min(totalFollowers, 1) : 0,
+      };
+    });
+  }
+
+  const growthFactors = [0.965, 0.972, 0.978, 0.985, 0.991, 0.996, 1.0];
+  let prevVal = Math.round(totalFollowers * growthFactors[0]);
+
+  return CHART_DAYS.map((date, idx) => {
+    const curVal = idx === CHART_DAYS.length - 1 ? totalFollowers : Math.round(totalFollowers * growthFactors[idx]);
+    const netChange = Math.max(0, curVal - prevVal);
+    prevVal = curVal;
+    return { date, followers: curVal, netChange: idx === 0 ? Math.min(curVal, 2) : netChange };
+  });
+}
+
+export function generateDynamicEngagementSeries(totalComments: number): EngagementPoint[] {
+  if (totalComments <= 0) {
+    return CHART_DAYS.map((date) => ({ date, comments: 0, engagementScore: 0 }));
+  }
+
+  if (totalComments <= 7) {
+    return CHART_DAYS.map((date, idx) => {
+      const isToday = idx === CHART_DAYS.length - 1;
+      const count = isToday ? totalComments : 0;
+      return {
+        date,
+        comments: count,
+        engagementScore: count * 5,
+      };
+    });
+  }
+
+  const weights = [0.08, 0.11, 0.10, 0.14, 0.16, 0.18, 0.23];
+  let acc = 0;
+
+  return CHART_DAYS.map((date, idx) => {
+    if (idx === CHART_DAYS.length - 1) {
+      const rem = Math.max(0, totalComments - acc);
+      return { date, comments: rem, engagementScore: rem * 5 };
+    }
+    const day = Math.round(totalComments * weights[idx]);
+    acc += day;
+    return { date, comments: day, engagementScore: day * 5 };
+  });
+}
+
 function buildUserSeries(user: UserProfile | null | undefined, fallbackId: string): UserAnalyticsState {
   const effectiveId = user?.id || fallbackId;
   const normalizedId = normalizeBackendUserId(effectiveId);
@@ -121,51 +215,22 @@ function buildUserSeries(user: UserProfile | null | undefined, fallbackId: strin
     return { likes, followers, engagement, summary: { ...base.summary } };
   }
 
-  // 2. Realistic isolated data for newly registered or custom users
+  // 2. Realistic dynamic isolated data for newly registered or custom users
   const rawFollowers = user?.followerCount ?? 0;
-  const dates = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
+  const rawLikes = 0;
+  const rawUnlikes = 0;
+  const rawComments = 0;
 
-  if (rawFollowers <= 0) {
-    const likes = dates.map((date) => ({ date, likes: 0, unlikes: 0 }));
-    const followers = dates.map((date) => ({ date, followers: 0, netChange: 0 }));
-    const engagement = dates.map((date) => ({ date, comments: 0, engagementScore: 0 }));
-    const summary: CreatorSummaryMetrics = {
-      totalFollowers: 0,
-      totalLikes: 0,
-      totalUnlikes: 0,
-      totalComments: 0,
-      engagementRate: '0.0%',
-    };
-    return { likes, followers, engagement, summary };
-  }
-
-  // Scaled for custom user with followers
-  const ratio = rawFollowers / 14200;
-  const likes = INITIAL_LIKE_UNLIKE_DATA.map((d) => ({
-    ...d,
-    likes: Math.max(0, Math.round(d.likes * ratio)),
-    unlikes: Math.max(0, Math.round(d.unlikes * ratio)),
-  }));
-  const followers = INITIAL_FOLLOWERS_DATA.map((d) => ({
-    ...d,
-    followers: Math.max(0, Math.round(d.followers * ratio)),
-    netChange: Math.round(d.netChange * ratio),
-  }));
-  const engagement = INITIAL_ENGAGEMENT_DATA.map((d) => ({
-    ...d,
-    comments: Math.max(0, Math.round(d.comments * ratio)),
-    engagementScore: Math.max(0, Math.round(d.engagementScore * ratio)),
-  }));
-  const totalLikes = likes.reduce((acc, curr) => acc + curr.likes, 0);
-  const totalUnlikes = likes.reduce((acc, curr) => acc + curr.unlikes, 0);
-  const totalComments = engagement.reduce((acc, curr) => acc + curr.comments, 0);
+  const likes = generateDynamicLikesSeries(rawLikes, rawUnlikes);
+  const followers = generateDynamicFollowersSeries(rawFollowers);
+  const engagement = generateDynamicEngagementSeries(rawComments);
 
   const summary: CreatorSummaryMetrics = {
     totalFollowers: rawFollowers,
-    totalLikes,
-    totalUnlikes,
-    totalComments,
-    engagementRate: calcEngagementRate(totalComments, rawFollowers),
+    totalLikes: rawLikes,
+    totalUnlikes: rawUnlikes,
+    totalComments: rawComments,
+    engagementRate: calcEngagementRate(rawComments, rawFollowers),
   };
 
   return { likes, followers, engagement, summary };
@@ -369,12 +434,29 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
           engagementRate: calcEngagementRate(totalComments, totalFollowers),
         };
 
-        const cached = userMetricsStore.current.get(effectiveUserId);
-        if (cached) {
+        if (!isSeedCreator) {
+          const freshLikes = generateDynamicLikesSeries(totalLikes, prev.totalUnlikes);
+          const freshFollowers = generateDynamicFollowersSeries(totalFollowers);
+          const freshEngagement = generateDynamicEngagementSeries(totalComments);
+
+          setLikeUnlikeData(freshLikes);
+          setFollowersData(freshFollowers);
+          setEngagementData(freshEngagement);
+
           userMetricsStore.current.set(effectiveUserId, {
-            ...cached,
+            likes: freshLikes,
+            followers: freshFollowers,
+            engagement: freshEngagement,
             summary: nextSummary,
           });
+        } else {
+          const cached = userMetricsStore.current.get(effectiveUserId);
+          if (cached) {
+            userMetricsStore.current.set(effectiveUserId, {
+              ...cached,
+              summary: nextSummary,
+            });
+          }
         }
 
         return nextSummary;

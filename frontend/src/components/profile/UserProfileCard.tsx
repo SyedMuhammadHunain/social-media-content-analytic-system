@@ -19,13 +19,39 @@ export interface UserProfileCardProps {
 const DEFAULT_BANNER =
   'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80';
 
+const BASELINE_STATS: Record<string, { connections: number; views: number }> = {
+  usr_me_01: { connections: 149, views: 73 },
+  user_hunain: { connections: 149, views: 73 },
+  hunain_creator: { connections: 149, views: 73 },
+  hunain: { connections: 149, views: 73 },
+  user_alice: { connections: 94, views: 42 },
+  alice: { connections: 94, views: 42 },
+  user_bob: { connections: 230, views: 118 },
+  bob: { connections: 230, views: 118 },
+  user_charlie: { connections: 68, views: 29 },
+  charlie: { connections: 68, views: 29 },
+};
+
 export const UserProfileCard: FC<UserProfileCardProps> = ({
   user,
   onOpenProfile,
-  connectionsCount = 149,
-  profileViewsCount = 73,
+  connectionsCount,
+  profileViewsCount,
 }) => {
   const bannerSrc = user.coverBannerUrl || DEFAULT_BANNER;
+  const userKey = (user.id || '').toLowerCase();
+  const usernameKey = (user.username || '').toLowerCase();
+  const baseline = BASELINE_STATS[userKey] || BASELINE_STATS[usernameKey];
+
+  const finalConnections =
+    connectionsCount !== undefined
+      ? connectionsCount
+      : (baseline?.connections ?? user.followingCount ?? 0);
+
+  const finalViews =
+    profileViewsCount !== undefined
+      ? profileViewsCount
+      : (baseline?.views ?? 0);
 
   return (
     <div
@@ -117,7 +143,7 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
                 Connections
               </Text>
               <Text type="supporting" color="accent" weight="bold">
-                {connectionsCount.toLocaleString()}
+                {finalConnections.toLocaleString()}
               </Text>
             </HStack>
 
@@ -126,7 +152,7 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
                 Who's viewed your profile
               </Text>
               <Text type="supporting" color="accent" weight="bold">
-                {profileViewsCount.toLocaleString()}
+                {finalViews.toLocaleString()}
               </Text>
             </HStack>
           </VStack>

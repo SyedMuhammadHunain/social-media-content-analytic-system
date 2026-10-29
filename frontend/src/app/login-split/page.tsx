@@ -56,12 +56,6 @@ const LOGIN_SPLIT_CSS = `
 }
 `;
 
-function extractInputValue(form: HTMLFormElement | null, selector: string, fallback: string): string {
-  if (!form) return fallback;
-  const el = form.querySelector<HTMLInputElement>(selector);
-  return el?.value || fallback;
-}
-
 export default function LoginSplitPage() {
   const { login, register, error, isLoading, clearError, logoutMessage, clearLogoutMessage } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
@@ -73,19 +67,24 @@ export default function LoginSplitPage() {
   const [loginFailed, setLoginFailed] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const getFormValues = () => ({
-    finalIdentifier: extractInputValue(
-      formRef.current,
-      'input[name="email"], input[type="email"], input[placeholder*="email" i], input[type="text"]',
-      email
-    ),
-    finalPassword: extractInputValue(formRef.current, 'input[type="password"]', password),
-    finalUsername: extractInputValue(
-      formRef.current,
-      'input[name="username"], input[placeholder*="username" i]',
-      username
-    ),
-  });
+  const getFormValues = () => {
+    const form = formRef.current;
+    const domUsername = form?.querySelector<HTMLInputElement>(
+      '[data-testid="auth-input-username"] input, input[name="username"], input[placeholder*="username" i]'
+    )?.value;
+    const domEmail = form?.querySelector<HTMLInputElement>(
+      '[data-testid="auth-input-email"] input, input[type="email"], input[name="email"], input[placeholder*="company" i], input[placeholder*="email" i]'
+    )?.value;
+    const domPassword = form?.querySelector<HTMLInputElement>(
+      '[data-testid="auth-input-password"] input, input[type="password"]'
+    )?.value;
+
+    return {
+      finalIdentifier: domEmail?.trim() || email.trim() || '',
+      finalPassword: domPassword || password || '',
+      finalUsername: domUsername?.trim() || username.trim() || '',
+    };
+  };
 
   const executeRegister = async (values: ReturnType<typeof getFormValues>) => {
     if (!values.finalUsername || !values.finalPassword) {
@@ -236,59 +235,66 @@ export default function LoginSplitPage() {
                             {/* Authentication Error Banner */}
                             {error && (
                               <div data-testid="auth-error-banner">
-                                <Banner status="error" title="Authentication Error">
-                                  {error}
-                                </Banner>
+                                <Banner
+                                  status="error"
+                                  title="Authentication Error"
+                                  description={error}
+                                />
                               </div>
                             )}
 
                             {/* Input Fields */}
                             <VStack gap={2}>
                               {isRegister && (
+                                <div data-testid="auth-input-username">
+                                  <TextInput
+                                    label="Username"
+                                    isLabelHidden
+                                    type="text"
+                                    htmlName="username"
+                                    placeholder="Choose a username"
+                                    value={username}
+                                    onChange={(v) => {
+                                      setUsername(v);
+                                      clearError();
+                                    }}
+                                    size="lg"
+                                  />
+                                </div>
+                              )}
+
+                              <div data-testid="auth-input-email">
                                 <TextInput
-                                  label="Username"
+                                  label={isRegister ? 'Email' : 'Email or Username'}
                                   isLabelHidden
-                                  type="text"
-                                  htmlName="username"
-                                  placeholder="Choose a username"
-                                  value={username}
+                                  type={isRegister ? 'email' : 'text'}
+                                  htmlName="email"
+                                  placeholder={
+                                    isRegister
+                                      ? 'name@company.com or email'
+                                      : 'name@company.com or email'
+                                  }
+                                  value={email}
                                   onChange={(v) => {
-                                    setUsername(v);
+                                    setEmail(v);
+                                    setLoginFailed(false);
                                     clearError();
                                   }}
                                   size="lg"
                                 />
-                              )}
-
-                              <TextInput
-                                label={isRegister ? 'Email' : 'Email or Username'}
-                                isLabelHidden
-                                type="text"
-                                htmlName="email"
-                                placeholder={
-                                  isRegister
-                                    ? 'name@company.com'
-                                    : 'name@company.com or @username'
-                                }
-                                value={email}
-                                onChange={(v) => {
-                                  setEmail(v);
-                                  setLoginFailed(false);
-                                  clearError();
-                                }}
-                                size="lg"
-                              />
+                              </div>
 
                               <VStack gap={1}>
-                                <TextInput
-                                  label="Password"
-                                  isLabelHidden
-                                  placeholder={
-                                    isRegister
-                                      ? 'Create a secure password'
-                                      : 'Enter your password'
-                                  }
-                                  type="password"
+                                <div data-testid="auth-input-password">
+                                  <TextInput
+                                    label="Password"
+                                    isLabelHidden
+                                    placeholder={
+                                      isRegister
+                                        ? 'Create a secure password'
+                                        : 'Enter your password'
+                                    }
+                                    type="password"
                                   value={password}
                                   onChange={(v: string) => {
                                     setPassword(v);
@@ -306,8 +312,9 @@ export default function LoginSplitPage() {
                                       : undefined
                                   }
                                 />
+                              </div>
 
-                                {!isRegister && (
+                              {!isRegister && (
                                   <VStack hAlign="end">
                                     <Link
                                       href="#"

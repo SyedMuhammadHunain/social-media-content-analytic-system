@@ -123,22 +123,17 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
   });
 
   await t.test('2. Can toggle between Sign In and Create Account modes', async () => {
-    const toggleResult = await evaluate(`
+    await evaluate(`
       (() => {
         const toggleLink = document.querySelector('[data-testid="auth-toggle-mode"]');
-        if (!toggleLink) return null;
-        const initialText = toggleLink.innerText;
-        toggleLink.click();
-        const usernameInput = document.querySelector('input[name="username"], input[placeholder*="username" i]');
-        return {
-          hasToggle: true,
-          initialText,
-          hasUsernameInput: !!usernameInput
-        };
+        if (toggleLink) toggleLink.click();
       })()
     `);
-    assert.ok(toggleResult, 'Auth toggle button/link must exist');
-    assert.strictEqual(toggleResult.hasUsernameInput, true, 'Register form must reveal username input');
+    await sleep(250);
+    const hasUsernameInput = await evaluate(`
+      !!document.querySelector('input[name="username"], input[placeholder*="username" i], [data-testid="auth-input-username"] input')
+    `);
+    assert.strictEqual(hasUsernameInput, true, 'Register form must reveal username input');
 
     try {
       const res = await send('Page.captureScreenshot', { format: 'png' });

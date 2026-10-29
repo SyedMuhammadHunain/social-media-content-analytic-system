@@ -12,7 +12,6 @@ import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Badge } from '@astryxdesign/core/Badge';
 import { TextArea } from '@astryxdesign/core/TextArea';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
 
@@ -42,7 +41,6 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO'>('IMAGE');
-  const [hashtagsRaw, setHashtagsRaw] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,10 +100,17 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
   const handleSubmit = () => {
     if (!isValid) return;
 
-    const hashtags = hashtagsRaw
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
+    // Automatically parse hashtags from the combined post text
+    const matches = text.match(/#[a-zA-Z0-9_\u00c0-\u024e\u1e00-\u1eff]+/g) || [];
+    const seen = new Set<string>();
+    const hashtags: string[] = [];
+    for (const tag of matches) {
+      const lower = tag.toLowerCase();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        hashtags.push(tag);
+      }
+    }
 
     const effectiveType: PostType = mediaUrl.length > 0 ? mediaType : 'TEXT';
 
@@ -120,7 +125,6 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
     // Reset inputs
     setText('');
     handleRemoveMedia();
-    setHashtagsRaw('');
   };
 
   return (
@@ -158,15 +162,30 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
 
         <Divider />
 
-        {/* Unified Text Composer */}
+        {/* Unified Text Composer with inline hashtags */}
         <TextArea
           label="What's happening?"
           isLabelHidden
-          placeholder="Share your thoughts, architectural insights, or attach media from your PC..."
+          placeholder="Share your thoughts, architectural insights, #hashtags, or attach media from your PC..."
           value={text}
           onChange={setText}
           rows={3}
         />
+
+        {/* Live Detected Hashtag Previews */}
+        {(() => {
+          const detected = text.match(/#[a-zA-Z0-9_\u00c0-\u024e\u1e00-\u1eff]+/g);
+          if (!detected || detected.length === 0) return null;
+          const uniqueTags = Array.from(new Set(detected));
+          return (
+            <HStack gap={2} wrap="wrap">
+              <Text type="supporting" color="secondary">Tags:</Text>
+              {uniqueTags.map((tag) => (
+                <Badge key={tag} variant="neutral" label={tag} />
+              ))}
+            </HStack>
+          );
+        })()}
 
         {/* Hidden Local File Input */}
         <input
@@ -222,14 +241,6 @@ export function PostComposer({ currentUser, onCreatePost }: PostComposerProps) {
             </div>
           </div>
         )}
-
-        {/* Hashtags Input */}
-        <TextInput
-          label="Hashtags (space separated)"
-          placeholder="#systemdesign #astryx #webdev"
-          value={hashtagsRaw}
-          onChange={setHashtagsRaw}
-        />
 
         <Divider />
 

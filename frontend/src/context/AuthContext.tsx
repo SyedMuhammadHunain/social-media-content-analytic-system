@@ -390,8 +390,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headline: matchedDemo.headline || 'Social Media Creator',
         tags: ['Creator', 'Meta Astryx'],
         bio: 'Creator on Social Media Content Analysis System',
-        followerCount: 1000,
-        followingCount: 100,
+        followerCount: 0,
+        followingCount: 0,
       };
       setCurrentUser(userProfile);
       const token = `token_${matchedDemo.id}`;

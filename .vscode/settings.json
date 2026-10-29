@@ -1,12 +1,21 @@
 {
   "search.exclude": {
-    "**/.sst": true
+    "**/node_modules": true,
+    "**/.sst": true,
+    "**/.git": true,
+    "**/build": true,
+    "**/target": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/target/**": true
   },
   "task.allowAutomaticTasks": true,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "typescript.preferences.importModuleSpecifier": "relative",
-  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "frontend/node_modules/typescript/lib",
   "debug.openDebug": "neverOpen",
   "problems.autoReveal": true,
   "terminal.integrated.hideOnStartup": "always",

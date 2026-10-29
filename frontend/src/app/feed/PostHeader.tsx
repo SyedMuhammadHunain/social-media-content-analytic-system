@@ -72,22 +72,6 @@ export function PostHeader({
       {/* Author Controls (PDF Req 4.1.ii) or Follow Toggle (Req 4.1.iv) */}
       {isAuthor ? (
         <HStack gap={2} vAlign="center">
-          <Button
-            data-testid={`post-edit-btn-${postId}`}
-            label="Edit"
-            variant="secondary"
-            size="sm"
-            icon={<Icon icon={PencilSquareIcon} size="xsm" />}
-            onClick={onEdit}
-          />
-          <Button
-            data-testid={`post-delete-btn-${postId}`}
-            label="Delete"
-            variant="destructive"
-            size="sm"
-            icon={<Icon icon={TrashIcon} size="xsm" />}
-            onClick={onDelete}
-          />
           <MoreMenu
             size="sm"
             label="Post options"
