@@ -33,10 +33,14 @@ export function DashboardFollowerTrendChart({
   const latestNetChange = followersData[followersData.length - 1]?.netChange || 0;
 
   return (
-    <Card data-testid="followers-trend-graph" padding={4}>
+    <Card
+      data-testid="followers-trend-graph"
+      padding={4}
+      style={{ width: '100%', minWidth: 0, overflow: 'hidden' }}
+    >
       <VStack gap={4}>
-        <HStack hAlign="between" vAlign="center">
-          <VStack gap={1}>
+        <HStack hAlign="between" vAlign="center" wrap="wrap" gap={2}>
+          <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Followers Growth Trend</Heading>
             <Text type="supporting" color="secondary">
               Audience gain and loss velocity across intervals (PDF Section 4.1.viii).
@@ -44,54 +48,58 @@ export function DashboardFollowerTrendChart({
           </VStack>
           <HStack gap={1} vAlign="center">
             <Icon icon={ArrowUpIcon} size="xsm" color="success" />
-            <Text type="supporting" color="secondary">
+            <Text type="supporting" color="secondary" style={{ whiteSpace: 'nowrap' }}>
               Net +{latestNetChange} today
             </Text>
           </HStack>
         </HStack>
 
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={followersData}
-            margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="var(--color-border, rgba(5, 54, 89, 0.1))"
-            />
-            <XAxis
-              dataKey="date"
-              tick={{
-                fontSize: 12,
-                fill: 'var(--color-text-secondary, #4E606F)',
-              }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              domain={['auto', 'auto']}
-              tick={{
-                fontSize: 12,
-                fill: 'var(--color-text-secondary, #4E606F)',
-              }}
-              axisLine={false}
-              tickLine={false}
-              width={46}
-            />
-            <Tooltip content={<ChartTooltip />} />
-            <Line
-              type="monotone"
-              dataKey="followers"
-              name="Followers"
-              stroke="#10B981"
-              strokeWidth={3}
-              dot={{ r: 4, fill: '#10B981' }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div style={{ width: '100%', minWidth: 0, height: 300 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={followersData}
+              margin={{ top: 10, right: 12, left: -6, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="var(--color-border, rgba(5, 54, 89, 0.1))"
+              />
+              <XAxis
+                dataKey="date"
+                interval="preserveStartEnd"
+                tick={{
+                  fontSize: 11,
+                  fill: 'var(--color-text-secondary, #4E606F)',
+                }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                domain={['auto', 'auto']}
+                tick={{
+                  fontSize: 11,
+                  fill: 'var(--color-text-secondary, #4E606F)',
+                }}
+                axisLine={false}
+                tickLine={false}
+                width={40}
+              />
+              <Tooltip content={<ChartTooltip />} />
+              <Line
+                type="monotone"
+                dataKey="followers"
+                name="Followers"
+                stroke="#10B981"
+                strokeWidth={3}
+                dot={{ r: 4, fill: '#10B981' }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-        <HStack gap={6} vAlign="center">
+        <HStack gap={4} vAlign="center" wrap="wrap">
           <HStack gap={2} vAlign="center">
             <Icon icon={StopIcon} size="xsm" style={{ color: '#10B981' }} />
             <Text type="supporting">Followers ({summary.totalFollowers.toLocaleString()} total)</Text>

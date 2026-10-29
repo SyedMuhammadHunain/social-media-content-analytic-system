@@ -12,6 +12,7 @@ import { DashboardHeader } from './DashboardHeader';
 import { DashboardKpiCards } from './DashboardKpiCards';
 import { DashboardSentimentCharts } from './DashboardSentimentCharts';
 import { DashboardEngagementChart } from './DashboardEngagementChart';
+import { DashboardAnalyticsInterpretation } from './DashboardAnalyticsInterpretation';
 
 export default function DashboardPage() {
   const { currentUser } = useAuth();
@@ -70,6 +71,13 @@ export default function DashboardPage() {
             <DashboardEngagementChart
               engagementData={engagementData}
               summary={summary}
+            />
+
+            <DashboardAnalyticsInterpretation
+              summary={summary}
+              likeUnlikeData={likeUnlikeData}
+              followersData={followersData}
+              engagementData={engagementData}
             />
           </VStack>
         </LayoutContent>

@@ -20,7 +20,7 @@ export function DashboardSentimentCharts({
   summary,
 }: DashboardSentimentChartsProps) {
   return (
-    <Grid columns={{ minWidth: 460, repeat: 'fit' }} gap={6}>
+    <Grid columns={{ minWidth: 320, repeat: 'fit' }} gap={6}>
       <DashboardSentimentBarChart
         likeUnlikeData={likeUnlikeData}
         summary={summary}
