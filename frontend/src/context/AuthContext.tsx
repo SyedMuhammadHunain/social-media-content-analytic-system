@@ -244,9 +244,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: res.userId,
           username: res.username,
           name: res.fullName || res.username,
-          avatarUrl:
-            res.avatarUrl ||
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+          avatarUrl: res.avatarUrl || '',
+          coverBannerUrl: '',
           isFollowed: false,
           headline: 'Social Media Creator',
           tags: ['Creator', 'Meta Astryx'],
@@ -302,8 +301,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: `usr_${Date.now()}`,
       username: cleanUsername,
       name: cleanUsername,
-      avatarUrl:
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      avatarUrl: '',
+      coverBannerUrl: '',
       isFollowed: false,
       headline: 'Social Media Creator',
       tags: ['Creator', 'Meta Astryx'],

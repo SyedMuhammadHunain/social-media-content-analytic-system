@@ -35,6 +35,7 @@ export interface PostHeaderProps {
   onEdit: () => void;
   onDelete: () => void;
   onToggleFollow: (userId: string) => void;
+  onViewProfile?: (author: User) => void;
 }
 
 export function PostHeader({
@@ -46,13 +47,20 @@ export function PostHeader({
   onEdit,
   onDelete,
   onToggleFollow,
+  onViewProfile,
 }: PostHeaderProps) {
   return (
     <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
-      <HStack gap={3} vAlign="center">
+      <HStack
+        gap={3}
+        vAlign="center"
+        onClick={() => onViewProfile?.(author)}
+        style={{ cursor: onViewProfile ? 'pointer' : 'default' }}
+        data-testid={`post-author-${author.id}`}
+      >
         <Avatar
           name={author.name}
-          src={author.avatarUrl}
+          src={author.avatarUrl || undefined}
           size="md"
         />
         <VStack gap={0}>

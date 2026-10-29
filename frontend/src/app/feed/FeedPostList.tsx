@@ -7,7 +7,7 @@ import { VStack } from '@astryxdesign/core/Layout';
 import { Card } from '@astryxdesign/core/Card';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Button } from '@astryxdesign/core/Button';
-import type { Post, UserProfile, UpdatePostInput } from '../../types/social.ts';
+import type { Post, UserProfile, UpdatePostInput, User } from '../../types/social.ts';
 import { PostCard } from './PostCard.tsx';
 
 export interface FeedPostListProps {
@@ -22,6 +22,7 @@ export interface FeedPostListProps {
   onToggleBookmark: (postId: string) => void;
   onEditPost: (postId: string, input: UpdatePostInput) => void;
   onDeletePost: (postId: string) => void;
+  onViewUserProfile?: (user: User) => void;
 }
 
 function getEmptyStateDescription(isBookmarksFilter: boolean): string {
@@ -73,6 +74,7 @@ export function FeedPostList({
   onToggleBookmark,
   onEditPost,
   onDeletePost,
+  onViewUserProfile,
 }: FeedPostListProps) {
   if (posts.length === 0) {
     return (
@@ -97,6 +99,7 @@ export function FeedPostList({
           onToggleBookmark={onToggleBookmark}
           onEditPost={onEditPost}
           onDeletePost={onDeletePost}
+          onViewProfile={onViewUserProfile}
         />
       ))}
     </VStack>

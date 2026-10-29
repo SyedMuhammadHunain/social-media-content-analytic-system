@@ -14,6 +14,7 @@ interface NewsFeedRightSidebarProps {
   suggestedCreators: SuggestedCreator[];
   onSelectHashtag: (tag: string) => void;
   onToggleFollow: (userId: string) => void;
+  onViewProfile?: (creator: SuggestedCreator) => void;
 }
 
 export function NewsFeedRightSidebar({
@@ -21,6 +22,7 @@ export function NewsFeedRightSidebar({
   suggestedCreators,
   onSelectHashtag,
   onToggleFollow,
+  onViewProfile,
 }: NewsFeedRightSidebarProps) {
   return (
     <aside className="newsfeed-right-sidebar" data-testid="newsfeed-right-rail">
@@ -32,6 +34,7 @@ export function NewsFeedRightSidebar({
       <WhoToFollowCard
         creators={suggestedCreators}
         onToggleFollow={onToggleFollow}
+        onViewProfile={onViewProfile}
       />
       <PlatformInfoFooter />
     </aside>

@@ -19,18 +19,20 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
-import type { Comment } from '../../types/social.ts';
+import type { Comment, User } from '../../types/social.ts';
 
 interface CommentSectionProps {
   postId: string;
   comments: Comment[];
   onAddComment: (postId: string, text: string, parentCommentId?: string) => void;
+  onViewProfile?: (user: User) => void;
 }
 
 export function CommentSection({
   postId,
   comments,
   onAddComment,
+  onViewProfile,
 }: CommentSectionProps) {
   const [commentText, setCommentText] = useState('');
   const [replyingTo, setReplyingTo] = useState<{ id: string; username: string } | null>(null);
@@ -79,8 +81,13 @@ export function CommentSection({
         >
           <VStack gap={1}>
             <HStack hAlign="between" vAlign="center">
-              <HStack gap={2} vAlign="center">
-                <Avatar name={c.author.name} src={c.author.avatarUrl} size={isNested ? 'xsm' : 'sm'} />
+              <HStack
+                gap={2}
+                vAlign="center"
+                onClick={() => onViewProfile?.(c.author)}
+                style={{ cursor: onViewProfile ? 'pointer' : 'default' }}
+              >
+                <Avatar name={c.author.name} src={c.author.avatarUrl || undefined} size={isNested ? 'xsm' : 'sm'} />
                 <Text type="body">
                   <strong>{c.author.name}</strong>{' '}
                   <span style={{ color: 'var(--color-text-secondary, #9E9E9E)' }}>

@@ -24,6 +24,7 @@ export interface UserProfileViewProps {
   user: UserProfile;
   posts: Post[];
   onBack: () => void;
+  isOwnProfile?: boolean;
   onUpdateBio?: (newBio: string) => void;
   onUpdateAvatar?: (newAvatarUrl: string) => void;
   onUpdateBanner?: (newBannerUrl: string) => void;
@@ -38,6 +39,7 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   user,
   posts,
   onBack,
+  isOwnProfile = true,
   onUpdateBio,
   onUpdateAvatar,
   onUpdateBanner,
@@ -52,6 +54,10 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   const [isTabLoading, setIsTabLoading] = useState<boolean>(false);
   const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setBio(user.bio);
+  }, [user.bio]);
 
   useEffect(() => {
     return () => {
@@ -110,6 +116,7 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
                 <ProfileHeaderBanner
                   user={user}
                   avatarInputRef={avatarInputRef}
+                  isOwnProfile={isOwnProfile}
                   onUpdateAvatar={onUpdateAvatar}
                   onUpdateBanner={onUpdateBanner}
                 />
@@ -117,11 +124,17 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
                 {/* Identity Header Card */}
                 <ProfileMetaDetails
                   user={user}
-                  onChangePhoto={() => avatarInputRef.current?.click()}
+                  isOwnProfile={isOwnProfile}
+                  onChangePhoto={isOwnProfile ? () => avatarInputRef.current?.click() : undefined}
+                  onToggleFollow={onToggleFollow}
                 />
 
                 {/* Rich Bio Section */}
-                <ProfileBioEditor bio={bio} onSaveBio={handleSaveBio} />
+                <ProfileBioEditor
+                  bio={bio}
+                  isOwnProfile={isOwnProfile}
+                  onSaveBio={handleSaveBio}
+                />
 
                 {/* Past Post History */}
                 <Card variant="default">

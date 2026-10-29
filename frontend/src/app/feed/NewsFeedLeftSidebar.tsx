@@ -12,6 +12,7 @@ interface NewsFeedLeftSidebarProps {
   activeFilterType: FeedFilterType;
   savedCount: number;
   onOpenProfile: () => void;
+  onOpenProfileViews?: () => void;
   onSelectShortcut: (type: FeedFilterType) => void;
   onNavigateAnalytics?: () => void;
 }
@@ -21,6 +22,7 @@ export function NewsFeedLeftSidebar({
   activeFilterType,
   savedCount,
   onOpenProfile,
+  onOpenProfileViews,
   onSelectShortcut,
   onNavigateAnalytics,
 }: NewsFeedLeftSidebarProps) {
@@ -29,6 +31,7 @@ export function NewsFeedLeftSidebar({
       <UserProfileCard
         user={user}
         onOpenProfile={onOpenProfile}
+        onOpenProfileViews={onOpenProfileViews}
       />
       <FeedShortcutsCard
         activeFilterType={activeFilterType}

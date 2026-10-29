@@ -10,7 +10,7 @@ import { Text } from '@astryxdesign/core/Text';
 import { Badge } from '@astryxdesign/core/Badge';
 import { Divider } from '@astryxdesign/core/Divider';
 
-import type { Post, UpdatePostInput, UserProfile, Comment } from '../../types/social.ts';
+import type { Post, UpdatePostInput, UserProfile, Comment, User } from '../../types/social.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { CommentSection } from './CommentSection.tsx';
 import { PostEditModal } from './PostEditModal.tsx';
@@ -50,6 +50,7 @@ interface PostCardProps {
   onToggleBookmark?: (postId: string) => void;
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
+  onViewProfile?: (user: User) => void;
 }
 
 export function PostCard({
@@ -61,6 +62,7 @@ export function PostCard({
   onToggleBookmark,
   onEditPost,
   onDeletePost,
+  onViewProfile,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [remoteComments, setRemoteComments] = useState<Comment[]>([]);
@@ -102,6 +104,7 @@ export function PostCard({
             onEdit={() => setIsEditing(true)}
             onDelete={() => setIsConfirmingDelete(true)}
             onToggleFollow={onToggleFollow}
+            onViewProfile={onViewProfile}
           />
 
           {postContent && (
@@ -136,6 +139,7 @@ export function PostCard({
               postId={post.id}
               comments={[...post.comments, ...remoteComments]}
               onAddComment={onAddComment}
+              onViewProfile={onViewProfile}
             />
           )}
         </VStack>

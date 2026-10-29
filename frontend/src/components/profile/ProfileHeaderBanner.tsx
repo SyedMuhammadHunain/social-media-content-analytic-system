@@ -13,6 +13,7 @@ import type { UserProfile } from '../../types/social';
 export interface ProfileHeaderBannerProps {
   user: UserProfile;
   avatarInputRef: RefObject<HTMLInputElement | null>;
+  isOwnProfile?: boolean;
   onUpdateAvatar?: (newAvatarUrl: string) => void;
   onUpdateBanner?: (newBannerUrl: string) => void;
 }
@@ -20,6 +21,7 @@ export interface ProfileHeaderBannerProps {
 export function ProfileHeaderBanner({
   user,
   avatarInputRef,
+  isOwnProfile = true,
   onUpdateAvatar,
   onUpdateBanner,
 }: ProfileHeaderBannerProps) {
@@ -77,24 +79,26 @@ export function ProfileHeaderBanner({
           />
         )}
 
-        {/* Change Cover Banner Button */}
-        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 5 }}>
-          <input
-            ref={bannerInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={e => handleFileChange(e, onUpdateBanner)}
-          />
-          <Button
-            data-testid="upload-banner-trigger"
-            label="Change Banner"
-            variant="secondary"
-            size="sm"
-            icon={<Icon icon={CameraIcon} size="xsm" />}
-            onClick={() => bannerInputRef.current?.click()}
-          />
-        </div>
+        {/* Change Cover Banner Button - only for profile owner */}
+        {isOwnProfile && (
+          <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 5 }}>
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={e => handleFileChange(e, onUpdateBanner)}
+            />
+            <Button
+              data-testid="upload-banner-trigger"
+              label="Change Banner"
+              variant="secondary"
+              size="sm"
+              icon={<Icon icon={CameraIcon} size="xsm" />}
+              onClick={() => bannerInputRef.current?.click()}
+            />
+          </div>
+        )}
       </div>
 
       {/* Overlapping Avatar Wrapper */}
@@ -115,43 +119,46 @@ export function ProfileHeaderBanner({
         }}
       >
         <div style={{ position: 'relative' }}>
-          <Avatar name={user.name} src={user.avatarUrl} size="xl" />
+          <Avatar name={user.name} src={user.avatarUrl || undefined} size="xl" />
 
-          {/* Hidden Avatar File Input */}
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={e => handleFileChange(e, onUpdateAvatar)}
-          />
+          {/* Hidden Avatar File Input & Trigger - only for profile owner */}
+          {isOwnProfile && (
+            <>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => handleFileChange(e, onUpdateAvatar)}
+              />
 
-          {/* Upload/Change Photo Button */}
-          <button
-            data-testid="upload-avatar-trigger"
-            type="button"
-            title="Change Profile Photo"
-            aria-label="Change Profile Photo"
-            onClick={() => avatarInputRef.current?.click()}
-            style={{
-              position: 'absolute',
-              bottom: 2,
-              right: 2,
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              backgroundColor: 'var(--color-background-container, #242526)',
-              border: '2px solid var(--color-background-body, #111111)',
-              color: 'var(--color-text-primary, #ffffff)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            <Icon icon={CameraIcon} size="xsm" />
-          </button>
+              <button
+                data-testid="upload-avatar-trigger"
+                type="button"
+                title="Change Profile Photo"
+                aria-label="Change Profile Photo"
+                onClick={() => avatarInputRef.current?.click()}
+                style={{
+                  position: 'absolute',
+                  bottom: 2,
+                  right: 2,
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--color-background-container, #242526)',
+                  border: '2px solid var(--color-background-body, #111111)',
+                  color: 'var(--color-text-primary, #ffffff)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                }}
+              >
+                <Icon icon={CameraIcon} size="xsm" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

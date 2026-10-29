@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { ClickableCard } from '@astryxdesign/core/ClickableCard';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Badge } from '@astryxdesign/core/Badge';
@@ -8,50 +8,41 @@ import { Heading, Text } from '@astryxdesign/core/Text';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Divider } from '@astryxdesign/core/Divider';
 import type { UserProfile } from '../../types/social';
+import { getProfileActivity } from '../../utils/profileActivityStore';
 
 export interface UserProfileCardProps {
   user: UserProfile;
   onOpenProfile: () => void;
+  onOpenProfileViews?: () => void;
   connectionsCount?: number;
   profileViewsCount?: number;
 }
 
-const DEFAULT_BANNER =
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80';
-
-const BASELINE_STATS: Record<string, { connections: number; views: number }> = {
-  usr_me_01: { connections: 149, views: 73 },
-  user_hunain: { connections: 149, views: 73 },
-  hunain_creator: { connections: 149, views: 73 },
-  hunain: { connections: 149, views: 73 },
-  user_alice: { connections: 94, views: 42 },
-  alice: { connections: 94, views: 42 },
-  user_bob: { connections: 230, views: 118 },
-  bob: { connections: 230, views: 118 },
-  user_charlie: { connections: 68, views: 29 },
-  charlie: { connections: 68, views: 29 },
-};
-
 export const UserProfileCard: FC<UserProfileCardProps> = ({
   user,
   onOpenProfile,
+  onOpenProfileViews,
   connectionsCount,
   profileViewsCount,
 }) => {
-  const bannerSrc = user.coverBannerUrl || DEFAULT_BANNER;
-  const userKey = (user.id || '').toLowerCase();
-  const usernameKey = (user.username || '').toLowerCase();
-  const baseline = BASELINE_STATS[userKey] || BASELINE_STATS[usernameKey];
+  const [activity, setActivity] = useState(() =>
+    getProfileActivity(user.id, user.username, user.followingCount)
+  );
+
+  useEffect(() => {
+    const sync = () => {
+      setActivity(getProfileActivity(user.id, user.username, user.followingCount));
+    };
+    sync();
+    window.addEventListener('profile-activity-updated', sync);
+    return () => window.removeEventListener('profile-activity-updated', sync);
+  }, [user.id, user.username, user.followingCount]);
 
   const finalConnections =
-    connectionsCount !== undefined
-      ? connectionsCount
-      : (baseline?.connections ?? user.followingCount ?? 0);
+    connectionsCount !== undefined ? connectionsCount : activity.connections;
 
   const finalViews =
-    profileViewsCount !== undefined
-      ? profileViewsCount
-      : (baseline?.views ?? 0);
+    profileViewsCount !== undefined ? profileViewsCount : activity.views;
 
   return (
     <div
@@ -67,26 +58,36 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
         style={{ overflow: 'hidden' }}
       >
         <VStack gap={0} align="stretch">
-          {/* 1. Cover Banner Image */}
+          {/* 1. Cover Banner Image (no default Unsplash image - user sets it up) */}
           <div
             style={{
               width: '100%',
               height: 64,
               overflow: 'hidden',
-              backgroundColor: 'var(--color-surface-muted, #E2E8F0)',
+              backgroundColor: 'var(--color-surface-muted, #1E293B)',
             }}
           >
-            <img
-              src={bannerSrc}
-              alt=""
-              aria-hidden="true"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-              }}
-            />
+            {user.coverBannerUrl ? (
+              <img
+                src={user.coverBannerUrl}
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+                }}
+              />
+            )}
           </div>
 
           {/* 2. Overlapping Centered Avatar */}
@@ -107,7 +108,7 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
               }}
             >
-              <Avatar name={user.name} src={user.avatarUrl} size={72} />
+              <Avatar name={user.name} src={user.avatarUrl || undefined} size={72} />
             </div>
           </div>
 
@@ -136,7 +137,7 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
           {/* 4. Astryx Subtle Divider */}
           <Divider variant="subtle" />
 
-          {/* 5. Metrics Section */}
+          {/* 5. Metrics Section (Dynamic connections & interactive profile views) */}
           <VStack gap={2} align="stretch" style={{ padding: '12px 16px' }}>
             <HStack hAlign="between" vAlign="center">
               <Text type="supporting" color="secondary">
@@ -147,14 +148,32 @@ export const UserProfileCard: FC<UserProfileCardProps> = ({
               </Text>
             </HStack>
 
-            <HStack hAlign="between" vAlign="center">
-              <Text type="supporting" color="secondary">
-                Who's viewed your profile
-              </Text>
-              <Text type="supporting" color="accent" weight="bold">
-                {finalViews.toLocaleString()}
-              </Text>
-            </HStack>
+            <div
+              data-testid="profile-views-trigger"
+              onClick={(e) => {
+                if (onOpenProfileViews) {
+                  e.stopPropagation();
+                  onOpenProfileViews();
+                }
+              }}
+              style={{
+                cursor: onOpenProfileViews ? 'pointer' : 'default',
+                borderRadius: 6,
+                padding: '2px 4px',
+                margin: '-2px -4px',
+                transition: 'background-color 0.15s ease',
+              }}
+              title={onOpenProfileViews ? "Click to see who viewed your profile" : undefined}
+            >
+              <HStack hAlign="between" vAlign="center">
+                <Text type="supporting" color="secondary">
+                  Who's viewed your profile
+                </Text>
+                <Text type="supporting" color="accent" weight="bold">
+                  {finalViews.toLocaleString()}
+                </Text>
+              </HStack>
+            </div>
           </VStack>
         </VStack>
       </ClickableCard>

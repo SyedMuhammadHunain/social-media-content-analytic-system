@@ -7,6 +7,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, UserProfile, SuggestedCreator } from '../../types/social.ts';
 import { socialApi } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
+import { recordConnectionChange } from '../../utils/profileActivityStore.ts';
 
 interface UseFollowActionParams {
   user?: UserProfile;
@@ -54,6 +55,11 @@ export function useFollowAction({
       ...prev,
       followingCount: nextIsFollowed ? prev.followingCount + 1 : Math.max(0, prev.followingCount - 1),
     }));
+
+    if (user?.id) {
+      recordConnectionChange(user.id, nextIsFollowed ? 1 : -1, user.username);
+    }
+    recordConnectionChange(userId, nextIsFollowed ? 1 : -1);
 
     recordFollowToggle(nextIsFollowed);
 

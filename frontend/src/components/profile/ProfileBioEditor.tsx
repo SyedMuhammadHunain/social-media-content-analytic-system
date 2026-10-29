@@ -17,11 +17,13 @@ import { Heading } from '@astryxdesign/core/Text';
 export interface ProfileBioEditorProps {
   bio: string;
   onSaveBio: (newBio: string) => void;
+  isOwnProfile?: boolean;
 }
 
 export const ProfileBioEditor: FC<ProfileBioEditorProps> = ({
   bio,
   onSaveBio,
+  isOwnProfile = true,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(bio);
@@ -54,7 +56,7 @@ export const ProfileBioEditor: FC<ProfileBioEditorProps> = ({
 
         <HStack hAlign="between" vAlign="center">
           <Heading level={3}>About</Heading>
-          {!isEditing && (
+          {isOwnProfile && !isEditing && (
             <Button
               label="Edit Bio"
               variant="ghost"

@@ -11,6 +11,7 @@ import type {
   UserProfile,
   FeedFilter,
   SuggestedCreator,
+  User,
 } from '../../types/social.ts';
 import {
   CURRENT_USER,
@@ -28,6 +29,12 @@ import { FeedPostList } from './FeedPostList.tsx';
 import { FeedFilterPill } from './FeedFilterPill.tsx';
 import { NewsFeedLeftSidebar } from './NewsFeedLeftSidebar.tsx';
 import { NewsFeedRightSidebar } from './NewsFeedRightSidebar.tsx';
+import { ProfileViewersModal } from '../../components/profile/ProfileViewersModal.tsx';
+import {
+  getProfileActivity,
+  recordProfileView,
+  type ProfileViewer,
+} from '../../utils/profileActivityStore.ts';
 
 const NEWSFEED_CSS = `
 .newsfeed-layout {
@@ -117,13 +124,27 @@ export function NewsFeedPage({
   const { updateUser, demoUsers } = useAuth();
   const [user, setUser] = useState<UserProfile>(currentUser);
   const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
+  const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
+  const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
+  const [profileActivity, setProfileActivity] = useState(() =>
+    getProfileActivity(user.id, user.username, user.followingCount)
+  );
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [suggestedCreators, setSuggestedCreators] = useState<SuggestedCreator[]>(SUGGESTED_CREATORS);
   const backendUserId = normalizeBackendUserId(user.id);
 
   useEffect(() => {
     setUser(currentUser);
+    setProfileActivity(getProfileActivity(currentUser.id, currentUser.username, currentUser.followingCount));
   }, [currentUser]);
+
+  useEffect(() => {
+    const handleActivitySync = () => {
+      setProfileActivity(getProfileActivity(user.id, user.username, user.followingCount));
+    };
+    window.addEventListener('profile-activity-updated', handleActivitySync);
+    return () => window.removeEventListener('profile-activity-updated', handleActivitySync);
+  }, [user.id, user.username, user.followingCount]);
 
   useEffect(() => {
     if (demoUsers && demoUsers.length > 0) {
@@ -133,7 +154,7 @@ export function NewsFeedPage({
           id: d.id,
           username: d.username,
           name: d.name,
-          avatarUrl: d.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+          avatarUrl: d.avatarUrl || '',
           headline: d.headline || 'Active Creator',
           isFollowed: false,
         }));
@@ -166,30 +187,112 @@ export function NewsFeedPage({
   });
 
   const handleOpenProfile = () => {
+    setViewedUser(user);
     setViewMode('profile');
     onOpenProfile?.();
   };
 
+  const handleViewUserProfile = (targetUser: UserProfile | User | SuggestedCreator | ProfileViewer) => {
+    const isOwn =
+      targetUser.id === user.id ||
+      targetUser.username.toLowerCase() === user.username.toLowerCase();
+
+    if (isOwn) {
+      handleOpenProfile();
+      return;
+    }
+
+    const resolvedProfile: UserProfile = {
+      id: targetUser.id,
+      username: targetUser.username,
+      name: targetUser.name,
+      avatarUrl: targetUser.avatarUrl || '',
+      coverBannerUrl: (targetUser as any).coverBannerUrl || '',
+      isFollowed:
+        (targetUser as any).isFollowed ??
+        suggestedCreators.find((s) => s.id === targetUser.id)?.isFollowed ??
+        false,
+      headline: (targetUser as any).headline || 'Social Media Creator',
+      tags: (targetUser as any).tags || ['Creator', 'Meta Astryx'],
+      bio: (targetUser as any).bio || `Welcome to @${targetUser.username}'s profile.`,
+      followerCount: (targetUser as any).followerCount ?? 128,
+      followingCount: (targetUser as any).followingCount ?? 45,
+    };
+
+    setViewedUser(resolvedProfile);
+    setViewMode('profile');
+
+    // Dynamically record profile visit
+    recordProfileView(
+      {
+        id: resolvedProfile.id,
+        name: resolvedProfile.name,
+        username: resolvedProfile.username,
+        avatarUrl: resolvedProfile.avatarUrl,
+        headline: resolvedProfile.headline,
+      },
+      user
+    );
+  };
+
   if (viewMode === 'profile') {
+    const activeProfile: UserProfile = viewedUser
+      ? {
+          id: viewedUser.id,
+          username: viewedUser.username,
+          name: viewedUser.name,
+          avatarUrl: viewedUser.avatarUrl || '',
+          coverBannerUrl: (viewedUser as any).coverBannerUrl || '',
+          isFollowed:
+            (viewedUser as any).isFollowed ??
+            suggestedCreators.find((s) => s.id === viewedUser.id)?.isFollowed ??
+            false,
+          headline: (viewedUser as any).headline || 'Social Media Creator',
+          tags: (viewedUser as any).tags || ['Creator', 'Meta Astryx'],
+          bio: (viewedUser as any).bio || `Welcome to @${viewedUser.username}'s profile.`,
+          followerCount: (viewedUser as any).followerCount ?? 0,
+          followingCount: (viewedUser as any).followingCount ?? 0,
+        }
+      : user;
+
+    const isOwnProfile = activeProfile.id === user.id;
+
     return (
       <UserProfileView
-        user={user}
-        posts={posts.filter((p) => p.author.id === user.id)}
-        onBack={() => setViewMode('feed')}
+        user={activeProfile}
+        posts={posts.filter((p) => p.author.id === activeProfile.id || p.author.username === activeProfile.username)}
+        isOwnProfile={isOwnProfile}
+        onBack={() => {
+          setViewMode('feed');
+          setViewedUser(null);
+        }}
         onUpdateBio={(newBio) => {
-          setUser((prev) => ({ ...prev, bio: newBio }));
-          updateUser?.({ bio: newBio });
+          if (isOwnProfile) {
+            setUser((prev) => ({ ...prev, bio: newBio }));
+            updateUser?.({ bio: newBio });
+          }
         }}
         onUpdateAvatar={(newAvatarUrl) => {
-          setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
-          updateUser?.({ avatarUrl: newAvatarUrl });
+          if (isOwnProfile) {
+            setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
+            updateUser?.({ avatarUrl: newAvatarUrl });
+          }
         }}
         onUpdateBanner={(newBannerUrl) => {
-          setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
-          updateUser?.({ coverBannerUrl: newBannerUrl });
+          if (isOwnProfile) {
+            setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
+            updateUser?.({ coverBannerUrl: newBannerUrl });
+          }
         }}
         onToggleLike={mutations.handleToggleLike}
-        onToggleFollow={mutations.handleToggleFollow}
+        onToggleFollow={(userId) => {
+          mutations.handleToggleFollow(userId);
+          if (viewedUser && viewedUser.id === userId) {
+            setViewedUser((prev: any) =>
+              prev ? { ...prev, isFollowed: !prev.isFollowed } : null
+            );
+          }
+        }}
         onAddComment={mutations.handleAddComment}
         onEditPost={mutations.handleEditPost}
         onDeletePost={mutations.handleDeletePost}
@@ -213,6 +316,7 @@ export function NewsFeedPage({
               activeFilterType={activeFilter.type}
               savedCount={savedCount}
               onOpenProfile={handleOpenProfile}
+              onOpenProfileViews={() => setIsViewersModalOpen(true)}
               onSelectShortcut={handleSelectShortcut}
               onNavigateAnalytics={onNavigateAnalytics}
             />
@@ -242,6 +346,7 @@ export function NewsFeedPage({
                   onToggleBookmark={mutations.handleToggleBookmark}
                   onEditPost={mutations.handleEditPost}
                   onDeletePost={mutations.handleDeletePost}
+                  onViewUserProfile={handleViewUserProfile}
                 />
               </VStack>
             </main>
@@ -251,8 +356,17 @@ export function NewsFeedPage({
               suggestedCreators={suggestedCreators}
               onSelectHashtag={handleSelectHashtag}
               onToggleFollow={mutations.handleToggleFollow}
+              onViewProfile={handleViewUserProfile}
             />
           </div>
+
+          <ProfileViewersModal
+            isOpen={isViewersModalOpen}
+            onClose={() => setIsViewersModalOpen(false)}
+            viewers={profileActivity.viewers}
+            totalViews={profileActivity.views}
+            onViewProfile={handleViewUserProfile}
+          />
         </LayoutContent>
       }
     />

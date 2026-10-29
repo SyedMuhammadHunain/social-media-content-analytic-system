@@ -17,11 +17,13 @@ import type { SuggestedCreator } from '../../types/social';
 export interface WhoToFollowCardProps {
   creators: SuggestedCreator[];
   onToggleFollow: (userId: string) => void;
+  onViewProfile?: (creator: SuggestedCreator) => void;
 }
 
 export function WhoToFollowCard({
   creators,
   onToggleFollow,
+  onViewProfile,
 }: WhoToFollowCardProps) {
   return (
     <Card padding={4}>
@@ -33,29 +35,37 @@ export function WhoToFollowCard({
 
         <VStack gap={1}>
           {creators.map(creator => (
-            <Item
+            <div
               key={creator.id}
-              density="compact"
-              startContent={
-                <Avatar
-                  name={creator.name}
-                  src={creator.avatarUrl}
-                  size="md"
-                />
-              }
-              label={creator.name}
-              description={`@${creator.username}`}
-              endContent={
-                <div data-testid={`follow-suggested-${creator.id}`}>
-                  <Button
-                    size="sm"
-                    variant={creator.isFollowed ? 'secondary' : 'primary'}
-                    label={creator.isFollowed ? 'Following' : 'Follow'}
-                    onClick={() => onToggleFollow(creator.id)}
+              onClick={() => onViewProfile?.(creator)}
+              style={{ cursor: onViewProfile ? 'pointer' : 'default' }}
+            >
+              <Item
+                density="compact"
+                startContent={
+                  <Avatar
+                    name={creator.name}
+                    src={creator.avatarUrl || undefined}
+                    size="md"
                   />
-                </div>
-              }
-            />
+                }
+                label={creator.name}
+                description={`@${creator.username}`}
+                endContent={
+                  <div
+                    data-testid={`follow-suggested-${creator.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      size="sm"
+                      variant={creator.isFollowed ? 'secondary' : 'primary'}
+                      label={creator.isFollowed ? 'Following' : 'Follow'}
+                      onClick={() => onToggleFollow(creator.id)}
+                    />
+                  </div>
+                }
+              />
+            </div>
           ))}
         </VStack>
       </VStack>

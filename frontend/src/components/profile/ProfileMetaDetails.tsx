@@ -10,15 +10,22 @@ import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
-import { CameraIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, UserPlusIcon, CheckIcon } from '@heroicons/react/24/outline';
 import type { UserProfile } from '../../types/social';
 
 export interface ProfileMetaDetailsProps {
   user: UserProfile;
+  isOwnProfile?: boolean;
   onChangePhoto?: () => void;
+  onToggleFollow?: (userId: string) => void;
 }
 
-export function ProfileMetaDetails({ user, onChangePhoto }: ProfileMetaDetailsProps) {
+export function ProfileMetaDetails({
+  user,
+  isOwnProfile = true,
+  onChangePhoto,
+  onToggleFollow,
+}: ProfileMetaDetailsProps) {
   return (
     <Card variant="default">
       <div style={{ paddingTop: 24 }}>
@@ -31,14 +38,33 @@ export function ProfileMetaDetails({ user, onChangePhoto }: ProfileMetaDetailsPr
               </Text>
             </VStack>
 
-            {onChangePhoto && (
-              <Button
-                label="Change Photo"
-                variant="secondary"
-                size="sm"
-                icon={<Icon icon={CameraIcon} size="xsm" />}
-                onClick={onChangePhoto}
-              />
+            {isOwnProfile ? (
+              onChangePhoto && (
+                <Button
+                  label="Change Photo"
+                  variant="secondary"
+                  size="sm"
+                  icon={<Icon icon={CameraIcon} size="xsm" />}
+                  onClick={onChangePhoto}
+                />
+              )
+            ) : (
+              onToggleFollow && (
+                <Button
+                  data-testid="profile-header-follow-btn"
+                  label={user.isFollowed ? 'Following' : 'Follow'}
+                  variant={user.isFollowed ? 'secondary' : 'primary'}
+                  size="sm"
+                  icon={
+                    user.isFollowed ? (
+                      <Icon icon={CheckIcon} size="xsm" />
+                    ) : (
+                      <Icon icon={UserPlusIcon} size="xsm" />
+                    )
+                  }
+                  onClick={() => onToggleFollow(user.id)}
+                />
+              )
             )}
           </HStack>
 
