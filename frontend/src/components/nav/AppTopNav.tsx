@@ -25,6 +25,7 @@ export interface AppTopNavProps {
   onLogout?: () => void;
   demoUsers?: DemoUserSummary[];
   onSwitchUser?: (userId: string) => void;
+  onOpenNewPost?: () => void;
 }
 
 export const AppTopNav: FC<AppTopNavProps> = ({
@@ -36,6 +37,7 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   onLogout,
   demoUsers,
   onSwitchUser,
+  onOpenNewPost,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -104,6 +106,7 @@ export const AppTopNav: FC<AppTopNavProps> = ({
               isNotificationsOpen={isNotificationsOpen}
               setIsNotificationsOpen={setIsNotificationsOpen}
               unreadCount={unreadCount}
+              onOpenNewPost={onOpenNewPost}
             />
 
             <MobileNavMenu
@@ -116,6 +119,7 @@ export const AppTopNav: FC<AppTopNavProps> = ({
               onSwitchUser={onSwitchUser}
               setIsNotificationsOpen={setIsNotificationsOpen}
               unreadCount={unreadCount}
+              onOpenNewPost={onOpenNewPost}
             />
 
             <Avatar

@@ -20,6 +20,7 @@ import {
 } from '../../mock/socialSeedData.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { PostComposer } from './PostComposer.tsx';
+import { PostCreateModal } from './PostCreateModal.tsx';
 import { UserProfileView } from '../../components/profile/UserProfileView.tsx';
 import { useAnalytics } from '../../context/useAnalytics.ts';
 import { useAuth } from '../../context/useAuth.ts';
@@ -126,12 +127,21 @@ export function NewsFeedPage({
   const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
   const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
   const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
+  const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
   const [profileActivity, setProfileActivity] = useState(() =>
     getProfileActivity(user.id, user.username, user.followingCount)
   );
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [suggestedCreators, setSuggestedCreators] = useState<SuggestedCreator[]>(SUGGESTED_CREATORS);
   const backendUserId = normalizeBackendUserId(user.id);
+
+  useEffect(() => {
+    const handleOpenCreatePost = () => {
+      setIsNewPostModalOpen(true);
+    };
+    window.addEventListener('social:open-create-post', handleOpenCreatePost);
+    return () => window.removeEventListener('social:open-create-post', handleOpenCreatePost);
+  }, []);
 
   useEffect(() => {
     setUser(currentUser);
@@ -235,6 +245,16 @@ export function NewsFeedPage({
     );
   };
 
+  const handleModalCreatePost = async (postInput: any) => {
+    await mutations.handleCreatePost(postInput);
+    setIsNewPostModalOpen(false);
+    if (viewMode === 'profile') {
+      setViewMode('feed');
+      setViewedUser(null);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (viewMode === 'profile') {
     const activeProfile: UserProfile = viewedUser
       ? {
@@ -258,45 +278,54 @@ export function NewsFeedPage({
     const isOwnProfile = activeProfile.id === user.id;
 
     return (
-      <UserProfileView
-        user={activeProfile}
-        posts={posts.filter((p) => p.author.id === activeProfile.id || p.author.username === activeProfile.username)}
-        isOwnProfile={isOwnProfile}
-        onBack={() => {
-          setViewMode('feed');
-          setViewedUser(null);
-        }}
-        onUpdateBio={(newBio) => {
-          if (isOwnProfile) {
-            setUser((prev) => ({ ...prev, bio: newBio }));
-            updateUser?.({ bio: newBio });
-          }
-        }}
-        onUpdateAvatar={(newAvatarUrl) => {
-          if (isOwnProfile) {
-            setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
-            updateUser?.({ avatarUrl: newAvatarUrl });
-          }
-        }}
-        onUpdateBanner={(newBannerUrl) => {
-          if (isOwnProfile) {
-            setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
-            updateUser?.({ coverBannerUrl: newBannerUrl });
-          }
-        }}
-        onToggleLike={mutations.handleToggleLike}
-        onToggleFollow={(userId) => {
-          mutations.handleToggleFollow(userId);
-          if (viewedUser && viewedUser.id === userId) {
-            setViewedUser((prev: any) =>
-              prev ? { ...prev, isFollowed: !prev.isFollowed } : null
-            );
-          }
-        }}
-        onAddComment={mutations.handleAddComment}
-        onEditPost={mutations.handleEditPost}
-        onDeletePost={mutations.handleDeletePost}
-      />
+      <>
+        <UserProfileView
+          user={activeProfile}
+          posts={posts.filter((p) => p.author.id === activeProfile.id || p.author.username === activeProfile.username)}
+          isOwnProfile={isOwnProfile}
+          onBack={() => {
+            setViewMode('feed');
+            setViewedUser(null);
+          }}
+          onUpdateBio={(newBio) => {
+            if (isOwnProfile) {
+              setUser((prev) => ({ ...prev, bio: newBio }));
+              updateUser?.({ bio: newBio });
+            }
+          }}
+          onUpdateAvatar={(newAvatarUrl) => {
+            if (isOwnProfile) {
+              setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
+              updateUser?.({ avatarUrl: newAvatarUrl });
+            }
+          }}
+          onUpdateBanner={(newBannerUrl) => {
+            if (isOwnProfile) {
+              setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
+              updateUser?.({ coverBannerUrl: newBannerUrl });
+            }
+          }}
+          onToggleLike={mutations.handleToggleLike}
+          onToggleFollow={(userId) => {
+            mutations.handleToggleFollow(userId);
+            if (viewedUser && viewedUser.id === userId) {
+              setViewedUser((prev: any) =>
+                prev ? { ...prev, isFollowed: !prev.isFollowed } : null
+              );
+            }
+          }}
+          onAddComment={mutations.handleAddComment}
+          onEditPost={mutations.handleEditPost}
+          onDeletePost={mutations.handleDeletePost}
+        />
+
+        <PostCreateModal
+          isOpen={isNewPostModalOpen}
+          onClose={() => setIsNewPostModalOpen(false)}
+          currentUser={user}
+          onCreatePost={handleModalCreatePost}
+        />
+      </>
     );
   }
 
@@ -366,6 +395,13 @@ export function NewsFeedPage({
             viewers={profileActivity.viewers}
             totalViews={profileActivity.views}
             onViewProfile={handleViewUserProfile}
+          />
+
+          <PostCreateModal
+            isOpen={isNewPostModalOpen}
+            onClose={() => setIsNewPostModalOpen(false)}
+            currentUser={user}
+            onCreatePost={handleModalCreatePost}
           />
         </LayoutContent>
       }

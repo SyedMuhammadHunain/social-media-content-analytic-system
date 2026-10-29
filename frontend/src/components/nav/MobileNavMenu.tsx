@@ -13,6 +13,7 @@ import {
   SunIcon,
   MoonIcon,
   ArrowRightOnRectangleIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import type { UserProfile } from '../../types/social.ts';
 import type { DemoUserSummary } from '../../context/auth-context-def.ts';
@@ -27,6 +28,7 @@ interface MobileNavMenuProps {
   onSwitchUser?: (userId: string) => void;
   setIsNotificationsOpen: (val: boolean) => void;
   unreadCount: number;
+  onOpenNewPost?: () => void;
 }
 
 export function MobileNavMenu({
@@ -39,8 +41,19 @@ export function MobileNavMenu({
   onSwitchUser,
   setIsNotificationsOpen,
   unreadCount,
+  onOpenNewPost,
 }: MobileNavMenuProps) {
   const mobileMenuItems = [
+    ...(onOpenNewPost
+      ? [
+          {
+            id: 'nav-new-post',
+            label: 'Create New Post',
+            icon: <Icon icon={PlusIcon} size="sm" />,
+            onClick: onOpenNewPost,
+          },
+        ]
+      : []),
     {
       id: 'nav-feed',
       label: 'News Feed',

@@ -28,6 +28,15 @@ function AppContent({
   const { isAuthenticated, currentUser, logout, demoUsers, switchUser } = useAuth();
   const [activeTab, setActiveTab] = useState<AppTab>('feed');
 
+  const handleOpenNewPost = () => {
+    if (activeTab !== 'feed') {
+      setActiveTab('feed');
+    }
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('social:open-create-post'));
+    }, 20);
+  };
+
   if (!isAuthenticated) {
     return <LoginSplitPage />;
   }
@@ -60,6 +69,7 @@ function AppContent({
         onLogout={logout}
         demoUsers={demoUsers}
         onSwitchUser={switchUser}
+        onOpenNewPost={handleOpenNewPost}
       />
 </header>
 

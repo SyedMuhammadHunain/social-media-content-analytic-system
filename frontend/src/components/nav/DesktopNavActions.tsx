@@ -14,6 +14,7 @@ import {
   SunIcon,
   MoonIcon,
   ArrowRightOnRectangleIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import type { UserProfile } from '../../types/social.ts';
 import type { DemoUserSummary } from '../../context/auth-context-def.ts';
@@ -117,6 +118,7 @@ interface DesktopNavActionsProps {
   isNotificationsOpen: boolean;
   setIsNotificationsOpen: (val: boolean | ((prev: boolean) => boolean)) => void;
   unreadCount: number;
+  onOpenNewPost?: () => void;
 }
 
 export function DesktopNavActions({
@@ -129,10 +131,22 @@ export function DesktopNavActions({
   isNotificationsOpen,
   setIsNotificationsOpen,
   unreadCount,
+  onOpenNewPost,
 }: DesktopNavActionsProps) {
   return (
     <div className="desktop-nav-actions">
       <HStack gap={2} vAlign="center">
+        {onOpenNewPost && (
+          <Button
+            data-testid="nav-new-post-btn"
+            variant="primary"
+            label="New Post"
+            size="sm"
+            icon={<Icon icon={PlusIcon} size="sm" />}
+            onClick={onOpenNewPost}
+          />
+        )}
+
         <UserSwitcherDropdown
           currentUser={currentUser}
           demoUsers={demoUsers}
