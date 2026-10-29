@@ -9,6 +9,7 @@ import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Button } from '@astryxdesign/core/Button';
 import type { Post, UserProfile, UpdatePostInput, User } from '../../types/social.ts';
 import { PostCard } from './PostCard.tsx';
+import { FeedSkeleton } from './FeedSkeleton.tsx';
 
 export interface FeedPostListProps {
   posts: Post[];
@@ -23,6 +24,7 @@ export interface FeedPostListProps {
   onEditPost: (postId: string, input: UpdatePostInput) => void;
   onDeletePost: (postId: string) => void;
   onViewUserProfile?: (user: User) => void;
+  isLoading?: boolean;
 }
 
 function getEmptyStateDescription(isBookmarksFilter: boolean): string {
@@ -75,7 +77,12 @@ export function FeedPostList({
   onEditPost,
   onDeletePost,
   onViewUserProfile,
+  isLoading = false,
 }: FeedPostListProps) {
+  if (isLoading) {
+    return <FeedSkeleton count={3} />;
+  }
+
   if (posts.length === 0) {
     return (
       <FeedEmptyState
@@ -88,19 +95,24 @@ export function FeedPostList({
 
   return (
     <VStack gap={4}>
-      {posts.map((post) => (
-        <PostCard
+      {posts.map((post, index) => (
+        <div
           key={post.id}
-          post={post}
-          currentUser={currentUser}
-          onToggleLike={onToggleLike}
-          onToggleFollow={onToggleFollow}
-          onAddComment={onAddComment}
-          onToggleBookmark={onToggleBookmark}
-          onEditPost={onEditPost}
-          onDeletePost={onDeletePost}
-          onViewProfile={onViewUserProfile}
-        />
+          className="post-card-animated"
+          style={{ animationDelay: `${Math.min(index * 60, 360)}ms` }}
+        >
+          <PostCard
+            post={post}
+            currentUser={currentUser}
+            onToggleLike={onToggleLike}
+            onToggleFollow={onToggleFollow}
+            onAddComment={onAddComment}
+            onToggleBookmark={onToggleBookmark}
+            onEditPost={onEditPost}
+            onDeletePost={onDeletePost}
+            onViewProfile={onViewUserProfile}
+          />
+        </div>
       ))}
     </VStack>
   );

@@ -28,6 +28,7 @@ import { useFeedMutations } from './useFeedMutations.ts';
 import { useFeedLoader, useFeedFilter } from './useFeedState.ts';
 import { FeedPostList } from './FeedPostList.tsx';
 import { FeedFilterPill } from './FeedFilterPill.tsx';
+import { FeedRefreshBanner } from './FeedRefreshBanner.tsx';
 import { NewsFeedLeftSidebar } from './NewsFeedLeftSidebar.tsx';
 import { NewsFeedRightSidebar } from './NewsFeedRightSidebar.tsx';
 import { ProfileViewersModal } from '../../components/profile/ProfileViewersModal.tsx';
@@ -87,6 +88,43 @@ const NEWSFEED_CSS = `
     width: 100%;
     margin-bottom: 24px;
   }
+}
+
+@keyframes feedSkeletonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes feedBannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes postCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.post-card-animated {
+  animation: postCardFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 `;
 
@@ -178,10 +216,24 @@ export function NewsFeedPage({
     }
   }, [demoUsers, user.id, user.username]);
 
-  useFeedLoader(backendUserId, setPosts);
+  const { isLoading, isRefreshing, refreshFeed } = useFeedLoader(backendUserId, setPosts);
 
   const { activeFilter, handleSelectShortcut, handleSelectHashtag, handleClearFilter } =
     useFeedFilter();
+
+  useEffect(() => {
+    const handleRefreshEvent = () => {
+      if (viewMode === 'profile') {
+        setViewMode('feed');
+        setViewedUser(null);
+      }
+      handleClearFilter();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      refreshFeed();
+    };
+    window.addEventListener('social:refresh-feed', handleRefreshEvent);
+    return () => window.removeEventListener('social:refresh-feed', handleRefreshEvent);
+  }, [viewMode, handleClearFilter, refreshFeed]);
 
   const mutations = useFeedMutations({
     user,
@@ -334,7 +386,7 @@ export function NewsFeedPage({
 
   return (
     <Layout
-      height="fill"
+      height="auto"
       content={
         <LayoutContent padding={6}>
           <style>{NEWSFEED_CSS}</style>
@@ -352,6 +404,8 @@ export function NewsFeedPage({
 
             <main style={{ width: '100%', maxWidth: 680, minWidth: 0 }}>
               <VStack gap={4}>
+                {isRefreshing && <FeedRefreshBanner />}
+
                 <PostComposer
                   currentUser={user}
                   onCreatePost={mutations.handleCreatePost}
@@ -376,6 +430,7 @@ export function NewsFeedPage({
                   onEditPost={mutations.handleEditPost}
                   onDeletePost={mutations.handleDeletePost}
                   onViewUserProfile={handleViewUserProfile}
+                  isLoading={isLoading}
                 />
               </VStack>
             </main>

@@ -24,25 +24,52 @@ function mergeFeedPosts(livePosts: Post[], prevPosts: Post[]): Post[] {
   return [...livePosts, ...retainedMock];
 }
 
-export function useFeedLoader(backendUserId: string, setPosts: Dispatch<SetStateAction<Post[]>>) {
-  useEffect(() => {
-    let isMounted = true;
+export interface UseFeedLoaderResult {
+  isLoading: boolean;
+  isRefreshing: boolean;
+  refreshFeed: () => Promise<void>;
+}
 
-    feedApi
-      .getFeedPostsUi(backendUserId, 0, 20)
-      .then((feedPosts) => {
-        if (!isMounted) return;
-        if (!hasFeedItems(feedPosts)) return;
+export function useFeedLoader(
+  backendUserId: string,
+  setPosts: Dispatch<SetStateAction<Post[]>>
+): UseFeedLoaderResult {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadFeed = async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+
+    try {
+      const [feedPosts] = await Promise.all([
+        feedApi.getFeedPostsUi(backendUserId, 0, 20),
+        new Promise((resolve) => setTimeout(resolve, 450)),
+      ]);
+
+      if (hasFeedItems(feedPosts)) {
         setPosts((prev) => mergeFeedPosts(feedPosts, prev));
-      })
-      .catch(() => {
-        // Gateway offline: retain INITIAL_POSTS fallback
-      });
+      }
+    } catch {
+      // Gateway offline: retain INITIAL_POSTS fallback
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
-    return () => {
-      isMounted = false;
-    };
-  }, [backendUserId, setPosts]);
+  useEffect(() => {
+    loadFeed(false);
+  }, [backendUserId]);
+
+  const refreshFeed = async () => {
+    await loadFeed(true);
+  };
+
+  return { isLoading, isRefreshing, refreshFeed };
 }
 
 export function useFeedFilter() {

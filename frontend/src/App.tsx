@@ -37,6 +37,15 @@ function AppContent({
     }, 20);
   };
 
+  const handleRefreshFeed = () => {
+    if (activeTab !== 'feed') {
+      setActiveTab('feed');
+    }
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('social:refresh-feed'));
+    }, 20);
+  };
+
   if (!isAuthenticated) {
     return <LoginSplitPage />;
   }
@@ -70,6 +79,7 @@ function AppContent({
         demoUsers={demoUsers}
         onSwitchUser={switchUser}
         onOpenNewPost={handleOpenNewPost}
+        onRefreshFeed={handleRefreshFeed}
       />
 </header>
 

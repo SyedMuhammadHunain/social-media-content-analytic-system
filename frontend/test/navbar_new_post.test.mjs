@@ -118,9 +118,16 @@ test('Sticky Navbar "New Post" Button & Creation Modal', async (t) => {
   await sleep(1000);
 
   await t.test('1. Sticky navbar renders "New Post" button even while user is scrolled down', async () => {
+    // Wait for feed to mount
+    for (let i = 0; i < 20; i++) {
+      const scrollHeight = await evaluate('document.documentElement.scrollHeight') || 0;
+      if (scrollHeight > 1000) break;
+      await sleep(150);
+    }
+
     // Scroll deep down
-    await evaluate('window.scrollTo(0, 1200)');
-    await sleep(200);
+    await evaluate('window.scrollTo(0, 800)');
+    await sleep(250);
 
     const scrollY = await evaluate('window.scrollY');
     assert.ok(scrollY > 0, `Scrolled down (scrollY: ${scrollY})`);
@@ -194,7 +201,13 @@ test('Sticky Navbar "New Post" Button & Creation Modal', async (t) => {
         if (btn) btn.click();
       })()
     `);
-    await sleep(400);
+
+    // Wait for modal and textarea to mount
+    for (let i = 0; i < 20; i++) {
+      const ready = await evaluate('!!document.querySelector("[data-testid=\'post-create-modal\'] textarea")');
+      if (ready) break;
+      await sleep(100);
+    }
 
     const uniquePostTag = `NavbarTest_${Date.now()}`;
     const testContent = `Automated post created from navbar! #${uniquePostTag}`;

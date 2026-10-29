@@ -197,6 +197,13 @@ test('Dynamic Profile Activity, Viewers & Multi-User Viewing Flow', async (t) =>
   });
 
   await t.test('4. Clicking a post author navigates to that user full profile with visitor view', async () => {
+    // Wait for feed posts to mount
+    for (let i = 0; i < 20; i++) {
+      const ready = await evaluate('!!document.querySelector(\'[data-testid^="post-author-"]\')');
+      if (ready) break;
+      await sleep(150);
+    }
+
     const authorClicked = await evaluate(`
       (() => {
         const authorEl = document.querySelector('[data-testid^="post-author-"]');

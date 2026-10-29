@@ -26,6 +26,7 @@ export interface AppTopNavProps {
   demoUsers?: DemoUserSummary[];
   onSwitchUser?: (userId: string) => void;
   onOpenNewPost?: () => void;
+  onRefreshFeed?: () => void;
 }
 
 export const AppTopNav: FC<AppTopNavProps> = ({
@@ -38,11 +39,24 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   demoUsers,
   onSwitchUser,
   onOpenNewPost,
+  onRefreshFeed,
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isBrandBouncing, setIsBrandBouncing] = useState(false);
   const { notifications, unreadCount, handleMarkAsRead, handleMarkAllAsRead, simulateDynamicAlert } =
     useNotificationPolling(currentUser, demoUsers);
+
+  const handleBrandClick = () => {
+    setIsBrandBouncing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (onRefreshFeed) {
+      onRefreshFeed();
+    } else {
+      window.dispatchEvent(new CustomEvent('social:refresh-feed'));
+    }
+    setTimeout(() => setIsBrandBouncing(false), 550);
+  };
 
   return (
     <>
@@ -69,27 +83,69 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             align-items: center;
           }
         }
+
+        @keyframes brandBounceAnim {
+          0% { transform: scale(1); }
+          25% { transform: scale(0.92); }
+          50% { transform: scale(1.08); }
+          75% { transform: scale(0.98); }
+          100% { transform: scale(1); }
+        }
+
+        .brand-bouncing {
+          animation: brandBounceAnim 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .navbar-brand-clickable {
+          cursor: pointer;
+          user-select: none;
+          transition: opacity 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+        }
+        .navbar-brand-clickable:hover {
+          opacity: 0.9;
+        }
+        .navbar-brand-clickable:active {
+          opacity: 0.75;
+        }
       `}</style>
 
       <TopNav
         label="Social Media Content Analysis Navigation"
         heading={
-          <TopNavHeading
-            logo={
-              <img
-                src="/logo.png"
-                alt="Logo"
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 6,
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            }
-            heading={isMobile ? 'SMCAS' : 'Social Media Content Analysis'}
-          />
+          <div
+            data-testid="navbar-brand-button"
+            className={`navbar-brand-clickable ${isBrandBouncing ? 'brand-bouncing' : ''}`}
+            onClick={handleBrandClick}
+            role="button"
+            tabIndex={0}
+            title="Back to top & refresh feed"
+            aria-label="Back to top and refresh feed"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBrandClick();
+              }
+            }}
+          >
+            <TopNavHeading
+              logo={
+                <img
+                  src="/logo.png"
+                  alt="Logo"
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              }
+              heading={isMobile ? 'SMCAS' : 'Social Media Content Analysis'}
+            />
+          </div>
         }
         startContent={
           <DesktopNavTabs activeTab={activeTab} onSelectTab={onSelectTab} />
