@@ -21,6 +21,12 @@ export interface AuthContextType {
   demoUsers: DemoUserSummary[];
   login: (emailOrUsername: string, password: string) => Promise<boolean>;
   register: (username: string, email: string, password: string) => Promise<boolean>;
+  loginWithGoogle: (googleAccount?: {
+    name: string;
+    email: string;
+    avatarUrl?: string;
+    googleId?: string;
+  }) => Promise<boolean>;
   logout: () => void;
   switchUser: (userId: string) => Promise<boolean>;
   updateUser: (partial: Partial<UserProfile>) => Promise<void>;

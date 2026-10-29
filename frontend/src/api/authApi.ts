@@ -14,6 +14,7 @@ export interface RegisterRequest {
   password: string;
   fullName?: string;
   authProvider?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthResponse {

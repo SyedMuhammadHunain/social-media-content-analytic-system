@@ -4,10 +4,12 @@
 'use client';
 
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
-import type { Post } from '../../types/social.ts';
+import type { Post, UserProfile } from '../../types/social.ts';
 import { socialApi } from '../../api/socialApi.ts';
+import { notificationsApi } from '../../api/notificationsApi.ts';
 
 interface UseLikeActionParams {
+  user?: UserProfile;
   backendUserId: string;
   posts: Post[];
   setPosts: Dispatch<SetStateAction<Post[]>>;
@@ -26,6 +28,7 @@ async function dispatchLikeApi(isLiked: boolean, userId: string, postId: string)
 }
 
 export function useLikeAction({
+  user,
   backendUserId,
   posts,
   setPosts,
@@ -45,6 +48,35 @@ export function useLikeAction({
     );
     recordLikeToggle(nextIsLiked);
 
+    if (nextIsLiked && post.author.id !== backendUserId && post.author.id !== user?.id) {
+      const actorName = user?.name || 'A creator';
+      const rawText = post.text || post.description || '';
+      const snippet = rawText ? (rawText.length > 40 ? `${rawText.slice(0, 40)}...` : rawText) : 'your post';
+      notificationsApi
+        .triggerNotification({
+          recipientUserId: post.author.id,
+          actorUserId: backendUserId,
+          actorName,
+          actorAvatar: user?.avatarUrl,
+          type: 'LIKE',
+          targetPostId: postId,
+          message: `${actorName} liked your post: '${snippet}'`,
+        })
+        .catch(() => {});
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('social:new-notification', {
+            detail: {
+              recipientUserId: post.author.id,
+              actorName,
+              type: 'LIKE',
+            },
+          })
+        );
+      }
+    }
+
     try {
       const res = await dispatchLikeApi(nextIsLiked, backendUserId, postId);
       if (typeof res?.totalLikes === 'number') {
@@ -55,7 +87,7 @@ export function useLikeAction({
     } catch {
       // Offline fallback
     }
-  }, [posts, backendUserId, setPosts, recordLikeToggle]);
+  }, [posts, backendUserId, user, setPosts, recordLikeToggle]);
 
   const handleToggleBookmark = useCallback((postId: string) => {
     setPosts((prev) =>

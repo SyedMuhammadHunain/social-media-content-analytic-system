@@ -15,4 +15,8 @@ scripts/.backend.pids
 *.env
 .env.local
 backend/.env
+frontend/.env
+client_secret*.json
+*.apps.googleusercontent.com.json
+
 

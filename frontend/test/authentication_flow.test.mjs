@@ -237,4 +237,83 @@ test('User Authentication Flow (Login Split Card)', async (t) => {
     const splitCardPresent = await evaluate('!!document.querySelector("[data-testid=\'auth-split-card\']")');
     assert.strictEqual(splitCardPresent, true, 'User returned to Login Split Card after logout');
   });
+
+  await t.test('6. "Continue with Google" button and Social Auth options are present', async () => {
+    const googleBtnPresent = await evaluate('!!document.querySelector("[data-testid=\'auth-continue-with-google-btn\']")');
+    assert.strictEqual(googleBtnPresent, true, 'Continue with Google button must be present');
+
+    const socialGoogleBtn = await evaluate('!!document.querySelector("[data-testid=\'auth-google-btn\']")');
+    assert.strictEqual(socialGoogleBtn, true, 'Social Google button must be present in SocialAuthButtons');
+  });
+
+  await t.test('7. Clicking "Continue with Google" opens the Google Authentication Modal', async () => {
+    await evaluate(`
+      (() => {
+        const btn = document.querySelector('[data-testid="auth-continue-with-google-btn"]');
+        if (btn) btn.click();
+      })()
+    `);
+    await sleep(400);
+
+    const modalVisible = await evaluate('!!document.querySelector("[data-testid=\'google-auth-modal\']")');
+    assert.strictEqual(modalVisible, true, 'Google OAuth modal must be open');
+
+    const optionsCount = await evaluate('document.querySelectorAll("[data-testid^=\'google-account-option-\']").length');
+    assert.ok(optionsCount >= 2, 'Preset Google accounts must be rendered in modal');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/auth_google_modal.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
+  });
+
+  await t.test('8. Selecting a Google Account completes OAuth and authenticates into the Feed', async () => {
+    const selected = await evaluate(`
+      (() => {
+        const firstOption = document.querySelector('[data-testid="google-account-option-0"]');
+        if (firstOption) {
+          firstOption.click();
+          return true;
+        }
+        return false;
+      })()
+    `);
+    assert.ok(selected, 'First Google account option selected');
+
+    let feedMounted = false;
+    for (let i = 0; i < 40; i++) {
+      feedMounted = await evaluate('!!document.querySelector("[data-testid=\'user-profile-card\'], nav")');
+      if (feedMounted) break;
+      await sleep(250);
+    }
+    assert.strictEqual(feedMounted, true, 'Application must mount authenticated Feed after Google login');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/auth_google_authenticated_feed.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
+  });
+
+  await t.test('9. Can log out from Google session back to Login Split Card', async () => {
+    const logoutClicked = await evaluate(`
+      (() => {
+        const logoutBtn = document.querySelector('[data-testid="nav-logout-btn"]');
+        if (logoutBtn) {
+          logoutBtn.click();
+          return true;
+        }
+        return false;
+      })()
+    `);
+    assert.ok(logoutClicked, 'TopNav logout button found and clicked');
+    await sleep(600);
+
+    const splitCardPresent = await evaluate('!!document.querySelector("[data-testid=\'auth-split-card\']")');
+    assert.strictEqual(splitCardPresent, true, 'User returned to Login Split Card after Google logout');
+  });
 });
+

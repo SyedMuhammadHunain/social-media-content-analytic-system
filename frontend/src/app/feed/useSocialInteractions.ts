@@ -35,6 +35,7 @@ export function useSocialInteractions({
   recordComment,
 }: UseSocialInteractionsParams) {
   const { handleToggleLike, handleToggleBookmark } = useLikeAction({
+    user,
     backendUserId,
     posts,
     setPosts,
@@ -42,6 +43,7 @@ export function useSocialInteractions({
   });
 
   const { handleToggleFollow } = useFollowAction({
+    user,
     backendUserId,
     posts,
     setPosts,
@@ -54,6 +56,7 @@ export function useSocialInteractions({
   const { handleAddComment } = useCommentAction({
     user,
     backendUserId,
+    posts,
     setPosts,
     recordComment,
   });

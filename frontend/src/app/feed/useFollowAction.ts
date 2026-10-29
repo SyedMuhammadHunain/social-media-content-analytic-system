@@ -6,8 +6,10 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, UserProfile, SuggestedCreator } from '../../types/social.ts';
 import { socialApi } from '../../api/socialApi.ts';
+import { notificationsApi } from '../../api/notificationsApi.ts';
 
 interface UseFollowActionParams {
+  user?: UserProfile;
   backendUserId: string;
   posts: Post[];
   setPosts: Dispatch<SetStateAction<Post[]>>;
@@ -24,6 +26,7 @@ function resolveNextFollowState(creator?: SuggestedCreator, post?: Post): boolea
 }
 
 export function useFollowAction({
+  user,
   backendUserId,
   posts,
   setPosts,
@@ -54,6 +57,32 @@ export function useFollowAction({
 
     recordFollowToggle(nextIsFollowed);
 
+    if (nextIsFollowed && userId !== backendUserId && userId !== user?.id) {
+      const actorName = user?.name || 'A creator';
+      notificationsApi
+        .triggerNotification({
+          recipientUserId: userId,
+          actorUserId: backendUserId,
+          actorName,
+          actorAvatar: user?.avatarUrl,
+          type: 'FOLLOW',
+          message: `${actorName} started following you.`,
+        })
+        .catch(() => {});
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('social:new-notification', {
+            detail: {
+              recipientUserId: userId,
+              actorName,
+              type: 'FOLLOW',
+            },
+          })
+        );
+      }
+    }
+
     try {
       if (nextIsFollowed) {
         await socialApi.followUser(backendUserId, userId);
@@ -63,7 +92,7 @@ export function useFollowAction({
     } catch {
       // Offline fallback
     }
-  }, [suggestedCreators, posts, backendUserId, setSuggestedCreators, setPosts, setUser, recordFollowToggle]);
+  }, [suggestedCreators, posts, backendUserId, user, setSuggestedCreators, setPosts, setUser, recordFollowToggle]);
 
   return {
     handleToggleFollow,

@@ -3,7 +3,7 @@
 
 'use client';
 
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 import { Drawer, DrawerHeader } from '@astryxdesign/core/Drawer';
 import { Layout, LayoutContent, VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
@@ -29,6 +29,7 @@ export interface NotificationDrawerProps {
   unreadCount: number;
   onMarkAsRead: (id: string) => void;
   onMarkAllAsRead: () => void;
+  onSimulateNotification?: () => void;
 }
 
 const TYPE_CONFIG: Record<
@@ -40,10 +41,23 @@ const TYPE_CONFIG: Record<
   FOLLOW: { label: 'Follow', variant: 'teal', icon: UserPlusIcon },
 };
 
-function formatTimestamp(isoString: string): string {
+function formatRelativeTime(isoString: string): string {
   try {
     const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (isNaN(diffMs)) return 'Recent';
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 60) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   } catch {
     return 'Recent';
   }
@@ -56,7 +70,19 @@ export const NotificationDrawer: FC<NotificationDrawerProps> = ({
   unreadCount,
   onMarkAsRead,
   onMarkAllAsRead,
+  onSimulateNotification,
 }) => {
+  const [filter, setFilter] = useState<'ALL' | NotificationType>('ALL');
+
+  const filteredNotifications = notifications.filter((n) => {
+    if (filter === 'ALL') return true;
+    return n.type === filter;
+  });
+
+  const likesCount = notifications.filter((n) => n.type === 'LIKE').length;
+  const commentsCount = notifications.filter((n) => n.type === 'COMMENT').length;
+  const followsCount = notifications.filter((n) => n.type === 'FOLLOW').length;
+
   return (
     <Drawer
       data-testid="notifications-drawer"
@@ -64,40 +90,146 @@ export const NotificationDrawer: FC<NotificationDrawerProps> = ({
       onOpenChange={onOpenChange}
       label="Notifications"
       side="end"
-      width={420}
+      width={440}
     >
       <Layout
         header={
           <DrawerHeader
             title={`Notifications${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
-            subtitle="Real-time alerts for likes, comments, and follows"
+            subtitle="Real-time dynamic alerts for likes, comments, and follows"
             onOpenChange={onOpenChange}
             endContent={
-              unreadCount > 0 ? (
-                <Button
-                  data-testid="mark-all-read-btn"
-                  label="Mark all read"
-                  variant="ghost"
-                  size="sm"
-                  icon={<Icon icon={CheckIcon} size="xsm" />}
-                  onClick={onMarkAllAsRead}
-                />
-              ) : undefined
+              <HStack gap={2} vAlign="center">
+                {onSimulateNotification && (
+                  <Button
+                    data-testid="simulate-notif-btn"
+                    label="+ Alert"
+                    variant="secondary"
+                    size="sm"
+                    onClick={onSimulateNotification}
+                  />
+                )}
+                {unreadCount > 0 && (
+                  <Button
+                    data-testid="mark-all-read-btn"
+                    label="Mark all read"
+                    variant="ghost"
+                    size="sm"
+                    icon={<Icon icon={CheckIcon} size="xsm" />}
+                    onClick={onMarkAllAsRead}
+                  />
+                )}
+              </HStack>
             }
           />
         }
         content={
           <LayoutContent>
             <div style={{ padding: '16px' }}>
-              {notifications.length === 0 ? (
-                <EmptyState
-                  icon={<Icon icon={BellIcon} size="lg" color="secondary" />}
-                  title="No notifications yet"
-                  description="When users like your posts, comment, or follow you, updates will appear here."
-                />
+              {/* Filter Tabs */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '6px',
+                  marginBottom: '16px',
+                  paddingBottom: '8px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                }}
+              >
+                <button
+                  type="button"
+                  data-testid="filter-all"
+                  onClick={() => setFilter('ALL')}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    backgroundColor: filter === 'ALL' ? 'var(--color-primary, #1877F2)' : 'rgba(255, 255, 255, 0.06)',
+                    color: filter === 'ALL' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  All ({notifications.length})
+                </button>
+                <button
+                  type="button"
+                  data-testid="filter-likes"
+                  onClick={() => setFilter('LIKE')}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    backgroundColor: filter === 'LIKE' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                    color: filter === 'LIKE' ? '#FB7185' : 'rgba(255, 255, 255, 0.7)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Likes ({likesCount})
+                </button>
+                <button
+                  type="button"
+                  data-testid="filter-comments"
+                  onClick={() => setFilter('COMMENT')}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    backgroundColor: filter === 'COMMENT' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                    color: filter === 'COMMENT' ? '#60A5FA' : 'rgba(255, 255, 255, 0.7)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Comments ({commentsCount})
+                </button>
+                <button
+                  type="button"
+                  data-testid="filter-follows"
+                  onClick={() => setFilter('FOLLOW')}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    border: 'none',
+                    backgroundColor: filter === 'FOLLOW' ? 'rgba(20, 184, 166, 0.2)' : 'rgba(255, 255, 255, 0.06)',
+                    color: filter === 'FOLLOW' ? '#2DD4BF' : 'rgba(255, 255, 255, 0.7)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  Follows ({followsCount})
+                </button>
+              </div>
+
+              {filteredNotifications.length === 0 ? (
+                <VStack gap={4} hAlign="center" style={{ padding: '32px 0' }}>
+                  <EmptyState
+                    icon={<Icon icon={BellIcon} size="lg" color="secondary" />}
+                    title={filter === 'ALL' ? 'No notifications yet' : `No ${filter.toLowerCase()} notifications`}
+                    description="When users interact with your content, real-time alerts will appear here."
+                  />
+                  {onSimulateNotification && (
+                    <Button
+                      data-testid="simulate-empty-btn"
+                      label="Simulate Alert"
+                      variant="primary"
+                      size="sm"
+                      onClick={onSimulateNotification}
+                    />
+                  )}
+                </VStack>
               ) : (
                 <VStack gap={3}>
-                  {notifications.map((n) => {
+                  {filteredNotifications.map((n) => {
                     const typeCfg = TYPE_CONFIG[n.type] || {
                       label: n.type,
                       variant: 'neutral' as BadgeVariant,
@@ -144,7 +276,7 @@ export const NotificationDrawer: FC<NotificationDrawerProps> = ({
 
                             <HStack gap={2} vAlign="center">
                               <Text type="supporting" color="secondary">
-                                {formatTimestamp(n.createdAt)}
+                                {formatRelativeTime(n.createdAt)}
                               </Text>
                               {!n.read && (
                                 <span

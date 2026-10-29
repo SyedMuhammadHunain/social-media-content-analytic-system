@@ -93,3 +93,10 @@
 - [x] Task 51: Refactor `NewsFeedPage.tsx` & Eliminate Complex Conditionals
 - [x] Task 52: Full CodeScene Verification & Quality Certification across Feed Module
 - [x] Checkpoint 14: Feed Module 100% Certified 10.0 / 10.0
+
+## Phase 15: Full-Stack Generalized Dynamic Notifications for Every User
+- [x] Task 53: Generalized Actor Pool & Dynamic Notification Generator (`useNotificationPolling.ts`)
+- [x] Task 54: State Isolation & User Switch Lifecycle in TopNav (`useNotificationPolling.ts`, `AppTopNav.tsx`)
+- [x] Task 55: Reactive Backend Dynamic Generator (`GatewayNotificationService.java`)
+- [x] Task 56: Unit Test Suite & Quality Verification (`notifications.test.mjs`, `npx tsc -b`, `npm run lint`)
+- [x] Checkpoint 15: Dynamic Notification Engine 100% Operational for Every User

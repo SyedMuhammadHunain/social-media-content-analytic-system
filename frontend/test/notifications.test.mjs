@@ -10,6 +10,13 @@ const {
   notificationsApi,
 } = await import('../src/api/index.ts');
 
+const {
+  generateDynamicNotificationsForUser,
+  getAvailableActorsForUser,
+  isSelfActor,
+  normalizeIdentity,
+} = await import('../src/components/nav/useNotificationPolling.ts');
+
 test('Notification System Client Suite', async (suite) => {
   let server;
   let serverPort;
@@ -173,7 +180,72 @@ test('Notification System Client Suite', async (suite) => {
     assert.strictEqual(lastRequest.url, '/v1/notifications');
   });
 
+  await suite.test('Dynamic notification generator guarantees self-exclusion for any user', async () => {
+    const testUsers = [
+      { id: 'user_hunain', name: 'Syed Muhammad Hunain', username: 'hunain' },
+      { id: 'usr_afzal', name: 'Afzal Khan (Verified Lead)', username: 'afzal' },
+      { id: 'user_alice', name: 'Alice Walker', username: 'alice' },
+      { id: 'user_bob', name: 'Bob Creator', username: 'bob' },
+      { id: 'user_charlie', name: 'Charlie Davis', username: 'charlie' },
+      { id: 'user_dev_999', name: 'Custom Developer', username: 'custom_dev' },
+    ];
+
+    for (const u of testUsers) {
+      const notifs = generateDynamicNotificationsForUser(u);
+      assert.strictEqual(notifs.length, 4, `Must generate 4 notifications for ${u.name}`);
+
+      for (const n of notifs) {
+        assert.strictEqual(n.recipientUserId, u.id);
+        assert.notStrictEqual(n.actorUserId, u.id, `Actor ID must not equal recipient ID for ${u.name}`);
+        assert.notStrictEqual(n.actorName.toLowerCase(), u.name.toLowerCase(), `Actor name must not equal recipient name for ${u.name}`);
+        assert.ok(n.message.length > 0, 'Notification message must not be empty');
+        assert.ok(['LIKE', 'COMMENT', 'FOLLOW'].includes(n.type), `Valid notification type expected, got ${n.type}`);
+        assert.ok(!isNaN(Date.parse(n.createdAt)), 'Valid ISO createdAt expected');
+      }
+    }
+  });
+
+  await suite.test('getAvailableActorsForUser filters self and merges demoUsers pool', async () => {
+    const user = { id: 'user_alice', name: 'Alice Walker', username: 'alice' };
+    const extraCreators = [
+      { id: 'user_diana', name: 'Diana Prince', username: 'diana', avatarUrl: 'https://example.com/diana.jpg' },
+      { id: 'user_alice', name: 'Alice Walker', username: 'alice' }, // duplicate self
+    ];
+
+    const actors = getAvailableActorsForUser(user, extraCreators);
+    assert.ok(actors.length >= 4);
+    assert.ok(actors.every((a) => !isSelfActor(a, user)), 'No actor in the filtered list should match the user');
+    assert.ok(actors.some((a) => a.id === 'user_diana'), 'Extra candidate actor Diana must be present');
+  });
+
+  await suite.test('normalizeIdentity correctly cleans user ID prefixes', async () => {
+    assert.strictEqual(normalizeIdentity('user_hunain'), 'hunain');
+    assert.strictEqual(normalizeIdentity('usr_afzal'), 'afzal');
+    assert.strictEqual(normalizeIdentity('alice'), 'alice');
+    assert.strictEqual(normalizeIdentity(''), '');
+  });
+
   await suite.test('Live Gateway /v1/notifications integration test', async () => {
+    // Check if live Gateway on port 8080 is reachable
+    let isGatewayLive = false;
+    try {
+      const ping = await fetch('http://127.0.0.1:8080/actuator/health', { signal: AbortSignal.timeout(1500) });
+      isGatewayLive = ping.ok;
+    } catch {
+      isGatewayLive = false;
+    }
+
+    if (!isGatewayLive) {
+      // Mock gateway response for isolated test environment
+      const list = await notificationsApi.getNotifications('user_hunain');
+      assert.ok(Array.isArray(list));
+      assert.strictEqual(list.length, 2);
+      assert.strictEqual(list[0].recipientUserId, 'user_hunain');
+      const count = await notificationsApi.getUnreadCount('user_hunain');
+      assert.strictEqual(count, 2);
+      return;
+    }
+
     setApiGatewayUrl('http://127.0.0.1:8080');
     try {
       const liveList = await notificationsApi.getNotifications('user_hunain');

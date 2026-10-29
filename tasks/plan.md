@@ -701,6 +701,57 @@ Decompose and implement the 8 microservices and 5 NoSQL collections specified in
 
 ---
 
+### Phase 15: Full-Stack Generalized Dynamic Notifications for Every User
+
+#### Task 53: Generalized Actor Pool & Dynamic Notification Generator (`useNotificationPolling.ts`)
+- **Description:** Remove hardcoded `isAfzal` and `isHunain` branches in `generateDynamicNotificationsForUser` and `simulateDynamicAlert`. Implement dynamic actor selection from standard platform creator pool plus `demoUsers`, strictly filtering out recipient user ID and name so no user receives notifications from themselves. Generate contextual dynamic messages with relative timestamps.
+- **Acceptance criteria:**
+  - Zero hardcoded user ID/name checks (`isAfzal`/`isHunain`).
+  - Self-exclusion guarantee: `actor.id !== user.id` and `actor.name !== user.name`.
+  - Notifications feature realistic diverse types (`LIKE`, `COMMENT`, `FOLLOW`) with natural timestamps.
+- **Verification:** Unit tests with mock accounts (`user_hunain`, `user_alice`, `user_bob`, `user_charlie`, `user_afzal`, `user_custom`).
+- **Dependencies:** None
+- **Files touched:** `frontend/src/components/nav/useNotificationPolling.ts`
+- **Estimated scope:** M (1 file)
+
+#### Task 54: State Isolation & User Switch Lifecycle in TopNav (`useNotificationPolling.ts`, `AppTopNav.tsx`)
+- **Description:** Ensure user switching in `AppTopNav` isolates state. Pass `demoUsers` to `useNotificationPolling`. Reset notification state and unread count immediately upon `userId` change, preventing previous user's notifications from bleeding into new user's view or storage.
+- **Acceptance criteria:**
+  - Switching user instantly displays the new user's cached notifications or initiates fresh dynamic fetch.
+  - No stale notifications from previous session persist for the new user.
+- **Verification:** Unit tests simulating user switch sequence.
+- **Dependencies:** Task 53
+- **Files touched:** `frontend/src/components/nav/useNotificationPolling.ts`, `frontend/src/components/nav/AppTopNav.tsx`
+- **Estimated scope:** S (2 files)
+
+#### Task 55: Reactive Backend Dynamic Generator (`GatewayNotificationService.java`)
+- **Description:** Update `GatewayNotificationService.generateDynamicNotificationsForUser(String userId)` to dynamically select distinct candidate actors from the platform seed pool (excluding `userId`) and build dynamic notifications for any requested `userId`.
+- **Acceptance criteria:**
+  - Any `userId` passed to `/v1/notifications/{userId}` receives notifications where no actor equals `userId`.
+  - Reactive `Flux<Notification>` saved to `notificationRepository`.
+- **Verification:** Maven compile and unit test check.
+- **Dependencies:** None
+- **Files touched:** `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayNotificationService.java`
+- **Estimated scope:** S (1 file)
+
+#### Task 56: Unit Test Suite & Quality Verification (`notifications.test.mjs`, `npx tsc -b`, `npm run lint`)
+- **Description:** Extend `frontend/test/notifications.test.mjs` to assert dynamic generation rules, self-exclusion across diverse users, and user switch isolation. Run `npx tsc -b` and `npm run lint`.
+- **Acceptance criteria:**
+  - All unit tests passing.
+  - Zero TypeScript compiler errors.
+  - Zero linter errors.
+- **Verification:** `npm run test:unit`, `npm run lint`, `npx tsc -b`
+- **Dependencies:** Tasks 53, 54, 55
+- **Files touched:** `frontend/test/notifications.test.mjs`
+- **Estimated scope:** S (1 file)
+
+### Checkpoint 15: Dynamic Notification Engine 100% Operational for Every User [PASSED]
+- [x] Notifications dynamically adapt for every user without hardcoded checks.
+- [x] User switching isolates notification state.
+- [x] 100% unit tests and type checks pass.
+
+---
+
 ---
 
 ## Risks and Mitigations

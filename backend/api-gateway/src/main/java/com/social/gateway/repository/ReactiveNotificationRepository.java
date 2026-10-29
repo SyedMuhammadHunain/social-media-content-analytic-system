@@ -13,5 +13,7 @@ public interface ReactiveNotificationRepository extends ReactiveMongoRepository<
 
     Mono<Long> countByRecipientUserIdAndReadFalse(String recipientUserId);
 
+    Mono<Long> countByRecipientUserId(String recipientUserId);
+
     Flux<Notification> findByRecipientUserIdAndReadFalse(String recipientUserId);
 }

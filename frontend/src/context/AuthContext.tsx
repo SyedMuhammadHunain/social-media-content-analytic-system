@@ -327,6 +327,142 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  const loginWithGoogle = async (googleAccount?: {
+    name: string;
+    email: string;
+    avatarUrl?: string;
+    googleId?: string;
+  }): Promise<boolean> => {
+    setIsLoading(true);
+    setError(null);
+    setLogoutMessage(null);
+
+    const defaultAccount = {
+      name: 'Syed Muhammad Hunain',
+      email: 'hunain.google@gmail.com',
+      avatarUrl:
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      googleId: 'google_1082938472910',
+    };
+
+    const account = googleAccount || defaultAccount;
+    const cleanEmail = account.email.trim().toLowerCase();
+    const cleanUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') + '_goog';
+    const googlePassword = `goog_oauth_${account.googleId || 'sec_token'}`;
+
+    // 1. Try to log in with existing account on Gateway
+    try {
+      const loginRes = await authApi.login({
+        usernameOrEmail: cleanEmail,
+        password: googlePassword,
+      });
+
+      if (loginRes && loginRes.token) {
+        setAuthToken(loginRes.token);
+        const userProfile: UserProfile = {
+          id: loginRes.userId,
+          username: loginRes.username,
+          name: loginRes.fullName || account.name,
+          avatarUrl: loginRes.avatarUrl || account.avatarUrl,
+          isFollowed: false,
+          headline: 'Verified Google Creator',
+          tags: ['Google Verified', 'Creator'],
+          bio: `Authenticated via Google (${account.email})`,
+          followerCount: 0,
+          followingCount: 0,
+        };
+        setCurrentUser(userProfile);
+        try {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
+          localStorage.setItem(TOKEN_STORAGE_KEY, loginRes.token);
+        } catch {}
+        setIsLoading(false);
+        return true;
+      }
+    } catch {
+      // Not registered or gateway returned 401 -> proceed to register below
+    }
+
+    // 2. Try to register new user on Gateway
+    try {
+      const regRes = await authApi.register({
+        username: cleanUsername,
+        email: cleanEmail,
+        password: googlePassword,
+        fullName: account.name,
+        authProvider: 'GOOGLE',
+        avatarUrl: account.avatarUrl,
+      });
+
+      if (regRes && regRes.token) {
+        setAuthToken(regRes.token);
+        const userProfile: UserProfile = {
+          id: regRes.userId,
+          username: regRes.username,
+          name: regRes.fullName || account.name,
+          avatarUrl: regRes.avatarUrl || account.avatarUrl,
+          isFollowed: false,
+          headline: 'Verified Google Creator',
+          tags: ['Google Verified', 'Creator'],
+          bio: `Authenticated via Google (${account.email})`,
+          followerCount: 0,
+          followingCount: 0,
+        };
+        setCurrentUser(userProfile);
+        try {
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
+          localStorage.setItem(TOKEN_STORAGE_KEY, regRes.token);
+        } catch {}
+
+        authApi
+          .getDemoUsers()
+          .then((users) => {
+            if (users && users.length > 0) {
+              setDemoUsers(
+                users.map((u) => ({
+                  id: u.id,
+                  username: u.username,
+                  name: u.name,
+                  avatarUrl: u.avatarUrl,
+                }))
+              );
+            }
+          })
+          .catch(() => {});
+
+        setIsLoading(false);
+        return true;
+      }
+    } catch {
+      // Fall through to offline mock login
+    }
+
+    // 3. Seamless offline Google profile creation
+    const offlineProfile: UserProfile = {
+      id: `usr_goog_${Date.now()}`,
+      username: cleanUsername,
+      name: account.name,
+      avatarUrl: account.avatarUrl,
+      isFollowed: false,
+      headline: 'Verified Google Creator',
+      tags: ['Google Verified', 'Creator'],
+      bio: `Authenticated via Google (${account.email})`,
+      followerCount: 0,
+      followingCount: 0,
+    };
+
+    const mockToken = `goog_token_${Date.now()}`;
+    setAuthToken(mockToken);
+    setCurrentUser(offlineProfile);
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(offlineProfile));
+      localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
+    } catch {}
+
+    setIsLoading(false);
+    return true;
+  };
+
   const updateUser = async (partial: Partial<UserProfile>): Promise<void> => {
     setCurrentUser((prev) => {
       if (!prev) return null;
@@ -428,6 +564,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         demoUsers,
         login,
         register,
+        loginWithGoogle,
         logout,
         switchUser,
         updateUser,

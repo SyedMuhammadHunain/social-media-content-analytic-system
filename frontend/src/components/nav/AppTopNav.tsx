@@ -39,8 +39,8 @@ export const AppTopNav: FC<AppTopNavProps> = ({
 }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const { notifications, unreadCount, handleMarkAsRead, handleMarkAllAsRead } =
-    useNotificationPolling(currentUser?.id);
+  const { notifications, unreadCount, handleMarkAsRead, handleMarkAllAsRead, simulateDynamicAlert } =
+    useNotificationPolling(currentUser, demoUsers);
 
   return (
     <>
@@ -134,6 +134,7 @@ export const AppTopNav: FC<AppTopNavProps> = ({
         unreadCount={unreadCount}
         onMarkAsRead={handleMarkAsRead}
         onMarkAllAsRead={handleMarkAllAsRead}
+        onSimulateNotification={simulateDynamicAlert}
       />
     </>
   );
