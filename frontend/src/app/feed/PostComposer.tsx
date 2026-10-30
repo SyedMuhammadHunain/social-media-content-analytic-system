@@ -24,6 +24,7 @@ import {
 import type { CreatePostInput, PostType, User } from '../../types/social.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { mediaApi } from '../../api/mediaApi.ts';
+import { storeMediaBlob } from '../../utils/mediaBlobStore.ts';
 
 export interface PostComposerProps {
   currentUser: User;
@@ -47,6 +48,7 @@ export function PostComposer({
 }: PostComposerProps) {
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaId, setMediaId] = useState('');
   const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO'>('IMAGE');
   const [formatWarning, setFormatWarning] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -85,8 +87,11 @@ export function PostComposer({
 
     const typedBlob = file.slice(0, file.size, contentType);
     const localUrl = URL.createObjectURL(typedBlob);
+    const generatedMediaId = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
     setMediaUrl(localUrl);
+    setMediaId(generatedMediaId);
+    storeMediaBlob(generatedMediaId, typedBlob).catch(() => {});
 
     // Reset input so re-selecting same file triggers change
     e.target.value = '';
@@ -123,6 +128,7 @@ export function PostComposer({
       URL.revokeObjectURL(mediaUrl);
     }
     setMediaUrl('');
+    setMediaId('');
     setMediaType('IMAGE');
     setFormatWarning(null);
     if (fileInputRef.current) {
@@ -152,12 +158,14 @@ export function PostComposer({
       text: text.trim(),
       description: mediaUrl.length > 0 ? text.trim() : undefined,
       mediaUrl: mediaUrl || undefined,
+      mediaId: mediaId || undefined,
       hashtags,
     });
 
     // Reset composer state without revoking the newly published post's media URL!
     setText('');
     setMediaUrl('');
+    setMediaId('');
     setMediaType('IMAGE');
     setFormatWarning(null);
     if (fileInputRef.current) {

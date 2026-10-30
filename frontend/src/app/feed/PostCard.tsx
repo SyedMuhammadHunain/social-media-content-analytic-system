@@ -117,6 +117,7 @@ export function PostCard({
             mediaUrls={post.mediaUrls}
             type={post.type}
             description={post.description}
+            mediaId={post.mediaId}
           />
 
           <PostHashtags hashtags={post.hashtags} />

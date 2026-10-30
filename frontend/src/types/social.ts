@@ -37,6 +37,7 @@ export interface Post {
   type: PostType;
   text?: string;
   mediaUrls?: string[];
+  mediaId?: string;
   description?: string;
   hashtags: string[];
   likesCount: number;
@@ -73,6 +74,7 @@ export interface CreatePostInput {
   type: PostType;
   text?: string;
   mediaUrl?: string;
+  mediaId?: string;
   description?: string;
   hashtags: string[];
 }

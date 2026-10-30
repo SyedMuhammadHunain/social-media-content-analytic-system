@@ -23,6 +23,7 @@ export function buildOptimisticPost(input: CreatePostInput, user: UserProfile, t
     text: input.text,
     description: input.description,
     mediaUrls: input.mediaUrl ? [input.mediaUrl] : undefined,
+    mediaId: input.mediaId,
     hashtags: input.hashtags,
     likesCount: 0,
     commentsCount: 0,
