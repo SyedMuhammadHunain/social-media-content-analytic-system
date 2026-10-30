@@ -20,7 +20,7 @@ function hasFeedItems(posts: unknown): posts is Post[] {
 
 function mergeFeedPosts(livePosts: Post[], prevPosts: Post[]): Post[] {
   const liveIds = new Set(livePosts.map((p) => p.id));
-  const retainedMock = prevPosts.filter((p) => !liveIds.has(p.id) && p.id.startsWith('post_0'));
+  const retainedMock = prevPosts.filter((p) => !liveIds.has(p.id));
   return [...livePosts, ...retainedMock];
 }
 

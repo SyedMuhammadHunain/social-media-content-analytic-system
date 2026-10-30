@@ -15,7 +15,6 @@ import type {
 } from '../../types/social.ts';
 import {
   CURRENT_USER,
-  INITIAL_POSTS,
   SUGGESTED_CREATORS,
 } from '../../mock/socialSeedData.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
@@ -37,6 +36,7 @@ import {
   recordProfileView,
   type ProfileViewer,
 } from '../../utils/profileActivityStore.ts';
+import { getSharedPosts } from '../../utils/sharedPostsStore.ts';
 
 const NEWSFEED_CSS = `
 .newsfeed-layout {
@@ -169,9 +169,26 @@ export function NewsFeedPage({
   const [profileActivity, setProfileActivity] = useState(() =>
     getProfileActivity(user.id, user.username, user.followingCount)
   );
-  const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
+  const [posts, setPosts] = useState<Post[]>(() => getSharedPosts());
   const [suggestedCreators, setSuggestedCreators] = useState<SuggestedCreator[]>(SUGGESTED_CREATORS);
   const backendUserId = normalizeBackendUserId(user.id);
+
+  useEffect(() => {
+    const handlePostsSync = (e?: Event) => {
+      const customEvent = e as CustomEvent<Post[]>;
+      if (customEvent?.detail && Array.isArray(customEvent.detail)) {
+        setPosts(customEvent.detail);
+      } else {
+        setPosts(getSharedPosts());
+      }
+    };
+    window.addEventListener('social:posts-updated', handlePostsSync);
+    window.addEventListener('storage', handlePostsSync);
+    return () => {
+      window.removeEventListener('social:posts-updated', handlePostsSync);
+      window.removeEventListener('storage', handlePostsSync);
+    };
+  }, []);
 
   useEffect(() => {
     const handleOpenCreatePost = () => {
@@ -184,6 +201,7 @@ export function NewsFeedPage({
   useEffect(() => {
     setUser(currentUser);
     setProfileActivity(getProfileActivity(currentUser.id, currentUser.username, currentUser.followingCount));
+    setPosts(getSharedPosts());
   }, [currentUser]);
 
   useEffect(() => {

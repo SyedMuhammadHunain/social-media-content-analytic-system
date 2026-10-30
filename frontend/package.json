@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "node --test --test-concurrency=1 test/**/*.test.mjs",
-    "test:unit": "node --test test/api_client.test.mjs test/auth_integration.test.mjs test/newsfeed_social_sync.test.mjs test/creator_analytics_telemetry.test.mjs test/media_azure_upload.test.mjs test/nested_comments.test.mjs test/notifications.test.mjs test/post_header_and_brand.test.mjs test/video_upload_and_playback.test.mjs",
+    "test:unit": "node --test test/api_client.test.mjs test/auth_integration.test.mjs test/newsfeed_social_sync.test.mjs test/creator_analytics_telemetry.test.mjs test/media_azure_upload.test.mjs test/nested_comments.test.mjs test/notifications.test.mjs test/post_header_and_brand.test.mjs test/video_upload_and_playback.test.mjs test/shared_posts_store.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

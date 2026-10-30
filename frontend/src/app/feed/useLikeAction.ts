@@ -7,6 +7,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, UserProfile } from '../../types/social.ts';
 import { socialApi } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
+import { updateSharedPost } from '../../utils/sharedPostsStore.ts';
 
 interface UseLikeActionParams {
   user?: UserProfile;
@@ -39,6 +40,12 @@ export function useLikeAction({
     if (!post) return;
 
     const nextIsLiked = !post.isLiked;
+
+    updateSharedPost(postId, (p) => ({
+      ...p,
+      isLiked: nextIsLiked,
+      likesCount: calcNewLikesCount(p.likesCount, nextIsLiked),
+    }));
 
     setPosts((prev) =>
       prev.map((p) => {
@@ -90,6 +97,7 @@ export function useLikeAction({
   }, [posts, backendUserId, user, setPosts, recordLikeToggle]);
 
   const handleToggleBookmark = useCallback((postId: string) => {
+    updateSharedPost(postId, (p) => ({ ...p, isBookmarked: !p.isBookmarked }));
     setPosts((prev) =>
       prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p))
     );

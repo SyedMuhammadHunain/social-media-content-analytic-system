@@ -6,6 +6,7 @@
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, CreatePostInput, UpdatePostInput, UserProfile } from '../../types/social.ts';
 import { postsApi } from '../../api/postsApi.ts';
+import { saveSharedPost, updateSharedPost, deleteSharedPost } from '../../utils/sharedPostsStore.ts';
 
 interface UsePostCrudParams {
   user: UserProfile;
@@ -37,7 +38,8 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
     const tempId = `post_${Date.now()}`;
     const newPost = buildOptimisticPost(input, user, tempId);
 
-    setPosts((prev) => [newPost, ...prev]);
+    saveSharedPost(newPost);
+    setPosts((prev) => [newPost, ...prev.filter((p) => p.id !== newPost.id)]);
 
     try {
       const created = await postsApi.createPost({
@@ -49,6 +51,7 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
       });
 
       if (created?.id) {
+        updateSharedPost(tempId, (p) => ({ ...p, id: created.id }));
         setPosts((prev) =>
           prev.map((p) => (p.id === tempId ? { ...p, id: created.id } : p))
         );
@@ -59,6 +62,14 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
   }, [user, backendUserId, setPosts]);
 
   const handleEditPost = useCallback(async (postId: string, input: UpdatePostInput) => {
+    updateSharedPost(postId, (p) => ({
+      ...p,
+      text: input.text ?? p.text,
+      description: input.description ?? p.description,
+      mediaUrls: input.mediaUrls ?? p.mediaUrls,
+      hashtags: input.hashtags ?? p.hashtags,
+    }));
+
     setPosts((prev) =>
       prev.map((p) => {
         if (p.id !== postId) return p;
@@ -84,6 +95,7 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
   }, [backendUserId, setPosts]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
+    deleteSharedPost(postId);
     setPosts((prev) => prev.filter((p) => p.id !== postId));
 
     try {

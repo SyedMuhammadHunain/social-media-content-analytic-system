@@ -7,6 +7,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, UserProfile, Comment } from '../../types/social.ts';
 import { socialApi } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
+import { updateSharedPost } from '../../utils/sharedPostsStore.ts';
 
 interface UseCommentActionParams {
   user: UserProfile;
@@ -35,6 +36,12 @@ export function useCommentAction({
       parentCommentId,
       createdAt: 'Just now',
     };
+
+    updateSharedPost(postId, (p) => ({
+      ...p,
+      commentsCount: p.commentsCount + 1,
+      comments: [...p.comments, newComment],
+    }));
 
     setPosts((prev) =>
       prev.map((p) => {

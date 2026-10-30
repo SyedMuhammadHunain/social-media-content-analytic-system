@@ -108,3 +108,11 @@
 - [x] Task 60: Verification test and quality gates (`npx tsc -b`, automated test)
 - [x] Checkpoint 16: Video Upload and Playback 100% Verified
 
+## Phase 17: Cross-Profile Shared Post Visibility & Persistence
+- [x] Task 61: Implement `sharedPostsStore.ts` with local storage persistence and event broadcasting
+- [x] Task 62: Integrate `sharedPostsStore` into `NewsFeedPage.tsx` and `usePostCrud.ts`
+- [x] Task 63: Wire social mutations (likes, comments, bookmarks, deletes) into `sharedPostsStore`
+- [x] Task 64: Automated verification test and quality gates (`npx tsc -b`, `npm run test:unit`)
+- [x] Checkpoint 17: Cross-Profile Post Visibility 100% Operational
+
+
