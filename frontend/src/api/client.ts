@@ -35,7 +35,15 @@ export function getApiGatewayUrl(): string {
       ? import.meta.env.VITE_API_GATEWAY_URL
       : globalObj?.process?.env?.VITE_API_GATEWAY_URL;
 
-  return envUrl || 'http://127.0.0.1:8080';
+  if (envUrl) {
+    return envUrl;
+  }
+
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    return `http://${window.location.hostname}:8080`;
+  }
+
+  return 'http://127.0.0.1:8080';
 }
 
 export function setApiGatewayUrl(url: string | null): void {
