@@ -85,6 +85,7 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
         </div>
       ) : (
         <video
+          key={mediaUrl}
           data-testid="post-media-video"
           src={mediaUrl}
           controls
@@ -98,7 +99,6 @@ export function PostMediaViewer({ mediaUrls, type, description }: PostMediaViewe
             display: 'block',
           }}
         >
-          <source src={mediaUrl} />
           Your browser does not support HTML5 video playback.
         </video>
       )}

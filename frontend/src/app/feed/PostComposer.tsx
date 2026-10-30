@@ -71,8 +71,20 @@ export function PostComposer({
       setFormatWarning(null);
     }
 
-    const localUrl = URL.createObjectURL(file);
-    const contentType = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
+    const isWebm = /\.webm$/i.test(file.name);
+    const isOgg = /\.ogg$/i.test(file.name);
+    const contentType = file.type && file.type.startsWith('video/')
+      ? file.type
+      : isWebm
+        ? 'video/webm'
+        : isOgg
+          ? 'video/ogg'
+          : isVideo
+            ? 'video/mp4'
+            : (file.type || 'image/jpeg');
+
+    const typedBlob = file.slice(0, file.size, contentType);
+    const localUrl = URL.createObjectURL(typedBlob);
     setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
     setMediaUrl(localUrl);
 
