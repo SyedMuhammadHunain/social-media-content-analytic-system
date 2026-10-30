@@ -132,8 +132,8 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             <TopNavHeading
               logo={
                 <img
-                  src="/logo.png"
-                  alt="Logo"
+                  src="/images.png"
+                  alt="Social Media Content Analysis Logo"
                   style={{
                     width: 28,
                     height: 28,

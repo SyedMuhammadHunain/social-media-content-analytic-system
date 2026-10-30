@@ -20,6 +20,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 import type { Comment, User } from '../../types/social.ts';
+import { resolveAuthorPresentation } from '../../utils/authorUtils.ts';
+import { formatPostTimestamp, getPostFullDate } from '../../utils/dateUtils.ts';
 
 interface CommentSectionProps {
   postId: string;
@@ -67,6 +69,9 @@ export function CommentSection({
   const renderCommentItem = (c: Comment, isNested = false) => {
     const replies = repliesByParent.get(c.id) || [];
     const isReplyingThis = replyingTo?.id === c.id;
+    const resolvedAuthor = resolveAuthorPresentation(c.author);
+    const formattedCommentTime = formatPostTimestamp(c.createdAt);
+    const fullCommentDate = getPostFullDate(c.createdAt);
 
     return (
       <VStack key={c.id} gap={2}>
@@ -87,20 +92,22 @@ export function CommentSection({
                 onClick={() => onViewProfile?.(c.author)}
                 style={{ cursor: onViewProfile ? 'pointer' : 'default' }}
               >
-                <Avatar name={c.author.name} src={c.author.avatarUrl || undefined} size={isNested ? 'xsm' : 'sm'} />
+                <Avatar name={resolvedAuthor.name} src={resolvedAuthor.avatarUrl || c.author.avatarUrl || undefined} size={isNested ? 'xsm' : 'sm'} />
                 <Text type="body">
-                  <strong>{c.author.name}</strong>{' '}
+                  <strong>{resolvedAuthor.name}</strong>{' '}
                   <span style={{ color: 'var(--color-text-secondary, #9E9E9E)' }}>
-                    @{c.author.username}
+                    @{resolvedAuthor.username}
                   </span>
                 </Text>
                 {isNested && (
                   <Badge variant="blue" label="Reply" />
                 )}
               </HStack>
-              <Text type="supporting" color="secondary">
-                {c.createdAt}
-              </Text>
+              <span title={fullCommentDate} style={{ cursor: 'default' }}>
+                <Text type="supporting" color="secondary">
+                  {formattedCommentTime}
+                </Text>
+              </span>
             </HStack>
 
             <div style={{ paddingLeft: isNested ? 28 : 36 }}>

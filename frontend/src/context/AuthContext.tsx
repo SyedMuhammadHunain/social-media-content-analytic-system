@@ -49,6 +49,22 @@ const DEFAULT_DEMO_USERS: DemoUserSummary[] = [
       'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     headline: 'Full-Stack Engineer & Reactive Microservices Dev',
   },
+  {
+    id: 'usr_alex_01',
+    username: 'alex_chen_ai',
+    name: 'Alex Chen',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    headline: 'AI Systems Architect & LLM Engineer',
+  },
+  {
+    id: 'usr_alex_02',
+    username: 'alex_distrib',
+    name: 'Alex Rivera',
+    avatarUrl:
+      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
+    headline: 'Principal Distributed Systems Engineer',
+  },
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -95,7 +111,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             headline: matchedSeed?.user.headline,
           };
         });
-        setDemoUsers(mapped);
+
+        // Retain existing known demo accounts (Alex Chen, Alex Rivera) so no user is removed
+        const existingIds = new Set(mapped.map((m) => m.id));
+        const preservedAdditional = DEFAULT_DEMO_USERS.filter((d) => !existingIds.has(d.id));
+        setDemoUsers([...mapped, ...preservedAdditional]);
       })
       .catch(() => {
         // Gateway offline: silently retain DEFAULT_DEMO_USERS

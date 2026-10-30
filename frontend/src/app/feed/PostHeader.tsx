@@ -7,7 +7,6 @@ import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
-import { Badge } from '@astryxdesign/core/Badge';
 import { Icon } from '@astryxdesign/core/Icon';
 import { MoreMenu } from '@astryxdesign/core/MoreMenu';
 
@@ -19,12 +18,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 import type { PostType, User } from '../../types/social';
-
-const TYPE_BADGE_VARIANTS: Record<PostType, 'purple' | 'teal' | 'neutral'> = {
-  VIDEO: 'purple',
-  IMAGE: 'teal',
-  TEXT: 'neutral',
-};
+import { resolveAuthorPresentation } from '../../utils/authorUtils.ts';
+import { formatPostTimestamp, getPostFullDate } from '../../utils/dateUtils.ts';
 
 export interface PostHeaderProps {
   author: User;
@@ -40,7 +35,6 @@ export interface PostHeaderProps {
 
 export function PostHeader({
   author,
-  type,
   createdAt,
   isAuthor,
   postId,
@@ -49,6 +43,10 @@ export function PostHeader({
   onToggleFollow,
   onViewProfile,
 }: PostHeaderProps) {
+  const resolvedAuthor = resolveAuthorPresentation(author);
+  const formattedTime = formatPostTimestamp(createdAt);
+  const fullDateTitle = getPostFullDate(createdAt);
+
   return (
     <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
       <HStack
@@ -59,21 +57,32 @@ export function PostHeader({
         data-testid={`post-author-${author.id}`}
       >
         <Avatar
-          name={author.name}
-          src={author.avatarUrl || undefined}
+          name={resolvedAuthor.name}
+          src={resolvedAuthor.avatarUrl || author.avatarUrl || undefined}
           size="md"
         />
         <VStack gap={0}>
-          <HStack gap={2} vAlign="center">
-            <Heading level={4}>{author.name}</Heading>
-            <Badge
-              variant={TYPE_BADGE_VARIANTS[type] || 'neutral'}
-              label={type}
-            />
+          <Heading level={4}>{resolvedAuthor.name}</Heading>
+          <HStack gap={1} vAlign="center" wrap="wrap">
+            <Text type="supporting" color="secondary">
+              @{resolvedAuthor.username}
+            </Text>
+            <Text type="supporting" color="secondary">
+              •
+            </Text>
+            <span
+              title={fullDateTitle}
+              style={{
+                cursor: 'default',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+            >
+              <Text type="supporting" color="secondary">
+                {formattedTime}
+              </Text>
+            </span>
           </HStack>
-          <Text type="supporting" color="secondary">
-            @{author.username} • {createdAt}
-          </Text>
         </VStack>
       </HStack>
 

@@ -4,6 +4,7 @@
 import { api } from './client.ts';
 import type { Post, PostType, User } from '../types/social.ts';
 import type { BackendPost } from './postsApi.ts';
+import { resolveAuthorPresentation } from '../utils/authorUtils.ts';
 
 export interface BackendFeedPostDto {
   postId: string;
@@ -33,18 +34,25 @@ function formatHashtags(tags?: string[]): string[] {
 }
 
 export function mapBackendPostToUi(dto: BackendFeedPostDto): Post {
-  const authorUsername = dto.authorName
-    ? dto.authorName.toLowerCase().replace(/\s+/g, '_')
-    : dto.authorId.replace(/^user_/, '');
+  const initialAuthor = {
+    id: dto.authorId,
+    username: dto.authorName
+      ? dto.authorName.toLowerCase().replace(/\s+/g, '_')
+      : dto.authorId.replace(/^user_/, ''),
+    name: dto.authorName || dto.authorId.replace(/^user_/, ''),
+    avatarUrl: dto.authorAvatar,
+  };
+  const resolved = resolveAuthorPresentation(initialAuthor);
 
   return {
     id: dto.postId,
     userId: dto.authorId,
     author: {
       id: dto.authorId,
-      username: authorUsername,
-      name: dto.authorName || authorUsername,
+      username: resolved.username,
+      name: resolved.name,
       avatarUrl:
+        resolved.avatarUrl ||
         dto.authorAvatar ||
         'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       isFollowed: false,
@@ -63,16 +71,25 @@ export function mapBackendPostToUi(dto: BackendFeedPostDto): Post {
 }
 
 export function mapBackendModelPostToUi(backendPost: BackendPost, authorUser?: User): Post {
+  const initialAuthor = authorUser || {
+    id: backendPost.userId,
+    username: backendPost.userId.replace(/^user_/, ''),
+    name: backendPost.userId,
+  };
+  const resolved = resolveAuthorPresentation(initialAuthor);
+
   return {
     id: backendPost.id,
     userId: backendPost.userId,
-    author: authorUser || {
+    author: {
       id: backendPost.userId,
-      username: backendPost.userId.replace(/^user_/, ''),
-      name: backendPost.userId,
+      username: resolved.username,
+      name: resolved.name,
       avatarUrl:
+        resolved.avatarUrl ||
+        (authorUser && authorUser.avatarUrl) ||
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      isFollowed: false,
+      isFollowed: authorUser ? !!authorUser.isFollowed : false,
     },
     type: (backendPost.mediaType as PostType) || 'TEXT',
     text: backendPost.text,

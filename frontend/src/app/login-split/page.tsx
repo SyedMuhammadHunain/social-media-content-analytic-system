@@ -242,7 +242,7 @@ export default function LoginSplitPage() {
                     {/* Header Logo */}
                     <HStack gap={2} vAlign="center">
                       <img
-                        src="/favicon.png"
+                        src="/images.png"
                         alt="Social Media Content Analysis Logo"
                         style={{
                           width: 24,

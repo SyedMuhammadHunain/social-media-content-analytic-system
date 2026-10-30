@@ -125,4 +125,23 @@ export const SEED_ACCOUNTS: AuthUserAccount[] = [
     email: 'alex@example.com',
     passwordHash: 'password123',
   },
+  {
+    user: {
+      id: 'usr_alex_01',
+      username: 'alex_chen_ai',
+      name: 'Alex Chen',
+      avatarUrl:
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      isFollowed: false,
+      headline: 'AI Systems Architect & LLM Engineer',
+      tags: ['AI', 'Architecture', 'Meta Astryx'],
+      bio: 'Building intelligent distributed systems.',
+      followerCount: 1540,
+      followingCount: 320,
+      coverBannerUrl:
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
+    },
+    email: 'alex.chen@example.com',
+    passwordHash: 'password123',
+  },
 ];
