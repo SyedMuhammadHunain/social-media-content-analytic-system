@@ -48,6 +48,7 @@ export function PostComposer({
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'IMAGE' | 'VIDEO'>('IMAGE');
+  const [formatWarning, setFormatWarning] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -61,7 +62,15 @@ export function PostComposer({
       URL.revokeObjectURL(mediaUrl);
     }
 
-    const isVideo = file.type.startsWith('video/');
+    const isVideo = file.type.startsWith('video/') || /\.(mp4|webm|ogg|mov|mkv|avi|wmv)$/i.test(file.name);
+    const isUnsupportedContainer = /\.(mkv|avi|wmv|flv)$/i.test(file.name);
+
+    if (isUnsupportedContainer) {
+      setFormatWarning('Notice: .mkv/.avi video containers are not supported by web browsers. Please use MP4 or WebM for playback.');
+    } else {
+      setFormatWarning(null);
+    }
+
     const localUrl = URL.createObjectURL(file);
     const contentType = file.type || (isVideo ? 'video/mp4' : 'image/jpeg');
     setMediaType(isVideo ? 'VIDEO' : 'IMAGE');
@@ -102,6 +111,11 @@ export function PostComposer({
       URL.revokeObjectURL(mediaUrl);
     }
     setMediaUrl('');
+    setMediaType('IMAGE');
+    setFormatWarning(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = () => {
@@ -129,9 +143,14 @@ export function PostComposer({
       hashtags,
     });
 
-    // Reset inputs
+    // Reset composer state without revoking the newly published post's media URL!
     setText('');
-    handleRemoveMedia();
+    setMediaUrl('');
+    setMediaType('IMAGE');
+    setFormatWarning(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const bodyContent = (
@@ -162,6 +181,12 @@ export function PostComposer({
           <Badge
             variant={mediaType === 'VIDEO' ? 'purple' : 'teal'}
             label={getMediaBadgeLabel(mediaUrl, mediaType)}
+          />
+        )}
+        {formatWarning && (
+          <Badge
+            variant="yellow"
+            label={formatWarning}
           />
         )}
       </HStack>
@@ -197,7 +222,7 @@ export function PostComposer({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/*"
+        accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime,video/*"
         style={{ display: 'none' }}
         onChange={handleFileSelect}
       />
@@ -231,6 +256,8 @@ export function PostComposer({
             <video
               src={mediaUrl}
               controls
+              playsInline
+              preload="metadata"
               style={{ maxWidth: '100%', maxHeight: 260 }}
             />
           )}

@@ -100,3 +100,11 @@
 - [x] Task 55: Reactive Backend Dynamic Generator (`GatewayNotificationService.java`)
 - [x] Task 56: Unit Test Suite & Quality Verification (`notifications.test.mjs`, `npx tsc -b`, `npm run lint`)
 - [x] Checkpoint 15: Dynamic Notification Engine 100% Operational for Every User
+
+## Phase 16: Video Upload, Preview & Playback Reliability
+- [x] Task 57: Eliminate premature object URL revocation on post publish (`PostComposer.tsx`)
+- [x] Task 58: Enhance `PostMediaViewer.tsx` with resilient error boundary and Astryx fallback card
+- [x] Task 59: Add format guidance and codec validation for PC video attachments (`PostComposer.tsx`)
+- [x] Task 60: Verification test and quality gates (`npx tsc -b`, automated test)
+- [x] Checkpoint 16: Video Upload and Playback 100% Verified
+

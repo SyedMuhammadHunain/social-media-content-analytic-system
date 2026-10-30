@@ -13,7 +13,7 @@ interface UsePostCrudParams {
   setPosts: Dispatch<SetStateAction<Post[]>>;
 }
 
-function buildOptimisticPost(input: CreatePostInput, user: UserProfile, tempId: string): Post {
+export function buildOptimisticPost(input: CreatePostInput, user: UserProfile, tempId: string): Post {
   return {
     id: tempId,
     userId: user.id,
