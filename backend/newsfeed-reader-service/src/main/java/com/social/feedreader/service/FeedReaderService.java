@@ -36,18 +36,50 @@ public class FeedReaderService {
                 .map(FeedItem::getPostId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        // Also query latest platform posts so newly created posts are discoverable across users
+        Map<String, Post> postMap = new LinkedHashMap<>();
+
+        // 1. Fetch latest platform posts so newly created posts are immediately visible to all users
         List<Post> recentPlatformPosts = mongoTemplate.find(
                 new Query(Criteria.where("deleted").is(false))
                         .with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"))
-                        .limit(size),
+                        .limit(Math.max(size, 50)),
                 Post.class
         );
         for (Post rp : recentPlatformPosts) {
-            postIds.add(rp.getId());
+            if (rp.getId() != null) {
+                postMap.put(rp.getId(), rp);
+            }
         }
 
-        if (postIds.isEmpty()) {
+        // 2. Fetch any missing posts from the user's specific feed items
+        Set<String> missingPostIds = new HashSet<>();
+        for (String pid : postIds) {
+            if (!postMap.containsKey(pid)) {
+                missingPostIds.add(pid);
+            }
+        }
+
+        if (!missingPostIds.isEmpty()) {
+            Set<Object> queryIds = new HashSet<>(missingPostIds);
+            for (String pid : missingPostIds) {
+                if (org.bson.types.ObjectId.isValid(pid)) {
+                    queryIds.add(new org.bson.types.ObjectId(pid));
+                }
+            }
+            Query missingQuery = new Query(new Criteria().orOperator(
+                    Criteria.where("_id").in(queryIds),
+                    Criteria.where("id").in(missingPostIds)
+            ).and("deleted").is(false));
+
+            List<Post> extraPosts = mongoTemplate.find(missingQuery, Post.class);
+            for (Post ep : extraPosts) {
+                if (ep.getId() != null) {
+                    postMap.put(ep.getId(), ep);
+                }
+            }
+        }
+
+        if (postMap.isEmpty()) {
             return FeedResponse.builder()
                     .userId(userId)
                     .page(page)
@@ -56,8 +88,7 @@ public class FeedReaderService {
                     .build();
         }
 
-        Query query = new Query(Criteria.where("id").in(postIds).and("deleted").is(false));
-        List<Post> posts = mongoTemplate.find(query, Post.class);
+        List<Post> posts = new ArrayList<>(postMap.values());
         posts.sort((a, b) -> {
             if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
             return b.getCreatedAt().compareTo(a.getCreatedAt());

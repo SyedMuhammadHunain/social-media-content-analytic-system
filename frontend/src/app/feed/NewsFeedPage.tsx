@@ -351,7 +351,14 @@ export function NewsFeedPage({
       <>
         <UserProfileView
           user={activeProfile}
-          posts={posts.filter((p) => p.author.id === activeProfile.id || p.author.username === activeProfile.username)}
+          posts={posts.filter((p) =>
+            p.author.id === activeProfile.id ||
+            p.userId === activeProfile.id ||
+            (p.author.username && activeProfile.username && p.author.username.toLowerCase() === activeProfile.username.toLowerCase()) ||
+            (p.author.name && activeProfile.name && p.author.name.toLowerCase() === activeProfile.name.toLowerCase()) ||
+            normalizeBackendUserId(p.userId) === normalizeBackendUserId(activeProfile.id) ||
+            normalizeBackendUserId(p.author.id) === normalizeBackendUserId(activeProfile.id)
+          )}
           isOwnProfile={isOwnProfile}
           onBack={() => {
             setViewMode('feed');
