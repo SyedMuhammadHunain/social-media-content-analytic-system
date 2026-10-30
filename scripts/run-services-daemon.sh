@@ -35,7 +35,7 @@ start_svc() {
     local logfile="$DIR/scripts/$name.log"
 
     echo "Launching $name on port $port..."
-    java -Xms48m -Xmx96m \
+    java -Xms64m -Xmx256m \
         -Dserver.port=$port \
         -DMONGODB_URI="$MONGODB_URI" \
         -Dspring.data.mongodb.uri="$MONGODB_URI" \
