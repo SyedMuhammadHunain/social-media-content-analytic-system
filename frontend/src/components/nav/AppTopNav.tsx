@@ -4,7 +4,6 @@
 'use client';
 
 import { useState, type FC } from 'react';
-import { useMediaQuery } from '@astryxdesign/core/hooks';
 import { TopNav, TopNavHeading } from '@astryxdesign/core/TopNav';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { HStack } from '@astryxdesign/core/Layout';
@@ -41,7 +40,6 @@ export const AppTopNav: FC<AppTopNavProps> = ({
   onOpenNewPost,
   onRefreshFeed,
 }) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isBrandBouncing, setIsBrandBouncing] = useState(false);
   const { notifications, unreadCount, handleMarkAsRead, handleMarkAllAsRead, simulateDynamicAlert } =
@@ -132,18 +130,18 @@ export const AppTopNav: FC<AppTopNavProps> = ({
             <TopNavHeading
               logo={
                 <img
-                  src="/images.png"
-                  alt="Social Media Content Analysis Logo"
+                  src="/logo.jpeg"
+                  alt="Logo"
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 32,
+                    height: 32,
                     borderRadius: 6,
                     objectFit: 'cover',
                     display: 'block',
                   }}
                 />
               }
-              heading={isMobile ? 'SMCAS' : 'Social Media Content Analysis'}
+              logoLabel="Logo"
             />
           </div>
         }

@@ -242,19 +242,16 @@ export default function LoginSplitPage() {
                     {/* Header Logo */}
                     <HStack gap={2} vAlign="center">
                       <img
-                        src="/images.png"
-                        alt="Social Media Content Analysis Logo"
+                        src="/logo.jpeg"
+                        alt="Logo"
                         style={{
-                          width: 24,
-                          height: 24,
+                          width: 32,
+                          height: 32,
                           borderRadius: 6,
                           objectFit: 'cover',
                           display: 'block',
                         }}
                       />
-                      <Text type="body" weight="bold">
-                        Social Media Content Analysis
-                      </Text>
                     </HStack>
 
                     <StackItem size="fill">

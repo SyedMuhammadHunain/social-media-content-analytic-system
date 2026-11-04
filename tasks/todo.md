@@ -1,118 +1,104 @@
-# Active Tasks: Backend Microservices Architecture & Implementation
+# Active Tasks: Refine UI
 
-## Phase 1: Environment & Multi-Module Foundation
-- [x] Task 1: Java 21 & Maven Environment Setup
-- [x] Task 2: Root Multi-Module Maven Configuration (`backend/pom.xml`)
-- [x] Task 3: Common Models Library (`backend/common-models`)
-- [x] Checkpoint 1: Foundation Clean Build (`mvn clean install -pl common-models`)
+Spec: `docs/specs/SPEC-refine-ui.md`
+Plan: `tasks/plan.md`
 
-## Phase 2: Edge Gateway (`api-gateway`)
-- [x] Task 4: Spring Cloud Gateway Routing Configuration (Port 8080)
-- [x] Task 5: Gateway CORS & Security Filters
-- [x] Checkpoint 2: Gateway Routing Verified
+## Phase 1: Foundation
 
-## Phase 3: Media & Content Ingestion Pipeline
-- [x] Task 6: Pre-Signed URL Service (`presigned-url-service`, Port 8082, Azure Blob SAS)
-- [x] Task 7: Post Writer Service (`post-writer-service`, Port 8081, `PostsDB`)
-- [x] Checkpoint 3: Ingestion Pipeline Verified
+- [x] Task 1: Copy logo + update refs
+  - Acceptance: `~/Downloads/Gemini_Generated_Image_655y7d655y7d655y.jpeg` copied to `frontend/public/`, all logo refs updated (navbar, login). No app name text.
+  - Verify: `npx tsc -b`, visual check — logo renders in navbar and login page
+  - Files: `public/logo.jpeg`, `components/nav/AppTopNav.tsx`, login component
+  - Scope: S
 
-## Phase 4: Social Engagement Services
-- [x] Task 8: Like / Unlike Service (`like-unlike-service`, Port 8083, `LikesDB`)
-- [x] Task 9: Comment Service (`comment-service`, Port 8085, `CommentsDB`)
-- [x] Task 10: Follow Service (`follow-service`, Port 8084, `FollowDB`)
-- [x] Checkpoint 4: Social Services Verified
+- [ ] Task 2: Run login-card CLI template
+  - Acceptance: `npx @astryxdesign/cli template login-card ./src/app/login-card` runs, output inspected, files committed
+  - Verify: Inspect scaffolded files, note what needs customization
+  - Files: `app/login-card/` (new, CLI-generated)
+  - Scope: XS
 
-## Phase 5: Newsfeed Fan-out & Reader Services
-- [x] Task 11: Newsfeed Generator Service (`newsfeed-generator-service`, Port 8086, Fan-out Engine)
-- [x] Task 12: Newsfeed Reader Service (`newsfeed-reader-service`, Port 8087, `FeedDB`)
-- [x] Checkpoint 5: Feed Pipeline Verified (<2.0s SLA)
+- [ ] Task 3: Remove PlatformInfoFooter
+  - Acceptance: "OOAD Content Analysis v1.0" card gone from right sidebar
+  - Verify: `npx tsc -b`, visual check — card absent from feed page
+  - Files: `app/feed/PlatformInfoFooter.tsx` (delete), `app/feed/NewsFeedRightSidebar.tsx`
+  - Scope: XS
 
-## Phase 6: Unified Dev Profile & Final Verification
-- [x] Task 13: Lightweight Composite Local Dev Profile (<500 MB RAM)
-- [x] Task 14: Verification Report & Quality Gate (`docs/reports/backend-verification.md`)
-- [x] Checkpoint 6: Full Backend Verification Complete
+- [ ] Task 4: Remove dashboard tags
+  - Acceptance: "Live Telemetry", "PDF Sections", "96.7% Positive" and similar academic tags gone
+  - Verify: `npx tsc -b`, visual check — no tags in dashboard
+  - Files: `app/dashboard/DashboardHeader.tsx`, `app/dashboard/DashboardKpiCards.tsx`, other dashboard files with `<Badge>` elements
+  - Scope: S
 
-## Phase 7: MongoDB Atlas Cloud Integration & Data Seeding
-- [x] Task 15: Secret & Git Hygiene Setup (`.gitignore`, `backend/.env`, `scripts/start-backend.sh`)
-- [x] Task 16: Atlas Connectivity & Cluster Health Check (`SMCAS` / `smcas.d8avoun.mongodb.net`)
-- [x] Task 17: Database Clean Wipe & Index Initializer
-- [x] Task 18: Demo Seed Data Generator (`PostsDB`, `LikesDB`, `FollowDB`, `CommentsDB`, `FeedDB`)
-- [x] Task 19: End-to-End Cloud Service Verification Report
-- [x] Checkpoint 7: Cloud Atlas Microservices Live Verification Complete
+- [ ] Task 5: Zero-gap post cards
+  - Acceptance: No gap/margin between PostCard components in feed. Cards touch bottom-to-top.
+  - Verify: `npx tsc -b`, visual check — posts stacked with zero spacing
+  - Files: `app/feed/FeedPostList.tsx`, `app/feed/PostCard.tsx`
+  - Scope: XS
 
-## Phase 8: Frontend-to-Backend Gateway Integration & Real-time Sync
-- [x] Task 20: Gateway Auth Service Endpoints (`api-gateway`, `/v1/auth/*`, `UsersDB`)
-- [x] Task 21: Frontend Typed Gateway API Client Layer (`frontend/src/api/*`)
-- [x] Task 22: Live Auth & Demo User Switcher Integration (`AuthContext.tsx`, `AppTopNav.tsx`)
-- [x] Task 23: Live Newsfeed & Social Interaction Sync (`NewsFeedPage.tsx`, `PostCard.tsx`, `PostComposer.tsx`)
-- [x] Task 24: Live Creator Analytical Dashboard Telemetry (`AnalyticsContext.tsx`)
-- [x] Task 25: End-to-End Browser & DevTools Protocol Verification
-- [x] Checkpoint 8: Full-Stack Gateway & Atlas Sync Complete
+### Checkpoint: Foundation
+- [ ] `npx tsc -b` passes
+- [ ] Dev server renders without errors
+- [ ] Logo visible, info card gone, tags gone, posts gapless
 
-## Phase 9: Azure Blob Storage Cloud Integration for Media Uploads
-- [x] Task 26: Azure Credentials & Launch Script Environment Wiring (`backend/.env`, `scripts/start-backend.sh`, `scripts/run-services-daemon.sh`)
-- [x] Task 27: Storage Account Connectivity & Container Verification (`scripts/check-azure-storage.sh`, `AzureBlobIntegrationTest.java`)
-- [x] Task 28: Pre-Signed URL Service Cloud SAS & Direct Frontend Binary Upload (`mediaApi.ts`, `PostComposer.tsx`, `AzureBlobSasService.java`)
-- [x] Task 29: End-to-End Chrome CDP Media Upload Verification & Certification Report (`tests/e2e-azure-upload.test.mjs`, `docs/reports/azure-blob-storage-verification.md`)
-- [x] Task 30: Multi-Axis Code Review & Quality Certification (`docs/reports/code-review-azure-blob-storage.md`)
-- [x] Checkpoint 9: Azure Cloud Media Pipeline 100% Operational
+## Phase 2: Structural Changes
 
-## Phase 10: Complete CT-263 PDF Gap Resolution (100% Diagram & Spec Fidelity)
-- [x] Task 31: REST HTTP Method Alignment (`DELETE /v1/unlike` & `DELETE /v1/unfollow`)
-- [x] Task 32: Nested Comment Replies Engine (Backend DTO + Astryx UI)
-- [x] Task 33: Notification Service Backend & Reactive Gateway Endpoints
-- [x] Task 34: Astryx Notification Bell & Drawer UI in Top Navigation
-- [x] Task 35: Logout Confirmation Feedback Toast in Auth View
-- [x] Task 36: End-to-End Chrome CDP Verification & Final 100% Compliance Certification
-- [x] Checkpoint 10: 100% CT-263 PDF Compliance Verified
+- [ ] Task 6: Strip navbar to logo-only
+  - Acceptance: Navbar shows only app logo (top-left). No tabs, buttons, icons, profile, notification, theme toggle, or logout.
+  - Verify: `npx tsc -b`, visual check — minimal navbar
+  - Files: `components/nav/AppTopNav.tsx`, `components/nav/DesktopNavTabs.tsx`, `components/nav/DesktopNavActions.tsx`, `components/nav/MobileNavMenu.tsx`
+  - Scope: M
 
-## Phase 11: Academic Submission & Defense Materials Package
-- [x] Task 37: Comprehensive Academic Project Report (`docs/academic/CT263-Final-Comprehensive-Project-Report.md`)
-- [x] Task 38: 15-Slide Presentation Deck (`docs/academic/CT263-Project-Defense-Presentation-Slides.md`)
-- [x] Task 39: Viva Defense Q&A Manual & 5-Minute Live Demo Protocol (`docs/academic/CT263-Viva-Defense-QnA-and-Demo-Script.md`)
-- [x] Checkpoint 11: Academic Submission & Viva Defense Package 100% Complete & Certified
+- [ ] Task 7: Wire login-card template (Google-only auth)
+  - Acceptance: Login uses Astryx login-card template. Only "Continue with Google" button. Google OAuth modal logic preserved. Old `app/login-split/` deleted.
+  - Verify: `npx tsc -b`, visual check — login renders, Google auth flow works
+  - Files: `app/login-card/` (modify scaffolded), `app/auth/AuthPage.tsx`, `App.tsx`, `app/login-split/` (delete)
+  - Scope: M
 
-## Phase 12: CodeScene CLI On-Demand Code Health & Hotspot Analytics
-- [x] Task 40: CodeScene CLI Installation (`~/.local/bin/cs`) & Environment Verification
-- [x] Task 41: CodeScene Rule Evaluation against `.codescene/code-health-rules.json`
-- [x] Task 42: On-Demand Code Health & Hotspot Review Report (`docs/reports/codescene-live-analysis-report.md`)
-- [x] Checkpoint 12: CodeScene CLI Operational On-Demand
+- [ ] Task 8: Add sidebar shortcut links
+  - Acceptance: FeedShortcutsCard has Notification (bell icon), Appearance (shows theme toggle on click), Logout items. All using Astryx `Icon`.
+  - Verify: `npx tsc -b`, visual check — shortcuts render, theme toggle works, logout works
+  - Files: `app/feed/FeedShortcutsCard.tsx`
+  - Scope: S
 
-## Phase 13: CodeScene Code Health Optimization to 9.5+ Across Identified Targets
-- [x] Task 43: Backend Controller Parameter Resolution Simplification (`LikeController.java`, `FollowController.java`)
-- [x] Task 44: Login Split Page Decomposition (`login-split/page.tsx`)
-- [x] Task 45: Creator Dashboard Component Decomposition (`dashboard/page.tsx`)
-- [x] Task 46: Top Navigation Component Decomposition (`AppTopNav.tsx`)
-- [x] Task 47: Feed PostCard Action & Header Decomposition (`PostCard.tsx`)
-- [x] Task 48: Live CodeScene CLI Full Re-Scan & Updated Quality Certification
-- [x] Checkpoint 13: 100% Green Code Health (≥ 9.5) Across All Targets Certified
+- [ ] Task 9: Fix Analytics Interpretation card
+  - Acceptance: `DashboardAnalyticsInterpretation.tsx` uses Astryx components (`Card`, `Section`, `Text`, `Icon`). Respects light/dark theme. No overwhelming text. Astryx icons only.
+  - Verify: `npx tsc -b`, toggle theme — card appearance switches correctly
+  - Files: `app/dashboard/DashboardAnalyticsInterpretation.tsx`
+  - Scope: M
 
-## Phase 14: NewsFeedPage Code Health Optimization to 10.0 / 10.0
-- [x] Task 49: Extract `useFeedMutations.ts` Custom Hook
-- [x] Task 50: Extract `FeedPostList.tsx` Presentation Component
-- [x] Task 51: Refactor `NewsFeedPage.tsx` & Eliminate Complex Conditionals
-- [x] Task 52: Full CodeScene Verification & Quality Certification across Feed Module
-- [x] Checkpoint 14: Feed Module 100% Certified 10.0 / 10.0
+### Checkpoint: Structural
+- [ ] `npx tsc -b` passes
+- [ ] Navbar minimal, login works, shortcuts functional, analytics card themed
 
-## Phase 15: Full-Stack Generalized Dynamic Notifications for Every User
-- [x] Task 53: Generalized Actor Pool & Dynamic Notification Generator (`useNotificationPolling.ts`)
-- [x] Task 54: State Isolation & User Switch Lifecycle in TopNav (`useNotificationPolling.ts`, `AppTopNav.tsx`)
-- [x] Task 55: Reactive Backend Dynamic Generator (`GatewayNotificationService.java`)
-- [x] Task 56: Unit Test Suite & Quality Verification (`notifications.test.mjs`, `npx tsc -b`, `npm run lint`)
-- [x] Checkpoint 15: Dynamic Notification Engine 100% Operational for Every User
+## Phase 3: Layout Refactor
 
-## Phase 16: Video Upload, Preview & Playback Reliability
-- [x] Task 57: Eliminate premature object URL revocation on post publish (`PostComposer.tsx`)
-- [x] Task 58: Enhance `PostMediaViewer.tsx` with resilient error boundary and Astryx fallback card
-- [x] Task 59: Add format guidance and codec validation for PC video attachments (`PostComposer.tsx`)
-- [x] Task 60: Verification test and quality gates (`npx tsc -b`, automated test)
-- [x] Checkpoint 16: Video Upload and Playback 100% Verified
+- [ ] Task 10: Level panels
+  - Acceptance: Left sidebar, center feed, right sidebar start at same vertical level
+  - Verify: `npx tsc -b`, visual check — columns aligned
+  - Files: `app/feed/NewsFeedPage.tsx`
+  - Scope: XS
 
-## Phase 17: Cross-Profile Shared Post Visibility & Persistence
-- [x] Task 61: Implement `sharedPostsStore.ts` with local storage persistence and event broadcasting
-- [x] Task 62: Integrate `sharedPostsStore` into `NewsFeedPage.tsx` and `usePostCrud.ts`
-- [x] Task 63: Wire social mutations (likes, comments, bookmarks, deletes) into `sharedPostsStore`
-- [x] Task 64: Automated verification test and quality gates (`npx tsc -b`, `npm run test:unit`)
-- [x] Checkpoint 17: Cross-Profile Post Visibility 100% Operational
+- [ ] Task 11: Extract sidebars to App shell (persistent panels)
+  - Acceptance: `NewsFeedLeftSidebar` and `NewsFeedRightSidebar` rendered in `AppContent` (App.tsx), not inside `NewsFeedPage`. Side panels persist across feed, dashboard, notifications, profile tabs. `activeTab` type: `'feed' | 'dashboard' | 'notifications' | 'profile'`.
+  - Verify: `npx tsc -b`, switch tabs — sidebars remain, center content changes
+  - Files: `App.tsx`, `app/feed/NewsFeedPage.tsx`, `app/dashboard/page.tsx`
+  - Scope: L (5 files)
 
+- [ ] Task 12: Build notification list view
+  - Acceptance: New `app/notifications/NotificationListPage.tsx`. Shows notification items in center column when notifications tab active. Uses Astryx components. Supports light/dark theme.
+  - Verify: `npx tsc -b`, click notification shortcut — list renders in center
+  - Files: `app/notifications/NotificationListPage.tsx` (new), `App.tsx`
+  - Scope: S
 
+- [ ] Task 13: Remove "Back to News Feed" button + verify all tabs
+  - Acceptance: No "Back to News Feed" button anywhere. All 4 tabs (feed, dashboard, notifications, profile) render correct content in center column with persistent sidebars.
+  - Verify: `npx tsc -b`, navigate all tabs — correct content, no stale buttons
+  - Files: `app/dashboard/page.tsx`, `components/profile/UserProfileView.tsx`, search for "Back to" strings
+  - Scope: S
+
+### Checkpoint: Complete
+- [ ] All 10 spec items verified
+- [ ] Light/dark theme works everywhere
+- [ ] `npx tsc -b` clean
+- [ ] `npx oxlint .` clean
+- [ ] All existing tests pass
