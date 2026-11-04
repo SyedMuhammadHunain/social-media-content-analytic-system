@@ -129,8 +129,9 @@ export function PostMediaToolbar({
   };
 
   return (
-    <VStack gap={2} style={{ width: '100%', position: 'relative' }}>
-      <input
+    <div data-testid="post-media-toolbar" style={{ width: '100%' }}>
+      <VStack gap={2} style={{ width: '100%', position: 'relative' }}>
+        <input
         ref={fileInputRef}
         type="file"
         accept="image/*,video/*"
@@ -174,15 +175,16 @@ export function PostMediaToolbar({
 
       {/* Inline Emoji Popover Picker */}
       {activePicker === 'emoji' && (
-        <Card
-          padding={2}
-          style={{
-            maxWidth: 320,
-            backgroundColor: 'var(--color-background-surface, #1e1e1e)',
-            border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
-            borderRadius: 8,
-          }}
-        >
+        <div data-testid="emoji-picker-popover">
+          <Card
+            padding={2}
+            style={{
+              maxWidth: 320,
+              backgroundColor: 'var(--color-background-surface, #1e1e1e)',
+              border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
+              borderRadius: 8,
+            }}
+          >
           <div
             style={{
               display: 'grid',
@@ -217,20 +219,22 @@ export function PostMediaToolbar({
               </button>
             ))}
           </div>
-        </Card>
+          </Card>
+        </div>
       )}
 
       {/* Inline GIF Popover Picker */}
       {activePicker === 'gif' && (
-        <Card
-          padding={3}
-          style={{
-            maxWidth: 380,
-            backgroundColor: 'var(--color-background-surface, #1e1e1e)',
-            border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
-            borderRadius: 8,
-          }}
-        >
+        <div data-testid="gif-picker-popover">
+          <Card
+            padding={3}
+            style={{
+              maxWidth: 380,
+              backgroundColor: 'var(--color-background-surface, #1e1e1e)',
+              border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
+              borderRadius: 8,
+            }}
+          >
           <VStack gap={2}>
             <Text type="supporting" color="secondary" weight="semibold">
               Trending Reactions
@@ -285,10 +289,12 @@ export function PostMediaToolbar({
               ))}
             </div>
           </VStack>
-        </Card>
+          </Card>
+        </div>
       )}
     </VStack>
-  );
+  </div>
+);
 }
 
 export default PostMediaToolbar;
