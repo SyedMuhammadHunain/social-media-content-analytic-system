@@ -17,7 +17,7 @@ Plan: `tasks/plan.md`
   - Files: `app/login-card/` (new, CLI-generated)
   - Scope: XS
 
-- [ ] Task 3: Remove PlatformInfoFooter
+- [x] Task 3: Remove PlatformInfoFooter
   - Acceptance: "OOAD Content Analysis v1.0" card gone from right sidebar
   - Verify: `npx tsc -b`, visual check — card absent from feed page
   - Files: `app/feed/PlatformInfoFooter.tsx` (delete), `app/feed/NewsFeedRightSidebar.tsx`

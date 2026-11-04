@@ -7,7 +7,6 @@ import type { SuggestedCreator } from '../../types/social.ts';
 import { TRENDING_TOPICS } from '../../mock/socialSeedData.ts';
 import { TrendingTopicsCard } from './TrendingTopicsCard.tsx';
 import { WhoToFollowCard } from './WhoToFollowCard.tsx';
-import { PlatformInfoFooter } from './PlatformInfoFooter.tsx';
 
 interface NewsFeedRightSidebarProps {
   activeHashtag?: string;
@@ -36,7 +35,6 @@ export function NewsFeedRightSidebar({
         onToggleFollow={onToggleFollow}
         onViewProfile={onViewProfile}
       />
-      <PlatformInfoFooter />
     </aside>
   );
 }
