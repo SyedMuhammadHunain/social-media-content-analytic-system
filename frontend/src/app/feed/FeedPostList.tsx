@@ -94,7 +94,7 @@ export function FeedPostList({
   }
 
   return (
-    <VStack gap={4}>
+    <VStack gap={0}>
       {posts.map((post, index) => (
         <div
           key={post.id}
@@ -111,6 +111,8 @@ export function FeedPostList({
             onEditPost={onEditPost}
             onDeletePost={onDeletePost}
             onViewProfile={onViewUserProfile}
+            isFirst={index === 0}
+            isLast={index === posts.length - 1}
           />
         </div>
       ))}

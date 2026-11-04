@@ -29,7 +29,7 @@ Plan: `tasks/plan.md`
   - Files: `app/dashboard/DashboardHeader.tsx`, `app/dashboard/DashboardKpiCards.tsx`, other dashboard files with `<Badge>` elements
   - Scope: S
 
-- [ ] Task 5: Zero-gap post cards
+- [x] Task 5: Zero-gap post cards
   - Acceptance: No gap/margin between PostCard components in feed. Cards touch bottom-to-top.
   - Verify: `npx tsc -b`, visual check — posts stacked with zero spacing
   - Files: `app/feed/FeedPostList.tsx`, `app/feed/PostCard.tsx`

@@ -51,6 +51,8 @@ interface PostCardProps {
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
   onViewProfile?: (user: User) => void;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 export function PostCard({
@@ -63,6 +65,8 @@ export function PostCard({
   onEditPost,
   onDeletePost,
   onViewProfile,
+  isFirst = false,
+  isLast = false,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [remoteComments, setRemoteComments] = useState<Comment[]>([]);
@@ -91,9 +95,23 @@ export function PostCard({
     }
   };
 
+  const isOnly = isFirst && isLast;
+  const cardBorderRadius = isOnly
+    ? undefined
+    : isFirst
+      ? 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0'
+      : isLast
+        ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
+        : 0;
+
+  const cardStyle: React.CSSProperties = {
+    borderRadius: cardBorderRadius,
+    borderBottomWidth: isLast || isOnly ? '1px' : '0px',
+  };
+
   return (
     <div data-testid={`post-card-${post.id}`}>
-      <Card padding={5}>
+      <Card padding={5} style={cardStyle}>
         <VStack gap={4}>
           <PostHeader
             author={post.author}
