@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { Theme } from '@astryxdesign/core/theme';
 import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
@@ -13,9 +13,6 @@ import LoginCardPage from './app/login-card/page';
 import AppTopNav from './components/nav/AppTopNav';
 import NewsFeedPage from './app/feed/NewsFeedPage';
 
-const DashboardTemplate = lazy(() => import('./app/dashboard/page'));
-
-type AppTab = 'feed' | 'dashboard';
 type ThemeMode = 'dark' | 'light';
 
 function AppContent({
@@ -26,24 +23,13 @@ function AppContent({
   onToggleTheme: () => void;
 }) {
   const { isAuthenticated, currentUser, logout, demoUsers, switchUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<AppTab>('feed');
 
   const handleOpenNewPost = () => {
-    if (activeTab !== 'feed') {
-      setActiveTab('feed');
-    }
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('social:open-create-post'));
-    }, 20);
+    window.dispatchEvent(new CustomEvent('social:open-create-post'));
   };
 
   const handleRefreshFeed = () => {
-    if (activeTab !== 'feed') {
-      setActiveTab('feed');
-    }
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('social:refresh-feed'));
-    }, 20);
+    window.dispatchEvent(new CustomEvent('social:refresh-feed'));
   };
 
   if (!isAuthenticated) {
@@ -60,42 +46,33 @@ function AppContent({
       }}
     >
       {/* Official Astryx Mega TopNav */}
-    <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: 'var(--color-background-body, #111111)',
-        borderBottom: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08))',
-      }}
-    >
-      <AppTopNav
-        mode={mode}
-        onToggleTheme={onToggleTheme}
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        currentUser={currentUser}
-        onLogout={logout}
-        demoUsers={demoUsers}
-        onSwitchUser={switchUser}
-        onOpenNewPost={handleOpenNewPost}
-        onRefreshFeed={handleRefreshFeed}
-      />
-</header>
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+          backgroundColor: 'var(--color-background-body, #111111)',
+          borderBottom: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08))',
+        }}
+      >
+        <AppTopNav
+          mode={mode}
+          onToggleTheme={onToggleTheme}
+          currentUser={currentUser}
+          onLogout={logout}
+          demoUsers={demoUsers}
+          onSwitchUser={switchUser}
+          onOpenNewPost={handleOpenNewPost}
+          onRefreshFeed={handleRefreshFeed}
+        />
+      </header>
 
-      {/* Main Content Area */}
+      {/* Persistent 3-Column Shell Area */}
       <main>
-        {activeTab === 'feed' ? (
-          <NewsFeedPage
-            key={currentUser?.id}
-            currentUser={currentUser || undefined}
-            onNavigateAnalytics={() => setActiveTab('dashboard')}
-          />
-        ) : (
-          <Suspense fallback={null}>
-            <DashboardTemplate />
-          </Suspense>
-        )}
+        <NewsFeedPage
+          key={currentUser?.id}
+          currentUser={currentUser || undefined}
+        />
       </main>
     </div>
   );

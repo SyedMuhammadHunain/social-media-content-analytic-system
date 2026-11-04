@@ -15,6 +15,7 @@ interface NewsFeedLeftSidebarProps {
   onOpenProfileViews?: () => void;
   onSelectShortcut: (type: FeedFilterType) => void;
   onNavigateAnalytics?: () => void;
+  onNavigateNotifications?: () => void;
 }
 
 export function NewsFeedLeftSidebar({
@@ -25,6 +26,7 @@ export function NewsFeedLeftSidebar({
   onOpenProfileViews,
   onSelectShortcut,
   onNavigateAnalytics,
+  onNavigateNotifications,
 }: NewsFeedLeftSidebarProps) {
   return (
     <aside className="newsfeed-fixed-sidebar" data-testid="newsfeed-left-rail">
@@ -39,6 +41,7 @@ export function NewsFeedLeftSidebar({
         followerCount={user.followerCount}
         onSelectShortcut={onSelectShortcut}
         onNavigateAnalytics={onNavigateAnalytics}
+        onNavigateNotifications={onNavigateNotifications}
       />
     </aside>
   );

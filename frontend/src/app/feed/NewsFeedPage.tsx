@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 
 import type {
@@ -21,6 +21,7 @@ import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { PostComposer } from './PostComposer.tsx';
 import { PostCreateModal } from './PostCreateModal.tsx';
 import { UserProfileView } from '../../components/profile/UserProfileView.tsx';
+import { NotificationListPage } from '../notifications/NotificationListPage.tsx';
 import { useAnalytics } from '../../context/useAnalytics.ts';
 import { useAuth } from '../../context/useAuth.ts';
 import { useFeedMutations } from './useFeedMutations.ts';
@@ -37,6 +38,8 @@ import {
   type ProfileViewer,
 } from '../../utils/profileActivityStore.ts';
 import { getSharedPosts } from '../../utils/sharedPostsStore.ts';
+
+const DashboardPage = lazy(() => import('../dashboard/page.tsx'));
 
 const NEWSFEED_CSS = `
 .newsfeed-layout {
@@ -148,21 +151,27 @@ function filterPosts(posts: Post[], activeFilter: FeedFilter): Post[] {
   return posts;
 }
 
+export type AppTab = 'feed' | 'dashboard' | 'notifications' | 'profile';
+
 interface NewsFeedPageProps {
   currentUser?: UserProfile;
+  initialTab?: AppTab;
+  onSelectTab?: (tab: AppTab) => void;
   onOpenProfile?: () => void;
   onNavigateAnalytics?: () => void;
 }
 
 export function NewsFeedPage({
   currentUser = CURRENT_USER,
+  initialTab = 'feed',
+  onSelectTab,
   onOpenProfile,
   onNavigateAnalytics,
 }: NewsFeedPageProps) {
   const { recordLikeToggle, recordFollowToggle, recordComment } = useAnalytics();
   const { updateUser, demoUsers } = useAuth();
   const [user, setUser] = useState<UserProfile>(currentUser);
-  const [viewMode, setViewMode] = useState<'feed' | 'profile'>('feed');
+  const [activeTab, setActiveTab] = useState<AppTab>(initialTab);
   const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
   const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
   const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
@@ -172,6 +181,29 @@ export function NewsFeedPage({
   const [posts, setPosts] = useState<Post[]>(() => getSharedPosts());
   const [suggestedCreators, setSuggestedCreators] = useState<SuggestedCreator[]>(SUGGESTED_CREATORS);
   const backendUserId = normalizeBackendUserId(user.id);
+
+  const changeTab = useCallback((tab: AppTab) => {
+    setActiveTab(tab);
+    onSelectTab?.(tab);
+  }, [onSelectTab]);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  useEffect(() => {
+    const handleNavEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<AppTab>;
+      if (customEvent?.detail) {
+        changeTab(customEvent.detail);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('social:navigate-tab', handleNavEvent as EventListener);
+    return () => window.removeEventListener('social:navigate-tab', handleNavEvent as EventListener);
+  }, [changeTab]);
 
   useEffect(() => {
     const handlePostsSync = (e?: Event) => {
@@ -241,17 +273,15 @@ export function NewsFeedPage({
 
   useEffect(() => {
     const handleRefreshEvent = () => {
-      if (viewMode === 'profile') {
-        setViewMode('feed');
-        setViewedUser(null);
-      }
+      changeTab('feed');
+      setViewedUser(null);
       handleClearFilter();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       refreshFeed();
     };
     window.addEventListener('social:refresh-feed', handleRefreshEvent);
     return () => window.removeEventListener('social:refresh-feed', handleRefreshEvent);
-  }, [viewMode, handleClearFilter, refreshFeed]);
+  }, [changeTab, handleClearFilter, refreshFeed]);
 
   const mutations = useFeedMutations({
     user,
@@ -268,8 +298,21 @@ export function NewsFeedPage({
 
   const handleOpenProfile = () => {
     setViewedUser(user);
-    setViewMode('profile');
+    changeTab('profile');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     onOpenProfile?.();
+  };
+
+  const handleSelectFeedShortcut = (type: any) => {
+    changeTab('feed');
+    handleSelectShortcut(type);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectHashtagFilter = (tag: string) => {
+    changeTab('feed');
+    handleSelectHashtag(tag);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewUserProfile = (targetUser: UserProfile | User | SuggestedCreator | ProfileViewer) => {
@@ -300,7 +343,8 @@ export function NewsFeedPage({
     };
 
     setViewedUser(resolvedProfile);
-    setViewMode('profile');
+    changeTab('profile');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Dynamically record profile visit
     recordProfileView(
@@ -318,94 +362,31 @@ export function NewsFeedPage({
   const handleModalCreatePost = async (postInput: any) => {
     await mutations.handleCreatePost(postInput);
     setIsNewPostModalOpen(false);
-    if (viewMode === 'profile') {
-      setViewMode('feed');
-      setViewedUser(null);
-    }
+    changeTab('feed');
+    setViewedUser(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (viewMode === 'profile') {
-    const activeProfile: UserProfile = viewedUser
-      ? {
-          id: viewedUser.id,
-          username: viewedUser.username,
-          name: viewedUser.name,
-          avatarUrl: viewedUser.avatarUrl || '',
-          coverBannerUrl: (viewedUser as any).coverBannerUrl || '',
-          isFollowed:
-            (viewedUser as any).isFollowed ??
-            suggestedCreators.find((s) => s.id === viewedUser.id)?.isFollowed ??
-            false,
-          headline: (viewedUser as any).headline || 'Social Media Creator',
-          tags: (viewedUser as any).tags || ['Creator', 'Meta Astryx'],
-          bio: (viewedUser as any).bio || `Welcome to @${viewedUser.username}'s profile.`,
-          followerCount: (viewedUser as any).followerCount ?? 0,
-          followingCount: (viewedUser as any).followingCount ?? 0,
-        }
-      : user;
+  const activeProfile: UserProfile = viewedUser
+    ? {
+        id: viewedUser.id,
+        username: viewedUser.username,
+        name: viewedUser.name,
+        avatarUrl: viewedUser.avatarUrl || '',
+        coverBannerUrl: (viewedUser as any).coverBannerUrl || '',
+        isFollowed:
+          (viewedUser as any).isFollowed ??
+          suggestedCreators.find((s) => s.id === viewedUser.id)?.isFollowed ??
+          false,
+        headline: (viewedUser as any).headline || 'Social Media Creator',
+        tags: (viewedUser as any).tags || ['Creator', 'Meta Astryx'],
+        bio: (viewedUser as any).bio || `Welcome to @${viewedUser.username}'s profile.`,
+        followerCount: (viewedUser as any).followerCount ?? 0,
+        followingCount: (viewedUser as any).followingCount ?? 0,
+      }
+    : user;
 
-    const isOwnProfile = activeProfile.id === user.id;
-
-    return (
-      <>
-        <UserProfileView
-          user={activeProfile}
-          posts={posts.filter((p) =>
-            p.author.id === activeProfile.id ||
-            p.userId === activeProfile.id ||
-            (p.author.username && activeProfile.username && p.author.username.toLowerCase() === activeProfile.username.toLowerCase()) ||
-            (p.author.name && activeProfile.name && p.author.name.toLowerCase() === activeProfile.name.toLowerCase()) ||
-            normalizeBackendUserId(p.userId) === normalizeBackendUserId(activeProfile.id) ||
-            normalizeBackendUserId(p.author.id) === normalizeBackendUserId(activeProfile.id)
-          )}
-          isOwnProfile={isOwnProfile}
-          onBack={() => {
-            setViewMode('feed');
-            setViewedUser(null);
-          }}
-          onUpdateBio={(newBio) => {
-            if (isOwnProfile) {
-              setUser((prev) => ({ ...prev, bio: newBio }));
-              updateUser?.({ bio: newBio });
-            }
-          }}
-          onUpdateAvatar={(newAvatarUrl) => {
-            if (isOwnProfile) {
-              setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
-              updateUser?.({ avatarUrl: newAvatarUrl });
-            }
-          }}
-          onUpdateBanner={(newBannerUrl) => {
-            if (isOwnProfile) {
-              setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
-              updateUser?.({ coverBannerUrl: newBannerUrl });
-            }
-          }}
-          onToggleLike={mutations.handleToggleLike}
-          onToggleFollow={(userId) => {
-            mutations.handleToggleFollow(userId);
-            if (viewedUser && viewedUser.id === userId) {
-              setViewedUser((prev: any) =>
-                prev ? { ...prev, isFollowed: !prev.isFollowed } : null
-              );
-            }
-          }}
-          onAddComment={mutations.handleAddComment}
-          onEditPost={mutations.handleEditPost}
-          onDeletePost={mutations.handleDeletePost}
-        />
-
-        <PostCreateModal
-          isOpen={isNewPostModalOpen}
-          onClose={() => setIsNewPostModalOpen(false)}
-          currentUser={user}
-          onCreatePost={handleModalCreatePost}
-        />
-      </>
-    );
-  }
-
+  const isOwnProfile = activeProfile.id === user.id;
   const filteredPosts = filterPosts(posts, activeFilter);
   const savedCount = posts.filter((p) => p.isBookmarked).length;
 
@@ -419,51 +400,120 @@ export function NewsFeedPage({
           <div className="newsfeed-layout">
             <NewsFeedLeftSidebar
               user={user}
-              activeFilterType={activeFilter.type}
+              activeFilterType={activeTab === 'feed' ? activeFilter.type : ('' as any)}
               savedCount={savedCount}
               onOpenProfile={handleOpenProfile}
               onOpenProfileViews={() => setIsViewersModalOpen(true)}
-              onSelectShortcut={handleSelectShortcut}
-              onNavigateAnalytics={onNavigateAnalytics}
+              onSelectShortcut={handleSelectFeedShortcut}
+              onNavigateAnalytics={() => {
+                changeTab('dashboard');
+                onNavigateAnalytics?.();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onNavigateNotifications={() => {
+                changeTab('notifications');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             />
 
             <main style={{ width: '100%', maxWidth: 680, minWidth: 0 }}>
-              <VStack gap={4}>
-                {isRefreshing && <FeedRefreshBanner />}
+              {activeTab === 'feed' && (
+                <VStack gap={4}>
+                  {isRefreshing && <FeedRefreshBanner />}
 
-                <PostComposer
-                  currentUser={user}
-                  onCreatePost={mutations.handleCreatePost}
-                />
+                  <PostComposer
+                    currentUser={user}
+                    onCreatePost={mutations.handleCreatePost}
+                  />
 
-                <FeedFilterPill
-                  activeFilter={activeFilter}
-                  postCount={filteredPosts.length}
-                  onClearFilter={handleClearFilter}
-                />
+                  <FeedFilterPill
+                    activeFilter={activeFilter}
+                    postCount={filteredPosts.length}
+                    onClearFilter={handleClearFilter}
+                  />
 
-                <FeedPostList
-                  posts={filteredPosts}
-                  currentUser={user}
-                  isBookmarksFilter={activeFilter.type === 'BOOKMARKS'}
-                  hasActiveFilter={activeFilter.type !== 'ALL'}
-                  onClearFilter={handleClearFilter}
+                  <FeedPostList
+                    posts={filteredPosts}
+                    currentUser={user}
+                    isBookmarksFilter={activeFilter.type === 'BOOKMARKS'}
+                    hasActiveFilter={activeFilter.type !== 'ALL'}
+                    onClearFilter={handleClearFilter}
+                    onToggleLike={mutations.handleToggleLike}
+                    onToggleFollow={mutations.handleToggleFollow}
+                    onAddComment={mutations.handleAddComment}
+                    onToggleBookmark={mutations.handleToggleBookmark}
+                    onEditPost={mutations.handleEditPost}
+                    onDeletePost={mutations.handleDeletePost}
+                    onViewUserProfile={handleViewUserProfile}
+                    isLoading={isLoading}
+                  />
+                </VStack>
+              )}
+
+              {activeTab === 'dashboard' && (
+                <Suspense fallback={null}>
+                  <DashboardPage />
+                </Suspense>
+              )}
+
+              {activeTab === 'notifications' && (
+                <NotificationListPage />
+              )}
+
+              {activeTab === 'profile' && (
+                <UserProfileView
+                  user={activeProfile}
+                  posts={posts.filter((p) =>
+                    p.author.id === activeProfile.id ||
+                    p.userId === activeProfile.id ||
+                    (p.author.username && activeProfile.username && p.author.username.toLowerCase() === activeProfile.username.toLowerCase()) ||
+                    (p.author.name && activeProfile.name && p.author.name.toLowerCase() === activeProfile.name.toLowerCase()) ||
+                    normalizeBackendUserId(p.userId) === normalizeBackendUserId(activeProfile.id) ||
+                    normalizeBackendUserId(p.author.id) === normalizeBackendUserId(activeProfile.id)
+                  )}
+                  isOwnProfile={isOwnProfile}
+                  onBack={() => {
+                    changeTab('feed');
+                    setViewedUser(null);
+                  }}
+                  onUpdateBio={(newBio) => {
+                    if (isOwnProfile) {
+                      setUser((prev) => ({ ...prev, bio: newBio }));
+                      updateUser?.({ bio: newBio });
+                    }
+                  }}
+                  onUpdateAvatar={(newAvatarUrl) => {
+                    if (isOwnProfile) {
+                      setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
+                      updateUser?.({ avatarUrl: newAvatarUrl });
+                    }
+                  }}
+                  onUpdateBanner={(newBannerUrl) => {
+                    if (isOwnProfile) {
+                      setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
+                      updateUser?.({ coverBannerUrl: newBannerUrl });
+                    }
+                  }}
                   onToggleLike={mutations.handleToggleLike}
-                  onToggleFollow={mutations.handleToggleFollow}
+                  onToggleFollow={(userId) => {
+                    mutations.handleToggleFollow(userId);
+                    if (viewedUser && viewedUser.id === userId) {
+                      setViewedUser((prev: any) =>
+                        prev ? { ...prev, isFollowed: !prev.isFollowed } : null
+                      );
+                    }
+                  }}
                   onAddComment={mutations.handleAddComment}
-                  onToggleBookmark={mutations.handleToggleBookmark}
                   onEditPost={mutations.handleEditPost}
                   onDeletePost={mutations.handleDeletePost}
-                  onViewUserProfile={handleViewUserProfile}
-                  isLoading={isLoading}
                 />
-              </VStack>
+              )}
             </main>
 
             <NewsFeedRightSidebar
-              activeHashtag={activeFilter.type === 'HASHTAG' ? activeFilter.value : undefined}
+              activeHashtag={activeTab === 'feed' && activeFilter.type === 'HASHTAG' ? activeFilter.value : undefined}
               suggestedCreators={suggestedCreators}
-              onSelectHashtag={handleSelectHashtag}
+              onSelectHashtag={handleSelectHashtagFilter}
               onToggleFollow={mutations.handleToggleFollow}
               onViewProfile={handleViewUserProfile}
             />

@@ -1,0 +1,192 @@
+// Copyright (c) Meta Platforms, Inc. and affiliates.
+// Social Media Content Analysis System - Center Column Notifications View
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card } from '@astryxdesign/core/Card';
+import { VStack, HStack } from '@astryxdesign/core/Layout';
+import { Heading, Text } from '@astryxdesign/core/Text';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Divider } from '@astryxdesign/core/Divider';
+import { Button } from '@astryxdesign/core/Button';
+import { Avatar } from '@astryxdesign/core/Avatar';
+import { Icon } from '@astryxdesign/core/Icon';
+import {
+  BellIcon,
+  HeartIcon,
+  ChatBubbleOvalLeftIcon,
+  UserPlusIcon,
+  CheckIcon,
+} from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/useAuth';
+import { notificationsApi, type Notification } from '../../api/notificationsApi';
+
+export function NotificationListPage() {
+  const { currentUser } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchNotifications = async () => {
+      try {
+        if (!currentUser?.id) {
+          if (mounted) setIsLoading(false);
+          return;
+        }
+        const items = await notificationsApi.getNotifications(currentUser.id);
+        if (mounted) {
+          setNotifications(items);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to load notifications:', err);
+        if (mounted) setIsLoading(false);
+      }
+    };
+    fetchNotifications();
+    return () => {
+      mounted = false;
+    };
+  }, [currentUser?.id]);
+
+  const handleMarkAllRead = async () => {
+    if (!currentUser?.id) return;
+    try {
+      await notificationsApi.markAllAsRead(currentUser.id);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (err) {
+      console.error('Failed to mark all notifications read:', err);
+    }
+  };
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      await notificationsApi.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      );
+    } catch (err) {
+      console.error('Failed to mark notification read:', err);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const getNotificationIcon = (type: string) => {
+    const upper = type.toUpperCase();
+    switch (upper) {
+      case 'LIKE':
+        return <Icon icon={HeartIcon} size="xsm" color="error" />;
+      case 'COMMENT':
+        return <Icon icon={ChatBubbleOvalLeftIcon} size="xsm" color="primary" />;
+      case 'FOLLOW':
+        return <Icon icon={UserPlusIcon} size="xsm" color="success" />;
+      default:
+        return <Icon icon={BellIcon} size="xsm" color="primary" />;
+    }
+  };
+
+  return (
+    <Card padding={5} style={{ width: '100%', minWidth: 0 }}>
+      <VStack gap={4}>
+        {/* Header */}
+        <HStack hAlign="between" vAlign="center" wrap="wrap" gap={2}>
+          <HStack gap={2} vAlign="center">
+            <Icon icon={BellIcon} size="md" color="primary" />
+            <Heading level={3}>Notifications</Heading>
+            {unreadCount > 0 && (
+              <Badge variant="blue" label={`${unreadCount} New`} />
+            )}
+          </HStack>
+
+          {unreadCount > 0 && (
+            <Button
+              size="sm"
+              variant="secondary"
+              label="Mark all as read"
+              icon={<Icon icon={CheckIcon} size="xsm" />}
+              onClick={handleMarkAllRead}
+            />
+          )}
+        </HStack>
+
+        <Divider />
+
+        {/* Notifications Stream */}
+        {isLoading ? (
+          <VStack gap={3}>
+            <Text type="body" color="secondary">
+              Loading notifications...
+            </Text>
+          </VStack>
+        ) : notifications.length === 0 ? (
+          <VStack gap={2} hAlign="center" style={{ padding: '32px 0' }}>
+            <Icon icon={BellIcon} size="lg" color="secondary" />
+            <Text type="body" weight="semibold">
+              No notifications yet
+            </Text>
+            <Text type="supporting" color="secondary">
+              When someone likes, comments, or follows you, you will see it here.
+            </Text>
+          </VStack>
+        ) : (
+          <VStack gap={2}>
+            {notifications.map((item) => (
+              <Card
+                key={item.id}
+                padding={3}
+                style={{
+                  width: '100%',
+                  opacity: item.read ? 0.75 : 1,
+                  cursor: item.read ? 'default' : 'pointer',
+                }}
+                onClick={() => !item.read && handleMarkRead(item.id)}
+              >
+                <HStack gap={3} vAlign="center" hAlign="between">
+                  <HStack gap={3} vAlign="center">
+                    <Avatar
+                      size="md"
+                      name={item.actorName || 'User'}
+                      src={item.actorAvatar}
+                    />
+                    <VStack gap={1}>
+                      <HStack gap={1} vAlign="center">
+                        {getNotificationIcon(item.type)}
+                        <Text type="body" weight={item.read ? 'normal' : 'bold'}>
+                          {item.message || `${item.actorName} interacted with your post`}
+                        </Text>
+                      </HStack>
+                      <Text type="supporting" color="secondary">
+                        {new Date(item.createdAt || Date.now()).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    </VStack>
+                  </HStack>
+
+                  {!item.read && (
+                    <div
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--color-primary, #0171E3)',
+                      }}
+                    />
+                  )}
+                </HStack>
+              </Card>
+            ))}
+          </VStack>
+        )}
+      </VStack>
+    </Card>
+  );
+}
+
+export default NotificationListPage;

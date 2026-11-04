@@ -4,7 +4,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { VStack, Layout, LayoutContent } from '@astryxdesign/core/Layout';
+import { VStack } from '@astryxdesign/core/Layout';
 import { Divider } from '@astryxdesign/core/Divider';
 import { useAnalytics } from '../../context/useAnalytics';
 import { useAuth } from '../../context/useAuth';
@@ -40,48 +40,41 @@ export default function DashboardPage() {
   const unlikesSparkline = likeUnlikeData.map(d => d.unlikes);
 
   return (
-    <Layout
-      height="fill"
-      content={
-        <LayoutContent padding={6}>
-          <VStack gap={6}>
-            <DashboardHeader
-              timeRange={timeRange}
-              setTimeRange={setTimeRange}
-              refreshMetrics={refreshMetrics}
-              currentUser={currentUser}
-            />
+    <VStack gap={6} style={{ width: '100%', minWidth: 0 }}>
+      <DashboardHeader
+        timeRange={timeRange}
+        setTimeRange={setTimeRange}
+        refreshMetrics={refreshMetrics}
+        currentUser={currentUser}
+      />
 
-            <DashboardKpiCards
-              summary={summary}
-              followerSparkline={followerSparkline}
-              likesSparkline={likesSparkline}
-              commentsSparkline={commentsSparkline}
-              unlikesSparkline={unlikesSparkline}
-            />
+      <DashboardKpiCards
+        summary={summary}
+        followerSparkline={followerSparkline}
+        likesSparkline={likesSparkline}
+        commentsSparkline={commentsSparkline}
+        unlikesSparkline={unlikesSparkline}
+      />
 
-            <Divider />
+      <Divider />
 
-            <DashboardSentimentCharts
-              likeUnlikeData={likeUnlikeData}
-              followersData={followersData}
-              summary={summary}
-            />
+      <DashboardSentimentCharts
+        likeUnlikeData={likeUnlikeData}
+        followersData={followersData}
+        summary={summary}
+      />
 
-            <DashboardEngagementChart
-              engagementData={engagementData}
-              summary={summary}
-            />
+      <DashboardEngagementChart
+        engagementData={engagementData}
+        summary={summary}
+      />
 
-            <DashboardAnalyticsInterpretation
-              summary={summary}
-              likeUnlikeData={likeUnlikeData}
-              followersData={followersData}
-              engagementData={engagementData}
-            />
-          </VStack>
-        </LayoutContent>
-      }
-    />
+      <DashboardAnalyticsInterpretation
+        summary={summary}
+        likeUnlikeData={likeUnlikeData}
+        followersData={followersData}
+        engagementData={engagementData}
+      />
+    </VStack>
   );
 }
