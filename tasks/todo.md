@@ -5,7 +5,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 1: Layout & Scroll Architecture
 
-- [ ] Task 1: Lock Outer App Viewport at 100vh
+- [x] Task 1: Lock Outer App Viewport at 100vh
   - Acceptance: Root container in `frontend/src/App.tsx` has `height: '100vh'`, `overflow: 'hidden'`. Outer page body does not scroll.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/App.tsx`
