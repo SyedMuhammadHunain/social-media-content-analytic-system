@@ -142,17 +142,18 @@ export function ProfileHeaderBanner({
                   position: 'absolute',
                   bottom: 2,
                   right: 2,
-                  width: 34,
-                  height: 34,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
-                  backgroundColor: 'var(--color-background-container, #242526)',
+                  backgroundColor: 'var(--color-background-surface, #262626)',
                   border: '2px solid var(--color-background-body, #111111)',
                   color: 'var(--color-text-primary, #ffffff)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
+                  transition: 'background-color 0.15s ease, color 0.15s ease',
                 }}
               >
                 <Icon icon={CameraIcon} size="xsm" />

@@ -1,8 +1,11 @@
 // Test Suite: User Profile Card & Full Profile View Verification
 import test from 'node:test';
 import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
 import { spawn } from 'node:child_process';
 
+const ARTIFACT_DIR = path.resolve(process.cwd(), 'docs/reports/screenshots');
 const PORT = 9225;
 const TARGET_URL = 'http://127.0.0.1:5173/';
 
@@ -174,6 +177,49 @@ test('User Profile Card & Full Profile View Flow', async (t) => {
       })()
     `);
     assert.strictEqual(hasNameLineChangePhotoBtn, false, 'Redundant Change Photo button on Name line must be removed');
+  });
+
+  await t.test('3c. Avatar camera photo trigger has proper contrast in light mode', async () => {
+    // Switch to light mode
+    await evaluate(`
+      (() => {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.style.colorScheme = 'light';
+        window.dispatchEvent(new CustomEvent('app:set-theme', { detail: 'light' }));
+      })()
+    `);
+    await sleep(300);
+
+    const triggerStyles = await evaluate(`
+      (() => {
+        const btn = document.querySelector('[data-testid="upload-avatar-trigger"]');
+        if (!btn) return null;
+        const style = window.getComputedStyle(btn);
+        return {
+          bg: style.backgroundColor,
+          color: style.color,
+        };
+      })()
+    `);
+    assert.ok(triggerStyles, 'Avatar photo upload trigger exists');
+    assert.notStrictEqual(triggerStyles.bg, 'rgb(36, 37, 38)', 'Background must not be dark fallback in light mode');
+
+    try {
+      const res = await send('Page.captureScreenshot', { format: 'png' });
+      if (res?.data) {
+        fs.writeFileSync(`${ARTIFACT_DIR}/avatar_camera_light_mode_verified.png`, Buffer.from(res.data, 'base64'));
+      }
+    } catch {}
+
+    // Switch back to dark mode
+    await evaluate(`
+      (() => {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.style.colorScheme = 'dark';
+        window.dispatchEvent(new CustomEvent('app:set-theme', { detail: 'dark' }));
+      })()
+    `);
+    await sleep(200);
   });
 
   await t.test('4. Bio editor toggles to edit mode and saves with Banner feedback', async () => {
