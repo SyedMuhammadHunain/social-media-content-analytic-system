@@ -12,13 +12,6 @@ import { Divider } from '@astryxdesign/core/Divider';
 import { Button } from '@astryxdesign/core/Button';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Icon } from '@astryxdesign/core/Icon';
-import {
-  BellIcon,
-  HeartIcon,
-  ChatBubbleOvalLeftIcon,
-  UserPlusIcon,
-  CheckIcon,
-} from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/useAuth';
 import { notificationsApi, type Notification } from '../../api/notificationsApi';
 
@@ -78,13 +71,13 @@ export function NotificationListPage() {
     const upper = type.toUpperCase();
     switch (upper) {
       case 'LIKE':
-        return <Icon icon={HeartIcon} size="xsm" color="error" />;
+        return <Icon icon="check" size="xsm" color="secondary" />;
       case 'COMMENT':
-        return <Icon icon={ChatBubbleOvalLeftIcon} size="xsm" color="primary" />;
+        return <Icon icon="info" size="xsm" color="secondary" />;
       case 'FOLLOW':
-        return <Icon icon={UserPlusIcon} size="xsm" color="success" />;
+        return <Icon icon="checkDouble" size="xsm" color="secondary" />;
       default:
-        return <Icon icon={BellIcon} size="xsm" color="primary" />;
+        return <Icon icon="info" size="xsm" color="secondary" />;
     }
   };
 
@@ -94,10 +87,10 @@ export function NotificationListPage() {
         {/* Header */}
         <HStack hAlign="between" vAlign="center" wrap="wrap" gap={2}>
           <HStack gap={2} vAlign="center">
-            <Icon icon={BellIcon} size="md" color="primary" />
+            <Icon icon="info" size="md" color="secondary" />
             <Heading level={3}>Notifications</Heading>
             {unreadCount > 0 && (
-              <Badge variant="blue" label={`${unreadCount} New`} />
+              <Badge variant="neutral" label={`${unreadCount} New`} />
             )}
           </HStack>
 
@@ -106,7 +99,7 @@ export function NotificationListPage() {
               size="sm"
               variant="secondary"
               label="Mark all as read"
-              icon={<Icon icon={CheckIcon} size="xsm" />}
+              icon={<Icon icon="check" size="xsm" />}
               onClick={handleMarkAllRead}
             />
           )}
@@ -123,7 +116,7 @@ export function NotificationListPage() {
           </VStack>
         ) : notifications.length === 0 ? (
           <VStack gap={2} hAlign="center" style={{ padding: '32px 0' }}>
-            <Icon icon={BellIcon} size="lg" color="secondary" />
+            <Icon icon="info" size="lg" color="secondary" />
             <Text type="body" weight="semibold">
               No notifications yet
             </Text>
@@ -175,7 +168,7 @@ export function NotificationListPage() {
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        backgroundColor: 'var(--color-primary, #0171E3)',
+                        backgroundColor: 'var(--color-text-primary, #FFFFFF)',
                       }}
                     />
                   )}
