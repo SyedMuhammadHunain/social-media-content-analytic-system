@@ -5,7 +5,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 1: Core Components
 
-- [ ] Task 1: Build `PostMediaToolbar` with Media, GIF, and Emoji tools
+- [x] Task 1: Build `PostMediaToolbar` with Media, GIF, and Emoji tools
   - Acceptance: Toolbar renders icons for Media (file upload), GIF (reaction picker), Emoji (emoji picker). Clicking appends selected media/text. Astryx only.
   - Verify: `npx tsc -b`
   - Files: `frontend/src/app/feed/PostMediaToolbar.tsx`
