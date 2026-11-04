@@ -40,7 +40,7 @@ export interface FeedShortcutsCardProps {
 export function FeedShortcutsCard({
   activeFilterType,
   savedCount = 0,
-  followerCount,
+  followerCount: _followerCount,
   onSelectShortcut,
   onNavigateAnalytics,
   onNavigateNotifications,
@@ -119,12 +119,6 @@ export function FeedShortcutsCard({
           label="Creator Analytics"
           density="compact"
           startContent={<Icon icon={ChartBarIcon} size="sm" />}
-          endContent={
-            <Badge
-              variant="success"
-              label={followerCount !== undefined ? `${(followerCount / 1000).toFixed(1)}k` : 'Live'}
-            />
-          }
           onClick={onNavigateAnalytics}
         />
 

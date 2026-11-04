@@ -141,6 +141,17 @@ test('UI Refinements 3 (refine_3_ui) End-to-End Suite', async (t) => {
     assert.strictEqual(sidebarText.includes('Saved Posts'), true, 'Saved Posts remains in left rail');
   });
 
+  await t.test('2b. Creator Analytics shortcut has NO green 0.0k tag', async () => {
+    const itemText = await evaluate(`
+      (() => {
+        const item = document.querySelector('[data-testid="shortcut-creator-analytics"]');
+        return item ? item.innerText : '';
+      })()
+    `);
+    assert.strictEqual(itemText.includes('0.0k'), false, 'Creator Analytics must not contain 0.0k tag');
+    assert.strictEqual(itemText.includes('Live'), false, 'Creator Analytics must not contain Live tag');
+  });
+
   await t.test('3. Right Sidebar contains pill Search Input Box and NO Trending Topics', async () => {
     const rightRailInfo = await evaluate(`
       (() => {
