@@ -11,7 +11,7 @@ Plan: `tasks/plan.md`
   - Files: `public/logo.jpeg`, `components/nav/AppTopNav.tsx`, login component
   - Scope: S
 
-- [ ] Task 2: Run login-card CLI template
+- [x] Task 2: Run login-card CLI template
   - Acceptance: `npx @astryxdesign/cli template login-card ./src/app/login-card` runs, output inspected, files committed
   - Verify: Inspect scaffolded files, note what needs customization
   - Files: `app/login-card/` (new, CLI-generated)
