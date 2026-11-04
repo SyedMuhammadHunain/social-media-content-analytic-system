@@ -60,15 +60,15 @@ Plan: `tasks/plan.md`
   - Files: `app/feed/FeedShortcutsCard.tsx`
   - Scope: S
 
-- [ ] Task 9: Fix Analytics Interpretation card
+- [x] Task 9: Fix Analytics Interpretation card
   - Acceptance: `DashboardAnalyticsInterpretation.tsx` uses Astryx components (`Card`, `Section`, `Text`, `Icon`). Respects light/dark theme. No overwhelming text. Astryx icons only.
   - Verify: `npx tsc -b`, toggle theme — card appearance switches correctly
   - Files: `app/dashboard/DashboardAnalyticsInterpretation.tsx`
   - Scope: M
 
 ### Checkpoint: Structural
-- [ ] `npx tsc -b` passes
-- [ ] Navbar minimal, login works, shortcuts functional, analytics card themed
+- [x] `npx tsc -b` passes
+- [x] Navbar minimal, login works, shortcuts functional, analytics card themed
 
 ## Phase 3: Layout Refactor
 
