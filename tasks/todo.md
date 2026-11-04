@@ -11,7 +11,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/PostMediaToolbar.tsx`
   - Scope: S
 
-- [ ] Task 2: Redesign `PostCreateModal` to match Screenshot 2
+- [x] Task 2: Redesign `PostCreateModal` to match Screenshot 2
   - Acceptance: Modal has "Cancel" top-left, "New Post" center, no top-right icons. Body has user avatar + username, "What's new?" textarea, `PostMediaToolbar`, and bottom-right "Post" button. No "Post options" bottom-left.
   - Verify: `npx tsc -b`, visual check
   - Files: `frontend/src/app/feed/PostCreateModal.tsx`
