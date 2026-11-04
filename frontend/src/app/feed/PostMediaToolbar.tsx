@@ -71,9 +71,9 @@ const EmojiIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const POPULAR_EMOJIS = [
-  '😀', '😂', '🔥', '❤️', '🚀', '✨',
-  '🎉', '👍', '🙌', '💡', '💯', '😍',
-  '👏', '😎', '🥳', '💪', '⭐', '🤝',
+  '😀', '😂', '🔥', '❤️', '🚀', '✨', '🎉', '👍',
+  '🙌', '💡', '💯', '😍', '👏', '😎', '🥳', '💪',
+  '⭐', '🤝', '🤩', '🎯', '⚡', '☕', '👀', '💬',
 ];
 
 const PRESET_GIFS = [
@@ -175,120 +175,130 @@ export function PostMediaToolbar({
 
       {/* Inline Emoji Popover Picker */}
       {activePicker === 'emoji' && (
-        <div data-testid="emoji-picker-popover">
+        <div data-testid="emoji-picker-popover" style={{ width: '100%' }}>
           <Card
-            padding={2}
+            padding={3}
             style={{
-              maxWidth: 320,
+              width: '100%',
+              boxSizing: 'border-box',
               backgroundColor: 'var(--color-background-surface, #1e1e1e)',
               border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
               borderRadius: 8,
             }}
           >
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(6, 1fr)',
-              gap: 4,
-            }}
-          >
-            {POPULAR_EMOJIS.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                onClick={() => {
-                  onSelectEmoji(emoji);
-                  setActivePicker('none');
-                }}
+            <VStack gap={2}>
+              <Text type="supporting" color="secondary" weight="semibold">
+                Popular Emojis
+              </Text>
+              <div
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.25rem',
-                  padding: '6px',
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'background 0.15s ease',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
+                  gap: 4,
+                  width: '100%',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
-                {emoji}
-              </button>
-            ))}
-          </div>
+                {POPULAR_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      onSelectEmoji(emoji);
+                      setActivePicker('none');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '1.35rem',
+                      padding: '8px 4px',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 0.15s ease, transform 0.1s ease',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </VStack>
           </Card>
         </div>
       )}
 
       {/* Inline GIF Popover Picker */}
       {activePicker === 'gif' && (
-        <div data-testid="gif-picker-popover">
+        <div data-testid="gif-picker-popover" style={{ width: '100%' }}>
           <Card
             padding={3}
             style={{
-              maxWidth: 380,
+              width: '100%',
+              boxSizing: 'border-box',
               backgroundColor: 'var(--color-background-surface, #1e1e1e)',
               border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
               borderRadius: 8,
             }}
           >
-          <VStack gap={2}>
-            <Text type="supporting" color="secondary" weight="semibold">
-              Trending Reactions
-            </Text>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: 8,
-              }}
-            >
-              {PRESET_GIFS.map((gif) => (
-                <div
-                  key={gif.id}
-                  onClick={() => {
-                    onSelectGif(gif.url);
-                    setActivePicker('none');
-                  }}
-                  style={{
-                    cursor: 'pointer',
-                    borderRadius: 6,
-                    overflow: 'hidden',
-                    border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
-                    position: 'relative',
-                  }}
-                >
-                  <img
-                    src={gif.url}
-                    alt={gif.label}
-                    style={{
-                      width: '100%',
-                      height: 72,
-                      objectFit: 'cover',
-                      display: 'block',
-                    }}
-                  />
+            <VStack gap={2}>
+              <Text type="supporting" color="secondary" weight="semibold">
+                Trending Reactions
+              </Text>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                  gap: 8,
+                  width: '100%',
+                }}
+              >
+                {PRESET_GIFS.map((gif) => (
                   <div
+                    key={gif.id}
+                    onClick={() => {
+                      onSelectGif(gif.url);
+                      setActivePicker('none');
+                    }}
                     style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      padding: '2px 6px',
-                      background: 'rgba(0,0,0,0.65)',
+                      cursor: 'pointer',
+                      borderRadius: 6,
+                      overflow: 'hidden',
+                      border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
+                      position: 'relative',
+                      height: 80,
                     }}
                   >
-                    <Text type="supporting" size="sm" color="primary">
-                      {gif.label}
-                    </Text>
+                    <img
+                      src={gif.url}
+                      alt={gif.label}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        display: 'block',
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '2px 6px',
+                        background: 'rgba(0,0,0,0.65)',
+                      }}
+                    >
+                      <Text type="supporting" size="sm" color="primary">
+                        {gif.label}
+                      </Text>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </VStack>
+                ))}
+              </div>
+            </VStack>
           </Card>
         </div>
       )}

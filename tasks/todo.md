@@ -29,7 +29,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Composer Modal Enhancements & Provider Architecture
 
-- [ ] Task 4: Full-Width GIF and Emoji Picker Cards
+- [x] Task 4: Full-Width GIF and Emoji Picker Cards
   - Acceptance: Popover cards for Emoji and GIF expand to 100% width of the composer modal. Emojis arranged in responsive multi-column grid filling horizontal width. Trending GIFs arranged in responsive grid filling horizontal width.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/app/feed/PostMediaToolbar.tsx`
