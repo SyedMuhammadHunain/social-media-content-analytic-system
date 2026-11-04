@@ -11,16 +11,16 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/App.tsx`
   - Scope: XS
 
-- [ ] Task 2: Configure Independent Center Scroll Container in NewsFeedPage
+- [x] Task 2: Configure Independent Center Scroll Container in NewsFeedPage
   - Acceptance: Center `<main>` container has class `.newsfeed-center-scroll` and `data-testid="newsfeed-center-container"`. Height is `calc(100vh - 48px)`, `overflow-y: auto`, with scrollbars completely hidden. Left and right sidebars remain fixed at `top: 24px`.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
 ### Checkpoint: Layout Architecture
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] Center column scrolls independently while outer frame remains static
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] Center column scrolls independently while outer frame remains static
 
 ## Phase 2: Automated Verification & Quality Gates
 

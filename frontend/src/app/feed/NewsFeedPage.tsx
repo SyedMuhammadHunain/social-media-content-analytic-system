@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, useRef } from 'react';
 import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 
 import type {
@@ -47,6 +47,19 @@ const NEWSFEED_CSS = `
   width: 100%;
   margin: 0 auto;
   position: relative;
+}
+.newsfeed-center-scroll {
+  width: 100%;
+  max-width: 680px;
+  min-width: 0;
+  height: calc(100vh - 48px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+.newsfeed-center-scroll::-webkit-scrollbar {
+  display: none;
 }
 .newsfeed-fixed-sidebar {
   position: fixed;
@@ -175,6 +188,7 @@ export function NewsFeedPage({
   const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
   const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
   const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
+  const centerScrollRef = useRef<HTMLElement>(null);
   const [profileActivity, setProfileActivity] = useState(() =>
     getProfileActivity(user.id, user.username, user.followingCount)
   );
@@ -185,6 +199,7 @@ export function NewsFeedPage({
   const changeTab = useCallback((tab: AppTab) => {
     setActiveTab(tab);
     onSelectTab?.(tab);
+    centerScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [onSelectTab]);
 
   useEffect(() => {
@@ -364,6 +379,7 @@ export function NewsFeedPage({
     setIsNewPostModalOpen(false);
     changeTab('feed');
     setViewedUser(null);
+    centerScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -416,7 +432,12 @@ export function NewsFeedPage({
               }}
             />
 
-            <main style={{ width: '100%', maxWidth: 680, minWidth: 0 }}>
+            <main
+              ref={centerScrollRef}
+              className="newsfeed-center-scroll"
+              data-testid="newsfeed-center-container"
+              style={{ width: '100%', maxWidth: 680, minWidth: 0 }}
+            >
               {activeTab === 'feed' && (
                 <VStack gap={4}>
                   {isRefreshing && <FeedRefreshBanner />}
