@@ -421,33 +421,38 @@ export function NewsFeedPage({
                 <VStack gap={4}>
                   {isRefreshing && <FeedRefreshBanner />}
 
-                  <PostComposer
-                    currentUser={user}
-                    onOpenModal={() => setIsNewPostModalOpen(true)}
-                    onCreatePost={mutations.handleCreatePost}
-                  />
+                  {activeFilter.type !== 'ALL' && (
+                    <FeedFilterPill
+                      activeFilter={activeFilter}
+                      postCount={filteredPosts.length}
+                      onClearFilter={handleClearFilter}
+                    />
+                  )}
 
-                  <FeedFilterPill
-                    activeFilter={activeFilter}
-                    postCount={filteredPosts.length}
-                    onClearFilter={handleClearFilter}
-                  />
+                  <VStack gap={0} style={{ width: '100%' }}>
+                    <PostComposer
+                      currentUser={user}
+                      onOpenModal={() => setIsNewPostModalOpen(true)}
+                      onCreatePost={mutations.handleCreatePost}
+                    />
 
-                  <FeedPostList
-                    posts={filteredPosts}
-                    currentUser={user}
-                    isBookmarksFilter={activeFilter.type === 'BOOKMARKS'}
-                    hasActiveFilter={activeFilter.type !== 'ALL'}
-                    onClearFilter={handleClearFilter}
-                    onToggleLike={mutations.handleToggleLike}
-                    onToggleFollow={mutations.handleToggleFollow}
-                    onAddComment={mutations.handleAddComment}
-                    onToggleBookmark={mutations.handleToggleBookmark}
-                    onEditPost={mutations.handleEditPost}
-                    onDeletePost={mutations.handleDeletePost}
-                    onViewUserProfile={handleViewUserProfile}
-                    isLoading={isLoading}
-                  />
+                    <FeedPostList
+                      posts={filteredPosts}
+                      currentUser={user}
+                      isBookmarksFilter={activeFilter.type === 'BOOKMARKS'}
+                      hasActiveFilter={activeFilter.type !== 'ALL'}
+                      onClearFilter={handleClearFilter}
+                      onToggleLike={mutations.handleToggleLike}
+                      onToggleFollow={mutations.handleToggleFollow}
+                      onAddComment={mutations.handleAddComment}
+                      onToggleBookmark={mutations.handleToggleBookmark}
+                      onEditPost={mutations.handleEditPost}
+                      onDeletePost={mutations.handleDeletePost}
+                      onViewUserProfile={handleViewUserProfile}
+                      isLoading={isLoading}
+                      hasTopComposer={true}
+                    />
+                  </VStack>
                 </VStack>
               )}
 

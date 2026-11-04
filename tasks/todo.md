@@ -30,7 +30,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Integration & Layout Continuity
 
-- [ ] Task 4: Connect zero-gap attachment between composer bar and first feed card
+- [x] Task 4: Connect zero-gap attachment between composer bar and first feed card
   - Acceptance: Zero vertical gap between composer bar and first feed post. Seamless border matching.
   - Verify: `npx tsc -b`, visual inspect
   - Files: `frontend/src/app/feed/NewsFeedPage.tsx`, `frontend/src/app/feed/FeedPostList.tsx`

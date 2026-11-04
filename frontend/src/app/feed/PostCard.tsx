@@ -53,6 +53,7 @@ interface PostCardProps {
   onViewProfile?: (user: User) => void;
   isFirst?: boolean;
   isLast?: boolean;
+  hasTopComposer?: boolean;
 }
 
 export function PostCard({
@@ -67,6 +68,7 @@ export function PostCard({
   onViewProfile,
   isFirst = false,
   isLast = false,
+  hasTopComposer = false,
 }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [remoteComments, setRemoteComments] = useState<Comment[]>([]);
@@ -96,16 +98,21 @@ export function PostCard({
   };
 
   const isOnly = isFirst && isLast;
-  const cardBorderRadius = isOnly
-    ? undefined
-    : isFirst
-      ? 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0'
-      : isLast
-        ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
-        : 0;
+  const cardBorderRadius = hasTopComposer
+    ? isLast || isOnly
+      ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
+      : 0
+    : isOnly
+      ? undefined
+      : isFirst
+        ? 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0'
+        : isLast
+          ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
+          : 0;
 
   const cardStyle: React.CSSProperties = {
     borderRadius: cardBorderRadius,
+    borderTopWidth: hasTopComposer && isFirst ? '0px' : undefined,
     borderBottomWidth: isLast || isOnly ? '1px' : '0px',
   };
 

@@ -25,6 +25,7 @@ export interface FeedPostListProps {
   onDeletePost: (postId: string) => void;
   onViewUserProfile?: (user: User) => void;
   isLoading?: boolean;
+  hasTopComposer?: boolean;
 }
 
 function getEmptyStateDescription(isBookmarksFilter: boolean): string {
@@ -78,6 +79,7 @@ export function FeedPostList({
   onDeletePost,
   onViewUserProfile,
   isLoading = false,
+  hasTopComposer = false,
 }: FeedPostListProps) {
   if (isLoading) {
     return <FeedSkeleton count={3} />;
@@ -113,6 +115,7 @@ export function FeedPostList({
             onViewProfile={onViewUserProfile}
             isFirst={index === 0}
             isLast={index === posts.length - 1}
+            hasTopComposer={hasTopComposer}
           />
         </div>
       ))}
