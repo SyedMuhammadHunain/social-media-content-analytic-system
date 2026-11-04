@@ -12,6 +12,8 @@ import { Card } from '@astryxdesign/core/Card';
 import { Link } from '@astryxdesign/core/Link';
 import { Banner } from '@astryxdesign/core/Banner';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { Divider } from '@astryxdesign/core/Divider';
 import { useAuth } from '../../context/useAuth';
 import { GoogleOAuthModal } from './GoogleOAuthModal';
 import { checkGoogleOAuthRedirect, redirectToGoogleOAuth } from '../../api/googleOAuth';
@@ -56,6 +58,7 @@ const contentStyle: CSSProperties = {
 
 export default function LoginCardPage() {
   const {
+    login,
     loginWithGoogle,
     error,
     isLoading,
@@ -64,9 +67,22 @@ export default function LoginCardPage() {
     clearLogoutMessage,
   } = useAuth();
 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
+
+  const handleManualLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email || !password) return;
+    clearLogoutMessage();
+    clearError();
+    const success = await login(email, password);
+    if (success) {
+      setIsSuccess(true);
+    }
+  };
 
   useEffect(() => {
     // Check if returning from full-page Google OAuth redirect
@@ -166,7 +182,7 @@ export default function LoginCardPage() {
               />
             )}
 
-            {/* Success State or Google Action */}
+            {/* Success State or Form & Google Action */}
             {isSuccess ? (
               <EmptyState
                 headingLevel={3}
@@ -174,16 +190,51 @@ export default function LoginCardPage() {
                 description="Redirecting to your feed..."
               />
             ) : (
-              <VStack gap={3} hAlign="stretch">
-                <Button
-                  data-testid="auth-continue-with-google-btn"
-                  label="Continue with Google"
-                  variant="primary"
-                  icon={<GoogleIcon />}
-                  size="lg"
-                  isLoading={isLoading || isGoogleAuthenticating}
-                  onClick={handleGoogleAuthClick}
-                />
+              <VStack gap={4} hAlign="stretch">
+                <form onSubmit={handleManualLogin} noValidate>
+                  <VStack gap={3}>
+                    <TextInput
+                      label="Email"
+                      isLabelHidden
+                      type="email"
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={setEmail}
+                      size="lg"
+                    />
+                    <TextInput
+                      label="Password"
+                      isLabelHidden
+                      placeholder="Enter your password"
+                      type="password"
+                      value={password}
+                      onChange={setPassword}
+                      size="lg"
+                    />
+                    <Button
+                      data-testid="login-submit-btn"
+                      label="Login"
+                      variant="primary"
+                      size="lg"
+                      isLoading={isLoading}
+                      onClick={() => handleManualLogin()}
+                    />
+                  </VStack>
+                </form>
+
+                <Divider label="Or continue with" />
+
+                <VStack gap={3} hAlign="stretch">
+                  <Button
+                    data-testid="auth-continue-with-google-btn"
+                    label="Continue with Google"
+                    variant="secondary"
+                    icon={<GoogleIcon />}
+                    size="lg"
+                    isLoading={isLoading || isGoogleAuthenticating}
+                    onClick={handleGoogleAuthClick}
+                  />
+                </VStack>
               </VStack>
             )}
           </VStack>
