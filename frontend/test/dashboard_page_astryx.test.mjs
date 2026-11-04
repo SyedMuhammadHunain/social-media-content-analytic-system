@@ -105,4 +105,22 @@ test('Dashboard Page Meta Astryx & Cleanliness Verification (Task 10)', async (t
       'DashboardKpiCards must use Astryx arrowDown icon'
     );
   });
+
+  await t.test('6. DashboardHeader does not contain 24H, 7D, 30D, Refresh button, or @heroicons (Task 11)', () => {
+    const filePath = path.join(DASHBOARD_DIR, 'DashboardHeader.tsx');
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    assert.ok(
+      !content.includes('@heroicons'),
+      'DashboardHeader must not import any @heroicons'
+    );
+    assert.ok(
+      !content.includes('refresh-metrics-btn'),
+      'DashboardHeader must not contain refresh metrics button'
+    );
+    assert.ok(
+      !content.includes('24h') && !content.includes('30d'),
+      'DashboardHeader must not contain 24h or 30d range controls'
+    );
+  });
 });

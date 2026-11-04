@@ -21,8 +21,6 @@ export default function DashboardPage() {
     followersData,
     engagementData,
     summary,
-    timeRange,
-    setTimeRange,
     refreshMetrics,
   } = useAnalytics();
 
@@ -41,12 +39,7 @@ export default function DashboardPage() {
 
   return (
     <VStack gap={6} style={{ width: '100%', minWidth: 0 }}>
-      <DashboardHeader
-        timeRange={timeRange}
-        setTimeRange={setTimeRange}
-        refreshMetrics={refreshMetrics}
-        currentUser={currentUser}
-      />
+      <DashboardHeader currentUser={currentUser} />
 
       <DashboardKpiCards
         summary={summary}
