@@ -109,6 +109,19 @@ export default function App() {
     document.documentElement.style.colorScheme = mode;
   }, [mode]);
 
+  useEffect(() => {
+    const handleSetTheme = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeMode>;
+      if (customEvent.detail) {
+        setMode(customEvent.detail);
+      } else {
+        setMode((m) => (m === 'dark' ? 'light' : 'dark'));
+      }
+    };
+    window.addEventListener('app:set-theme', handleSetTheme);
+    return () => window.removeEventListener('app:set-theme', handleSetTheme);
+  }, []);
+
   return (
     <Theme theme={themes[defaultThemeSlug]} mode={mode}>
       <AuthProvider>

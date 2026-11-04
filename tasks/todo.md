@@ -54,7 +54,7 @@ Plan: `tasks/plan.md`
   - Files: `app/login-card/` (modify scaffolded), `app/auth/AuthPage.tsx`, `App.tsx`, `app/login-split/` (delete)
   - Scope: M
 
-- [ ] Task 8: Add sidebar shortcut links
+- [x] Task 8: Add sidebar shortcut links
   - Acceptance: FeedShortcutsCard has Notification (bell icon), Appearance (shows theme toggle on click), Logout items. All using Astryx `Icon`.
   - Verify: `npx tsc -b`, visual check — shortcuts render, theme toggle works, logout works
   - Files: `app/feed/FeedShortcutsCard.tsx`
