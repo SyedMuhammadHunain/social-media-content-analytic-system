@@ -17,15 +17,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/App.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
-- [ ] Task 3: Clean Right Sidebar & Add Pill Search Input Box
+- [x] Task 3: Clean Right Sidebar & Add Pill Search Input Box
   - Acceptance: Remove "Trending Topics" card. Above "Who to Follow", add dark pill search input with magnifying glass icon and "Search" placeholder matching `Screenshot From 2026-11-04 21-03-41.png`. Right sidebar contains only Search Input Box and "Who to Follow" card.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/app/feed/NewsFeedRightSidebar.tsx`
   - Scope: S
 
 ### Checkpoint: Shell & Sidebar
-- [ ] `npx tsc -b` clean
-- [ ] Navbar removed, sidebars clean and aligned
+- [x] `npx tsc -b` clean
+- [x] Navbar removed, sidebars clean and aligned
 
 ## Phase 2: Composer Modal Enhancements & Provider Architecture
 
