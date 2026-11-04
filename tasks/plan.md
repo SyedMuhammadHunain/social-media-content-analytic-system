@@ -16,22 +16,22 @@ Lock outer page viewport at 100vh and enable independent, smooth scrolling on th
 ## Task List
 
 ### Phase 1: Layout & Scroll Architecture
-- [ ] Task 1: Lock Outer App Viewport at 100vh
-- [ ] Task 2: Configure Independent Center Scroll Container in NewsFeedPage
+- [x] Task 1: Lock Outer App Viewport at 100vh
+- [x] Task 2: Configure Independent Center Scroll Container in NewsFeedPage
 
 ### Checkpoint: Layout Architecture
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] Center column scrolls independently while outer frame remains static
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] Center column scrolls independently while outer frame remains static
 
 ### Phase 2: Automated Verification & Quality Gates
-- [ ] Task 3: Automated E2E CDP Verification & Quality Gates
+- [x] Task 3: Automated E2E CDP Verification & Quality Gates
 
 ### Checkpoint: Complete
-- [ ] `window.scrollY` remains 0 (viewport static)
-- [ ] Inner center feed content scrolls up smoothly
-- [ ] All 67 unit tests pass
-- [ ] Production build succeeds
+- [x] `window.scrollY` remains 0 (viewport static)
+- [x] Inner center feed content scrolls up smoothly
+- [x] All 67 unit tests pass
+- [x] Production build succeeds
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

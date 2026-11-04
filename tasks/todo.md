@@ -24,7 +24,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Automated Verification & Quality Gates
 
-- [ ] Task 3: Automated E2E CDP Verification & Quality Gates
+- [x] Task 3: Automated E2E CDP Verification & Quality Gates
   - Acceptance: Automated test in headless Chrome proves:
     1. `window.scrollY === 0` after mouse wheel / scroll action.
     2. Center container `scrollTop > 0` (inner content moves up).
@@ -35,7 +35,7 @@ Plan: `tasks/plan.md`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] `window.scrollY` remains 0 (viewport static)
-- [ ] Inner center feed content scrolls up smoothly
-- [ ] All 67 unit tests pass
-- [ ] Production build succeeds
+- [x] `window.scrollY` remains 0 (viewport static)
+- [x] Inner center feed content scrolls up smoothly
+- [x] All 67 unit tests pass
+- [x] Production build succeeds
