@@ -39,3 +39,13 @@ Plan: `tasks/plan.md`
 - [x] Inner center feed content scrolls up smoothly
 - [x] All 67 unit tests pass
 - [x] Production build succeeds
+
+## Phase 3: Refine 3 UI Improvements
+
+- [x] Task 6: Remove duplicate "Change Photo" button at name line in `ProfileMetaDetails.tsx` (Commit `1a08a25`)
+- [x] Task 7: Remove green "0.0k" badge on "Creator Analytics" in `FeedShortcutsCard.tsx` (Commit `f7603da`)
+- [x] Task 8: Notification Page: Strictly Meta Astryx only, no Heroicons, neutral monochrome color scheme (Commit `8decc8f`)
+- [x] Task 9: Saved Posts: Only show saved posts, hide "What's New" composer box, hide "Clear Filter" card (Commit `850d169`)
+- [x] Task 10: Analytical Dashboard Page: Astryx only, concise descriptions, remove "Current Engagement Index: 0.0%", replace all Heroicons with Astryx semantic icons
+- [ ] Task 11: Remove 24H, 7D, 30D, and Refresh controls from DashboardHeader
+- [ ] Task 12: Photo Icon in Main Profile Avatar - ensure proper contrast in light mode

@@ -10,14 +10,6 @@ import { Card } from '@astryxdesign/core/Card';
 import { Grid } from '@astryxdesign/core/Grid';
 import { Icon } from '@astryxdesign/core/Icon';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  HeartIcon,
-  UserGroupIcon,
-  ChatBubbleLeftRightIcon,
-  SparklesIcon,
-} from '@heroicons/react/24/outline';
 import type { CreatorSummaryMetrics } from '../../types/analytics';
 
 function Sparkline({ data, strokeColor }: { data: number[]; strokeColor?: string }) {
@@ -70,9 +62,9 @@ function CreatorMetricCard({
           <Heading level={2}>{value}</Heading>
           <HStack gap={1} vAlign="center">
             {positive ? (
-              <Icon icon={ArrowUpIcon} size="xsm" color="success" />
+              <Icon icon="arrowUp" size="xsm" color="secondary" />
             ) : (
-              <Icon icon={ArrowDownIcon} size="xsm" color="error" />
+              <Icon icon="arrowDown" size="xsm" color="secondary" />
             )}
             <Text type="body" color="secondary">
               {change}
@@ -113,7 +105,7 @@ export function DashboardKpiCards({
         value={summary.totalFollowers.toLocaleString()}
         change={followerChange}
         positive={summary.totalFollowers >= 0}
-        icon={<Icon icon={UserGroupIcon} size="sm" color="success" />}
+        icon={<Icon icon="arrowUp" size="sm" color="secondary" />}
         sparkline={followerSparkline}
         sparklineColor="#10B981"
       />
@@ -123,7 +115,7 @@ export function DashboardKpiCards({
         value={summary.totalLikes.toLocaleString()}
         change={likesChange}
         positive={summary.totalLikes >= 0}
-        icon={<Icon icon={HeartIcon} size="sm" color="primary" />}
+        icon={<Icon icon="check" size="sm" color="secondary" />}
         sparkline={likesSparkline}
         sparklineColor="var(--color-data-categorical-blue, #0171E3)"
       />
@@ -133,7 +125,7 @@ export function DashboardKpiCards({
         value={summary.engagementRate}
         change={engagementChange}
         positive={true}
-        icon={<Icon icon={SparklesIcon} size="sm" color="accent" />}
+        icon={<Icon icon="info" size="sm" color="secondary" />}
         sparkline={commentsSparkline}
         sparklineColor="#8B5CF6"
       />
@@ -143,7 +135,7 @@ export function DashboardKpiCards({
         value={summary.totalComments.toLocaleString()}
         change={commentsChange}
         positive={summary.totalComments >= 0}
-        icon={<Icon icon={ChatBubbleLeftRightIcon} size="sm" />}
+        icon={<Icon icon="info" size="sm" color="secondary" />}
         sparkline={commentsSparkline}
         sparklineColor="var(--color-data-categorical-orange, #EB6E00)"
       />

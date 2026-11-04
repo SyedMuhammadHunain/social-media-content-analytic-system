@@ -9,14 +9,6 @@ import { Card } from '@astryxdesign/core/Card';
 import { Grid } from '@astryxdesign/core/Grid';
 import { Icon } from '@astryxdesign/core/Icon';
 import { Divider } from '@astryxdesign/core/Divider';
-import {
-  SparklesIcon,
-  HeartIcon,
-  UserGroupIcon,
-  ChatBubbleLeftRightIcon,
-  LightBulbIcon,
-  ArrowTrendingUpIcon,
-} from '@heroicons/react/24/outline';
 import type {
   CreatorSummaryMetrics,
   LikeUnlikePoint,
@@ -65,7 +57,7 @@ export function DashboardAnalyticsInterpretation({
         {/* Header */}
         <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
           <HStack gap={3} vAlign="center">
-            <Icon icon={SparklesIcon} size="md" color="accent" />
+            <Icon icon="info" size="md" color="secondary" />
             <VStack gap={0}>
               <Heading level={3}>Analytics Interpretation &amp; Insights</Heading>
               <Text type="supporting" color="secondary">
@@ -83,7 +75,7 @@ export function DashboardAnalyticsInterpretation({
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
-                <Icon icon={HeartIcon} size="sm" color="primary" />
+                <Icon icon="check" size="sm" color="secondary" />
                 <Heading level={4}>Approval Ratio</Heading>
               </HStack>
               <Heading level={3}>
@@ -99,7 +91,7 @@ export function DashboardAnalyticsInterpretation({
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
-                <Icon icon={UserGroupIcon} size="sm" color="success" />
+                <Icon icon="arrowUp" size="sm" color="secondary" />
                 <Heading level={4}>Audience Velocity</Heading>
               </HStack>
               <Heading level={3}>
@@ -117,7 +109,7 @@ export function DashboardAnalyticsInterpretation({
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
-                <Icon icon={ChatBubbleLeftRightIcon} size="sm" color="accent" />
+                <Icon icon="info" size="sm" color="secondary" />
                 <Heading level={4}>Discussion Vitality</Heading>
               </HStack>
               <Heading level={3}>
@@ -134,24 +126,24 @@ export function DashboardAnalyticsInterpretation({
         <Card padding={4}>
           <VStack gap={3}>
             <HStack gap={2} vAlign="center">
-              <Icon icon={LightBulbIcon} size="sm" color="warning" />
+              <Icon icon="info" size="sm" color="secondary" />
               <Heading level={4}>Recommendations</Heading>
             </HStack>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
-                <Icon icon={ArrowTrendingUpIcon} size="xsm" color="success" />
+                <Icon icon="check" size="xsm" color="secondary" />
                 <Text type="supporting" color="secondary">
                   <strong>Pin High-Sentiment Posts:</strong> Highlight top-performing media to maximize engagement.
                 </Text>
               </HStack>
               <HStack gap={2} vAlign="center">
-                <Icon icon={ArrowTrendingUpIcon} size="xsm" color="primary" />
+                <Icon icon="check" size="xsm" color="secondary" />
                 <Text type="supporting" color="secondary">
                   <strong>Accelerate Discussion:</strong> Reply to comments early to increase discussion velocity.
                 </Text>
               </HStack>
               <HStack gap={2} vAlign="center">
-                <Icon icon={ArrowTrendingUpIcon} size="xsm" color="accent" />
+                <Icon icon="check" size="xsm" color="secondary" />
                 <Text type="supporting" color="secondary">
                   <strong>Consistent Cadence:</strong> Maintain regular publishing schedule for stable follower retention.
                 </Text>

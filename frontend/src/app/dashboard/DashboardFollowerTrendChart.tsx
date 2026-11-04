@@ -16,8 +16,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { ArrowUpIcon } from '@heroicons/react/24/outline';
-import { StopIcon } from '@heroicons/react/24/solid';
 import { ChartTooltip } from './ChartTooltip';
 import type { FollowerTrendPoint, CreatorSummaryMetrics } from '../../types/analytics';
 
@@ -43,11 +41,11 @@ export function DashboardFollowerTrendChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Followers Growth Trend</Heading>
             <Text type="supporting" color="secondary">
-              Audience gain and loss velocity across intervals.
+              Audience growth velocity across intervals.
             </Text>
           </VStack>
           <HStack gap={1} vAlign="center">
-            <Icon icon={ArrowUpIcon} size="xsm" color="success" />
+            <Icon icon="arrowUp" size="xsm" color="secondary" />
             <Text type="supporting" color="secondary" style={{ whiteSpace: 'nowrap' }}>
               Net +{latestNetChange} today
             </Text>
@@ -101,7 +99,7 @@ export function DashboardFollowerTrendChart({
 
         <HStack gap={4} vAlign="center" wrap="wrap">
           <HStack gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: '#10B981' }} />
+            <Icon icon="stop" size="xsm" style={{ color: '#10B981' }} />
             <Text type="supporting">Followers ({summary.totalFollowers.toLocaleString()} total)</Text>
           </HStack>
         </HStack>

@@ -26,7 +26,7 @@ export function DashboardHeader({ timeRange, setTimeRange, refreshMetrics, curre
           <Heading level={2}>Creator Analytics Dashboard</Heading>
         </HStack>
         <Text type="body" color="secondary">
-          Live analytics for <strong style={{ color: 'var(--color-text-primary, #fff)' }}>{currentUser?.name || 'Creator'}</strong>{currentUser?.username ? ` (@${currentUser.username})` : ''} • Real-time sentiment reaction distribution, audience growth velocity, and engagement tracking.
+          Live analytics for <strong style={{ color: 'var(--color-text-primary, #fff)' }}>{currentUser?.name || 'Creator'}</strong>{currentUser?.username ? ` (@${currentUser.username})` : ''}.
         </Text>
       </VStack>
 

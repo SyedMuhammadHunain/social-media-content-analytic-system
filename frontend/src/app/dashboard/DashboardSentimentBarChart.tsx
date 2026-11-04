@@ -16,8 +16,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import { StopIcon } from '@heroicons/react/24/solid';
 import { ChartTooltip } from './ChartTooltip';
 import type { LikeUnlikePoint, CreatorSummaryMetrics } from '../../types/analytics';
 
@@ -41,11 +39,11 @@ export function DashboardSentimentBarChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Likes vs. Unlikes (Post Sentiment)</Heading>
             <Text type="supporting" color="secondary">
-              Comparative bar analysis of audience approval versus dissent over time.
+              Audience approval versus dissent over time.
             </Text>
           </VStack>
           <HStack gap={1} vAlign="center">
-            <Icon icon={CheckCircleIcon} size="xsm" color="success" />
+            <Icon icon="check" size="xsm" color="secondary" />
             <Text type="supporting" color="secondary" style={{ whiteSpace: 'nowrap' }}>
               {summary.totalLikes} Likes : {summary.totalUnlikes} Unlikes
             </Text>
@@ -104,11 +102,11 @@ export function DashboardSentimentBarChart({
 
         <HStack gap={4} vAlign="center" wrap="wrap">
           <HStack gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: 'var(--color-data-categorical-blue, #0171E3)' }} />
+            <Icon icon="stop" size="xsm" style={{ color: 'var(--color-data-categorical-blue, #0171E3)' }} />
             <Text type="supporting">Likes (Positive Feedback)</Text>
           </HStack>
           <HStack gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: '#E53935' }} />
+            <Icon icon="stop" size="xsm" style={{ color: '#E53935' }} />
             <Text type="supporting">Unlikes (Dissent)</Text>
           </HStack>
         </HStack>

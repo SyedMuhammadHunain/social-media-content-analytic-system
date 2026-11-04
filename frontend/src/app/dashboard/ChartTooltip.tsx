@@ -7,7 +7,6 @@ import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text } from '@astryxdesign/core/Text';
 import { Card } from '@astryxdesign/core/Card';
 import { Icon } from '@astryxdesign/core/Icon';
-import { StopIcon } from '@heroicons/react/24/solid';
 
 export interface CustomTooltipProps {
   active?: boolean;
@@ -32,7 +31,7 @@ export function ChartTooltip({ active, payload, label }: CustomTooltipProps) {
         </Text>
         {payload.map(entry => (
           <HStack key={entry.name} gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: entry.color }} />
+            <Icon icon="stop" size="xsm" style={{ color: entry.color }} />
             <Text type="supporting">
               {entry.name}: <span style={{ fontWeight: 600 }}>{entry.value.toLocaleString()}</span>
             </Text>

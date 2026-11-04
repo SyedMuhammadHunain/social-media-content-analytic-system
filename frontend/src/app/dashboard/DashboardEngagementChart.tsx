@@ -16,7 +16,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { StopIcon } from '@heroicons/react/24/solid';
 import { ChartTooltip } from './ChartTooltip';
 import type { EngagementPoint, CreatorSummaryMetrics } from '../../types/analytics';
 
@@ -27,7 +26,7 @@ interface DashboardEngagementChartProps {
 
 export function DashboardEngagementChart({
   engagementData,
-  summary,
+  summary: _summary,
 }: DashboardEngagementChartProps) {
   return (
     <Card
@@ -40,25 +39,9 @@ export function DashboardEngagementChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Creator Engagement &amp; Comments Proportionality</Heading>
             <Text type="supporting" color="secondary">
-              Comments directly proportional to creator engagement score and discussion frequency.
+              Comments and audience interactions over time.
             </Text>
           </VStack>
-          <HStack gap={2} vAlign="center">
-            <Text type="supporting" color="secondary">
-              Current Engagement Index:
-            </Text>
-            <span
-              style={{
-                padding: '2px 8px',
-                borderRadius: 6,
-                backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                color: '#8B5CF6',
-                fontWeight: 600,
-                fontSize: 13,
-              }}>
-              {summary.engagementRate}
-            </span>
-          </HStack>
         </HStack>
 
         <div style={{ width: '100%', minWidth: 0, height: 320 }}>
@@ -131,11 +114,11 @@ export function DashboardEngagementChart({
 
         <HStack gap={4} vAlign="center" wrap="wrap">
           <HStack gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: '#8B5CF6' }} />
+            <Icon icon="stop" size="xsm" style={{ color: '#8B5CF6' }} />
             <Text type="supporting">Comments Volume</Text>
           </HStack>
           <HStack gap={2} vAlign="center">
-            <Icon icon={StopIcon} size="xsm" style={{ color: 'var(--color-data-categorical-blue, #0171E3)' }} />
+            <Icon icon="stop" size="xsm" style={{ color: 'var(--color-data-categorical-blue, #0171E3)' }} />
             <Text type="supporting">Engagement Score (Proportional Index)</Text>
           </HStack>
         </HStack>
