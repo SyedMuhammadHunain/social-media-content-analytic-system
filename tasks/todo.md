@@ -1,104 +1,51 @@
-# Active Tasks: Refine UI
+# Active Tasks: Threads-Style Post Composer Redesign (refine_2_ui)
 
-Spec: `docs/specs/SPEC-refine-ui.md`
+Spec: `docs/specs/SPEC-composer-redesign.md`
 Plan: `tasks/plan.md`
 
-## Phase 1: Foundation
+## Phase 1: Core Components
 
-- [x] Task 1: Copy logo + update refs
-  - Acceptance: `~/Downloads/Gemini_Generated_Image_655y7d655y7d655y.jpeg` copied to `frontend/public/`, all logo refs updated (navbar, login). No app name text.
-  - Verify: `npx tsc -b`, visual check — logo renders in navbar and login page
-  - Files: `public/logo.jpeg`, `components/nav/AppTopNav.tsx`, login component
+- [ ] Task 1: Build `PostMediaToolbar` with Media, GIF, and Emoji tools
+  - Acceptance: Toolbar renders icons for Media (file upload), GIF (reaction picker), Emoji (emoji picker). Clicking appends selected media/text. Astryx only.
+  - Verify: `npx tsc -b`
+  - Files: `frontend/src/app/feed/PostMediaToolbar.tsx`
   - Scope: S
 
-- [x] Task 2: Run login-card CLI template
-  - Acceptance: `npx @astryxdesign/cli template login-card ./src/app/login-card` runs, output inspected, files committed
-  - Verify: Inspect scaffolded files, note what needs customization
-  - Files: `app/login-card/` (new, CLI-generated)
-  - Scope: XS
-
-- [x] Task 3: Remove PlatformInfoFooter
-  - Acceptance: "OOAD Content Analysis v1.0" card gone from right sidebar
-  - Verify: `npx tsc -b`, visual check — card absent from feed page
-  - Files: `app/feed/PlatformInfoFooter.tsx` (delete), `app/feed/NewsFeedRightSidebar.tsx`
-  - Scope: XS
-
-- [x] Task 4: Remove dashboard tags
-  - Acceptance: "Live Telemetry", "PDF Sections", "96.7% Positive" and similar academic tags gone
-  - Verify: `npx tsc -b`, visual check — no tags in dashboard
-  - Files: `app/dashboard/DashboardHeader.tsx`, `app/dashboard/DashboardKpiCards.tsx`, other dashboard files with `<Badge>` elements
+- [ ] Task 2: Redesign `PostCreateModal` to match Screenshot 2
+  - Acceptance: Modal has "Cancel" top-left, "New Post" center, no top-right icons. Body has user avatar + username, "What's new?" textarea, `PostMediaToolbar`, and bottom-right "Post" button. No "Post options" bottom-left.
+  - Verify: `npx tsc -b`, visual check
+  - Files: `frontend/src/app/feed/PostCreateModal.tsx`
   - Scope: S
 
-- [x] Task 5: Zero-gap post cards
-  - Acceptance: No gap/margin between PostCard components in feed. Cards touch bottom-to-top.
-  - Verify: `npx tsc -b`, visual check — posts stacked with zero spacing
-  - Files: `app/feed/FeedPostList.tsx`, `app/feed/PostCard.tsx`
-  - Scope: XS
-
-### Checkpoint: Foundation
-- [x] `npx tsc -b` passes
-- [x] Dev server renders without errors
-- [x] Logo visible, info card gone, tags gone, posts gapless
-
-## Phase 2: Structural Changes
-
-- [x] Task 6: Strip navbar to logo-only
-  - Acceptance: Navbar shows only app logo (top-left). No tabs, buttons, icons, profile, notification, theme toggle, or logout.
-  - Verify: `npx tsc -b`, visual check — minimal navbar
-  - Files: `components/nav/AppTopNav.tsx`, `components/nav/DesktopNavTabs.tsx`, `components/nav/DesktopNavActions.tsx`, `components/nav/MobileNavMenu.tsx`
-  - Scope: M
-
-- [x] Task 7: Wire login-card template (Google-only auth)
-  - Acceptance: Login uses Astryx login-card template. Only "Continue with Google" button. Google OAuth modal logic preserved. Old `app/login-split/` deleted.
-  - Verify: `npx tsc -b`, visual check — login renders, Google auth flow works
-  - Files: `app/login-card/` (modify scaffolded), `app/auth/AuthPage.tsx`, `App.tsx`, `app/login-split/` (delete)
-  - Scope: M
-
-- [x] Task 8: Add sidebar shortcut links
-  - Acceptance: FeedShortcutsCard has Notification (bell icon), Appearance (shows theme toggle on click), Logout items. All using Astryx `Icon`.
-  - Verify: `npx tsc -b`, visual check — shortcuts render, theme toggle works, logout works
-  - Files: `app/feed/FeedShortcutsCard.tsx`
+- [ ] Task 3: Redesign `PostComposer` into compact Threads-style prompt bar
+  - Acceptance: Renders user avatar + "What's new?" placeholder text + "Post" button matching Screenshot 1. Clicking anywhere opens `PostCreateModal`.
+  - Verify: `npx tsc -b`, visual check
+  - Files: `frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
-- [x] Task 9: Fix Analytics Interpretation card
-  - Acceptance: `DashboardAnalyticsInterpretation.tsx` uses Astryx components (`Card`, `Section`, `Text`, `Icon`). Respects light/dark theme. No overwhelming text. Astryx icons only.
-  - Verify: `npx tsc -b`, toggle theme — card appearance switches correctly
-  - Files: `app/dashboard/DashboardAnalyticsInterpretation.tsx`
-  - Scope: M
+### Checkpoint: Core Components
+- [ ] `npx tsc -b` passes
+- [ ] Prompt bar renders properly
+- [ ] Modal opens and closes properly
 
-### Checkpoint: Structural
-- [x] `npx tsc -b` passes
-- [x] Navbar minimal, login works, shortcuts functional, analytics card themed
+## Phase 2: Integration & Layout Continuity
 
-## Phase 3: Layout Refactor
-
-- [x] Task 10: Level panels
-  - Acceptance: Left sidebar, center feed, right sidebar start at same vertical level
-  - Verify: `npx tsc -b`, visual check — columns aligned
-  - Files: `app/feed/NewsFeedPage.tsx`
+- [ ] Task 4: Connect zero-gap attachment between composer bar and first feed card
+  - Acceptance: Zero vertical gap between composer bar and first feed post. Seamless border matching.
+  - Verify: `npx tsc -b`, visual inspect
+  - Files: `frontend/src/app/feed/NewsFeedPage.tsx`, `frontend/src/app/feed/FeedPostList.tsx`
   - Scope: XS
 
-- [x] Task 11: Extract sidebars to App shell (persistent panels)
-  - Acceptance: `NewsFeedLeftSidebar` and `NewsFeedRightSidebar` rendered in `AppContent` (App.tsx), not inside `NewsFeedPage`. Side panels persist across feed, dashboard, notifications, profile tabs. `activeTab` type: `'feed' | 'dashboard' | 'notifications' | 'profile'`.
-  - Verify: `npx tsc -b`, switch tabs — sidebars remain, center content changes
-  - Files: `App.tsx`, `app/feed/NewsFeedPage.tsx`, `app/dashboard/page.tsx`
-  - Scope: L (5 files)
-
-- [x] Task 12: Build notification list view
-  - Acceptance: New `app/notifications/NotificationListPage.tsx`. Shows notification items in center column when notifications tab active. Uses Astryx components. Supports light/dark theme.
-  - Verify: `npx tsc -b`, click notification shortcut — list renders in center
-  - Files: `app/notifications/NotificationListPage.tsx` (new), `App.tsx`
-  - Scope: S
-
-- [x] Task 13: Remove "Back to News Feed" button + verify all tabs
-  - Acceptance: No "Back to News Feed" button anywhere. All 4 tabs (feed, dashboard, notifications, profile) render correct content in center column with persistent sidebars.
-  - Verify: `npx tsc -b`, navigate all tabs — correct content, no stale buttons
-  - Files: `app/dashboard/page.tsx`, `components/profile/UserProfileView.tsx`, search for "Back to" strings
+- [ ] Task 5: End-to-end publishing verification and quality gates
+  - Acceptance: User can click prompt bar, type post, attach media/GIF/emoji, submit post, see post in feed. All tests pass, build succeeds.
+  - Verify: `npx tsc -b`, `npx oxlint .`, `npm run test:unit`, `npm run build`
+  - Files: `tasks/plan.md`, `tasks/todo.md`
   - Scope: S
 
 ### Checkpoint: Complete
-- [x] All 10 spec items verified
-- [x] Light/dark theme works everywhere
-- [x] `npx tsc -b` clean
-- [x] `npx oxlint .` clean
-- [x] All existing tests pass
+- [ ] All requirements from `refine_2_ui.md` satisfied
+- [ ] Light/dark themes work cleanly
+- [ ] `npx tsc -b` clean
+- [ ] `npx oxlint .` clean
+- [ ] `npm run test:unit` clean (67 tests passing)
+- [ ] `npm run build` succeeds
