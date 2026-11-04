@@ -72,7 +72,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 3: Layout Refactor
 
-- [ ] Task 10: Level panels
+- [x] Task 10: Level panels
   - Acceptance: Left sidebar, center feed, right sidebar start at same vertical level
   - Verify: `npx tsc -b`, visual check — columns aligned
   - Files: `app/feed/NewsFeedPage.tsx`

@@ -47,14 +47,14 @@ const NEWSFEED_CSS = `
 }
 .newsfeed-fixed-sidebar {
   position: fixed;
-  top: 88px;
+  top: 73px;
   left: max(16px, calc(50vw - 648px));
   width: 280px;
   z-index: 20;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: calc(100vh - 104px);
+  max-height: calc(100vh - 89px);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -63,14 +63,14 @@ const NEWSFEED_CSS = `
 }
 .newsfeed-right-sidebar {
   position: fixed;
-  top: 88px;
+  top: 73px;
   right: max(16px, calc(50vw - 688px));
   width: 320px;
   z-index: 20;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: calc(100vh - 104px);
+  max-height: calc(100vh - 89px);
   overflow-y: auto;
   scrollbar-width: none;
 }
