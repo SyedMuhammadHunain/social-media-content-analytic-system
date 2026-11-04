@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect, type CSSProperties } from 'react';
-import { VStack } from '@astryxdesign/core/Layout';
+import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Center } from '@astryxdesign/core/Center';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
@@ -59,6 +59,7 @@ const contentStyle: CSSProperties = {
 export default function LoginCardPage() {
   const {
     login,
+    register,
     loginWithGoogle,
     error,
     isLoading,
@@ -67,6 +68,8 @@ export default function LoginCardPage() {
     clearLogoutMessage,
   } = useAuth();
 
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -79,6 +82,17 @@ export default function LoginCardPage() {
     clearLogoutMessage();
     clearError();
     const success = await login(email, password);
+    if (success) {
+      setIsSuccess(true);
+    }
+  };
+
+  const handleManualRegister = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!username || !email || !password) return;
+    clearLogoutMessage();
+    clearError();
+    const success = await register(username.trim(), email.trim(), password);
     if (success) {
       setIsSuccess(true);
     }
@@ -156,9 +170,13 @@ export default function LoginCardPage() {
           <VStack gap={5} hAlign="stretch">
             {/* Header */}
             <VStack gap={1} hAlign="center">
-              <Heading level={2}>Welcome</Heading>
+              <Heading level={2}>
+                {authMode === 'signup' ? 'Create an Account' : 'Welcome'}
+              </Heading>
               <Text type="body" color="secondary" size="sm">
-                Sign in to your account
+                {authMode === 'signup'
+                  ? 'Sign up to get started'
+                  : 'Sign in to your account'}
               </Text>
             </VStack>
 
@@ -186,13 +204,27 @@ export default function LoginCardPage() {
             {isSuccess ? (
               <EmptyState
                 headingLevel={3}
-                title="Signed In Successfully"
+                title={authMode === 'signup' ? 'Account Created Successfully' : 'Signed In Successfully'}
                 description="Redirecting to your feed..."
               />
             ) : (
               <VStack gap={4} hAlign="stretch">
-                <form onSubmit={handleManualLogin} noValidate>
+                <form
+                  onSubmit={authMode === 'signup' ? handleManualRegister : handleManualLogin}
+                  noValidate
+                >
                   <VStack gap={3}>
+                    {authMode === 'signup' && (
+                      <TextInput
+                        label="Username"
+                        isLabelHidden
+                        type="text"
+                        placeholder="Username (e.g. johndoe)"
+                        value={username}
+                        onChange={setUsername}
+                        size="lg"
+                      />
+                    )}
                     <TextInput
                       label="Email"
                       isLabelHidden
@@ -205,22 +237,51 @@ export default function LoginCardPage() {
                     <TextInput
                       label="Password"
                       isLabelHidden
-                      placeholder="Enter your password"
+                      placeholder={
+                        authMode === 'signup'
+                          ? 'Password (min 8 characters)'
+                          : 'Enter your password'
+                      }
                       type="password"
                       value={password}
                       onChange={setPassword}
                       size="lg"
                     />
                     <Button
-                      data-testid="login-submit-btn"
-                      label="Login"
+                      data-testid={authMode === 'signup' ? 'signup-submit-btn' : 'login-submit-btn'}
+                      label={authMode === 'signup' ? 'Sign Up' : 'Login'}
                       variant="primary"
                       size="lg"
                       isLoading={isLoading}
-                      onClick={() => handleManualLogin()}
+                      onClick={() =>
+                        authMode === 'signup' ? handleManualRegister() : handleManualLogin()
+                      }
                     />
                   </VStack>
                 </form>
+
+                <HStack hAlign="center" gap={1} vAlign="center">
+                  <Text type="body" size="sm" color="secondary">
+                    {authMode === 'login'
+                      ? "Don't have an account?"
+                      : 'Already have an account?'}
+                  </Text>
+                  <Link
+                    href="#"
+                    type="body"
+                    size="sm"
+                    hasUnderline
+                    data-testid="auth-toggle-mode-btn"
+                    onClick={(e) => {
+                      e?.preventDefault();
+                      clearError();
+                      clearLogoutMessage();
+                      setAuthMode((prev) => (prev === 'login' ? 'signup' : 'login'));
+                    }}
+                  >
+                    {authMode === 'login' ? 'Sign up' : 'Log in'}
+                  </Link>
+                </HStack>
 
                 <Divider label="Or continue with" />
 
