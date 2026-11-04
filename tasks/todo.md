@@ -78,27 +78,27 @@ Plan: `tasks/plan.md`
   - Files: `app/feed/NewsFeedPage.tsx`
   - Scope: XS
 
-- [ ] Task 11: Extract sidebars to App shell (persistent panels)
+- [x] Task 11: Extract sidebars to App shell (persistent panels)
   - Acceptance: `NewsFeedLeftSidebar` and `NewsFeedRightSidebar` rendered in `AppContent` (App.tsx), not inside `NewsFeedPage`. Side panels persist across feed, dashboard, notifications, profile tabs. `activeTab` type: `'feed' | 'dashboard' | 'notifications' | 'profile'`.
   - Verify: `npx tsc -b`, switch tabs — sidebars remain, center content changes
   - Files: `App.tsx`, `app/feed/NewsFeedPage.tsx`, `app/dashboard/page.tsx`
   - Scope: L (5 files)
 
-- [ ] Task 12: Build notification list view
+- [x] Task 12: Build notification list view
   - Acceptance: New `app/notifications/NotificationListPage.tsx`. Shows notification items in center column when notifications tab active. Uses Astryx components. Supports light/dark theme.
   - Verify: `npx tsc -b`, click notification shortcut — list renders in center
   - Files: `app/notifications/NotificationListPage.tsx` (new), `App.tsx`
   - Scope: S
 
-- [ ] Task 13: Remove "Back to News Feed" button + verify all tabs
+- [x] Task 13: Remove "Back to News Feed" button + verify all tabs
   - Acceptance: No "Back to News Feed" button anywhere. All 4 tabs (feed, dashboard, notifications, profile) render correct content in center column with persistent sidebars.
   - Verify: `npx tsc -b`, navigate all tabs — correct content, no stale buttons
   - Files: `app/dashboard/page.tsx`, `components/profile/UserProfileView.tsx`, search for "Back to" strings
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] All 10 spec items verified
-- [ ] Light/dark theme works everywhere
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] All existing tests pass
+- [x] All 10 spec items verified
+- [x] Light/dark theme works everywhere
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] All existing tests pass
