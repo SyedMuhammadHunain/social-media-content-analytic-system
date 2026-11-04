@@ -35,10 +35,10 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/PostMediaToolbar.tsx`
   - Scope: S
 
-- [ ] Task 5: Document GIF & Emoji Provider Integration Architecture
+- [x] Task 5: Document GIF & Emoji Provider Integration Architecture
   - Acceptance: Technical architecture documentation explaining step-by-step how to add full Tenor/Giphy API and emoji dataset integration.
   - Verify: Documentation file created and reviewed.
-  - Files: `docs/specs/SPEC-ui-refinements-3.md`
+  - Files: `docs/specs/SPEC-ui-refinements-3.md`, `docs/intent/gif_and_emoji_provider_guide.md`
   - Scope: XS
 
 ## Phase 3: Automated Verification & Quality Gates

@@ -68,7 +68,7 @@ Streamline the social media content analysis web application layout and modal ut
 3. Right sidebar contains only the Search Input Box and "Who to Follow" card (Trending Topics card completely removed).
 4. Pill-style Search Input Box renders above "Who to Follow" with magnifying glass icon and "Search" placeholder.
 5. In "New Post" modal, clicking GIF or Emoji opens a card that spans the full width of the modal.
-6. Technical architecture guide for full GIF/Emoji API integration documented.
+6. Technical architecture guide for full GIF/Emoji API integration documented in `docs/intent/gif_and_emoji_provider_guide.md`.
 7. `npx tsc -b`, `npx oxlint .`, `npm run test:unit`, and `npm run build` all pass with zero errors.
 
 ## Open Questions
