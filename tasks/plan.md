@@ -1,69 +1,51 @@
-# Implementation Plan: Refine UI
+# Implementation Plan: UI Refinements 3 (refine_3_ui)
 
 ## Overview
-
-10 UI refinements for social media analytics app. All Astryx-only, no new features. Polish pass before university submission.
-
-Spec: `docs/specs/SPEC-refine-ui.md`
+Implement minor shell and sidebar improvements specified in `docs/specs/SPEC-ui-refinements-3.md`:
+1. Remove "Media Only" from Left Sidebar.
+2. Remove top navbar (`AppHeader`) from app layout for flush top-aligned view.
+3. Remove "Trending Topics" from Right Sidebar and add dark pill Search Input Box above "Who to Follow".
+4. Make GIF and Emoji picker popovers full-width (100%) inside the post composer modal.
+5. Provide architectural documentation for full GIF & Emoji provider integration (Tenor/Giphy + Emoji dataset).
+6. End-to-end headless Chrome CDP verification and quality gates.
 
 ## Architecture Decisions
-
-1. **Side panels extracted to App shell** (item 7): `NewsFeedLeftSidebar` and `NewsFeedRightSidebar` move from `NewsFeedPage.tsx` to `AppContent` in `App.tsx`. Center column becomes content slot driven by `activeTab`.
-2. **Tab type expands:** `'feed' | 'dashboard'` becomes `'feed' | 'dashboard' | 'notifications' | 'profile'`. Sidebar shortcut clicks set `activeTab`.
-3. **Notification list:** New component in `app/notifications/` — not reusing `NotificationDrawer`.
-4. **Login card:** CLI-scaffolded template replaces entire `app/login-split/` directory.
-5. **No React Router added** — keep state-driven tab model.
+1. **Navbar Removal:** Removing `<AppHeader />` in `frontend/src/App.tsx` directly elevates all three columns. Adjust desktop top offsets from `top: 80px` to `top: 16px` or `top: 24px` in fixed/sticky sidebars so they remain comfortably positioned without overlapping viewport boundaries.
+2. **Pill Search Input Box:** Implement as dedicated, accessible Astryx-styled search input with `borderRadius: '9999px'`, subtle dark surface background, search icon prefix, and "Search" placeholder. It remains standalone (no backend query firing yet, per spec).
+3. **Full-Width Popovers:** Remove `maxWidth: 320px` and `maxWidth: 380px` in `PostMediaToolbar.tsx`, setting `width: '100%'` with `boxSizing: 'border-box'`. Emoji grid utilizes responsive columns (`repeat(auto-fill, minmax(36px, 1fr))`) to fill the entire modal width.
 
 ## Task List
 
-### Phase 1: Foundation (Low-risk, independent items)
+### Phase 1: Shell & Sidebar Simplification
+- [ ] Task 1: Remove "Media Only" from Left Sidebar
+- [ ] Task 2: Remove Navbar from App Layout
+- [ ] Task 3: Clean Right Sidebar & Add Pill Search Input Box
 
-- [x] Task 1: Copy logo, update refs
-- [x] Task 2: Run login-card CLI template, inspect output
-- [x] Task 3: Remove PlatformInfoFooter
-- [x] Task 4: Remove dashboard tags
-- [x] Task 5: Zero-gap post cards
+### Checkpoint: Shell & Sidebar
+- [ ] `npx tsc -b` clean
+- [ ] Navbar removed, sidebars clean and aligned
 
-### Checkpoint: Foundation
-- [x] `npx tsc -b` passes
-- [x] Dev server renders without errors
-- [x] Logo visible, info card gone, tags gone, posts gapless
+### Phase 2: Composer Modal Enhancements & Provider Architecture
+- [ ] Task 4: Full-Width GIF and Emoji Picker Cards
+- [ ] Task 5: Document GIF & Emoji Provider Integration Architecture
 
-### Phase 2: Structural Changes
-
-- [x] Task 6: Strip navbar to logo-only
-- [x] Task 7: Wire login-card template (Google-only auth)
-- [x] Task 8: Add sidebar shortcut links (Notification, Appearance, Logout)
-- [x] Task 9: Fix Analytics Interpretation card (Astryx components, theme support)
-
-### Checkpoint: Structural
-- [x] `npx tsc -b` passes
-- [x] Navbar minimal, login works, shortcuts functional, analytics card themed
-
-### Phase 3: Layout Refactor (Highest risk)
-
-- [x] Task 10: Level panels (same vertical start)
-- [x] Task 11: Extract sidebars to App shell (persistent panels)
-- [x] Task 12: Build notification list view for center column
-- [x] Task 13: Remove "Back to News Feed" button, verify all tab content renders in center column
+### Phase 3: Automated Verification & Quality Gates
+- [ ] Task 6: E2E CDP Verification and Final Quality Gates
 
 ### Checkpoint: Complete
-- [x] All 10 spec items verified
-- [x] Light/dark theme works everywhere
-- [x] `npx tsc -b` clean
-- [x] `npx oxlint .` clean
-- [x] All existing tests pass
+- [ ] All 5 items from `refine_3_ui.md` satisfied
+- [ ] `npx tsc -b` clean
+- [ ] `npx oxlint .` clean
+- [ ] `npm run test:unit` clean
+- [ ] `npm run build` succeeds
+- [ ] Automated E2E CDP test passes
 
 ## Risks and Mitigations
-
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| CLI template output differs from expectations | Med | Run CLI first (Task 2), inspect before wiring |
-| Astryx `Icon` missing needed icon names | Med | Check available icons from Astryx docs before Task 8 |
-| Sidebar extraction breaks existing feed layout | High | Do it last (Task 11), commit working state before |
-| Analytics card has hard-coded dark styles | Med | Inspect component first, replace inline styles with Astryx tokens |
-| Login-card template conflicts with existing Google OAuth flow | Med | Preserve `GoogleOAuthModal.tsx` logic, only swap UI shell |
+| Removing Navbar breaks sticky sidebar `top` coordinates | Med | Update `newsfeed-fixed-sidebar` and `newsfeed-right-sidebar` CSS top coordinates from `80px` to `16px` |
+| Full-width GIF/Emoji cards overflow modal on small viewports | Low | Use `boxSizing: 'border-box'` and `width: '100%'` inside flex layout |
+| Pill Search box styling clashes with Astryx themes | Low | Use standard Astryx CSS variables (`--color-background-surface-subtle`, `--color-border-subtle`) |
 
 ## Open Questions
-
-None — all resolved in spec.
+None — all resolved in spec and interview.
