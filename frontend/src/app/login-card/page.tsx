@@ -260,6 +260,20 @@ export default function LoginCardPage() {
                   </VStack>
                 </form>
 
+                <Divider label="Or continue with" />
+
+                <VStack gap={3} hAlign="stretch">
+                  <Button
+                    data-testid="auth-continue-with-google-btn"
+                    label="Continue with Google"
+                    variant="secondary"
+                    icon={<GoogleIcon />}
+                    size="lg"
+                    isLoading={isLoading || isGoogleAuthenticating}
+                    onClick={handleGoogleAuthClick}
+                  />
+                </VStack>
+
                 <HStack hAlign="center" gap={1} vAlign="center">
                   <Text type="body" size="sm" color="secondary">
                     {authMode === 'login'
@@ -282,20 +296,6 @@ export default function LoginCardPage() {
                     {authMode === 'login' ? 'Sign up' : 'Log in'}
                   </Link>
                 </HStack>
-
-                <Divider label="Or continue with" />
-
-                <VStack gap={3} hAlign="stretch">
-                  <Button
-                    data-testid="auth-continue-with-google-btn"
-                    label="Continue with Google"
-                    variant="secondary"
-                    icon={<GoogleIcon />}
-                    size="lg"
-                    isLoading={isLoading || isGoogleAuthenticating}
-                    onClick={handleGoogleAuthClick}
-                  />
-                </VStack>
               </VStack>
             )}
           </VStack>
