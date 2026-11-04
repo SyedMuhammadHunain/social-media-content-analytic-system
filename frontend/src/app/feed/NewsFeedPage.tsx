@@ -423,6 +423,7 @@ export function NewsFeedPage({
 
                   <PostComposer
                     currentUser={user}
+                    onOpenModal={() => setIsNewPostModalOpen(true)}
                     onCreatePost={mutations.handleCreatePost}
                   />
 

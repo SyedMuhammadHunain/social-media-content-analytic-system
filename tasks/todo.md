@@ -17,16 +17,16 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/PostCreateModal.tsx`
   - Scope: S
 
-- [ ] Task 3: Redesign `PostComposer` into compact Threads-style prompt bar
+- [x] Task 3: Redesign `PostComposer` into compact Threads-style prompt bar
   - Acceptance: Renders user avatar + "What's new?" placeholder text + "Post" button matching Screenshot 1. Clicking anywhere opens `PostCreateModal`.
   - Verify: `npx tsc -b`, visual check
   - Files: `frontend/src/app/feed/PostComposer.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
 ### Checkpoint: Core Components
-- [ ] `npx tsc -b` passes
-- [ ] Prompt bar renders properly
-- [ ] Modal opens and closes properly
+- [x] `npx tsc -b` passes
+- [x] Prompt bar renders properly
+- [x] Modal opens and closes properly
 
 ## Phase 2: Integration & Layout Continuity
 
