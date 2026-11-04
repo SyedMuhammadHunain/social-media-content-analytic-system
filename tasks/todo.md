@@ -36,16 +36,16 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/NewsFeedPage.tsx`, `frontend/src/app/feed/FeedPostList.tsx`
   - Scope: XS
 
-- [ ] Task 5: End-to-end publishing verification and quality gates
+- [x] Task 5: End-to-end publishing verification and quality gates
   - Acceptance: User can click prompt bar, type post, attach media/GIF/emoji, submit post, see post in feed. All tests pass, build succeeds.
   - Verify: `npx tsc -b`, `npx oxlint .`, `npm run test:unit`, `npm run build`
   - Files: `tasks/plan.md`, `tasks/todo.md`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] All requirements from `refine_2_ui.md` satisfied
-- [ ] Light/dark themes work cleanly
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] `npm run test:unit` clean (67 tests passing)
-- [ ] `npm run build` succeeds
+- [x] All requirements from `refine_2_ui.md` satisfied
+- [x] Light/dark themes work cleanly
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] `npm run test:unit` clean (67 tests passing)
+- [x] `npm run build` succeeds

@@ -54,12 +54,15 @@ test('Video Upload, Preview & Playback Reliability Suite', async (suite) => {
     assert.strictEqual(isUnsupportedContainer('demo.mp4'), false, '.mp4 is supported');
   });
 
-  await suite.test('3. PostComposer.tsx does not revoke object URLs on submit', () => {
-    const composerContent = fs.readFileSync(path.join(feedDir, 'PostComposer.tsx'), 'utf-8');
+  await suite.test('3. PostComposer / PostCreateModal does not revoke object URLs on submit', () => {
+    const targetFile = fs.existsSync(path.join(feedDir, 'PostCreateModal.tsx'))
+      ? path.join(feedDir, 'PostCreateModal.tsx')
+      : path.join(feedDir, 'PostComposer.tsx');
+    const composerContent = fs.readFileSync(targetFile, 'utf-8');
     
     // handleSubmit should reset state without calling handleRemoveMedia() or URL.revokeObjectURL
     const submitMatch = composerContent.match(/const handleSubmit = \(\) => \{([\s\S]*?)\};/);
-    assert.ok(submitMatch, 'handleSubmit function found in PostComposer.tsx');
+    assert.ok(submitMatch, 'handleSubmit function found in post composer/modal');
     assert.strictEqual(
       submitMatch[1].includes('handleRemoveMedia()'),
       false,
