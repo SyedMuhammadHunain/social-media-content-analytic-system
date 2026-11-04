@@ -1,9 +1,9 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
-// Social Media Content Analysis System - Login Split Card Template
+// Social Media Content Analysis System - Login Card Template Export
 
 'use client';
 
-import LoginSplitPage from '../login-split/page';
+import LoginCardPage from '../login-card/page';
 
-export const AuthPage = LoginSplitPage;
-export default LoginSplitPage;
+export const AuthPage = LoginCardPage;
+export default LoginCardPage;

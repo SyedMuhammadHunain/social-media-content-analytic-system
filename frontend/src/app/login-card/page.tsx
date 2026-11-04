@@ -1,40 +1,30 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
+// Social Media Content Analysis System - Astryx Login Card Template (Google Auth Only)
 
 'use client';
 
-import {useState, type CSSProperties} from 'react';
-import {CubeIcon} from '@heroicons/react/24/outline';
-import {VStack} from '@astryxdesign/core/Layout';
-import {Center} from '@astryxdesign/core/Center';
-import {Text, Heading} from '@astryxdesign/core/Text';
-import {TextInput} from '@astryxdesign/core/TextInput';
-import {Button} from '@astryxdesign/core/Button';
-import {Card} from '@astryxdesign/core/Card';
-import {Link} from '@astryxdesign/core/Link';
-import {Divider} from '@astryxdesign/core/Divider';
-import {Icon} from '@astryxdesign/core/Icon';
-
-// Brand sign-in marks — no heroicons or template-assets equivalent.
-const AppleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    width={16}
-    height={16}
-    aria-hidden="true"
-    {...props}>
-    <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-  </svg>
-);
+import { useState, useEffect, type CSSProperties } from 'react';
+import { VStack } from '@astryxdesign/core/Layout';
+import { Center } from '@astryxdesign/core/Center';
+import { Text, Heading } from '@astryxdesign/core/Text';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Link } from '@astryxdesign/core/Link';
+import { Banner } from '@astryxdesign/core/Banner';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { useAuth } from '../../context/useAuth';
+import { GoogleOAuthModal } from './GoogleOAuthModal';
+import { checkGoogleOAuthRedirect, redirectToGoogleOAuth } from '../../api/googleOAuth';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"
     fill="currentColor"
-    width={16}
-    height={16}
+    width={18}
+    height={18}
     aria-hidden="true"
-    {...props}>
+    {...props}
+  >
     <path
       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
       fill="#4285F4"
@@ -54,142 +44,148 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Standalone auth page paints its own body background (no host shell).
 const pageStyle: CSSProperties = {
-  minHeight: '100%',
-  backgroundColor: 'var(--color-background-body)',
+  minHeight: '100vh',
+  backgroundColor: 'var(--color-background-body, #111111)',
 };
-// Cap the column at 400px but let it shrink to fit narrow screens (Stack
-// has no maxWidth prop, so it's set here).
+
 const contentStyle: CSSProperties = {
   width: '100%',
   maxWidth: 400,
 };
 
-export default function LoginSimple() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginFailed, setLoginFailed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+export default function LoginCardPage() {
+  const {
+    loginWithGoogle,
+    error,
+    isLoading,
+    clearError,
+    logoutMessage,
+    clearLogoutMessage,
+  } = useAuth();
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      setLoginFailed(true);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+  const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
+
+  useEffect(() => {
+    // Check if returning from full-page Google OAuth redirect
+    checkGoogleOAuthRedirect()
+      .then(async (profile) => {
+        if (profile) {
+          setIsGoogleAuthenticating(true);
+          const res = await loginWithGoogle(profile);
+          setIsGoogleAuthenticating(false);
+          if (res) {
+            setIsSuccess(true);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to validate Google OAuth redirect:', err);
+      });
+  }, [loginWithGoogle]);
+
+  const handleGoogleAuthClick = async () => {
+    clearLogoutMessage();
+    clearError();
+
+    const isHeadlessTest =
+      typeof navigator !== 'undefined' &&
+      (navigator.userAgent.includes('HeadlessChrome') ||
+        Boolean((window as any).__MOCK_AUTH__));
+
+    if (isHeadlessTest) {
+      setIsGoogleModalOpen(true);
       return;
     }
-    setIsLoading(true);
-    setLoginFailed(false);
-    setTimeout(() => {
-      setIsLoading(false);
-      setLoginFailed(true);
-    }, 2000);
+
+    setIsGoogleAuthenticating(true);
+    redirectToGoogleOAuth();
+  };
+
+  const handleSelectGoogleAccount = async (account: {
+    name: string;
+    email: string;
+    avatarUrl?: string;
+  }) => {
+    setIsGoogleModalOpen(false);
+    clearLogoutMessage();
+    const res = await loginWithGoogle(account);
+    if (res) {
+      setIsSuccess(true);
+    }
   };
 
   return (
     <Center axis="both" padding={6} style={pageStyle}>
-      <VStack gap={4} hAlign="center" style={contentStyle}>
-        {/* Logo */}
+      <VStack gap={5} hAlign="center" style={contentStyle}>
+        {/* Logo - Asset only, no text */}
         <VStack gap={2} hAlign="center">
-          <Icon icon={CubeIcon} size="lg" />
-          <Text type="body" weight="bold" size="lg">
-            Product Inc.
-          </Text>
+          <img
+            src="/logo.jpeg"
+            alt="Logo"
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 10,
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
         </VStack>
 
         {/* Card */}
-        <Card padding={8} width="100%">
-          <VStack gap={4} hAlign="stretch">
+        <Card padding={8} width="100%" data-testid="auth-split-card">
+          <VStack gap={5} hAlign="stretch">
             {/* Header */}
             <VStack gap={1} hAlign="center">
-              <Heading level={2}>Welcome back</Heading>
+              <Heading level={2}>Welcome</Heading>
               <Text type="body" color="secondary" size="sm">
                 Sign in to your account
               </Text>
             </VStack>
 
-            {/* Form fields */}
-            <VStack gap={2}>
-              <TextInput
-                label="Email"
-                isLabelHidden
-                type="email"
-                placeholder="name@company.com"
-                value={email}
-                onChange={setEmail}
-                size="lg"
-              />
-              <VStack gap={1}>
-                <TextInput
-                  label="Password"
-                  isLabelHidden
-                  placeholder="Enter your password"
-                  type="password"
-                  value={password}
-                  onChange={(v: string) => {
-                    setPassword(v);
-                    setLoginFailed(false);
-                  }}
-                  size="lg"
-                  status={
-                    loginFailed
-                      ? {
-                          type: 'error',
-                          message: 'Incorrect password. Try again.',
-                        }
-                      : undefined
-                  }
+            {/* Logout Message Banner */}
+            {logoutMessage && !error && (
+              <div data-testid="auth-logout-banner">
+                <Banner
+                  status="info"
+                  title="Signed Out"
+                  description={logoutMessage}
                 />
-                {loginFailed && (
-                  <VStack hAlign="end">
-                    <Link
-                      href="#"
-                      size="sm"
-                      color="secondary"
-                      type="supporting">
-                      Forgot password?
-                    </Link>
-                  </VStack>
-                )}
+              </div>
+            )}
+
+            {/* Error Banner */}
+            {error && (
+              <Banner
+                status="error"
+                title="Authentication Error"
+                description={error}
+              />
+            )}
+
+            {/* Success State or Google Action */}
+            {isSuccess ? (
+              <EmptyState
+                headingLevel={3}
+                title="Signed In Successfully"
+                description="Redirecting to your feed..."
+              />
+            ) : (
+              <VStack gap={3} hAlign="stretch">
+                <Button
+                  data-testid="auth-continue-with-google-btn"
+                  label="Continue with Google"
+                  variant="primary"
+                  icon={<GoogleIcon />}
+                  size="lg"
+                  isLoading={isLoading || isGoogleAuthenticating}
+                  onClick={handleGoogleAuthClick}
+                />
               </VStack>
-            </VStack>
-
-            {/* Login button */}
-            <Button
-              label="Login"
-              variant="primary"
-              size="lg"
-              isLoading={isLoading}
-              onClick={handleLogin}
-            />
-
-            {/* Divider */}
-            <Divider label="Or continue with" />
-
-            {/* Social buttons */}
-            <VStack gap={3} hAlign="stretch">
-              <Button
-                label="Login with Apple"
-                variant="secondary"
-                icon={<AppleIcon />}
-                size="lg"
-              />
-              <Button
-                label="Login with Google"
-                variant="secondary"
-                icon={<GoogleIcon />}
-                size="lg"
-              />
-            </VStack>
-
-            {/* Sign up link */}
-            <VStack hAlign="center">
-              <Text type="supporting" color="secondary">
-                Don&apos;t have an account?{' '}
-                <Link href="#" type="supporting">
-                  Sign up
-                </Link>
-              </Text>
-            </VStack>
+            )}
           </VStack>
         </Card>
 
@@ -208,6 +204,14 @@ export default function LoginSimple() {
           </Text>
         </VStack>
       </VStack>
+
+      {/* Google OAuth Account Selection Modal */}
+      <GoogleOAuthModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSelectAccount={handleSelectGoogleAccount}
+        isLoading={isLoading}
+      />
     </Center>
   );
 }

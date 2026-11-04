@@ -9,7 +9,7 @@ import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
-import LoginSplitPage from './app/login-split/page';
+import LoginCardPage from './app/login-card/page';
 import AppTopNav from './components/nav/AppTopNav';
 import NewsFeedPage from './app/feed/NewsFeedPage';
 
@@ -47,7 +47,7 @@ function AppContent({
   };
 
   if (!isAuthenticated) {
-    return <LoginSplitPage />;
+    return <LoginCardPage />;
   }
 
   return (

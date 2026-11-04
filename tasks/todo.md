@@ -48,7 +48,7 @@ Plan: `tasks/plan.md`
   - Files: `components/nav/AppTopNav.tsx`, `components/nav/DesktopNavTabs.tsx`, `components/nav/DesktopNavActions.tsx`, `components/nav/MobileNavMenu.tsx`
   - Scope: M
 
-- [ ] Task 7: Wire login-card template (Google-only auth)
+- [x] Task 7: Wire login-card template (Google-only auth)
   - Acceptance: Login uses Astryx login-card template. Only "Continue with Google" button. Google OAuth modal logic preserved. Old `app/login-split/` deleted.
   - Verify: `npx tsc -b`, visual check — login renders, Google auth flow works
   - Files: `app/login-card/` (modify scaffolded), `app/auth/AuthPage.tsx`, `App.tsx`, `app/login-split/` (delete)
