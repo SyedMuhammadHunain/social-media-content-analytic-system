@@ -36,9 +36,9 @@ Plan: `tasks/plan.md`
   - Scope: XS
 
 ### Checkpoint: Foundation
-- [ ] `npx tsc -b` passes
-- [ ] Dev server renders without errors
-- [ ] Logo visible, info card gone, tags gone, posts gapless
+- [x] `npx tsc -b` passes
+- [x] Dev server renders without errors
+- [x] Logo visible, info card gone, tags gone, posts gapless
 
 ## Phase 2: Structural Changes
 
