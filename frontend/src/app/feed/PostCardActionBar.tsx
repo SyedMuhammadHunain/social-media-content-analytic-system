@@ -72,20 +72,25 @@ export function PostCardActionBar({
       </HStack>
 
       <HStack gap={2}>
-        <Button
-          data-testid={`post-bookmark-btn-${postId}`}
-          label={bookmarkLabel}
-          variant={isBookmarked ? 'secondary' : 'ghost'}
-          size="sm"
-          icon={
-            <Icon
-              icon={isBookmarked ? BookmarkSolid : BookmarkOutline}
-              size="xsm"
-              style={{ color: isBookmarked ? 'var(--astryx-color-primary, #1877F2)' : undefined }}
-            />
-          }
+        <div
+          data-testid={`post-bookmark-container-${postId}`}
           onClick={() => onToggleBookmark?.(postId)}
-        />
+        >
+          <Button
+            data-testid={`post-bookmark-btn-${postId}`}
+            label={bookmarkLabel}
+            variant={isBookmarked ? 'secondary' : 'ghost'}
+            size="sm"
+            icon={
+              <Icon
+                icon={isBookmarked ? BookmarkSolid : BookmarkOutline}
+                size="xsm"
+                style={{ color: isBookmarked ? 'var(--astryx-color-primary, #1877F2)' : undefined }}
+              />
+            }
+            onClick={() => onToggleBookmark?.(postId)}
+          />
+        </div>
         <Button
           label="Share"
           variant="ghost"

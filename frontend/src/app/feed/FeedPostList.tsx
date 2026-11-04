@@ -48,10 +48,10 @@ function FeedEmptyState({
     <Card padding={6}>
       <EmptyState
         headingLevel={3}
-        title="No Posts Found"
+        title={isBookmarksFilter ? 'No Saved Posts' : 'No Posts Found'}
         description={getEmptyStateDescription(isBookmarksFilter)}
         actions={
-          hasActiveFilter ? (
+          hasActiveFilter && !isBookmarksFilter ? (
             <Button
               size="sm"
               variant="primary"

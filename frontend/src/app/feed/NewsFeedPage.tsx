@@ -442,7 +442,7 @@ export function NewsFeedPage({
                 <VStack gap={4}>
                   {isRefreshing && <FeedRefreshBanner />}
 
-                  {activeFilter.type !== 'ALL' && (
+                  {activeFilter.type !== 'ALL' && activeFilter.type !== 'BOOKMARKS' && (
                     <FeedFilterPill
                       activeFilter={activeFilter}
                       postCount={filteredPosts.length}
@@ -451,11 +451,13 @@ export function NewsFeedPage({
                   )}
 
                   <VStack gap={0} style={{ width: '100%' }}>
-                    <PostComposer
-                      currentUser={user}
-                      onOpenModal={() => setIsNewPostModalOpen(true)}
-                      onCreatePost={mutations.handleCreatePost}
-                    />
+                    {activeFilter.type !== 'BOOKMARKS' && (
+                      <PostComposer
+                        currentUser={user}
+                        onOpenModal={() => setIsNewPostModalOpen(true)}
+                        onCreatePost={mutations.handleCreatePost}
+                      />
+                    )}
 
                     <FeedPostList
                       posts={filteredPosts}
@@ -471,7 +473,7 @@ export function NewsFeedPage({
                       onDeletePost={mutations.handleDeletePost}
                       onViewUserProfile={handleViewUserProfile}
                       isLoading={isLoading}
-                      hasTopComposer={true}
+                      hasTopComposer={activeFilter.type !== 'BOOKMARKS'}
                     />
                   </VStack>
                 </VStack>

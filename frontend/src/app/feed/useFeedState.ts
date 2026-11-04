@@ -29,9 +29,17 @@ function parsePostDate(post: Post): number {
 }
 
 function mergeFeedPosts(livePosts: Post[], prevPosts: Post[]): Post[] {
+  const prevMap = new Map(prevPosts.map((p) => [p.id, p]));
   const liveIds = new Set(livePosts.map((p) => p.id));
   const retainedMock = prevPosts.filter((p) => !liveIds.has(p.id));
-  const combined = [...retainedMock, ...livePosts];
+  const hydratedLive = livePosts.map((live) => {
+    const prev = prevMap.get(live.id);
+    return {
+      ...live,
+      isBookmarked: prev?.isBookmarked ?? live.isBookmarked ?? false,
+    };
+  });
+  const combined = [...retainedMock, ...hydratedLive];
   return combined.sort((a, b) => parsePostDate(b) - parsePostDate(a));
 }
 
