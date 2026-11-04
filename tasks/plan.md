@@ -17,28 +17,28 @@ Implement minor shell and sidebar improvements specified in `docs/specs/SPEC-ui-
 ## Task List
 
 ### Phase 1: Shell & Sidebar Simplification
-- [ ] Task 1: Remove "Media Only" from Left Sidebar
-- [ ] Task 2: Remove Navbar from App Layout
-- [ ] Task 3: Clean Right Sidebar & Add Pill Search Input Box
+- [x] Task 1: Remove "Media Only" from Left Sidebar
+- [x] Task 2: Remove Navbar from App Layout
+- [x] Task 3: Clean Right Sidebar & Add Pill Search Input Box
 
 ### Checkpoint: Shell & Sidebar
-- [ ] `npx tsc -b` clean
-- [ ] Navbar removed, sidebars clean and aligned
+- [x] `npx tsc -b` clean
+- [x] Navbar removed, sidebars clean and aligned
 
 ### Phase 2: Composer Modal Enhancements & Provider Architecture
-- [ ] Task 4: Full-Width GIF and Emoji Picker Cards
-- [ ] Task 5: Document GIF & Emoji Provider Integration Architecture
+- [x] Task 4: Full-Width GIF and Emoji Picker Cards
+- [x] Task 5: Document GIF & Emoji Provider Integration Architecture
 
 ### Phase 3: Automated Verification & Quality Gates
-- [ ] Task 6: E2E CDP Verification and Final Quality Gates
+- [x] Task 6: E2E CDP Verification and Final Quality Gates
 
 ### Checkpoint: Complete
-- [ ] All 5 items from `refine_3_ui.md` satisfied
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] `npm run test:unit` clean
-- [ ] `npm run build` succeeds
-- [ ] Automated E2E CDP test passes
+- [x] All 5 items from `refine_3_ui.md` satisfied
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] `npm run test:unit` clean
+- [x] `npm run build` succeeds
+- [x] Automated E2E CDP test passes
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

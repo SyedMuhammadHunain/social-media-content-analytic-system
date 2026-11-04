@@ -43,7 +43,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 3: Automated Verification & Quality Gates
 
-- [ ] Task 6: E2E CDP Verification and Final Quality Gates
+- [x] Task 6: E2E CDP Verification and Final Quality Gates
   - Acceptance: Automated CDP test verifies:
     1. Navbar absent from DOM and 3-column feed top-aligned.
     2. Left sidebar has no "Media Only".
@@ -55,9 +55,9 @@ Plan: `tasks/plan.md`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] All 5 items from `refine_3_ui.md` satisfied
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] `npm run test:unit` clean
-- [ ] `npm run build` succeeds
-- [ ] Automated E2E CDP test passes
+- [x] All 5 items from `refine_3_ui.md` satisfied
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] `npm run test:unit` clean
+- [x] `npm run build` succeeds
+- [x] Automated E2E CDP test passes
