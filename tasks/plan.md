@@ -18,41 +18,41 @@ Spec: `docs/specs/SPEC-refine-ui.md`
 
 ### Phase 1: Foundation (Low-risk, independent items)
 
-- [ ] Task 1: Copy logo, update refs
-- [ ] Task 2: Run login-card CLI template, inspect output
-- [ ] Task 3: Remove PlatformInfoFooter
-- [ ] Task 4: Remove dashboard tags
-- [ ] Task 5: Zero-gap post cards
+- [x] Task 1: Copy logo, update refs
+- [x] Task 2: Run login-card CLI template, inspect output
+- [x] Task 3: Remove PlatformInfoFooter
+- [x] Task 4: Remove dashboard tags
+- [x] Task 5: Zero-gap post cards
 
 ### Checkpoint: Foundation
-- [ ] `npx tsc -b` passes
-- [ ] Dev server renders without errors
-- [ ] Logo visible, info card gone, tags gone, posts gapless
+- [x] `npx tsc -b` passes
+- [x] Dev server renders without errors
+- [x] Logo visible, info card gone, tags gone, posts gapless
 
 ### Phase 2: Structural Changes
 
-- [ ] Task 6: Strip navbar to logo-only
-- [ ] Task 7: Wire login-card template (Google-only auth)
-- [ ] Task 8: Add sidebar shortcut links (Notification, Appearance, Logout)
-- [ ] Task 9: Fix Analytics Interpretation card (Astryx components, theme support)
+- [x] Task 6: Strip navbar to logo-only
+- [x] Task 7: Wire login-card template (Google-only auth)
+- [x] Task 8: Add sidebar shortcut links (Notification, Appearance, Logout)
+- [x] Task 9: Fix Analytics Interpretation card (Astryx components, theme support)
 
 ### Checkpoint: Structural
-- [ ] `npx tsc -b` passes
-- [ ] Navbar minimal, login works, shortcuts functional, analytics card themed
+- [x] `npx tsc -b` passes
+- [x] Navbar minimal, login works, shortcuts functional, analytics card themed
 
 ### Phase 3: Layout Refactor (Highest risk)
 
 - [x] Task 10: Level panels (same vertical start)
 - [x] Task 11: Extract sidebars to App shell (persistent panels)
 - [x] Task 12: Build notification list view for center column
-- [ ] Task 13: Remove "Back to News Feed" button, verify all tab content renders in center column
+- [x] Task 13: Remove "Back to News Feed" button, verify all tab content renders in center column
 
 ### Checkpoint: Complete
-- [ ] All 10 spec items verified
-- [ ] Light/dark theme works everywhere
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] All existing tests pass
+- [x] All 10 spec items verified
+- [x] Light/dark theme works everywhere
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] All existing tests pass
 
 ## Risks and Mitigations
 
