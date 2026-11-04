@@ -42,7 +42,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Structural Changes
 
-- [ ] Task 6: Strip navbar to logo-only
+- [x] Task 6: Strip navbar to logo-only
   - Acceptance: Navbar shows only app logo (top-left). No tabs, buttons, icons, profile, notification, theme toggle, or logout.
   - Verify: `npx tsc -b`, visual check — minimal navbar
   - Files: `components/nav/AppTopNav.tsx`, `components/nav/DesktopNavTabs.tsx`, `components/nav/DesktopNavActions.tsx`, `components/nav/MobileNavMenu.tsx`
