@@ -24,30 +24,9 @@ export function DashboardHeader({ timeRange, setTimeRange, refreshMetrics, curre
       <VStack gap={1}>
         <HStack gap={2} vAlign="center">
           <Heading level={2}>Creator Analytics Dashboard</Heading>
-          <HStack
-            gap={1}
-            vAlign="center"
-            style={{
-              background: 'rgba(16, 185, 129, 0.12)',
-              padding: '2px 8px',
-              borderRadius: 12,
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-            }}>
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: '#10B981',
-              }}
-            />
-            <Text type="supporting" style={{ color: '#10B981', fontWeight: 600 }}>
-              Live Telemetry (&lt;2s sync)
-            </Text>
-          </HStack>
         </HStack>
         <Text type="body" color="secondary">
-          Live analytics for <strong style={{ color: 'var(--color-text-primary, #fff)' }}>{currentUser?.name || 'Creator'}</strong>{currentUser?.username ? ` (@${currentUser.username})` : ''} • Real-time sentiment reaction distribution, audience growth velocity, and engagement tracking (PDF Sections 4.1.vii-ix &amp; 4.2).
+          Live analytics for <strong style={{ color: 'var(--color-text-primary, #fff)' }}>{currentUser?.name || 'Creator'}</strong>{currentUser?.username ? ` (@${currentUser.username})` : ''} • Real-time sentiment reaction distribution, audience growth velocity, and engagement tracking.
         </Text>
       </VStack>
 

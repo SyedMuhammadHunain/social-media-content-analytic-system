@@ -15,7 +15,6 @@ import {
   UserGroupIcon,
   ChatBubbleLeftRightIcon,
   LightBulbIcon,
-  CheckCircleIcon,
   ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
 import type {
@@ -74,7 +73,7 @@ export function DashboardAnalyticsInterpretation({
       }}
     >
       <VStack gap={5}>
-        {/* Header with Title and Live Diagnostic Badge */}
+        {/* Header with Title */}
         <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
           <HStack gap={3} vAlign="center">
             <div
@@ -98,37 +97,6 @@ export function DashboardAnalyticsInterpretation({
               </Text>
             </VStack>
           </HStack>
-
-          <HStack
-            gap={1}
-            vAlign="center"
-            style={{
-              backgroundColor: isHighApproval
-                ? 'rgba(16, 185, 129, 0.12)'
-                : 'rgba(245, 158, 11, 0.12)',
-              border: isHighApproval
-                ? '1px solid rgba(16, 185, 129, 0.28)'
-                : '1px solid rgba(245, 158, 11, 0.28)',
-              padding: '4px 10px',
-              borderRadius: 20,
-            }}
-          >
-            <Icon
-              icon={CheckCircleIcon}
-              size="xsm"
-              style={{ color: isHighApproval ? '#10B981' : '#F59E0B' }}
-            />
-            <Text
-              type="supporting"
-              style={{
-                color: isHighApproval ? '#10B981' : '#F59E0B',
-                fontWeight: 600,
-                fontSize: 12,
-              }}
-            >
-              {isHighApproval ? 'Sentiment Health: Optimal' : 'Sentiment Health: Needs Monitoring'}
-            </Text>
-          </HStack>
         </HStack>
 
         <Divider />
@@ -149,18 +117,6 @@ export function DashboardAnalyticsInterpretation({
                   <Icon icon={HeartIcon} size="sm" style={{ color: '#0171E3' }} />
                   <Heading level={4}>Approval Ratio</Heading>
                 </HStack>
-                <span
-                  style={{
-                    backgroundColor: 'rgba(1, 113, 227, 0.15)',
-                    color: '#0171E3',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                  }}
-                >
-                  {approvalPercentage}% Positive
-                </span>
               </HStack>
               <Text type="body" color="primary" style={{ fontWeight: 600, fontSize: 18 }}>
                 {summary.totalLikes.toLocaleString()} Likes vs. {summary.totalUnlikes.toLocaleString()} Unlikes
@@ -187,18 +143,6 @@ export function DashboardAnalyticsInterpretation({
                   <Icon icon={UserGroupIcon} size="sm" style={{ color: '#10B981' }} />
                   <Heading level={4}>Audience Velocity</Heading>
                 </HStack>
-                <span
-                  style={{
-                    backgroundColor: isHealthyGrowth ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                    color: isHealthyGrowth ? '#10B981' : '#EF4444',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                  }}
-                >
-                  {isHealthyGrowth ? `+${netFollowerChange} Net Gain` : `${netFollowerChange} Net Churn`}
-                </span>
               </HStack>
               <Text type="body" color="primary" style={{ fontWeight: 600, fontSize: 18 }}>
                 {summary.totalFollowers.toLocaleString()} Active Followers
@@ -225,18 +169,6 @@ export function DashboardAnalyticsInterpretation({
                   <Icon icon={ChatBubbleLeftRightIcon} size="sm" style={{ color: '#8B5CF6' }} />
                   <Heading level={4}>Discussion Vitality</Heading>
                 </HStack>
-                <span
-                  style={{
-                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                    color: '#8B5CF6',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: 6,
-                  }}
-                >
-                  {summary.engagementRate} Index
-                </span>
               </HStack>
               <Text type="body" color="primary" style={{ fontWeight: 600, fontSize: 18 }}>
                 {summary.totalComments.toLocaleString()} Total Comments

@@ -79,9 +79,6 @@ function CreatorMetricCard({
             </Text>
           </HStack>
         </HStack>
-        <Text type="supporting" color="secondary">
-          Live Real-Time Telemetry
-        </Text>
         <Sparkline data={sparkline} strokeColor={sparklineColor} />
       </VStack>
     </Card>

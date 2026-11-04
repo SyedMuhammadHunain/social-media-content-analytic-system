@@ -40,7 +40,7 @@ export function DashboardEngagementChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Creator Engagement &amp; Comments Proportionality</Heading>
             <Text type="supporting" color="secondary">
-              Comments directly proportional to creator engagement score and discussion frequency (PDF Section 4.1.ix).
+              Comments directly proportional to creator engagement score and discussion frequency.
             </Text>
           </VStack>
           <HStack gap={2} vAlign="center">

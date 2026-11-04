@@ -41,7 +41,7 @@ export function DashboardSentimentBarChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Likes vs. Unlikes (Post Sentiment)</Heading>
             <Text type="supporting" color="secondary">
-              Comparative bar analysis of audience approval versus dissent over time (PDF Section 4.1.vii).
+              Comparative bar analysis of audience approval versus dissent over time.
             </Text>
           </VStack>
           <HStack gap={1} vAlign="center">

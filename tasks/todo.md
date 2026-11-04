@@ -23,7 +23,7 @@ Plan: `tasks/plan.md`
   - Files: `app/feed/PlatformInfoFooter.tsx` (delete), `app/feed/NewsFeedRightSidebar.tsx`
   - Scope: XS
 
-- [ ] Task 4: Remove dashboard tags
+- [x] Task 4: Remove dashboard tags
   - Acceptance: "Live Telemetry", "PDF Sections", "96.7% Positive" and similar academic tags gone
   - Verify: `npx tsc -b`, visual check — no tags in dashboard
   - Files: `app/dashboard/DashboardHeader.tsx`, `app/dashboard/DashboardKpiCards.tsx`, other dashboard files with `<Badge>` elements

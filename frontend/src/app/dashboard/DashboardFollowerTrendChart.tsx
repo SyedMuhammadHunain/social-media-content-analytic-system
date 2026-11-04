@@ -43,7 +43,7 @@ export function DashboardFollowerTrendChart({
           <VStack gap={1} style={{ minWidth: 200, flex: 1 }}>
             <Heading level={4}>Followers Growth Trend</Heading>
             <Text type="supporting" color="secondary">
-              Audience gain and loss velocity across intervals (PDF Section 4.1.viii).
+              Audience gain and loss velocity across intervals.
             </Text>
           </VStack>
           <HStack gap={1} vAlign="center">
