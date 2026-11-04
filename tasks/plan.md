@@ -1,51 +1,43 @@
-# Implementation Plan: UI Refinements 3 (refine_3_ui)
+# Implementation Plan: Center Feed Independent Scroll Container (SPEC-center-feed-scroll)
 
 ## Overview
-Implement minor shell and sidebar improvements specified in `docs/specs/SPEC-ui-refinements-3.md`:
-1. Remove "Media Only" from Left Sidebar.
-2. Remove top navbar (`AppHeader`) from app layout for flush top-aligned view.
-3. Remove "Trending Topics" from Right Sidebar and add dark pill Search Input Box above "Who to Follow".
-4. Make GIF and Emoji picker popovers full-width (100%) inside the post composer modal.
-5. Provide architectural documentation for full GIF & Emoji provider integration (Tenor/Giphy + Emoji dataset).
-6. End-to-end headless Chrome CDP verification and quality gates.
+Lock outer page viewport at 100vh and enable independent, smooth scrolling on the center feed column with a hidden scrollbar, keeping the sidebars and outer frame static.
 
 ## Architecture Decisions
-1. **Navbar Removal:** Removing `<AppHeader />` in `frontend/src/App.tsx` directly elevates all three columns. Adjust desktop top offsets from `top: 80px` to `top: 16px` or `top: 24px` in fixed/sticky sidebars so they remain comfortably positioned without overlapping viewport boundaries.
-2. **Pill Search Input Box:** Implement as dedicated, accessible Astryx-styled search input with `borderRadius: '9999px'`, subtle dark surface background, search icon prefix, and "Search" placeholder. It remains standalone (no backend query firing yet, per spec).
-3. **Full-Width Popovers:** Remove `maxWidth: 320px` and `maxWidth: 380px` in `PostMediaToolbar.tsx`, setting `width: '100%'` with `boxSizing: 'border-box'`. Emoji grid utilizes responsive columns (`repeat(auto-fill, minmax(36px, 1fr))`) to fill the entire modal width.
+1. **Outer Viewport Lock:** Set `height: 100vh; overflow: hidden;` on the root container in `frontend/src/App.tsx`. This eliminates window-level scrolling and prevents bouncing or layout shift.
+2. **Center Scroll Container:** Add `.newsfeed-center-scroll` to the `<main>` element in `frontend/src/app/feed/NewsFeedPage.tsx` with:
+   - `height: calc(100vh - 48px)`
+   - `overflow-y: auto`
+   - `scrollbar-width: none` (Firefox)
+   - `-ms-overflow-style: none` (IE/Edge)
+   - `::-webkit-scrollbar { display: none; }` (Chrome/Safari/Blink)
+3. **Fixed Sidebars:** Keep `.newsfeed-fixed-sidebar` and `.newsfeed-right-sidebar` at `position: fixed; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none;`.
 
 ## Task List
 
-### Phase 1: Shell & Sidebar Simplification
-- [x] Task 1: Remove "Media Only" from Left Sidebar
-- [x] Task 2: Remove Navbar from App Layout
-- [x] Task 3: Clean Right Sidebar & Add Pill Search Input Box
+### Phase 1: Layout & Scroll Architecture
+- [ ] Task 1: Lock Outer App Viewport at 100vh
+- [ ] Task 2: Configure Independent Center Scroll Container in NewsFeedPage
 
-### Checkpoint: Shell & Sidebar
-- [x] `npx tsc -b` clean
-- [x] Navbar removed, sidebars clean and aligned
+### Checkpoint: Layout Architecture
+- [ ] `npx tsc -b` clean
+- [ ] `npx oxlint .` clean
+- [ ] Center column scrolls independently while outer frame remains static
 
-### Phase 2: Composer Modal Enhancements & Provider Architecture
-- [x] Task 4: Full-Width GIF and Emoji Picker Cards
-- [x] Task 5: Document GIF & Emoji Provider Integration Architecture
-
-### Phase 3: Automated Verification & Quality Gates
-- [x] Task 6: E2E CDP Verification and Final Quality Gates
+### Phase 2: Automated Verification & Quality Gates
+- [ ] Task 3: Automated E2E CDP Verification & Quality Gates
 
 ### Checkpoint: Complete
-- [x] All 5 items from `refine_3_ui.md` satisfied
-- [x] `npx tsc -b` clean
-- [x] `npx oxlint .` clean
-- [x] `npm run test:unit` clean
-- [x] `npm run build` succeeds
-- [x] Automated E2E CDP test passes
+- [ ] `window.scrollY` remains 0 (viewport static)
+- [ ] Inner center feed content scrolls up smoothly
+- [ ] All 67 unit tests pass
+- [ ] Production build succeeds
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Removing Navbar breaks sticky sidebar `top` coordinates | Med | Update `newsfeed-fixed-sidebar` and `newsfeed-right-sidebar` CSS top coordinates from `80px` to `16px` |
-| Full-width GIF/Emoji cards overflow modal on small viewports | Low | Use `boxSizing: 'border-box'` and `width: '100%'` inside flex layout |
-| Pill Search box styling clashes with Astryx themes | Low | Use standard Astryx CSS variables (`--color-background-surface-subtle`, `--color-border-subtle`) |
+| Small screen (< 1024px) layout truncation | Med | Keep media queries in `NEWSFEED_CSS` so mobile views fall back to fluid static stacking when sidebars are collapsed |
+| Modal popups getting trapped in scroll overflow | Low | Modals use `position: fixed; top: 0; left: 0; right: 0; bottom: 0; zIndex: 9999;` which breakout of scroll ancestors |
 
 ## Open Questions
-None — all resolved in spec and interview.
+None.
