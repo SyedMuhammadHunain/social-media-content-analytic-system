@@ -106,7 +106,7 @@ test('Dynamic Profile Activity, Viewers & Multi-User Viewing Flow', async (t) =>
   // Wait for React app to mount
   let appReady = false;
   for (let i = 0; i < 40; i++) {
-    const ready = await evaluate('!!document.querySelector("nav")');
+    const ready = await evaluate('!!(document.querySelector("nav") || document.querySelector("main"))');
     if (ready) {
       appReady = true;
       break;

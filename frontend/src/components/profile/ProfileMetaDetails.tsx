@@ -10,20 +10,18 @@ import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
-import { CameraIcon, UserPlusIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { UserPlusIcon, CheckIcon } from '@heroicons/react/24/outline';
 import type { UserProfile } from '../../types/social';
 
 export interface ProfileMetaDetailsProps {
   user: UserProfile;
   isOwnProfile?: boolean;
-  onChangePhoto?: () => void;
   onToggleFollow?: (userId: string) => void;
 }
 
 export function ProfileMetaDetails({
   user,
   isOwnProfile = true,
-  onChangePhoto,
   onToggleFollow,
 }: ProfileMetaDetailsProps) {
   return (
@@ -38,17 +36,7 @@ export function ProfileMetaDetails({
               </Text>
             </VStack>
 
-            {isOwnProfile ? (
-              onChangePhoto && (
-                <Button
-                  label="Change Photo"
-                  variant="secondary"
-                  size="sm"
-                  icon={<Icon icon={CameraIcon} size="xsm" />}
-                  onClick={onChangePhoto}
-                />
-              )
-            ) : (
+            {isOwnProfile ? null : (
               onToggleFollow && (
                 <Button
                   data-testid="profile-header-follow-btn"

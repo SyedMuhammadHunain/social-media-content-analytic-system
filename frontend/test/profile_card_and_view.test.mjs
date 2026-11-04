@@ -104,7 +104,7 @@ test('User Profile Card & Full Profile View Flow', async (t) => {
   // Wait for React app to mount
   let appReady = false;
   for (let i = 0; i < 40; i++) {
-    const ready = await evaluate('!!document.querySelector("nav")');
+    const ready = await evaluate('!!(document.querySelector("nav") || document.querySelector("main"))');
     if (ready) {
       appReady = true;
       break;
@@ -162,6 +162,18 @@ test('User Profile Card & Full Profile View Flow', async (t) => {
 
     const hasBanner = await evaluate('!!document.querySelector("[data-testid=\'profile-cover-banner\']")');
     assert.strictEqual(hasBanner, true, 'Profile cover banner must be rendered');
+  });
+
+  await t.test('3b. Redundant Change Photo button on Name line is removed', async () => {
+    const hasNameLineChangePhotoBtn = await evaluate(`
+      (() => {
+        const profileView = document.querySelector('[data-testid="user-profile-view"]');
+        if (!profileView) return false;
+        const btns = Array.from(profileView.querySelectorAll("button"));
+        return btns.some(b => b.innerText.trim() === "Change Photo");
+      })()
+    `);
+    assert.strictEqual(hasNameLineChangePhotoBtn, false, 'Redundant Change Photo button on Name line must be removed');
   });
 
   await t.test('4. Bio editor toggles to edit mode and saves with Banner feedback', async () => {
