@@ -14,7 +14,6 @@ import { Icon } from '@astryxdesign/core/Icon';
 import { Button } from '@astryxdesign/core/Button';
 import {
   NewspaperIcon,
-  PhotoIcon,
   BookmarkIcon,
   ChartBarIcon,
   BellIcon,
@@ -75,11 +74,6 @@ export function FeedShortcutsCard({
       type: 'ALL',
       label: 'All Posts',
       icon: NewspaperIcon,
-    },
-    {
-      type: 'MEDIA',
-      label: 'Media Only',
-      icon: PhotoIcon,
     },
     {
       type: 'BOOKMARKS',

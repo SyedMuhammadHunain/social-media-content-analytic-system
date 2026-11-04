@@ -5,7 +5,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 1: Shell & Sidebar Simplification
 
-- [ ] Task 1: Remove "Media Only" from Left Sidebar
+- [x] Task 1: Remove "Media Only" from Left Sidebar
   - Acceptance: Filter list in `NewsFeedLeftSidebar.tsx` contains only "All Posts" and "Bookmarks". "Media Only" button completely removed.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/app/feed/NewsFeedLeftSidebar.tsx`
