@@ -10,27 +10,12 @@ import { AuthProvider } from './context/AuthContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
 import LoginCardPage from './app/login-card/page';
-import AppTopNav from './components/nav/AppTopNav';
 import NewsFeedPage from './app/feed/NewsFeedPage';
 
 type ThemeMode = 'dark' | 'light';
 
-function AppContent({
-  mode,
-  onToggleTheme,
-}: {
-  mode: ThemeMode;
-  onToggleTheme: () => void;
-}) {
-  const { isAuthenticated, currentUser, logout, demoUsers, switchUser } = useAuth();
-
-  const handleOpenNewPost = () => {
-    window.dispatchEvent(new CustomEvent('social:open-create-post'));
-  };
-
-  const handleRefreshFeed = () => {
-    window.dispatchEvent(new CustomEvent('social:refresh-feed'));
-  };
+function AppContent() {
+  const { isAuthenticated, currentUser } = useAuth();
 
   if (!isAuthenticated) {
     return <LoginCardPage />;
@@ -45,28 +30,6 @@ function AppContent({
         transition: 'background-color 0.2s ease, color 0.2s ease',
       }}
     >
-      {/* Official Astryx Mega TopNav */}
-      <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          backgroundColor: 'var(--color-background-body, #111111)',
-          borderBottom: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08))',
-        }}
-      >
-        <AppTopNav
-          mode={mode}
-          onToggleTheme={onToggleTheme}
-          currentUser={currentUser}
-          onLogout={logout}
-          demoUsers={demoUsers}
-          onSwitchUser={switchUser}
-          onOpenNewPost={handleOpenNewPost}
-          onRefreshFeed={handleRefreshFeed}
-        />
-      </header>
-
       {/* Persistent 3-Column Shell Area */}
       <main>
         <NewsFeedPage
@@ -103,10 +66,7 @@ export default function App() {
     <Theme theme={themes[defaultThemeSlug]} mode={mode}>
       <AuthProvider>
         <AnalyticsProvider>
-          <AppContent
-            mode={mode}
-            onToggleTheme={() => setMode((m) => (m === 'dark' ? 'light' : 'dark'))}
-          />
+          <AppContent />
         </AnalyticsProvider>
       </AuthProvider>
     </Theme>

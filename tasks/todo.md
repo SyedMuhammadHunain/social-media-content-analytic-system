@@ -11,7 +11,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/NewsFeedLeftSidebar.tsx`
   - Scope: XS
 
-- [ ] Task 2: Remove Navbar from App Layout
+- [x] Task 2: Remove Navbar from App Layout
   - Acceptance: `AppHeader` removed from `frontend/src/App.tsx`. Top padding/gap removed so 3-column layout aligns flush to top of viewport. Sticky sidebar top offsets updated from 80px/89px to 16px/24px.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/App.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
