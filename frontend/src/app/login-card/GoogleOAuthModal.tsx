@@ -4,22 +4,23 @@
 'use client';
 
 import { useState } from 'react';
-import type { FC, FormEvent } from 'react';
+import type { FC } from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
-import { Avatar } from '@astryxdesign/core/Avatar';
 import { Divider } from '@astryxdesign/core/Divider';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { Icon } from '@astryxdesign/core/Icon';
 import {
   XMarkIcon,
-  UserPlusIcon,
-  ArrowRightIcon,
   InformationCircleIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import {
+  GoogleAccountList,
+  type GoogleAccountOption,
+} from './GoogleAccountList.tsx';
+import { GoogleCustomAccountForm } from './GoogleCustomAccountForm.tsx';
 
 const GOOGLE_LOGO_SVG = (
   <svg width="24" height="24" viewBox="0 0 24 24">
@@ -42,37 +43,7 @@ const GOOGLE_LOGO_SVG = (
   </svg>
 );
 
-export interface GoogleAccountOption {
-  name: string;
-  email: string;
-  avatarUrl: string;
-  headline?: string;
-  googleId?: string;
-}
-
-const PRESET_GOOGLE_ACCOUNTS: GoogleAccountOption[] = [
-  {
-    name: 'Syed Muhammad Hunain',
-    email: 'hunain.creator@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    headline: 'Current Active Account',
-    googleId: 'google_hunain_creator',
-  },
-  {
-    name: 'Afzal Khan',
-    email: 'afzal.khan@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    headline: 'Google Verified Creator',
-    googleId: 'google_afzal_khan',
-  },
-  {
-    name: 'Alice Walker',
-    email: 'alice.walker@gmail.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    headline: 'Google Workspace Account',
-    googleId: 'google_alice_walker',
-  },
-];
+export type { GoogleAccountOption };
 
 export interface GoogleOAuthModalProps {
   isOpen: boolean;
@@ -89,28 +60,8 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
 }) => {
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [showCredentialsGuide, setShowCredentialsGuide] = useState(false);
-  const [customName, setCustomName] = useState('');
-  const [customEmail, setCustomEmail] = useState('');
 
   if (!isOpen) return null;
-
-  const handleCustomSubmit = (e?: FormEvent) => {
-    if (e) e.preventDefault();
-    if (!customEmail.trim()) return;
-    const cleanName = customName.trim() || customEmail.split('@')[0];
-    const cleanEmail = customEmail.trim().toLowerCase();
-    onSelectAccount({
-      name: cleanName,
-      email: cleanEmail,
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      googleId: `google_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
-    });
-  };
-
-  const handleFillDemo = (name: string, email: string) => {
-    setCustomName(name);
-    setCustomEmail(email);
-  };
 
   return (
     <div
@@ -136,7 +87,6 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
       <div style={{ maxWidth: 480, width: '100%', maxHeight: '92vh', overflowY: 'auto' }}>
         <Card padding={6}>
           <VStack gap={4}>
-            {/* Modal Header */}
             <HStack hAlign="between" vAlign="center">
               <HStack gap={3} vAlign="center">
                 {GOOGLE_LOGO_SVG}
@@ -160,168 +110,29 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
 
             <Divider />
 
-            {/* Account Selection */}
             {!showCustomInput ? (
-              <VStack gap={2}>
-                <Text type="label" color="secondary">
-                  Choose an account
-                </Text>
-
-                {PRESET_GOOGLE_ACCOUNTS.map((acc, index) => (
-                  <button
-                    key={acc.email}
-                    type="button"
-                    data-testid={`google-account-option-${index}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: 8,
-                      border: '1px solid var(--color-border, rgba(255, 255, 255, 0.12))',
-                      backgroundColor: 'var(--color-surface-subtle, rgba(255, 255, 255, 0.04))',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      textAlign: 'left',
-                      transition: 'background-color 0.15s ease, border-color 0.15s ease',
-                    }}
-                    disabled={isLoading}
-                    onClick={() => onSelectAccount(acc)}
-                  >
-                    <HStack gap={3} vAlign="center">
-                      <Avatar name={acc.name} src={acc.avatarUrl} size="md" />
-                      <VStack gap={0}>
-                        <Text type="body" weight="bold">
-                          {acc.name}
-                        </Text>
-                        <Text type="supporting" color="secondary">
-                          {acc.email}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                    <Icon icon={ArrowRightIcon} size="xsm" color="secondary" />
-                  </button>
-                ))}
-
-                <button
-                  type="button"
-                  data-testid="google-use-custom-account-btn"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    width: '100%',
-                    padding: '12px 16px',
-                    borderRadius: 8,
-                    border: '1px dashed var(--color-border, rgba(255, 255, 255, 0.2))',
-                    backgroundColor: 'transparent',
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                    textAlign: 'left',
-                    marginTop: 4,
-                  }}
-                  disabled={isLoading}
-                  onClick={() => setShowCustomInput(true)}
-                >
-                  <Icon icon={UserPlusIcon} size="sm" color="primary" />
-                  <VStack gap={0}>
-                    <Text type="body" color="primary">
-                      Use another Google account
-                    </Text>
-                    <Text type="supporting" color="secondary">
-                      Sign in with your custom email
-                    </Text>
-                  </VStack>
-                </button>
-              </VStack>
+              <GoogleAccountList
+                isLoading={isLoading}
+                onSelectAccount={(acc) =>
+                  onSelectAccount({
+                    name: acc.name,
+                    email: acc.email,
+                    avatarUrl: acc.avatarUrl,
+                    googleId: acc.googleId,
+                  })
+                }
+                onUseCustomAccount={() => setShowCustomInput(true)}
+              />
             ) : (
-              /* Custom Account Input Form */
-              <form onSubmit={handleCustomSubmit} style={{ width: '100%' }}>
-                <VStack gap={3}>
-                  <HStack hAlign="between" vAlign="center">
-                    <Text type="label" color="secondary">
-                      Enter Google Account Details
-                    </Text>
-                    <Button
-                      label="Back to saved accounts"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowCustomInput(false)}
-                    />
-                  </HStack>
-
-                  {/* Quick Fill Suggestions */}
-                  <HStack gap={2} vAlign="center" wrap="wrap">
-                    <Text type="supporting" color="secondary" size="sm">
-                      Quick Fill:
-                    </Text>
-                    <button
-                      type="button"
-                      style={{
-                        background: 'rgba(66, 133, 244, 0.15)',
-                        border: '1px solid rgba(66, 133, 244, 0.4)',
-                        color: '#8ab4f8',
-                        padding: '4px 10px',
-                        borderRadius: 16,
-                        fontSize: 12,
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleFillDemo('Afzal Khan', 'afzal.khan@gmail.com')}
-                    >
-                      Afzal Khan
-                    </button>
-                    <button
-                      type="button"
-                      style={{
-                        background: 'rgba(52, 168, 83, 0.15)',
-                        border: '1px solid rgba(52, 168, 83, 0.4)',
-                        color: '#81c995',
-                        padding: '4px 10px',
-                        borderRadius: 16,
-                        fontSize: 12,
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleFillDemo('Syed Muhammad Hunain', 'hunain.creator@gmail.com')}
-                    >
-                      Hunain
-                    </button>
-                  </HStack>
-
-                  <TextInput
-                    data-testid="google-custom-name-input"
-                    label="Full Name"
-                    placeholder="e.g. Syed Muhammad Hunain"
-                    value={customName}
-                    onChange={(v) => setCustomName(v)}
-                    size="md"
-                  />
-
-                  <TextInput
-                    data-testid="google-custom-email-input"
-                    label="Google Email"
-                    placeholder="name@gmail.com"
-                    type="email"
-                    value={customEmail}
-                    onChange={(v) => setCustomEmail(v)}
-                    size="md"
-                  />
-
-                  <Button
-                    data-testid="google-custom-submit-btn"
-                    label={isLoading ? 'Signing In with Google...' : 'Continue with this Google Account'}
-                    variant="primary"
-                    size="lg"
-                    type="submit"
-                    isDisabled={!customEmail.trim() || isLoading}
-                    isLoading={isLoading}
-                    onClick={handleCustomSubmit}
-                  />
-                </VStack>
-              </form>
+              <GoogleCustomAccountForm
+                isLoading={isLoading}
+                onSubmit={onSelectAccount}
+                onBack={() => setShowCustomInput(false)}
+              />
             )}
 
             <Divider />
 
-            {/* Google Cloud Credentials Guide Accordion */}
             <div
               style={{
                 borderRadius: 8,
@@ -381,7 +192,6 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
               )}
             </div>
 
-            {/* Google OAuth Security Disclaimer */}
             <HStack gap={2} vAlign="start">
               <Icon icon={InformationCircleIcon} size="xsm" color="secondary" />
               <Text type="supporting" color="secondary" size="sm">

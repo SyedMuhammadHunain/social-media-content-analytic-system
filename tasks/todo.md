@@ -59,7 +59,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 4: Auth & Modal Tier
 
-- [ ] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
+- [x] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
   - Acceptance: Extract `GoogleAccountList.tsx` and `GoogleCustomAccountForm.tsx`. Reduce `GoogleOAuthModal.tsx` from 399 lines to ~90 lines.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/login-card/GoogleOAuthModal.tsx`
   - Files: `frontend/src/app/login-card/GoogleAccountList.tsx`, `frontend/src/app/login-card/GoogleCustomAccountForm.tsx`, `frontend/src/app/login-card/GoogleOAuthModal.tsx`
