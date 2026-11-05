@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
 
+const GalleryHeroLandingPage = lazy(() => import('./app/gallery-hero/page'));
 const LoginCardPage = lazy(() => import('./app/login-card/page'));
 const NewsFeedPage = lazy(() => import('./app/feed/NewsFeedPage'));
 
@@ -17,11 +18,23 @@ type ThemeMode = 'dark' | 'light';
 
 function AppContent() {
   const { isAuthenticated, currentUser } = useAuth();
+  const [unauthView, setUnauthView] = useState<'landing' | 'login'>('landing');
 
   if (!isAuthenticated) {
+    if (unauthView === 'landing') {
+      return (
+        <Suspense fallback={null}>
+          <GalleryHeroLandingPage
+            onGetStarted={() => setUnauthView('login')}
+            onLearnMore={() => {}}
+          />
+        </Suspense>
+      );
+    }
+
     return (
       <Suspense fallback={null}>
-        <LoginCardPage />
+        <LoginCardPage onBack={() => setUnauthView('landing')} />
       </Suspense>
     );
   }

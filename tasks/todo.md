@@ -44,14 +44,14 @@ Spec: `docs/specs/SPEC-landing-page.md`
     - `frontend/src/app/gallery-hero/page.tsx`
   - **Estimated scope:** S (1 file)
 
-- [ ] Task 4: Integrate landing page into `frontend/src/App.tsx` navigation flow
+- [x] Task 4: Integrate landing page into `frontend/src/App.tsx` navigation flow
   - **Description:** Wire the landing page as the initial unauthenticated view, allowing visitors to click "Get Started" to open `LoginCardPage`, with an option in `LoginCardPage` to navigate back to the landing page.
   - **Acceptance criteria:**
-    - [ ] Default unauthenticated state displays landing page.
-    - [ ] Clicking "Get Started" sets view state to `'login'`.
-    - [ ] Authenticated state continues to render the NewsFeed / analytics app.
+    - [x] Default unauthenticated state displays landing page.
+    - [x] Clicking "Get Started" sets view state to `'login'`.
+    - [x] Authenticated state continues to render the NewsFeed / analytics app.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npx tsc -b`
   - **Dependencies:** Task 3
   - **Files likely touched:**
     - `frontend/src/App.tsx`
