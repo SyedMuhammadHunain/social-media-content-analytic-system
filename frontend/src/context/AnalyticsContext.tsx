@@ -23,6 +23,8 @@ import {
   generateDynamicLikesSeries,
   generateDynamicFollowersSeries,
   generateDynamicEngagementSeries,
+  aggregateFeedPosts,
+  computeNextSummary,
 } from './analyticsAggregation.ts';
 import {
   KNOWN_BASELINES,
@@ -169,52 +171,17 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     try {
       const followerIds = await socialApi.getFollowers(effectiveUserId);
       const feed = await feedApi.getFeedForUser(effectiveUserId, 0, 50);
-
-      let authoredLikes = 0;
-      let authoredComments = 0;
-      let authoredPostsCount = 0;
-
-      if (feed && feed.posts) {
-        for (const p of feed.posts) {
-          if (p.authorId === effectiveUserId || p.authorId === activeUserId) {
-            authoredLikes += p.likeCount || 0;
-            authoredComments += p.commentCount || 0;
-            authoredPostsCount++;
-          }
-        }
-      }
+      const feedCounts = aggregateFeedPosts(feed?.posts, effectiveUserId, activeUserId);
 
       setSummary((prev) => {
-        const isSeedCreator = !!KNOWN_BASELINES[effectiveUserId];
-        let totalFollowers = prev.totalFollowers;
-        if (!isSeedCreator) {
-          totalFollowers = followerIds ? followerIds.length : (currentUser?.followerCount ?? prev.totalFollowers);
-        } else if (followerIds && followerIds.length > 0) {
-          totalFollowers = Math.max(prev.totalFollowers, followerIds.length);
-        }
+        const isSeed = Boolean(KNOWN_BASELINES[effectiveUserId]);
+        const fallbackFollowers = currentUser?.followerCount ?? prev.totalFollowers;
+        const nextSummary = computeNextSummary(prev, isSeed, followerIds, fallbackFollowers, feedCounts);
 
-        let totalLikes = prev.totalLikes;
-        let totalComments = prev.totalComments;
-        if (!isSeedCreator) {
-          totalLikes = authoredPostsCount > 0 ? authoredLikes : prev.totalLikes;
-          totalComments = authoredPostsCount > 0 ? authoredComments : prev.totalComments;
-        } else if (authoredPostsCount > 0) {
-          totalLikes = Math.max(prev.totalLikes, authoredLikes);
-          totalComments = Math.max(prev.totalComments, authoredComments);
-        }
-
-        const nextSummary = {
-          ...prev,
-          totalFollowers,
-          totalLikes,
-          totalComments,
-          engagementRate: calcEngagementRate(totalComments, totalFollowers),
-        };
-
-        if (!isSeedCreator) {
-          const freshLikes = generateDynamicLikesSeries(totalLikes, prev.totalUnlikes);
-          const freshFollowers = generateDynamicFollowersSeries(totalFollowers);
-          const freshEngagement = generateDynamicEngagementSeries(totalComments);
+        if (!isSeed) {
+          const freshLikes = generateDynamicLikesSeries(nextSummary.totalLikes, prev.totalUnlikes);
+          const freshFollowers = generateDynamicFollowersSeries(nextSummary.totalFollowers);
+          const freshEngagement = generateDynamicEngagementSeries(nextSummary.totalComments);
 
           setLikeUnlikeData(freshLikes);
           setFollowersData(freshFollowers);
@@ -228,9 +195,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
           });
         } else {
           const cached = userMetricsStore.current.get(effectiveUserId);
-          if (cached) {
-            userMetricsStore.current.set(effectiveUserId, { ...cached, summary: nextSummary });
-          }
+          if (cached) userMetricsStore.current.set(effectiveUserId, { ...cached, summary: nextSummary });
         }
 
         return nextSummary;

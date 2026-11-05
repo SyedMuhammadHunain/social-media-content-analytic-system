@@ -15,6 +15,55 @@ export interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
+function buildHeaders(headers?: HeadersInit, skipAuth = false, isFormData = false): Record<string, string> {
+  const reqHeaders: Record<string, string> = {
+    Accept: 'application/json',
+    ...(headers as Record<string, string>),
+  };
+
+  if (!skipAuth) {
+    const activeToken = getAuthToken();
+    if (activeToken) {
+      if (!reqHeaders.Authorization) {
+        reqHeaders.Authorization = `Bearer ${activeToken}`;
+      }
+    }
+  }
+
+  if (!isFormData) {
+    if (!reqHeaders['Content-Type']) {
+      reqHeaders['Content-Type'] = 'application/json';
+    }
+  }
+
+  return reqHeaders;
+}
+
+async function parseBody<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get('content-type') || '';
+  const isJson = contentType.includes('application/json');
+  const responseData: any = isJson ? await response.json() : await response.text();
+
+  if (!response.ok) {
+    const hasMsg = responseData && typeof responseData === 'object';
+    const errorMsg = (hasMsg && responseData.message) || response.statusText || `HTTP error ${response.status}`;
+    throw new ApiError(response.status, response.statusText, errorMsg, responseData);
+  }
+
+  const isEnvelope = Boolean(responseData && typeof responseData === 'object');
+  if (isEnvelope) {
+    if ('data' in responseData) {
+      const envelope = responseData as ApiResponse<T>;
+      if (envelope.status === 'ERROR') {
+        throw new ApiError(response.status, 'Application Error', envelope.message || 'Server error', envelope);
+      }
+      return envelope.data;
+    }
+  }
+
+  return responseData as T;
+}
+
 export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {}
@@ -26,20 +75,8 @@ export async function apiRequest<T>(
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  const requestHeaders: Record<string, string> = {
-    'Accept': 'application/json',
-    ...(headers as Record<string, string>),
-  };
-
-  const activeToken = getAuthToken();
-  if (!skipAuth && activeToken && !requestHeaders['Authorization']) {
-    requestHeaders['Authorization'] = `Bearer ${activeToken}`;
-  }
-
-  if (!(fetchOptions.body instanceof FormData) && !requestHeaders['Content-Type']) {
-    requestHeaders['Content-Type'] = 'application/json';
-  }
+  const isFormData = fetchOptions.body instanceof FormData;
+  const requestHeaders = buildHeaders(headers, skipAuth, isFormData);
 
   try {
     const response = await fetch(fullUrl, {
@@ -48,27 +85,7 @@ export async function apiRequest<T>(
       signal: controller.signal,
     });
     clearTimeout(timer);
-
-    const isJson = response.headers.get('content-type')?.includes('application/json');
-    const responseData: any = isJson ? await response.json() : await response.text();
-
-    if (!response.ok) {
-      const errorMessage =
-        (responseData && typeof responseData === 'object' && responseData.message) ||
-        response.statusText ||
-        `HTTP request failed with status ${response.status}`;
-      throw new ApiError(response.status, response.statusText, errorMessage, responseData);
-    }
-
-    if (responseData && typeof responseData === 'object' && 'data' in responseData) {
-      const envelope = responseData as ApiResponse<T>;
-      if (envelope.status === 'ERROR') {
-        throw new ApiError(response.status, 'Application Error', envelope.message || 'Server error', envelope);
-      }
-      return envelope.data;
-    }
-
-    return responseData as T;
+    return await parseBody<T>(response);
   } catch (error: any) {
     clearTimeout(timer);
     if (error.name === 'AbortError') {
@@ -76,6 +93,27 @@ export async function apiRequest<T>(
     }
     throw error;
   }
+}
+
+function resolveDeleteOptions(bodyOrOptions?: unknown, options?: RequestOptions): RequestOptions {
+  const isOpt =
+    bodyOrOptions &&
+    typeof bodyOrOptions === 'object' &&
+    options === undefined &&
+    ('timeoutMs' in bodyOrOptions || 'skipAuth' in bodyOrOptions || 'headers' in bodyOrOptions);
+
+  if (isOpt) {
+    return { ...(bodyOrOptions as RequestOptions), method: 'DELETE' };
+  }
+
+  const body =
+    bodyOrOptions !== undefined
+      ? bodyOrOptions instanceof FormData
+        ? bodyOrOptions
+        : JSON.stringify(bodyOrOptions)
+      : undefined;
+
+  return { ...options, method: 'DELETE', body };
 }
 
 export const api = {
@@ -96,36 +134,18 @@ export const api = {
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
 
-  del: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) => {
-    const isOptions =
-      bodyOrOptions &&
-      typeof bodyOrOptions === 'object' &&
-      !Array.isArray(bodyOrOptions) &&
-      options === undefined &&
-      ('timeoutMs' in bodyOrOptions || 'skipAuth' in bodyOrOptions || 'headers' in bodyOrOptions || 'signal' in bodyOrOptions);
-
-    if (isOptions) {
-      return apiRequest<T>(path, { ...(bodyOrOptions as RequestOptions), method: 'DELETE' });
-    }
-
-    return apiRequest<T>(path, {
+  patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
+    apiRequest<T>(path, {
       ...options,
-      method: 'DELETE',
-      body:
-        bodyOrOptions !== undefined
-          ? bodyOrOptions instanceof FormData
-            ? bodyOrOptions
-            : JSON.stringify(bodyOrOptions)
-          : undefined,
-    });
-  },
+      method: 'PATCH',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    }),
+
+  delete: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) =>
+    apiRequest<T>(path, resolveDeleteOptions(bodyOrOptions, options)),
+
+  del: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) =>
+    apiRequest<T>(path, resolveDeleteOptions(bodyOrOptions, options)),
 };
 
-export async function checkGatewayHealth(): Promise<boolean> {
-  try {
-    await api.get<{ status: string }>('/actuator/health', { timeoutMs: 2500, skipAuth: true });
-    return true;
-  } catch {
-    return false;
-  }
-}
+export default api;

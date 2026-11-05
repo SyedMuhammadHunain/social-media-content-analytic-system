@@ -6,22 +6,33 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
-import { Heading, Text } from '@astryxdesign/core/Text';
+import { Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
-import { Avatar } from '@astryxdesign/core/Avatar';
-import { TextArea } from '@astryxdesign/core/TextArea';
 import { Divider } from '@astryxdesign/core/Divider';
 
 import type { CreatePostInput, PostType, User } from '../../types/social.ts';
-import { PostMediaToolbar } from './PostMediaToolbar.tsx';
-import { PostMediaDropzone } from './PostMediaDropzone.tsx';
 import { usePostMediaUpload } from './usePostMediaUpload.ts';
+import { PostComposerForm } from './PostComposerForm.tsx';
 
 export interface PostCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: User;
   onCreatePost: (post: CreatePostInput) => void;
+}
+
+function extractHashtags(content: string): string[] {
+  const matches = content.match(/#[a-zA-Z0-9_\u00c0-\u024e\u1e00-\u1eff]+/g) || [];
+  const seen = new Set<string>();
+  const hashtags: string[] = [];
+  for (const tag of matches) {
+    const lower = tag.toLowerCase();
+    if (!seen.has(lower)) {
+      seen.add(lower);
+      hashtags.push(tag);
+    }
+  }
+  return hashtags;
 }
 
 export function PostCreateModal({
@@ -60,17 +71,7 @@ export function PostCreateModal({
   const handleSubmit = () => {
     if (!isValid || isUploading) return;
 
-    const matches = text.match(/#[a-zA-Z0-9_\u00c0-\u024e\u1e00-\u1eff]+/g) || [];
-    const seen = new Set<string>();
-    const hashtags: string[] = [];
-    for (const tag of matches) {
-      const lower = tag.toLowerCase();
-      if (!seen.has(lower)) {
-        seen.add(lower);
-        hashtags.push(tag);
-      }
-    }
-
+    const hashtags = extractHashtags(text);
     const effectiveType: PostType = mediaUrl.length > 0 ? mediaType : 'TEXT';
 
     onCreatePost({
@@ -139,46 +140,22 @@ export function PostCreateModal({
 
             <Divider />
 
-            <HStack gap={3} align="start" style={{ width: '100%' }}>
-              <Avatar
-                size="md"
-                src={currentUser.avatarUrl}
-                name={currentUser.name}
-              />
-
-              <VStack gap={3} style={{ flex: 1, minWidth: 0 }}>
-                <Text weight="semibold" type="body">
-                  {currentUser.username ? `${currentUser.username}` : currentUser.name}
-                </Text>
-
-                <TextArea
-                  label="What's new?"
-                  isLabelHidden
-                  placeholder="What's new?"
-                  rows={4}
-                  value={text}
-                  onChange={setText}
-                  data-testid="modal-post-textarea"
-                />
-
-                <PostMediaDropzone
-                  mediaUrl={mediaUrl}
-                  mediaType={mediaType}
-                  formatWarning={formatWarning}
-                  onRemoveMedia={handleRemoveMedia}
-                />
-
-                <PostMediaToolbar
-                  onFileSelect={handleFileSelect}
-                  onSelectEmoji={(emoji) => setText((prev) => prev + emoji)}
-                  onSelectGif={(gifUrl) => {
-                    setMediaUrl(gifUrl);
-                    setMediaType('IMAGE');
-                  }}
-                  disabled={isUploading}
-                />
-              </VStack>
-            </HStack>
+            <PostComposerForm
+              currentUser={currentUser}
+              text={text}
+              setText={setText}
+              mediaUrl={mediaUrl}
+              mediaType={mediaType}
+              formatWarning={formatWarning}
+              isUploading={isUploading}
+              onFileSelect={handleFileSelect}
+              onRemoveMedia={handleRemoveMedia}
+              onSelectEmoji={(emoji) => setText((prev) => prev + emoji)}
+              onSelectGif={(gifUrl) => {
+                setMediaUrl(gifUrl);
+                setMediaType('IMAGE');
+              }}
+            />
 
             <Divider />
 

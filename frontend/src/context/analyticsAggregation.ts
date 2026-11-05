@@ -103,3 +103,52 @@ export function generateDynamicEngagementSeries(totalComments: number): Engageme
     return { date, comments: day, engagementScore: day * 5 };
   });
 }
+
+export function aggregateFeedPosts(posts: any[] = [], authorId1: string, authorId2: string) {
+  let authoredLikes = 0;
+  let authoredComments = 0;
+  let count = 0;
+
+  for (const p of posts) {
+    if (p.authorId === authorId1 || p.authorId === authorId2) {
+      authoredLikes += p.likeCount || 0;
+      authoredComments += p.commentCount || 0;
+      count++;
+    }
+  }
+
+  return { authoredLikes, authoredComments, count };
+}
+
+export function computeNextSummary(
+  prev: { totalFollowers: number; totalLikes: number; totalUnlikes: number; totalComments: number },
+  isSeedCreator: boolean,
+  followerIds: string[] | null,
+  fallbackFollowers: number,
+  feedCounts: { authoredLikes: number; authoredComments: number; count: number }
+) {
+  let totalFollowers = prev.totalFollowers;
+  if (!isSeedCreator) {
+    totalFollowers = followerIds ? followerIds.length : fallbackFollowers;
+  } else if (followerIds && followerIds.length > 0) {
+    totalFollowers = Math.max(prev.totalFollowers, followerIds.length);
+  }
+
+  let totalLikes = prev.totalLikes;
+  let totalComments = prev.totalComments;
+  if (!isSeedCreator) {
+    totalLikes = feedCounts.count > 0 ? feedCounts.authoredLikes : prev.totalLikes;
+    totalComments = feedCounts.count > 0 ? feedCounts.authoredComments : prev.totalComments;
+  } else if (feedCounts.count > 0) {
+    totalLikes = Math.max(prev.totalLikes, feedCounts.authoredLikes);
+    totalComments = Math.max(prev.totalComments, feedCounts.authoredComments);
+  }
+
+  return {
+    ...prev,
+    totalFollowers,
+    totalLikes,
+    totalComments,
+    engagementRate: calcEngagementRate(totalComments, totalFollowers),
+  };
+}

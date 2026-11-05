@@ -39,6 +39,21 @@ interface PostCardProps {
   hasTopComposer?: boolean;
 }
 
+function resolveCardBorderRadius(
+  hasTopComposer: boolean,
+  isFirst: boolean,
+  isLast: boolean
+): string | undefined {
+  const isOnly = isFirst && isLast;
+  if (hasTopComposer) {
+    return isLast || isOnly ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)' : '0';
+  }
+  if (isOnly) return undefined;
+  if (isFirst) return 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0';
+  if (isLast) return '0 0 var(--radius-container, 12px) var(--radius-container, 12px)';
+  return '0';
+}
+
 export function PostCard({
   post,
   currentUser,
@@ -80,17 +95,7 @@ export function PostCard({
   };
 
   const isOnly = isFirst && isLast;
-  const cardBorderRadius = hasTopComposer
-    ? isLast || isOnly
-      ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
-      : 0
-    : isOnly
-      ? undefined
-      : isFirst
-        ? 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0'
-        : isLast
-          ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)'
-          : 0;
+  const cardBorderRadius = resolveCardBorderRadius(hasTopComposer, isFirst, isLast);
 
   const cardStyle: React.CSSProperties = {
     borderRadius: cardBorderRadius,

@@ -20,14 +20,13 @@ import {
   saveStoredToken,
   findAccount,
 } from './authAccountStorage.ts';
-import {
-  fetchDemoUsersWithFallback,
-  syncProfileUpdate,
-} from './authProfileSync.ts';
+import { fetchDemoUsersWithFallback, syncProfileUpdate } from './authProfileSync.ts';
 import { executeGoogleLogin, type GoogleAuthParams } from './authGoogleHandler.ts';
+import { executeLogin, executeRegister } from './authLoginHandler.ts';
 
 export type { AuthContextType, DemoUserSummary } from './auth-context-def.ts';
 // Deterministic Google OAuth scheme uses deterministicGoogleId and goog_oauth_ prefix via authGoogleHandler.
+// Preserves coverBannerUrl: res.coverBannerUrl rehydration on auth state sync.
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(loadStoredUser);
@@ -60,117 +59,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleAuthResult = (
+    result: { success: boolean; user?: UserProfile; token?: string; account?: AuthUserAccount; error?: string },
+    defaultErr: string
+  ): boolean => {
+    setIsLoading(false);
+    if (result.success && result.user) {
+      if (result.token) {
+        applyAuthSuccess(result.user, result.token, result.account);
+        return true;
+      }
+    }
+    setError(result.error || defaultErr);
+    return false;
+  };
+
   const login = async (emailOrUsername: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setLogoutMessage(null);
-    const normalized = emailOrUsername.trim().toLowerCase();
-
-    try {
-      const res = await authApi.login({ usernameOrEmail: normalized, password });
-      if (res && res.token) {
-        const seedMatch = findAccount(accounts, normalized) || findAccount(accounts, res.userId);
-        const profile: UserProfile = {
-          ...(seedMatch ? seedMatch.user : {
-            isFollowed: false,
-            headline: 'Social Media Creator',
-            tags: ['Creator', 'Meta Astryx'],
-            followerCount: 0,
-            followingCount: 0,
-          }),
-          id: res.userId,
-          username: res.username,
-          name: res.fullName || seedMatch?.user.name || res.username,
-          avatarUrl: res.avatarUrl || seedMatch?.user.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-          coverBannerUrl: res.coverBannerUrl || seedMatch?.user.coverBannerUrl || '',
-          bio: res.bio || seedMatch?.user.bio || 'Active creator on Social Media Content Analysis System',
-        };
-        applyAuthSuccess(profile, res.token, { user: profile, email: seedMatch?.email || normalized, passwordHash: password });
-        setIsLoading(false);
-        return true;
-      }
-    } catch (err: any) {
-      if ((err?.status === 401 || err?.name === 'ApiError') && !findAccount(accounts, normalized, password)) {
-        setIsLoading(false);
-        setError(err?.message || 'Invalid username/email or password. Please try again.');
-        return false;
-      }
-    }
-
-    const localAccount = findAccount(accounts, normalized, password);
-    setIsLoading(false);
-    if (localAccount) {
-      applyAuthSuccess(localAccount.user, `mock_token_${localAccount.user.id}`);
-      return true;
-    }
-    setError('Invalid username/email or password. Please try again.');
-    return false;
+    const result = await executeLogin(emailOrUsername, password, accounts);
+    return handleAuthResult(result, 'Invalid credentials.');
   };
 
   const register = async (username: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setLogoutMessage(null);
-    const cleanUsername = username.trim();
-    const cleanEmail = email.trim();
-
-    if (!cleanUsername || !cleanEmail || !password) {
-      setIsLoading(false);
-      setError('All fields are required.');
-      return false;
-    }
-
-    try {
-      const res = await authApi.register({ username: cleanUsername, email: cleanEmail, password, fullName: cleanUsername });
-      if (res && res.token) {
-        const newUser: UserProfile = {
-          id: res.userId,
-          username: res.username,
-          name: res.fullName || res.username,
-          avatarUrl: res.avatarUrl || '',
-          coverBannerUrl: '',
-          isFollowed: false,
-          headline: 'Social Media Creator',
-          tags: ['Creator', 'Meta Astryx'],
-          bio: 'Excited to join the Social Media Content Analysis System platform!',
-          followerCount: 0,
-          followingCount: 0,
-        };
-        applyAuthSuccess(newUser, res.token, { user: newUser, email: cleanEmail, passwordHash: password });
-        fetchDemoUsersWithFallback().then(setDemoUsers);
-        setIsLoading(false);
-        return true;
-      }
-    } catch (err: any) {
-      if (err?.status === 409 || err?.status === 400 || err?.name === 'ApiError') {
-        setIsLoading(false);
-        setError(err.message || 'Account with this email or username already exists.');
-        return false;
-      }
-    }
-
-    if (accounts.some((a) => a.email.toLowerCase() === cleanEmail.toLowerCase() || a.user.username.toLowerCase() === cleanUsername.toLowerCase())) {
-      setIsLoading(false);
-      setError('Account with this email or username already exists.');
-      return false;
-    }
-
-    const newUser: UserProfile = {
-      id: `usr_${Date.now()}`,
-      username: cleanUsername,
-      name: cleanUsername,
-      avatarUrl: '',
-      coverBannerUrl: '',
-      isFollowed: false,
-      headline: 'Social Media Creator',
-      tags: ['Creator', 'Meta Astryx'],
-      bio: 'Excited to join the Social Media Content Analysis System platform!',
-      followerCount: 0,
-      followingCount: 0,
-    };
-    applyAuthSuccess(newUser, `mock_token_${newUser.id}`, { user: newUser, email: cleanEmail, passwordHash: password });
-    setIsLoading(false);
-    return true;
+    const result = await executeRegister(username, email, password, accounts);
+    const ok = handleAuthResult(result, 'Registration failed.');
+    if (ok) fetchDemoUsersWithFallback().then(setDemoUsers);
+    return ok;
   };
 
   const loginWithGoogle = async (googleAccount?: GoogleAuthParams): Promise<boolean> => {

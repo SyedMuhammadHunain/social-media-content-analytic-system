@@ -11,14 +11,25 @@ import { Button } from '@astryxdesign/core/Button';
 import { Banner } from '@astryxdesign/core/Banner';
 import { useAuth } from '../../context/useAuth';
 import { RegisterInputFields } from './RegisterInputFields.tsx';
+import { validateField } from './authValidation.ts';
 
 export interface RegisterFormProps {
   onToggleLogin: () => void;
 }
 
-const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+function extractFormValues(
+  form: HTMLFormElement | null,
+  current: { username: string; email: string; password: string }
+) {
+  const userEl = form?.querySelector<HTMLInputElement>('input[name="username"], input[placeholder*="username" i]');
+  const emailEl = form?.querySelector<HTMLInputElement>('input[type="email"], input[placeholder*="email" i]');
+  const passEl = form?.querySelector<HTMLInputElement>('input[type="password"]');
+  return {
+    username: userEl?.value ?? current.username,
+    email: emailEl?.value ?? current.email,
+    password: passEl?.value ?? current.password,
+  };
+}
 
 export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
   const { register, error, isLoading, clearError } = useAuth();
@@ -38,33 +49,6 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
     password?: boolean;
   }>({});
 
-  const validateField = (field: 'username' | 'email' | 'password', val: string) => {
-    const trimmed = val.trim();
-    if (field === 'username') {
-      if (!trimmed) return 'Username is required.';
-      if (trimmed.length < 3 || trimmed.length > 20) {
-        return 'Username must be between 3 and 20 characters.';
-      }
-      if (!USERNAME_REGEX.test(trimmed)) {
-        return 'Username can only contain letters, numbers, and underscores.';
-      }
-    }
-    if (field === 'email') {
-      if (!trimmed) return 'Email is required.';
-      if (!EMAIL_REGEX.test(trimmed)) {
-        return 'Please enter a valid email address.';
-      }
-    }
-    if (field === 'password') {
-      if (!val) return 'Password is required.';
-      if (val.length < 8) return 'Password must be at least 8 characters.';
-      if (!PASSWORD_COMPLEXITY_REGEX.test(val)) {
-        return 'Password must contain at least one letter and one number.';
-      }
-    }
-    return undefined;
-  };
-
   const handleBlur = (field: 'username' | 'email' | 'password', val: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     const err = validateField(field, val);
@@ -74,23 +58,18 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
   const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
 
-    const userEl = formRef.current?.querySelector<HTMLInputElement>(
-      'input[name="username"], input[placeholder*="username" i]'
-    );
-    const emailEl = formRef.current?.querySelector<HTMLInputElement>(
-      'input[type="email"], input[placeholder*="email" i]'
-    );
-    const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
-
-    const finalUsername = userEl?.value ?? username;
-    const finalEmail = emailEl?.value ?? email;
-    const finalPassword = passEl?.value ?? password;
+    const { username: finalUsername, email: finalEmail, password: finalPassword } = extractFormValues(formRef.current, {
+      username,
+      email,
+      password,
+    });
 
     const uErr = validateField('username', finalUsername);
     const eErr = validateField('email', finalEmail);
     const pErr = validateField('password', finalPassword);
 
-    if (uErr || eErr || pErr) {
+    const hasErrors = Boolean(uErr || eErr || pErr);
+    if (hasErrors) {
       setErrors({ username: uErr, email: eErr, password: pErr });
       setTouched({ username: true, email: true, password: true });
       return;

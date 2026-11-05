@@ -11,16 +11,13 @@ import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
-import {
-  XMarkIcon,
-  InformationCircleIcon,
-  KeyIcon,
-} from '@heroicons/react/24/outline';
+import { XMarkIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import {
   GoogleAccountList,
   type GoogleAccountOption,
 } from './GoogleAccountList.tsx';
 import { GoogleCustomAccountForm } from './GoogleCustomAccountForm.tsx';
+import { GoogleCredentialsGuide } from './GoogleCredentialsGuide.tsx';
 
 const GOOGLE_LOGO_SVG = (
   <svg width="24" height="24" viewBox="0 0 24 24">
@@ -59,7 +56,6 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
   isLoading = false,
 }) => {
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [showCredentialsGuide, setShowCredentialsGuide] = useState(false);
 
   if (!isOpen) return null;
 
@@ -133,64 +129,7 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
 
             <Divider />
 
-            <div
-              style={{
-                borderRadius: 8,
-                padding: '10px 14px',
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-              }}
-            >
-              <HStack hAlign="between" vAlign="center">
-                <HStack gap={2} vAlign="center">
-                  <Icon icon={KeyIcon} size="xsm" color="secondary" />
-                  <Text type="supporting" weight="bold">
-                    What Google Credentials Are Required?
-                  </Text>
-                </HStack>
-                <Button
-                  label={showCredentialsGuide ? 'Hide' : 'View Guide'}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowCredentialsGuide((prev) => !prev)}
-                />
-              </HStack>
-
-              {showCredentialsGuide && (
-                <VStack gap={2} style={{ marginTop: 10, fontSize: 13 }}>
-                  <Text type="supporting" color="secondary">
-                    To use live Google OAuth in production, create credentials in{' '}
-                    <strong style={{ color: '#fff' }}>Google Cloud Console</strong>:
-                  </Text>
-                  <ul style={{ margin: 0, paddingLeft: 18, color: '#aaa', lineHeight: 1.6 }}>
-                    <li>
-                      <strong style={{ color: '#fff' }}>Client ID:</strong> Type Web Application (e.g.{' '}
-                      <code>...apps.googleusercontent.com</code>)
-                    </li>
-                    <li>
-                      <strong style={{ color: '#fff' }}>Authorized JavaScript Origin:</strong>{' '}
-                      <code>http://localhost:5173</code>
-                    </li>
-                    <li>
-                      <strong style={{ color: '#fff' }}>Authorized Redirect URI:</strong>{' '}
-                      <code>http://localhost:5173</code>
-                    </li>
-                    <li>
-                      <strong style={{ color: '#fff' }}>Required Scopes:</strong> <code>email</code>,{' '}
-                      <code>profile</code>, <code>openid</code>
-                    </li>
-                    <li>
-                      <strong style={{ color: '#fff' }}>Setup:</strong> Put <code>VITE_GOOGLE_CLIENT_ID</code> in{' '}
-                      <code>frontend/.env</code>.
-                    </li>
-                  </ul>
-                  <Text type="supporting" color="secondary" style={{ fontStyle: 'italic', marginTop: 4 }}>
-                    Note: In local dev, no Google Cloud project is needed—you can click any account above to sign in
-                    instantly!
-                  </Text>
-                </VStack>
-              )}
-            </div>
+            <GoogleCredentialsGuide />
 
             <HStack gap={2} vAlign="start">
               <Icon icon={InformationCircleIcon} size="xsm" color="secondary" />
