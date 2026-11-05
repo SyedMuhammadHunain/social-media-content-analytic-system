@@ -33,6 +33,7 @@ import { NewsFeedLeftSidebar } from './NewsFeedLeftSidebar.tsx';
 import { NewsFeedRightSidebar } from './NewsFeedRightSidebar.tsx';
 import { MobileAppHeader } from './MobileAppHeader.tsx';
 import { MobileBottomNav, type MobileNavItem } from './MobileBottomNav.tsx';
+import { MobileNavigationDrawer } from './MobileNavigationDrawer.tsx';
 import { SidebarSearchBox } from './SidebarSearchBox.tsx';
 import { useNotificationPolling } from '../../components/nav/useNotificationPolling.ts';
 import { ProfileViewersModal } from '../../components/profile/ProfileViewersModal.tsx';
@@ -224,7 +225,6 @@ export function NewsFeedPage({
   const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
-  void isMobileDrawerOpen;
   const { unreadCount } = useNotificationPolling(user, demoUsers);
   const centerScrollRef = useRef<HTMLElement>(null);
   const [profileActivity, setProfileActivity] = useState(() =>
@@ -698,6 +698,16 @@ export function NewsFeedPage({
                 handleOpenProfile();
               }
               window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+
+          <MobileNavigationDrawer
+            isOpen={isMobileDrawerOpen}
+            user={user}
+            onClose={() => setIsMobileDrawerOpen(false)}
+            onNavigateProfile={() => {
+              handleOpenProfile();
+              setIsMobileDrawerOpen(false);
             }}
           />
         </div>

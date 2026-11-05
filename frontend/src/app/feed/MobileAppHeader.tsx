@@ -12,7 +12,8 @@ export interface MobileAppHeaderProps {
 
 export function MobileAppHeader({ onOpenSearch, onOpenDrawer, onClickLogo }: MobileAppHeaderProps) {
   return (
-    <header
+    <div
+      role="banner"
       className="mobile-app-header"
       data-testid="mobile-app-header"
       style={{
@@ -29,10 +30,19 @@ export function MobileAppHeader({ onOpenSearch, onOpenDrawer, onClickLogo }: Mob
         boxSizing: 'border-box',
       }}
     >
-      {/* Left spacer so title/logo remains centered */}
-      <div style={{ width: 88, display: 'flex', alignItems: 'center' }} />
+      {/* Top Left: Hamburger Menu Button */}
+      <div style={{ width: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+        <IconButton
+          data-testid="mobile-hamburger-btn"
+          size="sm"
+          variant="ghost"
+          label="Menu"
+          icon={<Icon icon="menu" size="sm" />}
+          onClick={onOpenDrawer}
+        />
+      </div>
 
-      {/* Centered App Logo & Title */}
+      {/* Centered App Logo Only (No text title) */}
       <div
         data-testid="mobile-header-logo"
         onClick={onClickLogo}
@@ -40,40 +50,28 @@ export function MobileAppHeader({ onOpenSearch, onOpenDrawer, onClickLogo }: Mob
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 8,
           flex: 1,
           cursor: onClickLogo ? 'pointer' : 'default',
         }}
       >
         <img
           src="/logo.jpeg"
-          alt="SocialPulse Logo"
-          style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
+          alt="App Logo"
+          style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }}
           onError={(e) => {
             (e.currentTarget as HTMLElement).style.display = 'none';
           }}
         />
-        <span
-          style={{
-            fontWeight: 700,
-            fontSize: '1.05rem',
-            letterSpacing: '-0.02em',
-            color: 'var(--color-text-primary, #FFFFFF)',
-          }}
-        >
-          SocialPulse
-        </span>
       </div>
 
-      {/* Top Right Action Buttons: Search and Hamburger */}
+      {/* Top Right: Search Action Button */}
       <div
         data-testid="mobile-header-actions"
         style={{
-          width: 88,
+          width: 44,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-end',
-          gap: 6,
         }}
       >
         <IconButton
@@ -84,15 +82,9 @@ export function MobileAppHeader({ onOpenSearch, onOpenDrawer, onClickLogo }: Mob
           icon={<Icon icon="search" size="sm" />}
           onClick={onOpenSearch}
         />
-        <IconButton
-          data-testid="mobile-hamburger-btn"
-          size="sm"
-          variant="ghost"
-          label="Menu"
-          icon={<Icon icon="menu" size="sm" />}
-          onClick={onOpenDrawer}
-        />
       </div>
-    </header>
+    </div>
   );
 }
+
+export default MobileAppHeader;

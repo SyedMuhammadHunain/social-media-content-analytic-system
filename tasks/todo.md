@@ -46,29 +46,29 @@ Plan: `tasks/plan.md`
     - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** M (3 files)
 
-- [ ] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification
+- [x] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification
   - **Description:** Build `MobileNavigationDrawer.tsx` utilizing Astryx `Drawer` to slide in from the left on Hamburger menu click. Host Appearance (Dark/Light theme switch with Astryx styling), Logout action, and user identity info. Create headless Chrome CDP automated test suite verifying mobile viewport (390x844) scroll behavior, drawer slide, view switches, and desktop (1440x900) 3-column preservation.
   - **Acceptance criteria:**
-    - [ ] Tapping Hamburger button triggers left slide-out Astryx `Drawer`.
-    - [ ] Drawer contains current user identity, Appearance theme switch (toggle dark/light), and Logout button.
-    - [ ] Backdrop click or escape key closes the drawer.
-    - [ ] Mobile viewport (390x844) scrolls vertically without hindrance.
-    - [ ] Desktop viewport (1440x900) retains complete 3-column layout without regressions.
-    - [ ] Full test suite (`npm test`) passes with 100% green tests.
+    - [x] Tapping Hamburger button triggers left slide-out Astryx `Drawer`.
+    - [x] Drawer contains current user identity, Appearance theme switch (toggle dark/light), and Logout button.
+    - [x] Backdrop click or escape key closes the drawer.
+    - [x] Mobile viewport (390x844) scrolls vertically without hindrance.
+    - [x] Desktop viewport (1440x900) retains complete 3-column layout without regressions.
+    - [x] Full test suite (`npm test`) passes with 100% green tests.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
-    - [ ] `cd frontend && npm run lint`
-    - [ ] `cd frontend && npm test`
-    - [ ] `cd frontend && npm run build`
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run lint`
+    - [x] `cd frontend && npm test`
+    - [x] `cd frontend && npm run build`
   - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
     - `frontend/src/app/feed/MobileNavigationDrawer.tsx`
     - `frontend/src/app/feed/NewsFeedPage.tsx`
-    - `frontend/tests/mobile_responsive_navigation.test.mjs`
+    - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** M (3 files)
 
 ## Checkpoint: Complete
-- [ ] All 3 tasks checked off
-- [ ] Zero TypeScript or lint errors
-- [ ] All unit and CDP test suites pass
-- [ ] Production build succeeds
+- [x] All 3 tasks checked off
+- [x] Zero TypeScript or lint errors
+- [x] All unit and CDP test suites pass
+- [x] Production build succeeds
