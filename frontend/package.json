@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --test --test-concurrency=1 test/**/*.test.mjs",
-    "test:unit": "node --test test/api_client.test.mjs test/auth_integration.test.mjs test/newsfeed_social_sync.test.mjs test/creator_analytics_telemetry.test.mjs test/media_azure_upload.test.mjs test/nested_comments.test.mjs test/notifications.test.mjs test/post_header_and_brand.test.mjs test/video_upload_and_playback.test.mjs test/shared_posts_store.test.mjs test/media_blob_store.test.mjs test/notification_page_astryx.test.mjs test/dashboard_page_astryx.test.mjs test/user_search.test.mjs test/cloud_persistence_and_auth.test.mjs test/profile_media_and_google_auth.test.mjs test/codescene_code_health_refactor.test.mjs test/security_hardening.test.mjs test/mobile_responsive_navigation.test.mjs test/animated_gif_support.test.mjs test/comment_media_and_deduplication.test.mjs test/post_deduplication.test.mjs",
+    "test": "node --test --test-concurrency=1 test/*.test.mjs",
+    "test:unit": "node --test test/api_client.test.mjs test/auth_integration.test.mjs test/newsfeed_social_sync.test.mjs test/creator_analytics_telemetry.test.mjs test/media_azure_upload.test.mjs test/nested_comments.test.mjs test/notifications.test.mjs test/post_header_and_brand.test.mjs test/video_upload_and_playback.test.mjs test/shared_posts_store.test.mjs test/media_blob_store.test.mjs test/notification_page_astryx.test.mjs test/dashboard_page_astryx.test.mjs test/user_search.test.mjs test/cloud_persistence_and_auth.test.mjs test/profile_media_and_google_auth.test.mjs test/codescene_code_health_refactor.test.mjs test/security_hardening.test.mjs test/mobile_responsive_navigation.test.mjs test/animated_gif_support.test.mjs test/comment_media_and_deduplication.test.mjs test/post_deduplication.test.mjs test/saved_posts_flow.test.mjs test/composer_redesign_e2e.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
