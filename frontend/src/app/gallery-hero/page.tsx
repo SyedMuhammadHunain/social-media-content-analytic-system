@@ -3,16 +3,49 @@
 
 'use client';
 
+import type { CSSProperties } from 'react';
 import { VStack, HStack, Layout, LayoutContent } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
 import { Icon } from '@astryxdesign/core/Icon';
-import { MarqueeTrack } from './MarqueeTrack.tsx';
+import { Grid } from '@astryxdesign/core/Grid';
+import { AspectRatio } from '@astryxdesign/core/AspectRatio';
 
 export interface GalleryHeroProps {
   onGetStarted?: () => void;
   onLearnMore?: () => void;
 }
+
+const IMAGES = [
+  {
+    src: '/landing/gallery-1.jpg',
+    alt: 'Vibrant outdoor flower wall streetscape with cyclists',
+  },
+  {
+    src: '/landing/gallery-2.jpg',
+    alt: 'Bright yellow architectural wall with street art and walking pedestrian',
+  },
+  {
+    src: '/landing/gallery-3.jpg',
+    alt: 'Spacious Scandinavian-style living room with colorful modular sofa',
+  },
+];
+
+// NOTE: The only custom styling here is image fill + corner radius. It exists
+// because Astryx has no image primitive — AspectRatio exposes no objectFit or
+// radius props and there's no Image. Tracked in issue #2582; replace these
+// with component props once it lands.
+// Fills the AspectRatio box. No objectFit prop on AspectRatio (#2582).
+const galleryImage: CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+};
+
+// Rounds the image corners. No radius prop on AspectRatio (#2582).
+const galleryImageClip: CSSProperties = {
+  borderRadius: 'var(--radius-container, 12px)',
+};
 
 export function GalleryHeroLandingPage({
   onGetStarted,
@@ -34,9 +67,8 @@ export function GalleryHeroLandingPage({
     <Layout
       content={
         <LayoutContent padding={6}>
-          <VStack gap={10} hAlign="center">
-            {/* Hero Copy & CTA Header */}
-            <VStack gap={6} hAlign="center" style={{ maxWidth: 840, width: '100%', paddingTop: '2rem' }}>
+          <VStack gap={10}>
+            <VStack gap={6} hAlign="center">
               <VStack gap={3} hAlign="center">
                 <Heading
                   level={1}
@@ -47,7 +79,7 @@ export function GalleryHeroLandingPage({
                   Analyze Social Media at Scale
                 </Heading>
                 <Text
-                  type="large"
+                  type="body"
                   color="secondary"
                   justify="center"
                   textWrap="balance"
@@ -55,9 +87,7 @@ export function GalleryHeroLandingPage({
                   Instant creator metrics, post telemetry, and predictive audience analytics.
                 </Text>
               </VStack>
-
-              {/* Action Buttons */}
-              <HStack gap={3} hAlign="center">
+              <HStack gap={3}>
                 <Button
                   label="Get started"
                   variant="primary"
@@ -65,19 +95,33 @@ export function GalleryHeroLandingPage({
                     <Icon icon="chevronRight" size="sm" color="inherit" />
                   }
                   onClick={handleGetStarted}
+                  data-testid="landing-get-started-btn"
                 />
                 <Button
                   label="Learn more"
                   variant="secondary"
                   onClick={handleLearnMore}
+                  data-testid="landing-learn-more-btn"
                 />
               </HStack>
             </VStack>
-
-            {/* Continuous Smooth 4-Photo Marquee Track */}
-            <VStack gap={3} hAlign="center" style={{ width: '100%', overflow: 'hidden' }}>
-              <MarqueeTrack />
-            </VStack>
+            <Grid columns={{ minWidth: 280, repeat: 'fit' }} gap={4} data-testid="gallery-grid">
+              {IMAGES.map((image, idx) => (
+                <AspectRatio
+                  key={image.src}
+                  ratio={4 / 5}
+                  style={galleryImageClip}
+                  data-testid={`gallery-aspect-ratio-${idx + 1}`}
+                >
+                  <img
+                    style={galleryImage}
+                    src={image.src}
+                    alt={image.alt}
+                    data-testid={`gallery-image-${idx + 1}`}
+                  />
+                </AspectRatio>
+              ))}
+            </Grid>
           </VStack>
         </LayoutContent>
       }
