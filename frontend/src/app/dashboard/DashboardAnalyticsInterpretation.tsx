@@ -15,6 +15,7 @@ import type {
   FollowerTrendPoint,
   EngagementPoint,
 } from '../../types/analytics';
+import { DashboardRecommendationsCard } from './DashboardRecommendationsCard.tsx';
 
 interface DashboardAnalyticsInterpretationProps {
   summary: CreatorSummaryMetrics;
@@ -54,7 +55,6 @@ export function DashboardAnalyticsInterpretation({
       style={{ width: '100%', minWidth: 0 }}
     >
       <VStack gap={4}>
-        {/* Header */}
         <HStack hAlign="between" vAlign="center" wrap="wrap" gap={3}>
           <HStack gap={3} vAlign="center">
             <Icon icon="info" size="md" color="secondary" />
@@ -69,9 +69,7 @@ export function DashboardAnalyticsInterpretation({
 
         <Divider />
 
-        {/* 3 Metric Insight Pillars */}
         <Grid columns={{ minWidth: 260, repeat: 'fit' }} gap={4}>
-          {/* Pillar 1: Sentiment */}
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
@@ -87,7 +85,6 @@ export function DashboardAnalyticsInterpretation({
             </VStack>
           </Card>
 
-          {/* Pillar 2: Follower Growth */}
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
@@ -105,7 +102,6 @@ export function DashboardAnalyticsInterpretation({
             </VStack>
           </Card>
 
-          {/* Pillar 3: Engagement */}
           <Card padding={4}>
             <VStack gap={2}>
               <HStack gap={2} vAlign="center">
@@ -122,35 +118,7 @@ export function DashboardAnalyticsInterpretation({
           </Card>
         </Grid>
 
-        {/* Actionable Recommendations */}
-        <Card padding={4}>
-          <VStack gap={3}>
-            <HStack gap={2} vAlign="center">
-              <Icon icon="info" size="sm" color="secondary" />
-              <Heading level={4}>Recommendations</Heading>
-            </HStack>
-            <VStack gap={2}>
-              <HStack gap={2} vAlign="center">
-                <Icon icon="check" size="xsm" color="secondary" />
-                <Text type="supporting" color="secondary">
-                  <strong>Pin High-Sentiment Posts:</strong> Highlight top-performing media to maximize engagement.
-                </Text>
-              </HStack>
-              <HStack gap={2} vAlign="center">
-                <Icon icon="check" size="xsm" color="secondary" />
-                <Text type="supporting" color="secondary">
-                  <strong>Accelerate Discussion:</strong> Reply to comments early to increase discussion velocity.
-                </Text>
-              </HStack>
-              <HStack gap={2} vAlign="center">
-                <Icon icon="check" size="xsm" color="secondary" />
-                <Text type="supporting" color="secondary">
-                  <strong>Consistent Cadence:</strong> Maintain regular publishing schedule for stable follower retention.
-                </Text>
-              </HStack>
-            </VStack>
-          </VStack>
-        </Card>
+        <DashboardRecommendationsCard />
       </VStack>
     </Card>
   );
