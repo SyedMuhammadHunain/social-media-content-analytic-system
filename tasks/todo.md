@@ -47,11 +47,11 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/context/AuthContext.tsx`, `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`, `frontend/src/app/login-card/GoogleOAuthModal.tsx`
   - Scope: M
 
-- [ ] Task 6: Automated Test Suite & Quality Gates
+- [x] Task 6: Automated Test Suite & Quality Gates
   - Acceptance: `frontend/test/profile_media_and_google_auth.test.mjs` verifies dual-state update, Azure upload pipeline, banner persistence after re-login, repeat Google auth, and valid video URLs. `npm run test:unit`, `npx tsc -b`, `npx oxlint .`, and `npm run build` pass.
   - Verify: `cd frontend && npm run test:unit && npm run build`
   - Files: `frontend/test/profile_media_and_google_auth.test.mjs`, `frontend/package.json`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] All 6 tasks completed and all verification checks green.
+- [x] All 6 tasks completed and all verification checks green.
