@@ -173,6 +173,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               username: res.username,
               name: res.fullName || seedMatch.user.name,
               avatarUrl: res.avatarUrl || seedMatch.user.avatarUrl,
+              coverBannerUrl: res.coverBannerUrl || seedMatch.user.coverBannerUrl || '',
+              bio: res.bio || seedMatch.user.bio || 'Active creator on Social Media Content Analysis System',
             }
           : {
               id: res.userId,
@@ -181,15 +183,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               avatarUrl:
                 res.avatarUrl ||
                 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+              coverBannerUrl: res.coverBannerUrl || '',
               isFollowed: false,
               headline: 'Social Media Creator',
               tags: ['Creator', 'Meta Astryx'],
-              bio: 'Active creator on Social Media Content Analysis System',
+              bio: res.bio || 'Active creator on Social Media Content Analysis System',
               followerCount: 0,
               followingCount: 0,
             };
 
         setCurrentUser(profile);
+        setAccounts((prev) => {
+          const idx = prev.findIndex(
+            (a) => a.user.id === profile.id || a.email.toLowerCase() === normalized
+          );
+          if (idx !== -1) {
+            const updated = [...prev];
+            updated[idx] = { ...updated[idx], user: profile };
+            try {
+              localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+            } catch {}
+            return updated;
+          }
+          return prev;
+        });
         try {
           localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
         } catch {}
@@ -415,10 +432,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: loginRes.username,
           name: loginRes.fullName || account.name,
           avatarUrl: loginRes.avatarUrl || account.avatarUrl,
+          coverBannerUrl: loginRes.coverBannerUrl || '',
           isFollowed: false,
           headline: 'Verified Google Creator',
           tags: ['Google Verified', 'Creator'],
-          bio: `Authenticated via Google (${account.email})`,
+          bio: loginRes.bio || `Authenticated via Google (${account.email})`,
           followerCount: 0,
           followingCount: 0,
         };

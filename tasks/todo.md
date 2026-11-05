@@ -29,15 +29,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/components/profile/ProfileHeaderBanner.tsx`
   - Scope: S
 
-- [ ] Task 4: Banner & Bio Persistence in Auth Response
+- [x] Task 4: Banner & Bio Persistence in Auth Response
   - Acceptance: `AuthResponse.java` has `coverBannerUrl` and `bio`. `GatewayAuthService.java` populates them from `User` entity. `authApi.ts` and `AuthContext.tsx` store `coverBannerUrl` in `currentUser` and `localStorage`, restoring it after logout and login.
   - Verify: `cd frontend && npx tsc -b`
   - Files: `backend/common-models/src/main/java/com/social/common/dto/AuthResponse.java`, `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`, `frontend/src/api/authApi.ts`, `frontend/src/context/AuthContext.tsx`
   - Scope: M
 
 ### Checkpoint: Azure & Persistence
-- [ ] Banner and avatar upload to Azure Blob Storage SAS endpoints.
-- [ ] Cover banner survives logout and re-login.
+- [x] Banner and avatar upload to Azure Blob Storage SAS endpoints.
+- [x] Cover banner survives logout and re-login.
 
 ## Phase 3: Google OAuth Re-Login & Test Verification
 

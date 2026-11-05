@@ -24,6 +24,8 @@ export interface AuthResponse {
   fullName?: string;
   authProvider?: string;
   avatarUrl?: string;
+  coverBannerUrl?: string;
+  bio?: string;
   token: string;
 }
 

@@ -105,6 +105,8 @@ public class GatewayAuthService {
                 .fullName(user.getFullName())
                 .authProvider(user.getAuthProvider())
                 .avatarUrl(user.getAvatarUrl())
+                .coverBannerUrl(user.getCoverBannerUrl())
+                .bio(user.getBio())
                 .token(token)
                 .build();
     }

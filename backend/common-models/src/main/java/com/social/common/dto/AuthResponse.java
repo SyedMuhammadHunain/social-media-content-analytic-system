@@ -16,5 +16,7 @@ public class AuthResponse {
     private String fullName;
     private String authProvider;
     private String avatarUrl;
+    private String coverBannerUrl;
+    private String bio;
     private String token;
 }
