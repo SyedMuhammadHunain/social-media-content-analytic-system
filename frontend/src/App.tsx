@@ -3,14 +3,15 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Theme } from '@astryxdesign/core/theme';
 import { themes, defaultThemeSlug } from './astryx-themes';
 import { AuthProvider } from './context/AuthContext';
 import { AnalyticsProvider } from './context/AnalyticsContext';
 import { useAuth } from './context/useAuth';
-import LoginCardPage from './app/login-card/page';
-import NewsFeedPage from './app/feed/NewsFeedPage';
+
+const LoginCardPage = lazy(() => import('./app/login-card/page'));
+const NewsFeedPage = lazy(() => import('./app/feed/NewsFeedPage'));
 
 type ThemeMode = 'dark' | 'light';
 
@@ -18,7 +19,11 @@ function AppContent() {
   const { isAuthenticated, currentUser } = useAuth();
 
   if (!isAuthenticated) {
-    return <LoginCardPage />;
+    return (
+      <Suspense fallback={null}>
+        <LoginCardPage />
+      </Suspense>
+    );
   }
 
   return (
@@ -33,10 +38,12 @@ function AppContent() {
     >
       {/* Persistent 3-Column Shell Area */}
       <main>
-        <NewsFeedPage
-          key={currentUser?.id}
-          currentUser={currentUser || undefined}
-        />
+        <Suspense fallback={null}>
+          <NewsFeedPage
+            key={currentUser?.id}
+            currentUser={currentUser || undefined}
+          />
+        </Suspense>
       </main>
     </div>
   );

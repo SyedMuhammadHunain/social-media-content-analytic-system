@@ -15,14 +15,17 @@ export default defineConfig({
           if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
             return 'vendor-react'
           }
-          if (id.includes('node_modules/@astryxdesign/')) {
-            return 'vendor-astryx'
-          }
-          if (id.includes('node_modules/recharts/') || id.includes('node_modules/d3-')) {
-            return 'vendor-charts'
-          }
-          if (id.includes('node_modules/lucide-react/')) {
+          if (id.includes('@heroicons')) {
             return 'vendor-icons'
+          }
+          if (id.includes('@astryxdesign/theme-')) {
+            return 'vendor-astryx-theme'
+          }
+          if (id.includes('@astryxdesign/')) {
+            return 'vendor-astryx-core'
+          }
+          if (id.includes('recharts') || id.includes('d3-')) {
+            return 'vendor-charts'
           }
         },
       },
