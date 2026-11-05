@@ -16,6 +16,25 @@ export interface ProfileActivityData {
   viewers: ProfileViewer[];
 }
 
+export interface UserSummary {
+  id: string;
+  name: string;
+  username: string;
+  avatarUrl?: string;
+  headline?: string;
+}
+
+interface UserIdentity {
+  userId?: string;
+  username?: string;
+}
+
+interface BaselineQuery {
+  id: string;
+  username: string;
+  followingCount: number;
+}
+
 const STORAGE_PREFIX = 'smcas_profile_activity_';
 
 const BASELINE_ACTIVITY: Record<string, { connections: number; views: number }> = {
@@ -60,6 +79,79 @@ const DEFAULT_COMMUNITY_VIEWERS: ProfileViewer[] = [
   },
 ];
 
+function resolveStorageKey(identity: UserIdentity): string {
+  const cleanId = (identity.userId || '').trim().toLowerCase();
+  const cleanUsername = (identity.username || '').trim().toLowerCase();
+  const suffix = cleanId || cleanUsername;
+  return `${STORAGE_PREFIX}${suffix}`;
+}
+
+function readStoredActivity(key: string): ProfileActivityData | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.connections !== 'number') return null;
+    if (typeof parsed?.views !== 'number') return null;
+    return {
+      connections: parsed.connections,
+      views: parsed.views,
+      viewers: Array.isArray(parsed.viewers) ? parsed.viewers : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+function persistActivity(storageKey: string, data: ProfileActivityData, eventUserId?: string): void {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(data));
+    if (eventUserId) {
+      window.dispatchEvent(
+        new CustomEvent('profile-activity-updated', { detail: { userId: eventUserId } })
+      );
+    }
+  } catch {}
+}
+
+function resolveBaselineActivity(query: BaselineQuery): ProfileActivityData {
+  const baseline = BASELINE_ACTIVITY[query.id] || BASELINE_ACTIVITY[query.username];
+  if (baseline) {
+    return {
+      connections: baseline.connections,
+      views: baseline.views,
+      viewers: DEFAULT_COMMUNITY_VIEWERS,
+    };
+  }
+  return {
+    connections: query.followingCount,
+    views: 0,
+    viewers: [],
+  };
+}
+
+function isSelfView(
+  target: UserSummary,
+  viewer?: UserSummary | null
+): boolean {
+  if (!viewer) return false;
+  if (viewer.id === target.id) return true;
+  return viewer.username === target.username;
+}
+
+function prependViewer(viewers: ProfileViewer[], viewer: UserSummary): ProfileViewer[] {
+  const filtered = viewers.filter((v) => v.id !== viewer.id && v.username !== viewer.username);
+  const newEntry: ProfileViewer = {
+    id: viewer.id,
+    name: viewer.name,
+    username: viewer.username,
+    avatarUrl: viewer.avatarUrl,
+    headline: viewer.headline || 'Active Member',
+    viewedAt: 'Just now',
+  };
+  return [newEntry, ...filtered].slice(0, 20);
+}
+
 export function getProfileActivity(
   userId: string,
   username?: string,
@@ -71,44 +163,25 @@ export function getProfileActivity(
 
   const cleanId = (userId || '').trim().toLowerCase();
   const cleanUsername = (username || '').trim().toLowerCase();
-  const storageKey = `${STORAGE_PREFIX}${cleanId || cleanUsername}`;
+  const storageKey = resolveStorageKey({ userId: cleanId, username: cleanUsername });
 
-  try {
-    const raw = localStorage.getItem(storageKey);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (typeof parsed?.connections === 'number' && typeof parsed?.views === 'number') {
-        return {
-          connections: parsed.connections,
-          views: parsed.views,
-          viewers: Array.isArray(parsed.viewers) ? parsed.viewers : [],
-        };
-      }
-    }
-  } catch {}
+  const existing = readStoredActivity(storageKey);
+  if (existing) {
+    return existing;
+  }
 
-  // Initial calculation for users without saved activity
-  const baseline = BASELINE_ACTIVITY[cleanId] || BASELINE_ACTIVITY[cleanUsername];
-  const initialConnections = baseline ? baseline.connections : (followingCount || 0);
-  const initialViews = baseline ? baseline.views : 0;
-  const initialViewers = baseline ? DEFAULT_COMMUNITY_VIEWERS : [];
-
-  const initialData: ProfileActivityData = {
-    connections: initialConnections,
-    views: initialViews,
-    viewers: initialViewers,
-  };
-
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(initialData));
-  } catch {}
-
+  const initialData = resolveBaselineActivity({
+    id: cleanId,
+    username: cleanUsername,
+    followingCount,
+  });
+  persistActivity(storageKey, initialData);
   return initialData;
 }
 
 export function recordProfileView(
-  targetUser: { id: string; name: string; username: string; avatarUrl?: string; headline?: string },
-  viewerUser?: { id: string; name: string; username: string; avatarUrl?: string; headline?: string } | null
+  targetUser: UserSummary,
+  viewerUser?: UserSummary | null
 ): ProfileActivityData {
   if (typeof window === 'undefined') {
     return { connections: 0, views: 0, viewers: [] };
@@ -116,44 +189,20 @@ export function recordProfileView(
 
   const current = getProfileActivity(targetUser.id, targetUser.username);
 
-  // If viewing own profile, return without adding self
-  if (viewerUser && (viewerUser.id === targetUser.id || viewerUser.username === targetUser.username)) {
+  if (isSelfView(targetUser, viewerUser)) {
     return current;
   }
 
-  const newViews = current.views + 1;
-  const newViewers = [...current.viewers];
-
-  if (viewerUser) {
-    // Remove if previously in viewers to move to top
-    const filtered = newViewers.filter((v) => v.id !== viewerUser.id && v.username !== viewerUser.username);
-    filtered.unshift({
-      id: viewerUser.id,
-      name: viewerUser.name,
-      username: viewerUser.username,
-      avatarUrl: viewerUser.avatarUrl,
-      headline: viewerUser.headline || 'Active Member',
-      viewedAt: 'Just now',
-    });
-    // Keep max 20 viewers
-    newViewers.length = 0;
-    newViewers.push(...filtered.slice(0, 20));
-  }
+  const newViewers = viewerUser ? prependViewer(current.viewers, viewerUser) : current.viewers;
 
   const updated: ProfileActivityData = {
     connections: current.connections,
-    views: newViews,
+    views: current.views + 1,
     viewers: newViewers,
   };
 
-  const cleanId = (targetUser.id || '').trim().toLowerCase();
-  const storageKey = `${STORAGE_PREFIX}${cleanId || (targetUser.username || '').toLowerCase()}`;
-
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent('profile-activity-updated', { detail: { userId: targetUser.id } }));
-  } catch {}
-
+  const storageKey = resolveStorageKey({ userId: targetUser.id, username: targetUser.username });
+  persistActivity(storageKey, updated, targetUser.id);
   return updated;
 }
 
@@ -165,11 +214,6 @@ export function recordConnectionChange(userId: string, delta: number, username?:
     connections: Math.max(0, current.connections + delta),
   };
 
-  const cleanId = (userId || '').trim().toLowerCase();
-  const storageKey = `${STORAGE_PREFIX}${cleanId || (username || '').toLowerCase()}`;
-
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent('profile-activity-updated', { detail: { userId } }));
-  } catch {}
+  const storageKey = resolveStorageKey({ userId, username });
+  persistActivity(storageKey, updated, userId);
 }
