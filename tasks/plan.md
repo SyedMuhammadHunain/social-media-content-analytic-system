@@ -1,48 +1,54 @@
-# Implementation Plan: Profile Media Synchronization, Azure Storage, Google Re-Login, and Video Playback
+# Implementation Plan: CodeScene Code Health 10/10 & Hotspots Simplification
 
-Spec: `docs/specs/SPEC-profile-media-azure-and-google-auth.md`
+Spec: `docs/specs/SPEC-codescene-code-health-refactor-2.md`
 
 ## Overview
-Resolve profile asset state desynchronization, enable direct Azure Blob Storage uploads for banners and avatars, ensure cover banner persistence across login/logout cycles, fix repeat Google OAuth authentication, and repair broken feed video playback.
+Decompose all 10 identified bloated/complex frontend hotspot files into high-cohesion, single-responsibility submodules to achieve a 10.0 / 10.0 Code Health score with 0 hotspot alerts, while strictly preserving runtime behavior, Meta Astryx design tokens, and passing all unit tests.
 
 ## Architecture Decisions
-1. **Synchronous Dual-State Sync:** `NewsFeedPage` maintains `user` and `viewedUser`. When `isOwnProfile` is true, changes to avatar, banner, or bio will atomically update both `user` and `viewedUser`, and `activeProfile` will reflect the current user's updated assets.
-2. **Azure Presigned Upload Pipeline:** `ProfileHeaderBanner` invokes `mediaApi.getPresignedUploadUrl` and `mediaApi.uploadBlob` (using Azure SAS BlockBlob PUT) to upload files directly to Azure Blob Storage, before calling `updateUser` to store the public blob URL in MongoDB `UsersDB`.
-3. **Cover Banner in Auth DTO:** Update `AuthResponse` in backend and frontend to include `coverBannerUrl` and `bio`, ensuring full profile state is rehydrated upon re-login.
-4. **Deterministic Google Auth Protocol:** Use deterministic credentials keyed to user email so that repeat Google logins match the stored `passwordHash` or are identified as `authProvider == 'GOOGLE'` in `GatewayAuthService`.
-5. **Standard HTML5 Video Stream:** Replace the dead GCS `BigBuckBunny.mp4` link (which returns `403 AccessDenied` XML) with an open-source, reliably accessible MP4 video URL, with fallback decoding handling in `PostMediaViewer`.
+1. **Context Extraction Pattern:** Separate storage synchronization, external gateway/OAuth handshakes, and computation logic into pure helper modules, keeping Context components as lightweight coordinators (~80–120 lines).
+2. **Component Decomposition Pattern:** Decompose large form modals and cards into focused subcomponents (e.g. form fields, media dropzone, picker popovers, account list items).
+3. **Strict Behavioral & API Invariance:** Retain all existing exports and interfaces unchanged so no consuming components or unit tests require breaking changes.
+4. **Iterative Verification:** Execute `npx tsc -b` and `npm run test:unit` after every slice to guarantee zero regressions.
 
 ## Task List
 
-### Phase 1: UI Sync & Video Repair
-- [ ] Task 1: Profile UI Dual-State Synchronization (`NewsFeedPage.tsx`)
-- [ ] Task 2: Native Video Playback Stream Repair (`socialSeedData.ts` & `PostMediaViewer.tsx`)
+### Phase 1: State & Context Tier
+- [ ] Task 1: `client.ts` Token & HTTP Dispatcher Decomposition
+- [ ] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
+- [ ] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
 
-### Checkpoint: UI & Video
-- [ ] Avatar and banner update both sidebar and header simultaneously.
-- [ ] Feed videos play natively without XML AccessDenied or decoder errors.
+### Checkpoint: Contexts & API
+- [ ] Context and API files reduced below 150 lines.
+- [ ] All 97 unit tests pass, `tsc -b` clean.
 
-### Phase 2: Azure Blob Storage & Cloud Persistence
-- [ ] Task 3: Azure Blob Storage Upload in Profile Header Banner (`ProfileHeaderBanner.tsx`)
-- [ ] Task 4: Banner & Bio Persistence in Auth Response (`AuthResponse.java`, `GatewayAuthService.java`, `AuthContext.tsx`, `authApi.ts`)
+### Phase 2: Navigation & Notifications Tier
+- [ ] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
 
-### Checkpoint: Azure & Persistence
-- [ ] Banner uploads upload to Azure Blob Storage.
-- [ ] Banner remains visible after logout and re-login.
+### Checkpoint: Navigation & Notifications
+- [ ] Polling hook reduced below 100 lines.
+- [ ] Notifications tests pass without regression.
 
-### Phase 3: Google OAuth Re-Login & Test Verification
-- [ ] Task 5: Deterministic Google OAuth Re-Login Flow (`AuthContext.tsx`, `GatewayAuthService.java`, `GoogleOAuthModal.tsx`)
-- [ ] Task 6: Automated Test Suite & Quality Gates (`profile_media_and_google_auth.test.mjs`)
+### Phase 3: Feed, Composer & Toolbar Tier
+- [ ] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
+- [ ] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
+
+### Checkpoint: Feed & Composer
+- [ ] Post card, modal, and toolbar files reduced below 120 lines.
+- [ ] Composer and feed tests pass cleanly.
+
+### Phase 4: Auth & Modal Tier
+- [ ] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
+- [ ] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
+- [ ] Task 9: Verification Suite & Quality Gates (`codescene_code_health_refactor.test.mjs`)
 
 ### Checkpoint: Complete
-- [ ] Unit tests pass, TypeScript compiler clean, build succeeds.
+- [ ] All 10 files under 150 lines.
+- [ ] CodeScene Code Health 10.0 / 10.0, all unit tests passing, build succeeds.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Azure Blob Storage SAS endpoint unreachable or unconfigured offline | Medium | Fall back gracefully to `URL.createObjectURL(file)` in dev/offline mode so the user is never blocked. |
-| Existing MongoDB user records with null `coverBannerUrl` | Low | Handle null checks and fall back to gradient header seamlessly. |
-| Video CORS restrictions across browsers | Medium | Use open-source CORS-enabled CDN MP4 streams and HTML5 `crossOrigin="anonymous"`. |
-
-## Open Questions
-- None.
+| Circular imports between extracted context helpers | Medium | Extract pure functions and types into standalone utility files with no upward dependency on React Context. |
+| React Context value object reference churning | Low | Wrap extracted handler methods in `useCallback` and memoize context values with `useMemo`. |
+| Prop drilling in decomposed modals | Low | Pass cohesive handler bundles or keep modal state in the local parent coordinator. |
