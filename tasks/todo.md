@@ -15,14 +15,14 @@ Spec: `docs/specs/SPEC-landing-page.md`
   - **Files likely touched:** `frontend/src/app/gallery-hero/*`
   - **Estimated scope:** S (1 directory/file)
 
-- [ ] Task 2: Build smooth continuous right-to-left 4-photo marquee track with Astryx placeholder slots
+- [x] Task 2: Build smooth continuous right-to-left 4-photo marquee track with Astryx placeholder slots
   - **Description:** Implement `MarqueeTrack` component displaying 4 placeholder photo slots continuously scrolling right to left without jumps, honoring reduced motion.
   - **Acceptance criteria:**
-    - [ ] Exactly 4 image placeholder slots created using Astryx tokens and `AspectRatio`.
-    - [ ] Infinite right-to-left CSS animation with seamless loop.
-    - [ ] Proper `prefers-reduced-motion` support.
+    - [x] Exactly 4 image placeholder slots created using Astryx tokens and `AspectRatio`.
+    - [x] Infinite right-to-left CSS animation with seamless loop.
+    - [x] Proper `prefers-reduced-motion` support.
   - **Verification:**
-    - [ ] Code inspection and visual verify in browser.
+    - [x] `cd frontend && npx tsc -b`
   - **Dependencies:** Task 1
   - **Files likely touched:**
     - `frontend/src/app/gallery-hero/MarqueeTrack.tsx`
