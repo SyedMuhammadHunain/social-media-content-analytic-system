@@ -41,7 +41,7 @@ Plan: `tasks/plan.md`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] Task 5: Automated Verification Suite & Quality Gates
+- [x] Task 5: Automated Verification Suite & Quality Gates
   - Acceptance: `frontend/test/cloud_persistence_and_auth.test.mjs` verifies auth logo, validation errors, profile update dispatch, and skeleton rendering. `npx tsc -b`, `npx oxlint .`, `npm run test:unit`, and `npm run build` pass.
   - Verify: `cd frontend && npm run test:unit && npm run build`
   - Files: `frontend/test/cloud_persistence_and_auth.test.mjs`, `frontend/package.json`

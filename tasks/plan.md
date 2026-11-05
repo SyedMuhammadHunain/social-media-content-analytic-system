@@ -14,22 +14,22 @@ Enable multi-session cloud & local persistence across logins/logouts for profile
 ## Task List
 
 ### Phase 1: Auth Logo & Form Validation
-- [ ] Task 1: Auth Logo Asset & Card Modernization
-- [ ] Task 2: SignUp & Login Input Form Validations
+- [x] Task 1: Auth Logo Asset & Card Modernization
+- [x] Task 2: SignUp & Login Input Form Validations
 
 ### Checkpoint: Auth Modernization
-- [ ] `npx tsc -b` clean
-- [ ] Logo displays in login and signup views
-- [ ] Invalid inputs trigger inline Astryx error statuses
+- [x] `npx tsc -b` clean
+- [x] Logo displays in login and signup views
+- [x] Invalid inputs trigger inline Astryx error statuses
 
 ### Phase 2: Cloud Persistence & Astryx Skeletons
-- [ ] Task 3: Backend Profile Persistence & API Integration
-- [ ] Task 4: Astryx Profile Skeleton Loaders
+- [x] Task 3: Backend Profile Persistence & API Integration
+- [x] Task 4: Astryx Profile Skeleton Loaders
 
 ### Checkpoint: Complete
-- [ ] Task 5: Automated Verification Suite & Quality Gates
-- [ ] All unit tests pass
-- [ ] Production build succeeds
+- [x] Task 5: Automated Verification Suite & Quality Gates
+- [x] All unit tests pass
+- [x] Production build succeeds
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
