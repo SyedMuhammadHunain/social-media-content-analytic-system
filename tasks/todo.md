@@ -29,15 +29,15 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Navigation & Notifications Tier
 
-- [ ] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
+- [x] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
   - Acceptance: Extract `notificationGenerator.ts` and `notificationStorage.ts` for actor matching, synthetic notification logic, and localStorage state. Reduce `useNotificationPolling.ts` from 420 lines to ~90 lines.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/components/nav/useNotificationPolling.ts`
   - Files: `frontend/src/components/nav/notificationGenerator.ts`, `frontend/src/components/nav/notificationStorage.ts`, `frontend/src/components/nav/useNotificationPolling.ts`
   - Scope: S
 
 ### Checkpoint: Navigation & Notifications
-- [ ] Polling hook reduced below 100 lines.
-- [ ] Notifications tests pass without regression.
+- [x] Polling hook reduced below 100 lines.
+- [x] Notifications tests pass without regression.
 
 ## Phase 3: Feed, Composer & Toolbar Tier
 
