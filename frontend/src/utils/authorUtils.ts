@@ -8,7 +8,20 @@ export interface ResolvedAuthor {
   avatarUrl?: string;
 }
 
-const KNOWN_AUTHORS: Record<string, { name: string; username: string; avatarUrl?: string }> = {
+interface KnownAuthorProfile {
+  name: string;
+  username: string;
+  avatarUrl?: string;
+}
+
+interface AuthorKeys {
+  id: string;
+  name: string;
+  username: string;
+  avatarUrl?: string;
+}
+
+const KNOWN_AUTHORS: Record<string, KnownAuthorProfile> = {
   usr_alex_01: {
     name: 'Alex Chen',
     username: 'alex_chen_ai',
@@ -56,6 +69,97 @@ const KNOWN_AUTHORS: Record<string, { name: string; username: string; avatarUrl?
   },
 };
 
+const RAW_ID_REGEX = /^(usr|user)_[a-zA-Z0-9_]+$/i;
+
+function cleanString(val?: string): string {
+  if (!val) return '';
+  return val.trim();
+}
+
+function extractAuthorKeys(author: {
+  id?: string;
+  name?: string;
+  username?: string;
+  avatarUrl?: string;
+}): AuthorKeys {
+  return {
+    id: cleanString(author.id),
+    name: cleanString(author.name),
+    username: cleanString(author.username).replace(/^@/, ''),
+    avatarUrl: author.avatarUrl,
+  };
+}
+
+function isAlex01(keys: AuthorKeys): boolean {
+  if (keys.id === 'usr_alex_01') return true;
+  if (keys.id.includes('alex_01')) return true;
+  if (keys.name === 'usr_alex_01') return true;
+  return keys.username === 'usr_alex_01';
+}
+
+function isRawId(val: string): boolean {
+  if (!val) return true;
+  return RAW_ID_REGEX.test(val);
+}
+
+function formatRawName(raw: string): string {
+  if (!RAW_ID_REGEX.test(raw)) return raw;
+  return raw
+    .replace(/^(usr|user)_/i, '')
+    .replace(/_\d+$/, '')
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function formatRawUsername(raw: string): string {
+  const clean = raw.replace(/^@/, '');
+  if (!RAW_ID_REGEX.test(clean)) return clean;
+  return clean
+    .replace(/^(usr|user)_/i, '')
+    .replace(/_\d+$/, '');
+}
+
+function findKnownAuthor(keys: AuthorKeys): KnownAuthorProfile | undefined {
+  if (KNOWN_AUTHORS[keys.id]) return KNOWN_AUTHORS[keys.id];
+  if (KNOWN_AUTHORS[keys.name]) return KNOWN_AUTHORS[keys.name];
+  return KNOWN_AUTHORS[keys.username];
+}
+
+function buildAlexProfile(keys: AuthorKeys): ResolvedAuthor {
+  const defaultAlex = KNOWN_AUTHORS.usr_alex_01;
+  const id = keys.id ? keys.id : 'usr_alex_01';
+  const avatar = keys.avatarUrl ? keys.avatarUrl : (defaultAlex.avatarUrl ?? '');
+  return {
+    id,
+    name: 'Alex Chen',
+    username: 'alex_chen_ai',
+    avatarUrl: avatar,
+  };
+}
+
+function buildMatchedProfile(
+  keys: AuthorKeys,
+  matched: KnownAuthorProfile
+): ResolvedAuthor {
+  const name = isRawId(keys.name) ? matched.name : keys.name;
+  const username = isRawId(keys.username) ? matched.username : keys.username;
+  const avatar = keys.avatarUrl ?? matched.avatarUrl;
+  const id = keys.id || 'creator';
+  return { id, name, username, avatarUrl: avatar };
+}
+
+function resolveFallbackProfile(keys: AuthorKeys): ResolvedAuthor {
+  const rawCandidate = keys.name || keys.username || keys.id || 'Anonymous Creator';
+  const userCandidate = keys.username || keys.name || keys.id || 'creator';
+  return {
+    id: keys.id,
+    name: formatRawName(rawCandidate),
+    username: formatRawUsername(userCandidate),
+    avatarUrl: keys.avatarUrl,
+  };
+}
+
 /**
  * Normalizes author ID, name, and username to human-readable presentation values.
  * Resolves raw backend IDs (such as usr_alex_01) to proper names ("Alex Chen") and handles ("@alex_chen_ai").
@@ -67,76 +171,27 @@ export function resolveAuthorPresentation(author: {
   username?: string;
   avatarUrl?: string;
 }): ResolvedAuthor {
-  const idKey = author.id?.trim() || '';
-  const nameKey = author.name?.trim() || '';
-  const userKey = author.username?.trim().replace(/^@/, '') || '';
+  const keys = extractAuthorKeys(author);
 
-  // Specific resolution for usr_alex_01 to Alex Chen
-  if (
-    idKey === 'usr_alex_01' ||
-    idKey.includes('alex_01') ||
-    nameKey === 'usr_alex_01' ||
-    userKey === 'usr_alex_01'
-  ) {
+  if (isAlex01(keys)) {
+    return buildAlexProfile(keys);
+  }
+
+  const isLegitName = !isRawId(keys.name);
+  const isLegitUser = !isRawId(keys.username);
+  if (isLegitName && isLegitUser) {
     return {
-      id: author.id || 'usr_alex_01',
-      name: 'Alex Chen',
-      username: 'alex_chen_ai',
-      avatarUrl: author.avatarUrl || KNOWN_AUTHORS.usr_alex_01.avatarUrl,
+      id: keys.id,
+      name: keys.name,
+      username: keys.username,
+      avatarUrl: keys.avatarUrl,
     };
   }
 
-  const isRawName = !nameKey || /^(usr|user)_[a-zA-Z0-9_]+$/i.test(nameKey);
-  const isRawUsername = !userKey || /^(usr|user)_[a-zA-Z0-9_]+$/i.test(userKey);
-
-  // If author already has an established legitimate human name and handle, preserve it completely
-  if (!isRawName && !isRawUsername) {
-    return {
-      id: author.id || '',
-      name: nameKey,
-      username: userKey,
-      avatarUrl: author.avatarUrl,
-    };
-  }
-
-  // Check known authors by id, name, or username
-  const matched =
-    KNOWN_AUTHORS[idKey] ||
-    KNOWN_AUTHORS[nameKey] ||
-    KNOWN_AUTHORS[userKey];
-
+  const matched = findKnownAuthor(keys);
   if (matched) {
-    return {
-      id: author.id || idKey,
-      name: !isRawName ? nameKey : matched.name,
-      username: !isRawUsername ? userKey : matched.username,
-      avatarUrl: author.avatarUrl || matched.avatarUrl,
-    };
+    return buildMatchedProfile(keys, matched);
   }
 
-  // Fallback cleanup if name looks like a raw ID (e.g. usr_sarah_03 or user_alex)
-  let cleanedName = nameKey || userKey || idKey || 'Anonymous Creator';
-  if (/^(usr|user)_[a-zA-Z0-9_]+$/i.test(cleanedName)) {
-    cleanedName = cleanedName
-      .replace(/^(usr|user)_/i, '')
-      .replace(/_\d+$/, '')
-      .split('_')
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-      .join(' ');
-  }
-
-  let cleanedUsername = userKey || nameKey || idKey || 'creator';
-  cleanedUsername = cleanedUsername.replace(/^@/, '');
-  if (/^(usr|user)_[a-zA-Z0-9_]+$/i.test(cleanedUsername)) {
-    cleanedUsername = cleanedUsername
-      .replace(/^(usr|user)_/i, '')
-      .replace(/_\d+$/, '');
-  }
-
-  return {
-    id: author.id || '',
-    name: cleanedName,
-    username: cleanedUsername,
-    avatarUrl: author.avatarUrl,
-  };
+  return resolveFallbackProfile(keys);
 }
