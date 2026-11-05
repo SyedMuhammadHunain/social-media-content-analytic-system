@@ -32,7 +32,7 @@ Task 4: Secret Management, Permissions & Security Regression Tests (.env, .gitig
 
 ## Task List
 
-### Task 1: Eliminate Authentication Bypass Backdoors in Gateway Auth Service
+### [x] Task 1: Eliminate Authentication Bypass Backdoors in Gateway Auth Service
 - **Description:** Remove static developer fallbacks (`password`, `password123`, `admin123`), OAuth prefix bypasses (`goog_oauth_`), and authProvider bypasses (`GOOGLE`) in `GatewayAuthService.java`. Require strict BCrypt password matching.
 - **Files touched:**
   - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
@@ -42,7 +42,7 @@ Task 4: Secret Management, Permissions & Security Regression Tests (.env, .gitig
   - Valid user credentials authenticate successfully.
 - **Verification:** `mvn test -pl backend/api-gateway`
 
-### Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
+### [x] Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
 - **Description:** Implement `JwtTokenProvider` using standard Java `javax.crypto.Mac` (HmacSHA256). Generate compact standard JWTs (`header.payload.signature`), validate expiration and constant-time signature match, and integrate with `GatewayAuthService` and `AuthController`.
 - **Files touched:**
   - `backend/api-gateway/src/main/java/com/social/gateway/security/JwtTokenProvider.java` (new)
@@ -54,7 +54,7 @@ Task 4: Secret Management, Permissions & Security Regression Tests (.env, .gitig
   - Tampered, forged, or expired tokens fail verification.
 - **Verification:** `mvn test -pl backend/api-gateway`
 
-### Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
+### [x] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
 - **Description:** Add `POST /v1/auth/google` endpoint to `AuthController` and `GatewayAuthService`. Refactor frontend `authGoogleHandler.ts` and `authApi.ts` to call `/v1/auth/google` without fabricating fake client-side passwords.
 - **Files touched:**
   - `backend/common-models/src/main/java/com/social/common/dto/GoogleAuthRequest.java` (new)
@@ -67,7 +67,7 @@ Task 4: Secret Management, Permissions & Security Regression Tests (.env, .gitig
   - Frontend CodeScene Code Health remains 10.00 / 10.00 with 0 warnings.
 - **Verification:** `cd frontend && npx tsc -b && npm run test:unit && cs check`
 
-### Task 4: Secret Management, Permissions & Security Regression Tests
+### [x] Task 4: Secret Management, Permissions & Security Regression Tests
 - **Description:** Set restrictive permissions (`chmod 600`) on `backend/.env`, verify `.gitignore` covers all sensitive files, document `JWT_SECRET` in `backend/.env.example`, and write automated test asserting credentials protection and token signing.
 - **Files touched:**
   - `.gitignore`
