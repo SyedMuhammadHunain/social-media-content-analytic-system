@@ -12,6 +12,26 @@ export interface SearchableUser {
   headline?: string;
 }
 
+function hasValidIdentity(user?: Partial<SearchableUser> | null): user is SearchableUser {
+  if (!user) return false;
+  if (!user.id) return false;
+  if (!user.name) return false;
+  return Boolean(user.username);
+}
+
+function appendUser(map: Map<string, SearchableUser>, user?: Partial<SearchableUser> | null) {
+  if (!hasValidIdentity(user)) return;
+  if (!map.has(user.id)) {
+    map.set(user.id, {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      avatarUrl: user.avatarUrl,
+      headline: user.headline,
+    });
+  }
+}
+
 /**
  * Builds a deduplicated user pool from all available sources.
  * Precedence: demoUsers > suggestedCreators > post authors > current user.
@@ -24,59 +44,18 @@ export function buildUserPool(
 ): SearchableUser[] {
   const userMap = new Map<string, SearchableUser>();
 
-  const addUser = (user: SearchableUser) => {
-    if (!user || !user.id) return;
-    if (!userMap.has(user.id)) {
-      userMap.set(user.id, user);
-    }
-  };
-
-  // 1. Current user
-  if (currentUser) {
-    addUser({
-      id: currentUser.id,
-      name: currentUser.name,
-      username: currentUser.username,
-      avatarUrl: currentUser.avatarUrl,
-      headline: currentUser.headline,
-    });
-  }
-
-  // 2. Demo users (accounts from auth state)
-  for (const du of demoUsers) {
-    addUser({
-      id: du.id,
-      name: du.name,
-      username: du.username,
-      avatarUrl: du.avatarUrl,
-      headline: du.headline,
-    });
-  }
-
-  // 3. Suggested creators
-  for (const sc of suggestedCreators) {
-    addUser({
-      id: sc.id,
-      name: sc.name,
-      username: sc.username,
-      avatarUrl: sc.avatarUrl,
-      headline: sc.headline,
-    });
-  }
-
-  // 4. Authors of posts
-  for (const p of posts) {
-    if (p.author) {
-      addUser({
-        id: p.author.id,
-        name: p.author.name,
-        username: p.author.username,
-        avatarUrl: p.author.avatarUrl,
-      });
-    }
-  }
+  appendUser(userMap, currentUser);
+  demoUsers.forEach(du => appendUser(userMap, du));
+  suggestedCreators.forEach(sc => appendUser(userMap, sc));
+  posts.forEach(p => appendUser(userMap, p.author));
 
   return Array.from(userMap.values());
+}
+
+function isUserMatch(user: SearchableUser, queryLower: string, excludeId?: string): boolean {
+  if (user.id === excludeId) return false;
+  if (user.name.toLowerCase().includes(queryLower)) return true;
+  return user.username.toLowerCase().includes(queryLower);
 }
 
 /**
@@ -94,17 +73,11 @@ export function matchUsers(
 
   const matched: SearchableUser[] = [];
   for (const user of users) {
-    if (excludeId && user.id === excludeId) continue;
+    const isMatch = isUserMatch(user, q, excludeId);
+    if (!isMatch) continue;
 
-    const matchName = user.name?.toLowerCase().includes(q);
-    const matchUsername = user.username?.toLowerCase().includes(q);
-
-    if (matchName || matchUsername) {
-      matched.push(user);
-      if (matched.length >= limit) {
-        break;
-      }
-    }
+    matched.push(user);
+    if (matched.length >= limit) return matched;
   }
 
   return matched;
