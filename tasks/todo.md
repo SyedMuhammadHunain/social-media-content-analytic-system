@@ -23,7 +23,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Azure Blob Storage & Cloud Persistence
 
-- [ ] Task 3: Azure Blob Storage Upload in Profile Header Banner
+- [x] Task 3: Azure Blob Storage Upload in Profile Header Banner
   - Acceptance: `ProfileHeaderBanner.tsx` uses `mediaApi.getPresignedUploadUrl` and `mediaApi.uploadBlob` to upload avatar and banner images to Azure Blob Storage BlockBlobs. Displays loading state while uploading, and gracefully falls back to local blob URL if offline.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/components/profile/ProfileHeaderBanner.tsx`
   - Files: `frontend/src/components/profile/ProfileHeaderBanner.tsx`

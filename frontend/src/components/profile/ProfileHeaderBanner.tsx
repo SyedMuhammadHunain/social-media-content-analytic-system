@@ -3,12 +3,14 @@
 
 'use client';
 
-import { useRef, type ChangeEvent, type RefObject } from 'react';
+import { useState, useRef, type ChangeEvent, type RefObject } from 'react';
 import { Avatar } from '@astryxdesign/core/Avatar';
 import { Button } from '@astryxdesign/core/Button';
 import { Icon } from '@astryxdesign/core/Icon';
 import { CameraIcon } from '@heroicons/react/24/outline';
 import type { UserProfile } from '../../types/social';
+import { mediaApi } from '../../api/mediaApi.ts';
+import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 
 export interface ProfileHeaderBannerProps {
   user: UserProfile;
@@ -26,20 +28,52 @@ export function ProfileHeaderBanner({
   onUpdateBanner,
 }: ProfileHeaderBannerProps) {
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const uploadAndCallback = async (
+    file: File,
+    setIsUploading: (val: boolean) => void,
+    callback?: (url: string) => void
+  ) => {
+    setIsUploading(true);
+    const contentType = file.type || 'image/jpeg';
+    const effectiveUserId = normalizeBackendUserId(user.id);
+
+    try {
+      const presign = await mediaApi.getPresignedUploadUrl({
+        userId: effectiveUserId,
+        fileName: file.name,
+        contentType,
+      });
+
+      if (presign && presign.uploadUrl) {
+        await mediaApi.uploadBlob(presign.uploadUrl, file, contentType);
+        if (presign.publicBlobUrl) {
+          callback?.(presign.publicBlobUrl);
+          setIsUploading(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Azure cloud upload failed, falling back to local object URL:', err);
+    } finally {
+      setIsUploading(false);
+    }
+
+    // Fallback: Local object URL or base64 so user is never blocked
+    const localUrl = URL.createObjectURL(file);
+    callback?.(localUrl);
+  };
 
   const handleFileChange = (
     e: ChangeEvent<HTMLInputElement>,
+    setIsUploading: (val: boolean) => void,
     callback?: (url: string) => void
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        callback?.(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    uploadAndCallback(file, setIsUploading, callback);
     e.target.value = '';
   };
 
@@ -87,13 +121,15 @@ export function ProfileHeaderBanner({
               type="file"
               accept="image/*"
               style={{ display: 'none' }}
-              onChange={e => handleFileChange(e, onUpdateBanner)}
+              onChange={e => handleFileChange(e, setIsUploadingBanner, onUpdateBanner)}
             />
             <Button
               data-testid="upload-banner-trigger"
-              label="Change Banner"
+              label={isUploadingBanner ? 'Uploading...' : 'Change Banner'}
               variant="secondary"
               size="sm"
+              isDisabled={isUploadingBanner}
+              isLoading={isUploadingBanner}
               icon={<Icon icon={CameraIcon} size="xsm" />}
               onClick={() => bannerInputRef.current?.click()}
             />
@@ -129,14 +165,15 @@ export function ProfileHeaderBanner({
                 type="file"
                 accept="image/*"
                 style={{ display: 'none' }}
-                onChange={e => handleFileChange(e, onUpdateAvatar)}
+                onChange={e => handleFileChange(e, setIsUploadingAvatar, onUpdateAvatar)}
               />
 
               <button
                 data-testid="upload-avatar-trigger"
                 type="button"
-                title="Change Profile Photo"
-                aria-label="Change Profile Photo"
+                title={isUploadingAvatar ? 'Uploading Profile Photo...' : 'Change Profile Photo'}
+                aria-label={isUploadingAvatar ? 'Uploading Profile Photo...' : 'Change Profile Photo'}
+                disabled={isUploadingAvatar}
                 onClick={() => avatarInputRef.current?.click()}
                 style={{
                   position: 'absolute',
@@ -145,15 +182,18 @@ export function ProfileHeaderBanner({
                   width: 36,
                   height: 36,
                   borderRadius: '50%',
-                  backgroundColor: 'var(--color-background-surface, #262626)',
+                  backgroundColor: isUploadingAvatar
+                    ? 'var(--color-background-subtle, #404040)'
+                    : 'var(--color-background-surface, #262626)',
                   border: '2px solid var(--color-background-body, #111111)',
                   color: 'var(--color-text-primary, #ffffff)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
+                  cursor: isUploadingAvatar ? 'not-allowed' : 'pointer',
                   boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
                   transition: 'background-color 0.15s ease, color 0.15s ease',
+                  opacity: isUploadingAvatar ? 0.7 : 1,
                 }}
               >
                 <Icon icon={CameraIcon} size="xsm" />
