@@ -70,27 +70,31 @@ export function mapBackendPostToUi(dto: BackendFeedPostDto): Post {
   };
 }
 
-export function mapBackendModelPostToUi(backendPost: BackendPost, authorUser?: User): Post {
+function buildPostAuthor(userId: string, authorUser?: User): User {
   const initialAuthor = authorUser || {
-    id: backendPost.userId,
-    username: backendPost.userId.replace(/^user_/, ''),
-    name: backendPost.userId,
+    id: userId,
+    username: userId.replace(/^user_/, ''),
+    name: userId,
   };
   const resolved = resolveAuthorPresentation(initialAuthor);
 
   return {
+    id: userId,
+    username: resolved.username,
+    name: resolved.name,
+    avatarUrl:
+      resolved.avatarUrl ||
+      authorUser?.avatarUrl ||
+      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    isFollowed: authorUser ? Boolean(authorUser.isFollowed) : false,
+  };
+}
+
+export function mapBackendModelPostToUi(backendPost: BackendPost, authorUser?: User): Post {
+  return {
     id: backendPost.id,
     userId: backendPost.userId,
-    author: {
-      id: backendPost.userId,
-      username: resolved.username,
-      name: resolved.name,
-      avatarUrl:
-        resolved.avatarUrl ||
-        (authorUser && authorUser.avatarUrl) ||
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      isFollowed: authorUser ? !!authorUser.isFollowed : false,
-    },
+    author: buildPostAuthor(backendPost.userId, authorUser),
     type: (backendPost.mediaType as PostType) || 'TEXT',
     text: backendPost.text,
     description: backendPost.text,

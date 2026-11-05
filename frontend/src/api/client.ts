@@ -2,11 +2,11 @@
 // Social Media Content Analysis System - HTTP API Client Base
 
 import {
-  type ApiResponse,
   ApiError,
   getApiGatewayUrl,
   getAuthToken,
 } from './tokenManager.ts';
+import { parseHttpResponse } from './httpPayloadParser.ts';
 
 export * from './tokenManager.ts';
 
@@ -15,53 +15,27 @@ export interface RequestOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
+function applyAuthHeader(reqHeaders: Record<string, string>, skipAuth: boolean) {
+  if (skipAuth) return;
+  const activeToken = getAuthToken();
+  if (activeToken && !reqHeaders.Authorization) {
+    reqHeaders.Authorization = `Bearer ${activeToken}`;
+  }
+}
+
 function buildHeaders(headers?: HeadersInit, skipAuth = false, isFormData = false): Record<string, string> {
   const reqHeaders: Record<string, string> = {
     Accept: 'application/json',
     ...(headers as Record<string, string>),
   };
 
-  if (!skipAuth) {
-    const activeToken = getAuthToken();
-    if (activeToken) {
-      if (!reqHeaders.Authorization) {
-        reqHeaders.Authorization = `Bearer ${activeToken}`;
-      }
-    }
-  }
+  applyAuthHeader(reqHeaders, skipAuth);
 
-  if (!isFormData) {
-    if (!reqHeaders['Content-Type']) {
-      reqHeaders['Content-Type'] = 'application/json';
-    }
+  if (!isFormData && !reqHeaders['Content-Type']) {
+    reqHeaders['Content-Type'] = 'application/json';
   }
 
   return reqHeaders;
-}
-
-async function parseBody<T>(response: Response): Promise<T> {
-  const contentType = response.headers.get('content-type') || '';
-  const isJson = contentType.includes('application/json');
-  const responseData: any = isJson ? await response.json() : await response.text();
-
-  if (!response.ok) {
-    const hasMsg = responseData && typeof responseData === 'object';
-    const errorMsg = (hasMsg && responseData.message) || response.statusText || `HTTP error ${response.status}`;
-    throw new ApiError(response.status, response.statusText, errorMsg, responseData);
-  }
-
-  const isEnvelope = Boolean(responseData && typeof responseData === 'object');
-  if (isEnvelope) {
-    if ('data' in responseData) {
-      const envelope = responseData as ApiResponse<T>;
-      if (envelope.status === 'ERROR') {
-        throw new ApiError(response.status, 'Application Error', envelope.message || 'Server error', envelope);
-      }
-      return envelope.data;
-    }
-  }
-
-  return responseData as T;
 }
 
 export async function apiRequest<T>(
@@ -85,7 +59,7 @@ export async function apiRequest<T>(
       signal: controller.signal,
     });
     clearTimeout(timer);
-    return await parseBody<T>(response);
+    return await parseHttpResponse<T>(response);
   } catch (error: any) {
     clearTimeout(timer);
     if (error.name === 'AbortError') {
@@ -95,57 +69,68 @@ export async function apiRequest<T>(
   }
 }
 
-function resolveDeleteOptions(bodyOrOptions?: unknown, options?: RequestOptions): RequestOptions {
-  const isOpt =
-    bodyOrOptions &&
-    typeof bodyOrOptions === 'object' &&
-    options === undefined &&
-    ('timeoutMs' in bodyOrOptions || 'skipAuth' in bodyOrOptions || 'headers' in bodyOrOptions);
+function isOptionsObject(target: unknown): target is RequestOptions {
+  if (!target || typeof target !== 'object') return false;
+  return 'timeoutMs' in target || 'skipAuth' in target || 'headers' in target;
+}
 
-  if (isOpt) {
-    return { ...(bodyOrOptions as RequestOptions), method: 'DELETE' };
+function resolveDeleteOptions(bodyOrOptions?: unknown, options?: RequestOptions): RequestOptions {
+  if (options === undefined && isOptionsObject(bodyOrOptions)) {
+    return { ...bodyOrOptions, method: 'DELETE' };
   }
 
-  const body =
-    bodyOrOptions !== undefined
-      ? bodyOrOptions instanceof FormData
-        ? bodyOrOptions
-        : JSON.stringify(bodyOrOptions)
-      : undefined;
+  let body: BodyInit | undefined;
+  if (bodyOrOptions !== undefined) {
+    body = bodyOrOptions instanceof FormData ? bodyOrOptions : JSON.stringify(bodyOrOptions);
+  }
 
   return { ...options, method: 'DELETE', body };
 }
 
 export const api = {
-  get: <T>(path: string, options?: RequestOptions) =>
-    apiRequest<T>(path, { ...options, method: 'GET' }),
+  get<T>(path: string, options?: RequestOptions): Promise<T> {
+    return apiRequest<T>(path, { ...options, method: 'GET' });
+  },
 
-  post: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    apiRequest<T>(path, {
+  post<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const serializedBody =
+      body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined;
+    return apiRequest<T>(path, {
       ...options,
       method: 'POST',
-      body: body instanceof FormData ? body : JSON.stringify(body),
-    }),
+      body: serializedBody,
+    });
+  },
 
-  put: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    apiRequest<T>(path, {
+  put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const serializedBody =
+      body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined;
+    return apiRequest<T>(path, {
       ...options,
       method: 'PUT',
-      body: body instanceof FormData ? body : JSON.stringify(body),
-    }),
+      body: serializedBody,
+    });
+  },
 
-  patch: <T>(path: string, body?: unknown, options?: RequestOptions) =>
-    apiRequest<T>(path, {
+  patch<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const serializedBody =
+      body instanceof FormData ? body : body !== undefined ? JSON.stringify(body) : undefined;
+    return apiRequest<T>(path, {
       ...options,
       method: 'PATCH',
-      body: body instanceof FormData ? body : JSON.stringify(body),
-    }),
+      body: serializedBody,
+    });
+  },
 
-  delete: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) =>
-    apiRequest<T>(path, resolveDeleteOptions(bodyOrOptions, options)),
+  delete<T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions): Promise<T> {
+    const resolvedOptions = resolveDeleteOptions(bodyOrOptions, options);
+    return apiRequest<T>(path, resolvedOptions);
+  },
 
-  del: <T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions) =>
-    apiRequest<T>(path, resolveDeleteOptions(bodyOrOptions, options)),
+  del<T>(path: string, bodyOrOptions?: unknown, options?: RequestOptions): Promise<T> {
+    const resolvedOptions = resolveDeleteOptions(bodyOrOptions, options);
+    return apiRequest<T>(path, resolvedOptions);
+  },
 };
 
 export default api;

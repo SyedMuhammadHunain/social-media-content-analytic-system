@@ -25,25 +25,23 @@ export class ApiError extends Error {
 let configuredBaseUrl: string | null = null;
 let activeAuthToken: string | null = null;
 
-export function getApiGatewayUrl(): string {
-  if (configuredBaseUrl) {
-    return configuredBaseUrl;
+function resolveEnvGatewayUrl(): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_GATEWAY_URL) {
+    return import.meta.env.VITE_API_GATEWAY_URL;
   }
   const globalObj = typeof globalThis !== 'undefined' ? (globalThis as Record<string, any>) : undefined;
-  const envUrl =
-    typeof import.meta !== 'undefined' && import.meta.env
-      ? import.meta.env.VITE_API_GATEWAY_URL
-      : globalObj?.process?.env?.VITE_API_GATEWAY_URL;
+  return globalObj?.process?.env?.VITE_API_GATEWAY_URL;
+}
 
-  if (envUrl) {
-    return envUrl;
-  }
+function resolveWindowGatewayUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const hostname = window.location?.hostname;
+  return hostname ? `http://${hostname}:8080` : undefined;
+}
 
-  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-    return `http://${window.location.hostname}:8080`;
-  }
-
-  return 'http://127.0.0.1:8080';
+export function getApiGatewayUrl(): string {
+  if (configuredBaseUrl) return configuredBaseUrl;
+  return resolveEnvGatewayUrl() || resolveWindowGatewayUrl() || 'http://127.0.0.1:8080';
 }
 
 export function setApiGatewayUrl(url: string | null): void {
