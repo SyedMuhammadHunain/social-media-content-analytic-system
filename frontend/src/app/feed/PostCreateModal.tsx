@@ -5,14 +5,13 @@
 
 import { useState, useEffect } from 'react';
 import { Card } from '@astryxdesign/core/Card';
-import { VStack, HStack } from '@astryxdesign/core/Layout';
-import { Heading } from '@astryxdesign/core/Text';
-import { Button } from '@astryxdesign/core/Button';
+import { VStack } from '@astryxdesign/core/Layout';
 import { Divider } from '@astryxdesign/core/Divider';
 
 import type { CreatePostInput, PostType, User } from '../../types/social.ts';
 import { usePostMediaUpload } from './usePostMediaUpload.ts';
 import { PostComposerForm } from './PostComposerForm.tsx';
+import { PostModalHeader, PostModalFooter } from './PostModalControls.tsx';
 
 export interface PostCreateModalProps {
   isOpen: boolean;
@@ -126,17 +125,7 @@ export function PostCreateModal({
       >
         <Card padding={5} style={{ borderRadius: 16 }}>
           <VStack gap={4} align="stretch">
-            <HStack hAlign="between" vAlign="center">
-              <Button
-                data-testid="modal-cancel-btn"
-                label="Cancel"
-                variant="ghost"
-                size="sm"
-                onClick={handleCancel}
-              />
-              <Heading level={4}>New Post</Heading>
-              <div style={{ width: 64 }} aria-hidden="true" />
-            </HStack>
+            <PostModalHeader onCancel={handleCancel} title="New Post" />
 
             <Divider />
 
@@ -159,23 +148,15 @@ export function PostCreateModal({
 
             <Divider />
 
-            <HStack hAlign="between" vAlign="center">
-              <div aria-hidden="true" />
-              <Button
-                data-testid="modal-post-submit-btn"
-                label="Post"
-                variant="primary"
-                size="md"
-                isDisabled={!isValid || isUploading}
-                isLoading={isUploading}
-                onClick={handleSubmit}
-              />
-            </HStack>
+            <PostModalFooter
+              isSubmitDisabled={!isValid || isUploading}
+              isSubmitting={isUploading}
+              onSubmit={handleSubmit}
+              submitLabel="Post"
+            />
           </VStack>
         </Card>
       </div>
     </div>
   );
 }
-
-export default PostCreateModal;

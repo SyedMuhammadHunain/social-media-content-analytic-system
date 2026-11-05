@@ -4,24 +4,31 @@
 'use client';
 
 import { useState } from 'react';
-import type { FC, FormEvent } from 'react';
+import type { FC } from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
-import { TextArea } from '@astryxdesign/core/TextArea';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { Divider } from '@astryxdesign/core/Divider';
 import { Icon } from '@astryxdesign/core/Icon';
 import { XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 import type { Post, UpdatePostInput } from '../../types/social';
+import { PostEditFormBody } from './PostEditFormBody.tsx';
 
 export interface PostEditModalProps {
   post: Post;
   isOpen: boolean;
   onClose: () => void;
   onSave: (input: UpdatePostInput) => void;
+}
+
+function parseHashtags(rawTags: string): string[] {
+  return rawTags
+    .split(' ')
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0)
+    .map(tag => (tag.startsWith('#') ? tag : `#${tag}`));
 }
 
 export const PostEditModal: FC<PostEditModalProps> = ({
@@ -46,17 +53,11 @@ export const PostEditModal: FC<PostEditModalProps> = ({
     const domTags = document.querySelector('[data-testid="post-edit-hashtags-input"] input') as HTMLInputElement | null;
     const effectiveTags = domTags?.value ?? hashtagsRaw;
 
-    const hashtags = effectiveTags
-      .split(' ')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-      .map(tag => (tag.startsWith('#') ? tag : `#${tag}`));
-
     onSave({
       text: effectiveText.trim(),
       description: effectiveText.trim(),
       mediaUrls: effectiveMedia.trim().length > 0 ? [effectiveMedia.trim()] : undefined,
-      hashtags,
+      hashtags: parseHashtags(effectiveTags),
     });
     onClose();
   };
@@ -85,7 +86,6 @@ export const PostEditModal: FC<PostEditModalProps> = ({
       <div style={{ maxWidth: 580, width: '100%' }}>
         <Card padding={6}>
           <VStack gap={4}>
-            {/* Header */}
             <HStack hAlign="between" vAlign="center">
               <VStack gap={0}>
                 <Heading level={3}>Edit Post</Heading>
@@ -105,70 +105,17 @@ export const PostEditModal: FC<PostEditModalProps> = ({
 
             <Divider />
 
-            {/* Post Content */}
-            <VStack gap={1}>
-              <Text type="label" color="secondary">
-                Post Text Content
-              </Text>
-              <div data-testid="post-edit-text-input">
-                <TextArea
-                  label="Post Text"
-                  isLabelHidden
-                  placeholder="What's happening?"
-                  value={text}
-                  onChange={setText}
-                  onInput={(e: FormEvent<HTMLElement>) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    if (target) setText(target.value);
-                  }}
-                  rows={4}
-                />
-              </div>
-            </VStack>
-
-            {/* Media URL */}
-            <VStack gap={1}>
-              <Text type="label" color="secondary">
-                Media URL (Optional)
-              </Text>
-              <div data-testid="post-edit-media-input">
-                <TextInput
-                  label="Media URL"
-                  isLabelHidden
-                  placeholder="https://..."
-                  value={mediaUrl}
-                  onChange={(val: string) => setMediaUrl(val)}
-                  onInput={(e: FormEvent<HTMLElement>) => {
-                    const target = e.target as HTMLInputElement;
-                    if (target) setMediaUrl(target.value);
-                  }}
-                />
-              </div>
-            </VStack>
-
-            {/* Hashtags */}
-            <VStack gap={1}>
-              <Text type="label" color="secondary">
-                Hashtags
-              </Text>
-              <div data-testid="post-edit-hashtags-input">
-                <TextInput
-                  label="Hashtags"
-                  isLabelHidden
-                  placeholder="#metaastryx #systemarchitecture"
-                  value={hashtagsRaw}
-                  onChange={(val: string) => setHashtagsRaw(val)}
-                  onInput={(e: FormEvent<HTMLElement>) => {
-                    const target = e.target as HTMLInputElement;
-                    if (target) setHashtagsRaw(target.value);
-                  }}
-                />
-              </div>
-            </VStack>
+            <PostEditFormBody
+              text={text}
+              setText={setText}
+              mediaUrl={mediaUrl}
+              setMediaUrl={setMediaUrl}
+              hashtagsRaw={hashtagsRaw}
+              setHashtagsRaw={setHashtagsRaw}
+            />
 
             <Divider />
 
-            {/* Action Buttons */}
             <HStack hAlign="end" gap={3}>
               <Button
                 data-testid="post-edit-cancel-btn"

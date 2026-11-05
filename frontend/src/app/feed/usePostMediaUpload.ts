@@ -5,6 +5,30 @@ import { useState, type ChangeEvent } from 'react';
 import { mediaApi } from '../../api/mediaApi.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { storeMediaBlob } from '../../utils/mediaBlobStore.ts';
+import { detectMediaTypeAndFormat } from './mediaTypeDetection.ts';
+
+async function uploadToAzureStorage(
+  userId: string | undefined,
+  file: File,
+  contentType: string
+): Promise<string | null> {
+  const effectiveUserId = normalizeBackendUserId(userId);
+  const presign = await mediaApi.getPresignedUploadUrl({
+    userId: effectiveUserId,
+    fileName: file.name,
+    contentType,
+  });
+
+  if (presign && presign.uploadUrl) {
+    try {
+      await mediaApi.uploadBlob(presign.uploadUrl, file, contentType);
+      return presign.publicBlobUrl || null;
+    } catch (uploadErr) {
+      console.warn('Azure cloud upload failed, retaining local media preview:', uploadErr);
+    }
+  }
+  return null;
+}
 
 export function usePostMediaUpload(userId?: string) {
   const [mediaUrl, setMediaUrl] = useState('');
@@ -21,31 +45,8 @@ export function usePostMediaUpload(userId?: string) {
       URL.revokeObjectURL(mediaUrl);
     }
 
-    const isVideo =
-      file.type.startsWith('video/') ||
-      /\.(mp4|webm|ogg|mov|mkv|avi|wmv)$/i.test(file.name);
-    const isUnsupportedContainer = /\.(mkv|avi|wmv|flv)$/i.test(file.name);
-
-    if (isUnsupportedContainer) {
-      setFormatWarning(
-        'Notice: .mkv/.avi video containers are not supported by web browsers. Please use MP4 or WebM.'
-      );
-    } else {
-      setFormatWarning(null);
-    }
-
-    const isWebm = /\.webm$/i.test(file.name);
-    const isOgg = /\.ogg$/i.test(file.name);
-    const contentType =
-      file.type && file.type.startsWith('video/')
-        ? file.type
-        : isWebm
-          ? 'video/webm'
-          : isOgg
-            ? 'video/ogg'
-            : isVideo
-              ? 'video/mp4'
-              : (file.type || 'image/jpeg');
+    const { isVideo, contentType, warning } = detectMediaTypeAndFormat(file);
+    setFormatWarning(warning);
 
     const typedBlob = file.slice(0, file.size, contentType);
     const localUrl = URL.createObjectURL(typedBlob);
@@ -59,23 +60,8 @@ export function usePostMediaUpload(userId?: string) {
 
     try {
       setIsUploading(true);
-      const effectiveUserId = normalizeBackendUserId(userId);
-      const presign = await mediaApi.getPresignedUploadUrl({
-        userId: effectiveUserId,
-        fileName: file.name,
-        contentType,
-      });
-
-      if (presign && presign.uploadUrl) {
-        try {
-          await mediaApi.uploadBlob(presign.uploadUrl, file, contentType);
-          if (presign.publicBlobUrl) {
-            setMediaUrl(presign.publicBlobUrl);
-          }
-        } catch (uploadErr) {
-          console.warn('Azure cloud upload failed, retaining local media preview:', uploadErr);
-        }
-      }
+      const publicUrl = await uploadToAzureStorage(userId, file, contentType);
+      if (publicUrl) setMediaUrl(publicUrl);
     } catch {
       // Offline fallback: retain local object preview URL
     } finally {

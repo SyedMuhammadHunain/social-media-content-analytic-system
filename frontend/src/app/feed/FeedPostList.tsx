@@ -3,13 +3,12 @@
 
 'use client';
 
+import type { FC } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
-import { Card } from '@astryxdesign/core/Card';
-import { EmptyState } from '@astryxdesign/core/EmptyState';
-import { Button } from '@astryxdesign/core/Button';
 import type { Post, UserProfile, UpdatePostInput, User } from '../../types/social.ts';
 import { PostCard } from './PostCard.tsx';
 import { FeedSkeleton } from './FeedSkeleton.tsx';
+import { FeedEmptyState } from './FeedEmptyState.tsx';
 
 export interface FeedPostListProps {
   posts: Post[];
@@ -28,76 +27,24 @@ export interface FeedPostListProps {
   hasTopComposer?: boolean;
 }
 
-function getEmptyStateDescription(isBookmarksFilter: boolean): string {
-  if (isBookmarksFilter) {
-    return 'You have not saved any posts yet. Click the bookmark icon on any post to save it here.';
-  }
-  return 'No posts match the active filter criteria.';
-}
-
-function FeedEmptyState({
-  isBookmarksFilter,
-  hasActiveFilter,
-  onClearFilter,
-}: {
-  isBookmarksFilter: boolean;
-  hasActiveFilter: boolean;
-  onClearFilter: () => void;
-}) {
-  return (
-    <Card padding={6}>
-      <EmptyState
-        headingLevel={3}
-        title={isBookmarksFilter ? 'No Saved Posts' : 'No Posts Found'}
-        description={getEmptyStateDescription(isBookmarksFilter)}
-        actions={
-          hasActiveFilter && !isBookmarksFilter ? (
-            <Button
-              size="sm"
-              variant="primary"
-              label="Reset to All Posts"
-              onClick={onClearFilter}
-            />
-          ) : undefined
-        }
-      />
-    </Card>
-  );
-}
-
-export function FeedPostList({
-  posts,
-  currentUser,
-  isBookmarksFilter,
-  hasActiveFilter,
-  onClearFilter,
-  onToggleLike,
-  onToggleFollow,
-  onAddComment,
-  onToggleBookmark,
-  onEditPost,
-  onDeletePost,
-  onViewUserProfile,
-  isLoading = false,
-  hasTopComposer = false,
-}: FeedPostListProps) {
-  if (isLoading) {
+export const FeedPostList: FC<FeedPostListProps> = (props) => {
+  if (props.isLoading) {
     return <FeedSkeleton count={3} />;
   }
 
-  if (posts.length === 0) {
+  if (props.posts.length === 0) {
     return (
       <FeedEmptyState
-        isBookmarksFilter={isBookmarksFilter}
-        hasActiveFilter={hasActiveFilter}
-        onClearFilter={onClearFilter}
+        isBookmarksFilter={props.isBookmarksFilter}
+        hasActiveFilter={props.hasActiveFilter}
+        onClearFilter={props.onClearFilter}
       />
     );
   }
 
   return (
     <VStack gap={0}>
-      {posts.map((post, index) => (
+      {props.posts.map((post, index) => (
         <div
           key={post.id}
           className="post-card-animated"
@@ -105,22 +52,22 @@ export function FeedPostList({
         >
           <PostCard
             post={post}
-            currentUser={currentUser}
-            onToggleLike={onToggleLike}
-            onToggleFollow={onToggleFollow}
-            onAddComment={onAddComment}
-            onToggleBookmark={onToggleBookmark}
-            onEditPost={onEditPost}
-            onDeletePost={onDeletePost}
-            onViewProfile={onViewUserProfile}
+            currentUser={props.currentUser}
+            onToggleLike={props.onToggleLike}
+            onToggleFollow={props.onToggleFollow}
+            onAddComment={props.onAddComment}
+            onToggleBookmark={props.onToggleBookmark}
+            onEditPost={props.onEditPost}
+            onDeletePost={props.onDeletePost}
+            onViewProfile={props.onViewUserProfile}
             isFirst={index === 0}
-            isLast={index === posts.length - 1}
-            hasTopComposer={hasTopComposer}
+            isLast={index === props.posts.length - 1}
+            hasTopComposer={props.hasTopComposer}
           />
         </div>
       ))}
     </VStack>
   );
-}
+};
 
 export default FeedPostList;

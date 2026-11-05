@@ -19,9 +19,15 @@ function hasFeedItems(posts: unknown): posts is Post[] {
   return Array.isArray(posts) && posts.length > 0;
 }
 
+function isRecentPost(createdAt: string): boolean {
+  if (createdAt === 'Just now') return true;
+  if (createdAt.includes('now')) return true;
+  return createdAt.includes('sec');
+}
+
 function parsePostDate(post: Post): number {
   if (!post.createdAt) return 0;
-  if (post.createdAt === 'Just now' || post.createdAt.includes('now') || post.createdAt.includes('sec')) {
+  if (isRecentPost(post.createdAt)) {
     return Date.now() + 10000;
   }
   const parsed = Date.parse(post.createdAt);
@@ -49,6 +55,14 @@ export interface UseFeedLoaderResult {
   refreshFeed: () => Promise<void>;
 }
 
+async function fetchFeedBatch(backendUserId: string, isInteractive: boolean): Promise<Post[]> {
+  const [feedPosts] = await Promise.all([
+    feedApi.getFeedPostsUi(backendUserId, 0, 30),
+    isInteractive ? new Promise((resolve) => setTimeout(resolve, 350)) : Promise.resolve(),
+  ]);
+  return feedPosts;
+}
+
 export function useFeedLoader(
   backendUserId: string,
   setPosts: Dispatch<SetStateAction<Post[]>>
@@ -58,20 +72,11 @@ export function useFeedLoader(
 
   const loadFeed = useCallback(
     async (mode: 'initial' | 'refresh' | 'background' = 'initial') => {
-      if (mode === 'refresh') {
-        setIsRefreshing(true);
-      } else if (mode === 'initial') {
-        setIsLoading(true);
-      }
+      if (mode === 'refresh') setIsRefreshing(true);
+      if (mode === 'initial') setIsLoading(true);
 
       try {
-        const [feedPosts] = await Promise.all([
-          feedApi.getFeedPostsUi(backendUserId, 0, 30),
-          mode === 'initial' || mode === 'refresh'
-            ? new Promise((resolve) => setTimeout(resolve, 350))
-            : Promise.resolve(),
-        ]);
-
+        const feedPosts = await fetchFeedBatch(backendUserId, mode !== 'background');
         if (hasFeedItems(feedPosts)) {
           setPosts((prev) => {
             const merged = mergeFeedPosts(feedPosts, prev);
@@ -89,31 +94,24 @@ export function useFeedLoader(
     [backendUserId, setPosts]
   );
 
-  // 1. Initial load on user or mount
   useEffect(() => {
     loadFeed('initial');
   }, [loadFeed]);
 
-  // 2. Real-time background sync on window focus, document visibility, and interval
   useEffect(() => {
-    const handleFocusOrVisible = () => {
+    const handleSync = () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
         loadFeed('background');
       }
     };
 
-    window.addEventListener('focus', handleFocusOrVisible);
-    document.addEventListener('visibilitychange', handleFocusOrVisible);
-
-    const interval = setInterval(() => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-        loadFeed('background');
-      }
-    }, 6000);
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+    const interval = setInterval(handleSync, 6000);
 
     return () => {
-      window.removeEventListener('focus', handleFocusOrVisible);
-      document.removeEventListener('visibilitychange', handleFocusOrVisible);
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
       clearInterval(interval);
     };
   }, [loadFeed]);
