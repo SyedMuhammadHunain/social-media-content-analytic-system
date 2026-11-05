@@ -23,26 +23,27 @@ Plan: `tasks/plan.md`
     - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** S (3 files)
 
-- [ ] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping
+- [x] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping
   - **Description:** Build `MobileBottomNav.tsx` containing 5 icons in sequential order: Saved, Creator Analytics, + Create Post (center), Notifications, Profile. Connect it to `NewsFeedPage.tsx` so clicking each icon swaps the center column view (Saved, Analytics, Notifications, Profile) or opens Create Post modal, while hiding desktop sidebars on screens < 768px.
   - **Acceptance criteria:**
-    - [ ] `MobileBottomNav` renders fixed at bottom on viewports < 768px with exactly 5 icons in order: `[Saved, Creator Analytics, + Create Post, Notifications, Profile]`.
-    - [ ] Desktop left sidebar (profile/navigation) and right sidebar (recommendations/search) hidden on screens < 768px via media queries.
-    - [ ] Main center column occupies full width on mobile viewports.
-    - [ ] Tapping "Creator Analytics" swaps center feed to Creator Analytics charts.
-    - [ ] Tapping "Notifications" swaps center feed to Notifications list.
-    - [ ] Tapping "Saved" swaps center feed to saved posts filter.
-    - [ ] Tapping "Profile" displays profile card view.
-    - [ ] Tapping "+" opens the post creation composer modal.
+    - [x] `MobileBottomNav` renders fixed at bottom on viewports < 768px with exactly 5 icons in order: `[Saved, Creator Analytics, + Create Post, Notifications, Profile]`.
+    - [x] Desktop left sidebar (profile/navigation) and right sidebar (recommendations/search) hidden on screens < 768px via media queries.
+    - [x] Main center column occupies full width on mobile viewports.
+    - [x] Tapping "Creator Analytics" swaps center feed to Creator Analytics charts.
+    - [x] Tapping "Notifications" swaps center feed to Notifications list.
+    - [x] Tapping "Saved" swaps center feed to saved posts filter.
+    - [x] Tapping "Profile" displays profile card view.
+    - [x] Tapping "+" opens the post creation composer modal.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
-    - [ ] `cd frontend && npm run lint`
-    - [ ] Focused unit test verifying bottom navigation order and view switching callbacks.
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run lint`
+    - [x] Focused unit test verifying bottom navigation order and view switching callbacks.
   - **Dependencies:** Task 1
   - **Files likely touched:**
     - `frontend/src/app/feed/MobileBottomNav.tsx`
+    - `frontend/src/app/feed/astryxMobileIcons.tsx`
     - `frontend/src/app/feed/NewsFeedPage.tsx`
-    - `frontend/tests/mobile_responsive_navigation.test.mjs`
+    - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** M (3 files)
 
 - [ ] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification

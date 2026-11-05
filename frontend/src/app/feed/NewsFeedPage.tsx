@@ -32,7 +32,9 @@ import { FeedRefreshBanner } from './FeedRefreshBanner.tsx';
 import { NewsFeedLeftSidebar } from './NewsFeedLeftSidebar.tsx';
 import { NewsFeedRightSidebar } from './NewsFeedRightSidebar.tsx';
 import { MobileAppHeader } from './MobileAppHeader.tsx';
+import { MobileBottomNav, type MobileNavItem } from './MobileBottomNav.tsx';
 import { SidebarSearchBox } from './SidebarSearchBox.tsx';
+import { useNotificationPolling } from '../../components/nav/useNotificationPolling.ts';
 import { ProfileViewersModal } from '../../components/profile/ProfileViewersModal.tsx';
 import {
   getProfileActivity,
@@ -132,7 +134,8 @@ const NEWSFEED_CSS = `
 }
 @media (min-width: 768px) {
   .mobile-app-header,
-  .mobile-search-dropdown {
+  .mobile-search-dropdown,
+  .mobile-bottom-nav {
     display: none !important;
   }
 }
@@ -222,6 +225,7 @@ export function NewsFeedPage({
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   void isMobileDrawerOpen;
+  const { unreadCount } = useNotificationPolling(user, demoUsers);
   const centerScrollRef = useRef<HTMLElement>(null);
   const [profileActivity, setProfileActivity] = useState(() =>
     getProfileActivity(user.id, user.username, user.followingCount)
@@ -451,6 +455,14 @@ export function NewsFeedPage({
     [demoUsers, suggestedCreators, posts, user]
   );
 
+  const activeMobileNav: MobileNavItem | 'feed' = useMemo(() => {
+    if (activeTab === 'dashboard') return 'analytics';
+    if (activeTab === 'notifications') return 'notifications';
+    if (activeTab === 'profile') return 'profile';
+    if (activeTab === 'feed' && activeFilter.type === 'BOOKMARKS') return 'saved';
+    return 'feed';
+  }, [activeTab, activeFilter.type]);
+
   return (
     <Layout
       height="auto"
@@ -461,6 +473,12 @@ export function NewsFeedPage({
           <MobileAppHeader
             onOpenSearch={() => setIsMobileSearchOpen((prev) => !prev)}
             onOpenDrawer={() => setIsMobileDrawerOpen((prev) => !prev)}
+            onClickLogo={() => {
+              changeTab('feed');
+              handleSelectFeedShortcut('ALL');
+              setViewedUser(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
 
           {isMobileSearchOpen && (
@@ -640,6 +658,48 @@ export function NewsFeedPage({
             onCreatePost={handleModalCreatePost}
           />
           </LayoutContent>
+
+          <MobileBottomNav
+            activeItem={activeMobileNav}
+            unreadCount={unreadCount}
+            onSelectSaved={() => {
+              if (activeTab === 'feed' && activeFilter.type === 'BOOKMARKS') {
+                handleSelectFeedShortcut('ALL');
+              } else {
+                changeTab('feed');
+                handleSelectFeedShortcut('SAVED');
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectAnalytics={() => {
+              if (activeTab === 'dashboard') {
+                changeTab('feed');
+              } else {
+                changeTab('dashboard');
+                onNavigateAnalytics?.();
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectCreate={() => {
+              setIsNewPostModalOpen(true);
+            }}
+            onSelectNotifications={() => {
+              if (activeTab === 'notifications') {
+                changeTab('feed');
+              } else {
+                changeTab('notifications');
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectProfile={() => {
+              if (activeTab === 'profile') {
+                changeTab('feed');
+              } else {
+                handleOpenProfile();
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
         </div>
       }
     />

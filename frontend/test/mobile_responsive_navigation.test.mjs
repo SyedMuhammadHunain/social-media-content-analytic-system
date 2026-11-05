@@ -72,4 +72,48 @@ test('Mobile Responsive Navigation & Scroll Unlocking (Task 1)', async (suite) =
       'NewsFeedPage must render MobileAppHeader'
     );
   });
+
+  await suite.test('MobileBottomNav.tsx renders 5 icons in strict sequential order (Task 2)', () => {
+    const bottomNavPath = path.join(projectRoot, 'frontend/src/app/feed/MobileBottomNav.tsx');
+    assert.ok(fs.existsSync(bottomNavPath), 'MobileBottomNav.tsx must exist');
+
+    const bottomNavContent = fs.readFileSync(bottomNavPath, 'utf8');
+
+    // Verify testids and order
+    const savedIdx = bottomNavContent.indexOf('data-testid="bottom-nav-saved"');
+    const analyticsIdx = bottomNavContent.indexOf('data-testid="bottom-nav-analytics"');
+    const createIdx = bottomNavContent.indexOf('data-testid="bottom-nav-create"');
+    const notificationsIdx = bottomNavContent.indexOf('data-testid="bottom-nav-notifications"');
+    const profileIdx = bottomNavContent.indexOf('data-testid="bottom-nav-profile"');
+
+    assert.ok(savedIdx !== -1, 'Saved icon must be present');
+    assert.ok(analyticsIdx !== -1, 'Creator Analytics icon must be present');
+    assert.ok(createIdx !== -1, '+ Create Post icon must be present');
+    assert.ok(notificationsIdx !== -1, 'Notification icon must be present');
+    assert.ok(profileIdx !== -1, 'Profile icon must be present');
+
+    // Strict sequential order
+    assert.ok(savedIdx < analyticsIdx, '1. Saved must precede 2. Analytics');
+    assert.ok(analyticsIdx < createIdx, '2. Analytics must precede 3. + Create Post (center)');
+    assert.ok(createIdx < notificationsIdx, '3. + Create Post must precede 4. Notifications');
+    assert.ok(notificationsIdx < profileIdx, '4. Notifications must precede 5. Profile');
+
+    // Check Astryx primitives
+    assert.ok(bottomNavContent.includes('@astryxdesign/core/IconButton'), 'Must use Astryx IconButton');
+    assert.ok(bottomNavContent.includes('@astryxdesign/core/Icon'), 'Must use Astryx Icon');
+  });
+
+  await suite.test('NewsFeedPage.tsx wires MobileBottomNav to view swapping and hides on desktop (Task 2)', () => {
+    const newsfeedPath = path.join(projectRoot, 'frontend/src/app/feed/NewsFeedPage.tsx');
+    const newsfeedContent = fs.readFileSync(newsfeedPath, 'utf8');
+
+    assert.ok(newsfeedContent.includes('<MobileBottomNav'), 'NewsFeedPage must render MobileBottomNav');
+    assert.ok(newsfeedContent.includes('activeItem={activeMobileNav}'), 'MobileBottomNav must receive activeMobileNav');
+    assert.ok(newsfeedContent.includes("onSelectSaved="), 'Must wire onSelectSaved');
+    assert.ok(newsfeedContent.includes("onSelectAnalytics="), 'Must wire onSelectAnalytics');
+    assert.ok(newsfeedContent.includes("onSelectCreate="), 'Must wire onSelectCreate');
+    assert.ok(newsfeedContent.includes("onSelectNotifications="), 'Must wire onSelectNotifications');
+    assert.ok(newsfeedContent.includes("onSelectProfile="), 'Must wire onSelectProfile');
+    assert.ok(newsfeedContent.includes('.mobile-bottom-nav {\n    display: none !important;'), 'Must hide mobile bottom nav on desktop');
+  });
 });

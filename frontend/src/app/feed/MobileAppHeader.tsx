@@ -7,9 +7,10 @@ import { IconButton } from '@astryxdesign/core/IconButton';
 export interface MobileAppHeaderProps {
   onOpenSearch?: () => void;
   onOpenDrawer?: () => void;
+  onClickLogo?: () => void;
 }
 
-export function MobileAppHeader({ onOpenSearch, onOpenDrawer }: MobileAppHeaderProps) {
+export function MobileAppHeader({ onOpenSearch, onOpenDrawer, onClickLogo }: MobileAppHeaderProps) {
   return (
     <header
       className="mobile-app-header"
@@ -34,12 +35,14 @@ export function MobileAppHeader({ onOpenSearch, onOpenDrawer }: MobileAppHeaderP
       {/* Centered App Logo & Title */}
       <div
         data-testid="mobile-header-logo"
+        onClick={onClickLogo}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
           flex: 1,
+          cursor: onClickLogo ? 'pointer' : 'default',
         }}
       >
         <img
