@@ -4,11 +4,12 @@
 'use client';
 
 import { useState } from 'react';
+import type React from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Divider } from '@astryxdesign/core/Divider';
 
-import type { Post, UpdatePostInput, UserProfile, Comment, User } from '../../types/social.ts';
+import type { Post, UpdatePostInput, UserProfile, User } from '../../types/social.ts';
 import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { CommentSection } from './CommentSection.tsx';
 import { PostEditModal } from './PostEditModal.tsx';
@@ -16,7 +17,8 @@ import { PostHeader } from './PostHeader.tsx';
 import { PostDeleteModal } from './PostDeleteModal.tsx';
 import { PostCardActionBar } from './PostCardActionBar.tsx';
 import { PostCardContent } from './PostCardContent.tsx';
-import { shouldFetchRemoteComments, fetchRemoteCommentsForPost } from './postCommentUtils.ts';
+import { usePostCommentsToggle } from './usePostCommentsToggle.ts';
+import { resolveCardBorderRadius, type CardPositionFlags } from './postCardBorderUtils.ts';
 
 function checkIsAuthor(currentUserId?: string, authorId?: string): boolean {
   if (!currentUserId || !authorId) return false;
@@ -24,7 +26,9 @@ function checkIsAuthor(currentUserId?: string, authorId?: string): boolean {
   return normalizeBackendUserId(currentUserId) === normalizeBackendUserId(authorId);
 }
 
-interface PostCardProps {
+export type { CardPositionFlags };
+
+export interface PostCardProps {
   post: Post;
   currentUser?: UserProfile;
   onToggleLike: (postId: string) => void;
@@ -39,19 +43,13 @@ interface PostCardProps {
   hasTopComposer?: boolean;
 }
 
-function resolveCardBorderRadius(
-  hasTopComposer: boolean,
-  isFirst: boolean,
-  isLast: boolean
-): string | undefined {
-  const isOnly = isFirst && isLast;
-  if (hasTopComposer) {
-    return isLast || isOnly ? '0 0 var(--radius-container, 12px) var(--radius-container, 12px)' : '0';
-  }
-  if (isOnly) return undefined;
-  if (isFirst) return 'var(--radius-container, 12px) var(--radius-container, 12px) 0 0';
-  if (isLast) return '0 0 var(--radius-container, 12px) var(--radius-container, 12px)';
-  return '0';
+function buildCardStyle(flags: CardPositionFlags): React.CSSProperties {
+  const isOnly = flags.isFirst && flags.isLast;
+  return {
+    borderRadius: resolveCardBorderRadius(flags),
+    borderTopWidth: flags.hasTopComposer && flags.isFirst ? '0px' : undefined,
+    borderBottomWidth: flags.isLast || isOnly ? '1px' : '0px',
+  };
 }
 
 export function PostCard({
@@ -68,40 +66,12 @@ export function PostCard({
   isLast = false,
   hasTopComposer = false,
 }: PostCardProps) {
-  const [showComments, setShowComments] = useState(false);
-  const [remoteComments, setRemoteComments] = useState<Comment[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const { showComments, remoteComments, handleToggleComments } = usePostCommentsToggle(post, currentUser);
 
   const isAuthor = checkIsAuthor(currentUser?.id, post.author.id);
-
-  const handleToggleComments = async () => {
-    const nextShow = !showComments;
-    setShowComments(nextShow);
-
-    const needFetch = shouldFetchRemoteComments(
-      nextShow,
-      post.comments.length,
-      post.commentsCount,
-      remoteComments.length
-    );
-
-    if (needFetch) {
-      const fetched = await fetchRemoteCommentsForPost(post.id, currentUser);
-      if (fetched.length > 0) {
-        setRemoteComments(fetched);
-      }
-    }
-  };
-
-  const isOnly = isFirst && isLast;
-  const cardBorderRadius = resolveCardBorderRadius(hasTopComposer, isFirst, isLast);
-
-  const cardStyle: React.CSSProperties = {
-    borderRadius: cardBorderRadius,
-    borderTopWidth: hasTopComposer && isFirst ? '0px' : undefined,
-    borderBottomWidth: isLast || isOnly ? '1px' : '0px',
-  };
+  const cardStyle = buildCardStyle({ hasTopComposer, isFirst, isLast });
 
   return (
     <div data-testid={`post-card-${post.id}`}>
