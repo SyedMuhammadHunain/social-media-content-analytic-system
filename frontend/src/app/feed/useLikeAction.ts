@@ -17,15 +17,96 @@ interface UseLikeActionParams {
   recordLikeToggle: (isLiked: boolean) => void;
 }
 
-function calcNewLikesCount(count: number, isLiked: boolean): number {
-  return isLiked ? count + 1 : Math.max(0, count - 1);
+interface LikeApiRequest {
+  isLiked: boolean;
+  userId: string;
+  postId: string;
 }
 
-async function dispatchLikeApi(isLiked: boolean, userId: string, postId: string) {
-  if (isLiked) {
-    return socialApi.likePost(userId, postId);
+function calcNewLikesCount(count: number, isLiked: boolean): number {
+  if (isLiked) return count + 1;
+  return Math.max(0, count - 1);
+}
+
+function dispatchLikeApi(req: LikeApiRequest) {
+  if (req.isLiked) {
+    return socialApi.likePost(req.userId, req.postId);
   }
-  return socialApi.unlikePost(userId, postId);
+  return socialApi.unlikePost(req.userId, req.postId);
+}
+
+function shouldNotifyAuthor(post: Post, user: UserProfile | undefined, backendUserId: string): boolean {
+  if (post.author.id === backendUserId) return false;
+  return post.author.id !== user?.id;
+}
+
+function resolvePostSnippet(post: Post): string {
+  const rawText = post.text || post.description || '';
+  if (!rawText) return 'your post';
+  if (rawText.length > 40) return `${rawText.slice(0, 40)}...`;
+  return rawText;
+}
+
+function notifyPostAuthorOfLike(post: Post, user: UserProfile | undefined, backendUserId: string) {
+  const actorName = user?.name || 'A creator';
+  const snippet = resolvePostSnippet(post);
+
+  notificationsApi
+    .triggerNotification({
+      recipientUserId: post.author.id,
+      actorUserId: backendUserId,
+      actorName,
+      actorAvatar: user?.avatarUrl,
+      type: 'LIKE',
+      targetPostId: post.id,
+      message: `${actorName} liked your post: '${snippet}'`,
+    })
+    .catch(() => {});
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('social:new-notification', {
+        detail: {
+          recipientUserId: post.author.id,
+          actorName,
+          type: 'LIKE',
+        },
+      })
+    );
+  }
+}
+
+function applyOptimisticLike(
+  postId: string,
+  nextIsLiked: boolean,
+  nextCount: number,
+  setPosts: Dispatch<SetStateAction<Post[]>>
+) {
+  updateSharedPost(postId, (p) => ({
+    ...p,
+    isLiked: nextIsLiked,
+    likesCount: nextCount,
+  }));
+
+  setPosts((prev) =>
+    prev.map((p) => (p.id === postId ? { ...p, isLiked: nextIsLiked, likesCount: nextCount } : p))
+  );
+}
+
+async function syncServerLikeCount(
+  req: LikeApiRequest,
+  setPosts: Dispatch<SetStateAction<Post[]>>
+) {
+  try {
+    const res = await dispatchLikeApi(req);
+    if (typeof res?.totalLikes === 'number') {
+      setPosts((prev) =>
+        prev.map((p) => (p.id === req.postId ? { ...p, likesCount: res.totalLikes } : p))
+      );
+    }
+  } catch {
+    // Offline fallback
+  }
 }
 
 export function useLikeAction({
@@ -40,60 +121,16 @@ export function useLikeAction({
     if (!post) return;
 
     const nextIsLiked = !post.isLiked;
+    const nextCount = calcNewLikesCount(post.likesCount, nextIsLiked);
 
-    updateSharedPost(postId, (p) => ({
-      ...p,
-      isLiked: nextIsLiked,
-      likesCount: calcNewLikesCount(p.likesCount, nextIsLiked),
-    }));
-
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== postId) return p;
-        return { ...p, isLiked: nextIsLiked, likesCount: calcNewLikesCount(p.likesCount, nextIsLiked) };
-      })
-    );
+    applyOptimisticLike(postId, nextIsLiked, nextCount, setPosts);
     recordLikeToggle(nextIsLiked);
 
-    if (nextIsLiked && post.author.id !== backendUserId && post.author.id !== user?.id) {
-      const actorName = user?.name || 'A creator';
-      const rawText = post.text || post.description || '';
-      const snippet = rawText ? (rawText.length > 40 ? `${rawText.slice(0, 40)}...` : rawText) : 'your post';
-      notificationsApi
-        .triggerNotification({
-          recipientUserId: post.author.id,
-          actorUserId: backendUserId,
-          actorName,
-          actorAvatar: user?.avatarUrl,
-          type: 'LIKE',
-          targetPostId: postId,
-          message: `${actorName} liked your post: '${snippet}'`,
-        })
-        .catch(() => {});
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('social:new-notification', {
-            detail: {
-              recipientUserId: post.author.id,
-              actorName,
-              type: 'LIKE',
-            },
-          })
-        );
-      }
+    if (nextIsLiked && shouldNotifyAuthor(post, user, backendUserId)) {
+      notifyPostAuthorOfLike(post, user, backendUserId);
     }
 
-    try {
-      const res = await dispatchLikeApi(nextIsLiked, backendUserId, postId);
-      if (typeof res?.totalLikes === 'number') {
-        setPosts((prev) =>
-          prev.map((p) => (p.id === postId ? { ...p, likesCount: res.totalLikes } : p))
-        );
-      }
-    } catch {
-      // Offline fallback
-    }
+    await syncServerLikeCount({ isLiked: nextIsLiked, userId: backendUserId, postId }, setPosts);
   }, [posts, backendUserId, user, setPosts, recordLikeToggle]);
 
   const handleToggleBookmark = useCallback((postId: string) => {
