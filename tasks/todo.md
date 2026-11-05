@@ -17,15 +17,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/context/authAccountStorage.ts`, `frontend/src/context/authGoogleHandler.ts`, `frontend/src/context/authProfileSync.ts`, `frontend/src/context/AuthContext.tsx`
   - Scope: M
 
-- [ ] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
+- [x] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
   - Acceptance: Extract `analyticsAggregation.ts` and `analyticsSeedStore.ts` for metrics math, real-time recalculations, and localStorage syncing. Reduce `AnalyticsContext.tsx` from 495 lines to ~110 lines.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/context/AnalyticsContext.tsx`
   - Files: `frontend/src/context/analyticsAggregation.ts`, `frontend/src/context/analyticsSeedStore.ts`, `frontend/src/context/AnalyticsContext.tsx`
   - Scope: M
 
 ### Checkpoint: Contexts & API
-- [ ] Context and API files reduced below 150 lines.
-- [ ] All 97 unit tests pass, `tsc -b` clean.
+- [x] Context and API files reduced below 150 lines.
+- [x] All 97 unit tests pass, `tsc -b` clean.
 
 ## Phase 2: Navigation & Notifications Tier
 
