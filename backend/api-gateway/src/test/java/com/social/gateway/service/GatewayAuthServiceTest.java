@@ -229,6 +229,7 @@ class GatewayAuthServiceTest {
         com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
                 .email("existing@example.com")
                 .name("Existing Google User")
+                .googleId("google_id_existing_999")
                 .build();
 
         StepVerifier.create(authService.loginWithGoogle(request))
@@ -240,5 +241,43 @@ class GatewayAuthServiceTest {
                     assertEquals(3, response.getToken().split("\\.").length);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("loginWithGoogle prevents account takeover when target user was created with LOCAL password")
+    void testLoginWithGoogleRejectsAccountTakeoverOnLocalUser() {
+        User localUser = User.builder()
+                .id("user_local_victim")
+                .username("victim")
+                .email("victim@example.com")
+                .authProvider("LOCAL")
+                .passwordHash("someBcryptHash")
+                .build();
+
+        when(userRepository.findByEmail("victim@example.com")).thenReturn(Mono.just(localUser));
+
+        com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
+                .email("victim@example.com")
+                .googleId("attacker_google_id")
+                .build();
+
+        StepVerifier.create(authService.loginWithGoogle(request))
+                .expectErrorMatches(err -> err instanceof IllegalArgumentException &&
+                        err.getMessage().contains("Account registered with email and password"))
+                .verify();
+    }
+
+    @Test
+    @DisplayName("loginWithGoogle rejects request without googleId or idToken")
+    void testLoginWithGoogleRejectsMissingCredentials() {
+        com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
+                .email("unknown@example.com")
+                .name("No Token User")
+                .build();
+
+        StepVerifier.create(authService.loginWithGoogle(request))
+                .expectErrorMatches(err -> err instanceof IllegalArgumentException &&
+                        err.getMessage().contains("Valid Google authentication credentials required"))
+                .verify();
     }
 }

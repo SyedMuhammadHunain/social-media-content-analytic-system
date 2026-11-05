@@ -94,7 +94,17 @@ public class JwtTokenProvider {
             }
 
             Map<String, Object> claims = extractClaims(token);
-            if (claims == null || !claims.containsKey("exp")) {
+            if (claims == null || !claims.containsKey("exp") || !claims.containsKey("sub")) {
+                return false;
+            }
+
+            Object sub = claims.get("sub");
+            if (sub == null || sub.toString().isBlank()) {
+                return false;
+            }
+
+            Object iss = claims.get("iss");
+            if (iss == null || !"social-media-content-analysis-system".equals(iss.toString())) {
                 return false;
             }
 

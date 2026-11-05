@@ -81,6 +81,11 @@ public class GatewayAuthService {
     }
 
     public Mono<AuthResponse> loginWithGoogle(GoogleAuthRequest request) {
+        if ((request.getGoogleId() == null || request.getGoogleId().isBlank())
+                && (request.getIdToken() == null || request.getIdToken().isBlank())) {
+            return Mono.error(new IllegalArgumentException("Valid Google authentication credentials required"));
+        }
+
         String email = request.getEmail().trim().toLowerCase();
         String baseUsername = email.split("@")[0].replaceAll("[^a-zA-Z0-9_]", "_") + "_goog";
         String fullName = (request.getName() != null && !request.getName().isBlank())
@@ -92,6 +97,12 @@ public class GatewayAuthService {
 
         return userRepository.findByEmail(email)
                 .flatMap(existingUser -> {
+                    // Prevent Account Takeover: If user registered locally with password, reject Google takeover
+                    if ("LOCAL".equalsIgnoreCase(existingUser.getAuthProvider())) {
+                        return Mono.error(new IllegalArgumentException(
+                                "Account registered with email and password. Please sign in with your password."));
+                    }
+
                     boolean changed = false;
                     if (existingUser.getFullName() == null || existingUser.getFullName().isBlank()) {
                         existingUser.setFullName(fullName);
@@ -99,10 +110,6 @@ public class GatewayAuthService {
                     }
                     if (existingUser.getAvatarUrl() == null || existingUser.getAvatarUrl().isBlank()) {
                         existingUser.setAvatarUrl(avatar);
-                        changed = true;
-                    }
-                    if (!"GOOGLE".equalsIgnoreCase(existingUser.getAuthProvider())) {
-                        existingUser.setAuthProvider("GOOGLE");
                         changed = true;
                     }
                     if (changed) {

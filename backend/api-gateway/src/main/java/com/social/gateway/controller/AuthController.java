@@ -58,6 +58,13 @@ public class AuthController {
             @Valid @RequestBody GoogleAuthRequest request) {
         return authService.loginWithGoogle(request)
                 .map(auth -> ResponseEntity.ok(ApiResponse.success(auth, "Google authentication successful")))
+                .onErrorResume(IllegalArgumentException.class, e -> Mono.just(
+                        ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.<AuthResponse>builder()
+                                        .status("ERROR")
+                                        .message(e.getMessage())
+                                        .build())
+                ))
                 .onErrorResume(Exception.class, e -> Mono.just(
                         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(ApiResponse.<AuthResponse>builder()
