@@ -3,6 +3,7 @@ package com.social.gateway.controller;
 import com.social.common.dto.ApiResponse;
 import com.social.common.dto.AuthRequest;
 import com.social.common.dto.AuthResponse;
+import com.social.common.dto.GoogleAuthRequest;
 import com.social.common.dto.RegisterRequest;
 import com.social.common.model.User;
 import com.social.gateway.service.GatewayAuthService;
@@ -48,6 +49,20 @@ public class AuthController {
                                 .body(ApiResponse.<AuthResponse>builder()
                                         .status("ERROR")
                                         .message(e.getMessage())
+                                        .build())
+                ));
+    }
+
+    @PostMapping("/google")
+    public Mono<ResponseEntity<ApiResponse<AuthResponse>>> loginWithGoogle(
+            @Valid @RequestBody GoogleAuthRequest request) {
+        return authService.loginWithGoogle(request)
+                .map(auth -> ResponseEntity.ok(ApiResponse.success(auth, "Google authentication successful")))
+                .onErrorResume(Exception.class, e -> Mono.just(
+                        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.<AuthResponse>builder()
+                                        .status("ERROR")
+                                        .message("Google authentication failed: " + e.getMessage())
                                         .build())
                 ));
     }

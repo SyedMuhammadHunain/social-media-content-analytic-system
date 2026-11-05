@@ -37,18 +37,18 @@ Plan: `tasks/plan.md`
     - `backend/api-gateway/src/test/java/com/social/gateway/security/JwtTokenProviderTest.java`
     - `backend/api-gateway/src/test/java/com/social/gateway/AuthControllerTest.java`
 
-- [ ] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
+- [x] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
   - **Description:** Add `POST /v1/auth/google` endpoint to `AuthController` and `GatewayAuthService`. Refactor frontend `authGoogleHandler.ts` and `authApi.ts` to call `/v1/auth/google` without fabricating fake client-side passwords.
   - **Acceptance criteria:**
-    - [ ] `GoogleAuthRequest` DTO defined with `email`, `name`, `avatarUrl`, `googleId`.
-    - [ ] `POST /v1/auth/google` creates or retrieves Google user and returns signed JWT without fake passwords.
-    - [ ] Frontend `authGoogleHandler.ts` removes `GOOGLE_OAUTH_PREFIX` and static password fabrication.
-    - [ ] Frontend falls back cleanly to local mock user when backend is offline.
-    - [ ] Frontend CodeScene Code Health remains 10.00 / 10.00 with 0 warnings.
+    - [x] `GoogleAuthRequest` DTO defined with `email`, `name`, `avatarUrl`, `googleId`.
+    - [x] `POST /v1/auth/google` creates or retrieves Google user and returns signed JWT without fake passwords.
+    - [x] Frontend `authGoogleHandler.ts` removes `GOOGLE_OAUTH_PREFIX` and static password fabrication.
+    - [x] Frontend falls back cleanly to local mock user when backend is offline.
+    - [x] Frontend CodeScene Code Health remains 10.00 / 10.00 with 0 warnings.
   - **Verification:**
-    - [ ] Backend test: `cd backend && mvn test -pl common-models,api-gateway`
-    - [ ] Frontend test: `cd frontend && npx tsc -b && npm run test:unit`
-    - [ ] CodeScene check: `cs check frontend/src/context/authGoogleHandler.ts frontend/src/api/authApi.ts`
+    - [x] Backend test: `cd backend && mvn test -pl common-models,api-gateway` (32/32 passed)
+    - [x] Frontend test: `cd frontend && npx tsc -b && npm run test:unit` (104/104 passed)
+    - [x] CodeScene check: `cs check frontend/src/context/authGoogleHandler.ts frontend/src/api/authApi.ts` (10.00/10.00)
   - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
     - `backend/common-models/src/main/java/com/social/common/dto/GoogleAuthRequest.java`

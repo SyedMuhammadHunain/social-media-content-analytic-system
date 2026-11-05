@@ -114,6 +114,40 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("POST /v1/auth/google returns 200 with AuthResponse on valid Google payload")
+    void testGoogleLoginSuccess() {
+        AuthResponse response = AuthResponse.builder()
+                .userId("user_google_1")
+                .username("google_user_goog")
+                .email("user@gmail.com")
+                .fullName("Google Creator")
+                .authProvider("GOOGLE")
+                .token("jwt.header.sig")
+                .build();
+
+        when(authService.loginWithGoogle(any(com.social.common.dto.GoogleAuthRequest.class)))
+                .thenReturn(Mono.just(response));
+
+        com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
+                .email("user@gmail.com")
+                .name("Google Creator")
+                .googleId("google_12345")
+                .build();
+
+        webTestClient.post()
+                .uri("/v1/auth/google")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("SUCCESS")
+                .jsonPath("$.data.userId").isEqualTo("user_google_1")
+                .jsonPath("$.data.authProvider").isEqualTo("GOOGLE")
+                .jsonPath("$.data.token").isEqualTo("jwt.header.sig");
+    }
+
+    @Test
     @DisplayName("GET /v1/auth/users returns demo users list")
     void testGetDemoUsers() {
         User u1 = User.builder().id("user_hunain").username("hunain").fullName("Syed Hunain").build();

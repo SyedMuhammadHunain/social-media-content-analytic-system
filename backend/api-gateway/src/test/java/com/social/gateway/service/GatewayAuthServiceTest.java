@@ -17,6 +17,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +40,7 @@ class GatewayAuthServiceTest {
         org.mockito.Mockito.lenient().when(userRepository.findByUsername(anyString())).thenReturn(Mono.empty());
         org.mockito.Mockito.lenient().when(userRepository.findByEmail(anyString())).thenReturn(Mono.empty());
         org.mockito.Mockito.lenient().when(userRepository.findByUsernameOrEmail(anyString(), anyString())).thenReturn(Mono.empty());
+        org.mockito.Mockito.lenient().when(userRepository.save(any(User.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
         targetUser = User.builder()
                 .id("user_target")
@@ -180,5 +182,63 @@ class GatewayAuthServiceTest {
                 .expectErrorMatches(err -> err instanceof IllegalArgumentException &&
                         err.getMessage().equals("Invalid username or password"))
                 .verify();
+    }
+
+    @Test
+    @DisplayName("loginWithGoogle creates new user with GOOGLE provider and returns signed token")
+    void testLoginWithGoogleNewUser() {
+        when(userRepository.findByEmail("newgoogle@example.com")).thenReturn(Mono.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User u = invocation.getArgument(0);
+            return Mono.just(u);
+        });
+
+        com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
+                .email("newgoogle@example.com")
+                .name("New Google User")
+                .avatarUrl("https://example.com/avatar.jpg")
+                .googleId("google_sub_12345")
+                .build();
+
+        StepVerifier.create(authService.loginWithGoogle(request))
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals("newgoogle@example.com", response.getEmail());
+                    assertEquals("GOOGLE", response.getAuthProvider());
+                    assertEquals("New Google User", response.getFullName());
+                    assertNotNull(response.getToken());
+                    assertEquals(3, response.getToken().split("\\.").length);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("loginWithGoogle logs in existing user and returns signed token")
+    void testLoginWithGoogleExistingUser() {
+        User existing = User.builder()
+                .id("user_existing_goog")
+                .username("existing_goog")
+                .email("existing@example.com")
+                .fullName("Existing Google User")
+                .authProvider("GOOGLE")
+                .passwordHash("hashed")
+                .build();
+
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Mono.just(existing));
+
+        com.social.common.dto.GoogleAuthRequest request = com.social.common.dto.GoogleAuthRequest.builder()
+                .email("existing@example.com")
+                .name("Existing Google User")
+                .build();
+
+        StepVerifier.create(authService.loginWithGoogle(request))
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals("user_existing_goog", response.getUserId());
+                    assertEquals("existing@example.com", response.getEmail());
+                    assertNotNull(response.getToken());
+                    assertEquals(3, response.getToken().split("\\.").length);
+                })
+                .verifyComplete();
     }
 }

@@ -35,7 +35,6 @@ const DEFAULT_GOOGLE_ACCOUNT: GoogleAuthParams = {
 interface GoogleContext {
   cleanEmail: string;
   cleanUsername: string;
-  googlePassword: string;
   account: GoogleAuthParams;
 }
 
@@ -88,7 +87,7 @@ function createGoogleAuthResult(res: AuthResponseDto, ctx: GoogleContext): Googl
   return {
     user,
     token: res.token,
-    account: { user, email: ctx.cleanEmail, passwordHash: ctx.googlePassword },
+    account: { user, email: ctx.cleanEmail, passwordHash: 'OAUTH_GOOGLE_MANAGED' },
   };
 }
 
@@ -96,44 +95,24 @@ function prepareGoogleContext(inputAccount?: GoogleAuthParams): GoogleContext {
   const account = inputAccount || DEFAULT_GOOGLE_ACCOUNT;
   const cleanEmail = account.email.trim().toLowerCase();
   const cleanUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') + '_goog';
-  const deterministicGoogleId = deriveDeterministicGoogleId(cleanEmail, account.googleId);
-  const googlePassword = `${GOOGLE_OAUTH_PREFIX}${deterministicGoogleId}`;
 
-  return { cleanEmail, cleanUsername, googlePassword, account };
+  return { cleanEmail, cleanUsername, account };
 }
 
-async function attemptGoogleGatewayLogin(ctx: GoogleContext): Promise<GoogleAuthResult | null> {
+async function attemptGoogleGatewayAuth(ctx: GoogleContext): Promise<GoogleAuthResult | null> {
   try {
-    const res = await authApi.login({
-      usernameOrEmail: ctx.cleanEmail,
-      password: ctx.googlePassword,
-    });
-
-    if (res?.token) {
-      return createGoogleAuthResult(res, ctx);
-    }
-  } catch {
-    // Proceed to register
-  }
-  return null;
-}
-
-async function attemptGoogleGatewayRegister(ctx: GoogleContext): Promise<GoogleAuthResult | null> {
-  try {
-    const res = await authApi.register({
-      username: ctx.cleanUsername,
+    const res = await authApi.loginWithGoogle({
       email: ctx.cleanEmail,
-      password: ctx.googlePassword,
-      fullName: ctx.account.name,
-      authProvider: 'GOOGLE',
+      name: ctx.account.name,
       avatarUrl: ctx.account.avatarUrl,
+      googleId: ctx.account.googleId,
     });
 
     if (res?.token) {
       return createGoogleAuthResult(res, ctx);
     }
   } catch {
-    // Fall through to offline mock login
+    // Proceed to offline mock fallback when backend unavailable
   }
   return null;
 }
@@ -160,7 +139,7 @@ function resolveOfflineGoogleLogin(ctx: GoogleContext, accounts: AuthUserAccount
   return {
     user: offlineProfile,
     token: `goog_token_${offlineProfile.id}`,
-    account: { user: offlineProfile, email: ctx.cleanEmail, passwordHash: ctx.googlePassword },
+    account: { user: offlineProfile, email: ctx.cleanEmail, passwordHash: 'OAUTH_GOOGLE_MANAGED' },
   };
 }
 
@@ -170,14 +149,9 @@ export async function executeGoogleLogin(
 ): Promise<GoogleAuthResult> {
   const ctx = prepareGoogleContext(inputAccount);
 
-  const loginResult = await attemptGoogleGatewayLogin(ctx);
-  if (loginResult) {
-    return loginResult;
-  }
-
-  const registerResult = await attemptGoogleGatewayRegister(ctx);
-  if (registerResult) {
-    return registerResult;
+  const gatewayResult = await attemptGoogleGatewayAuth(ctx);
+  if (gatewayResult) {
+    return gatewayResult;
   }
 
   return resolveOfflineGoogleLogin(ctx, accounts);

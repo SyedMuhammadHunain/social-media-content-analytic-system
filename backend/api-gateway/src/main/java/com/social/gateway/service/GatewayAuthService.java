@@ -2,6 +2,7 @@ package com.social.gateway.service;
 
 import com.social.common.dto.AuthRequest;
 import com.social.common.dto.AuthResponse;
+import com.social.common.dto.GoogleAuthRequest;
 import com.social.common.dto.RegisterRequest;
 import com.social.common.model.User;
 import com.social.gateway.repository.ReactiveUserRepository;
@@ -55,23 +56,11 @@ public class GatewayAuthService {
     public Mono<AuthResponse> register(RegisterRequest request) {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
-        boolean isGoogleAuth = "GOOGLE".equalsIgnoreCase(request.getAuthProvider())
-                || (request.getPassword() != null && request.getPassword().startsWith("goog_oauth_"));
 
         return userRepository.findByUsername(username)
-                .flatMap(existing -> {
-                    if (isGoogleAuth && email.equalsIgnoreCase(existing.getEmail())) {
-                        return Mono.just(existing);
-                    }
-                    return Mono.<User>error(new IllegalArgumentException("Username already exists: " + username));
-                })
+                .flatMap(existing -> Mono.<User>error(new IllegalArgumentException("Username already exists: " + username)))
                 .switchIfEmpty(Mono.defer(() -> userRepository.findByEmail(email)
-                        .flatMap(existing -> {
-                            if (isGoogleAuth) {
-                                return Mono.just(existing);
-                            }
-                            return Mono.<User>error(new IllegalArgumentException("Email already exists: " + email));
-                        })))
+                        .flatMap(existing -> Mono.<User>error(new IllegalArgumentException("Email already exists: " + email)))))
                 .switchIfEmpty(Mono.defer(() -> {
                     String userId = "user_" + UUID.randomUUID().toString().substring(0, 8);
                     User newUser = User.builder()
@@ -84,6 +73,54 @@ public class GatewayAuthService {
                             .avatarUrl(request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()
                                     ? request.getAvatarUrl()
                                     : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150")
+                            .createdAt(Instant.now())
+                            .build();
+                    return userRepository.save(newUser);
+                }))
+                .map(this::toAuthResponse);
+    }
+
+    public Mono<AuthResponse> loginWithGoogle(GoogleAuthRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        String baseUsername = email.split("@")[0].replaceAll("[^a-zA-Z0-9_]", "_") + "_goog";
+        String fullName = (request.getName() != null && !request.getName().isBlank())
+                ? request.getName()
+                : baseUsername;
+        String avatar = (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank())
+                ? request.getAvatarUrl()
+                : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+
+        return userRepository.findByEmail(email)
+                .flatMap(existingUser -> {
+                    boolean changed = false;
+                    if (existingUser.getFullName() == null || existingUser.getFullName().isBlank()) {
+                        existingUser.setFullName(fullName);
+                        changed = true;
+                    }
+                    if (existingUser.getAvatarUrl() == null || existingUser.getAvatarUrl().isBlank()) {
+                        existingUser.setAvatarUrl(avatar);
+                        changed = true;
+                    }
+                    if (!"GOOGLE".equalsIgnoreCase(existingUser.getAuthProvider())) {
+                        existingUser.setAuthProvider("GOOGLE");
+                        changed = true;
+                    }
+                    if (changed) {
+                        return userRepository.save(existingUser);
+                    }
+                    return Mono.just(existingUser);
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    String userId = "user_" + UUID.randomUUID().toString().substring(0, 8);
+                    String unguessablePassword = UUID.randomUUID().toString() + "-" + UUID.randomUUID().toString();
+                    User newUser = User.builder()
+                            .id(userId)
+                            .username(baseUsername)
+                            .email(email)
+                            .passwordHash(passwordEncoder.encode(unguessablePassword))
+                            .fullName(fullName)
+                            .authProvider("GOOGLE")
+                            .avatarUrl(avatar)
                             .createdAt(Instant.now())
                             .build();
                     return userRepository.save(newUser);

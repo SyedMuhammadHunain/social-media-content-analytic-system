@@ -44,9 +44,24 @@ export interface UpdateProfileRequest {
   coverBannerUrl?: string;
 }
 
+export interface GoogleAuthRequest {
+  email: string;
+  name?: string;
+  avatarUrl?: string;
+  googleId?: string;
+}
+
 export const authApi = {
   async login(credentials: AuthRequest): Promise<AuthResponse> {
     const auth = await api.post<AuthResponse>('/v1/auth/login', credentials, { skipAuth: true });
+    if (auth.token) {
+      setAuthToken(auth.token);
+    }
+    return auth;
+  },
+
+  async loginWithGoogle(payload: GoogleAuthRequest): Promise<AuthResponse> {
+    const auth = await api.post<AuthResponse>('/v1/auth/google', payload, { skipAuth: true });
     if (auth.token) {
       setAuthToken(auth.token);
     }
