@@ -153,13 +153,13 @@ export default function LoginCardPage() {
         {/* Logo - Asset only, no text */}
         <VStack gap={2} hAlign="center">
           <img
-            src="/logo.jpeg"
+            src="/auth-brand-logo.png"
             alt="Logo"
+            data-testid="auth-brand-logo"
             style={{
-              width: 48,
-              height: 48,
-              borderRadius: 10,
-              objectFit: 'cover',
+              width: 56,
+              height: 56,
+              objectFit: 'contain',
               display: 'block',
             }}
           />
