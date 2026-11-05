@@ -39,14 +39,21 @@ Plan: `tasks/plan.md`
   - **Dependencies:** Task 2
   - **Estimated scope:** XS
 
-- [ ] Task 4: Push to origin and verify GitHub Actions green checkmark
+- [x] Task 4: Push to origin and verify GitHub Actions green checkmark
   - **Description:** Push changes to `main` and watch GitHub Actions CI run using `gh run watch` to confirm the commit displays a green checkmark on GitHub.
   - **Acceptance criteria:**
-    - [ ] Commit authored by `Syed Muhammad Hunain <hunainsince2005@gmail.com>`.
-    - [ ] GitHub Actions run completes with `conclusion: success`.
-    - [ ] Commit status on GitHub changes to green checkmark.
+    - [x] Commit authored by `Syed Muhammad Hunain <hunainsince2005@gmail.com>`.
+    - [x] GitHub Actions run completes with `conclusion: success`.
+    - [x] Commit status on GitHub changes to green checkmark.
   - **Verification:**
-    - [ ] `gh run list --limit 3`
-    - [ ] `gh run watch`
+    - [x] `gh run list --limit 3`
+    - [x] `gh run watch`
   - **Dependencies:** Task 3
   - **Estimated scope:** XS
+
+## Checkpoint: Complete
+- [x] Stale tests moved to `frontend/test/legacy/`
+- [x] `frontend/package.json` updated with clean test glob
+- [x] All 150 active tests pass cleanly
+- [x] GitHub Actions CI run passes with green checkmark (run ID: 42044291728)
+- [x] Git author email aligned with GitHub account (`hunainsince2005@gmail.com`)
