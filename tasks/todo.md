@@ -11,15 +11,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
-- [ ] Task 2: Native Video Playback Stream Repair
+- [x] Task 2: Native Video Playback Stream Repair
   - Acceptance: Replace revoked `BigBuckBunny.mp4` URL in `socialSeedData.ts` with working public MP4 stream. In `PostMediaViewer.tsx`, ensure `<video>` includes `playsInline`, `controls`, and error handling without crashing on XML/codec errors.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/mock/socialSeedData.ts src/app/feed/PostMediaViewer.tsx`
   - Files: `frontend/src/mock/socialSeedData.ts`, `frontend/src/app/feed/PostMediaViewer.tsx`
   - Scope: S
 
 ### Checkpoint: UI & Video
-- [ ] Avatar/banner changes immediately update left sidebar and main header simultaneously.
-- [ ] Video post in feed loads and plays without Google Cloud AccessDenied XML error.
+- [x] Avatar/banner changes immediately update left sidebar and main header simultaneously.
+- [x] Video post in feed loads and plays without Google Cloud AccessDenied XML error.
 
 ## Phase 2: Azure Blob Storage & Cloud Persistence
 

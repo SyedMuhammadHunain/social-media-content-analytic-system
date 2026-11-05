@@ -148,7 +148,7 @@ export const INITIAL_POSTS: Post[] = [
     type: 'VIDEO',
     description: 'Benchmarking NoSQL document stores under 2.5 billion daily interaction spikes. Watch query breakdown video.',
     mediaUrls: [
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     ],
     hashtags: ['#nosql', '#benchmark', '#bigdata'],
     likesCount: 3105,
