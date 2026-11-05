@@ -80,3 +80,18 @@ Plan: `tasks/plan.md`
 ### Checkpoint: Complete
 - [x] All 10 hotspot files decomposed cleanly with modular architecture.
 - [x] CodeScene Code Health verified, all 104 unit tests passing, production build succeeds.
+
+## Phase 5: Impacted Files Decomposition (Point 2)
+- [x] Task 10: `NewsFeedRightSidebar.tsx` -> Extract `SidebarSearchBox.tsx` (Score: 10.00 / 10.00)
+- [x] Task 11: `CommentSection.tsx` -> Extract `CommentTreeItem.tsx` and `CommentReplyComposer.tsx` (Score: 10.00 / 10.00)
+- [x] Task 12: `PostMediaViewer.tsx` -> Simplify fallback error boundary & sample video fallback (Score: 10.00 / 10.00)
+- [x] Task 13: `LoginForm.tsx` -> Extract `LoginInputFields.tsx` and `loginValidation.ts` (Score: 10.00 / 10.00)
+- [x] Task 14: `UserProfileCard.tsx` -> Extract `ProfileCardBanner.tsx` and `ProfileCardMetrics.tsx` (Score: 10.00 / 10.00)
+- [x] Task 15: `authorUtils.ts` -> Decompose into small pure helpers & remove string heavy args (Score: 10.00 / 10.00)
+- [x] Task 16: `useLikeAction.ts` -> Extract notification dispatch & optimistic like helpers (Score: 10.00 / 10.00)
+- [x] Task 17: `profileActivityStore.ts` -> Extract local storage persistence & baseline resolution (Score: 10.00 / 10.00)
+
+### Checkpoint: Impacted Files Complete
+- [x] All 8 impacted files + 7 extracted modules at CodeScene Code Health 10.00 / 10.00.
+- [x] Zero regressions: 104/104 tests passing.
+
