@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { notificationsApi, type Notification } from '../../api/notificationsApi.ts';
+import { notificationsApi, type Notification, type NotificationType } from '../../api/notificationsApi.ts';
 import type { UserProfile } from '../../types/social.ts';
 import {
   loadStoredNotifications,
@@ -38,7 +38,14 @@ function resolveUserIdentity(userOrId?: UserProfile | string | null) {
   return { userId, userName, userUsername };
 }
 
-function createLiveNotification(detail: any, userId: string): Notification {
+interface InteractionDetail {
+  notification?: Notification;
+  actorName?: string;
+  type?: NotificationType;
+  recipientUserId?: string;
+}
+
+function createLiveNotification(detail: InteractionDetail, userId: string): Notification {
   if (detail.notification) return detail.notification;
   return {
     id: `live_${Date.now()}`,

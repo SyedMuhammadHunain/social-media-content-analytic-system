@@ -141,17 +141,10 @@ export function createAuthActions(ctx: AuthActionContext) {
   };
 
   const updateUser = async (partial: Partial<UserProfile>): Promise<void> => {
-    let activeUser: UserProfile | null = null;
-    setters.setCurrentUser((prev) => {
-      if (!prev) return null;
-      activeUser = { ...prev, ...partial };
-      saveStoredUser(activeUser);
-      return activeUser;
-    });
-
-    const fallbackTarget = currentUser ? { ...currentUser, ...partial } : null;
-    const targetUser = activeUser || fallbackTarget;
-    if (!targetUser?.id) return;
+    if (!currentUser) return;
+    const targetUser: UserProfile = { ...currentUser, ...partial };
+    setters.setCurrentUser(() => targetUser);
+    saveStoredUser(targetUser);
 
     setters.setAccounts((prev) => {
       const updated = applyAccountPatch(prev, targetUser, partial);

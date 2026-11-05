@@ -250,10 +250,8 @@ export default function LoginCardPage() {
                       label={authMode === 'signup' ? 'Sign Up' : 'Login'}
                       variant="primary"
                       size="lg"
+                      type="submit"
                       isLoading={isLoading}
-                      onClick={() =>
-                        authMode === 'signup' ? handleManualRegister() : handleManualLogin()
-                      }
                     />
                   </VStack>
                 </form>
