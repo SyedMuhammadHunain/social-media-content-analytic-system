@@ -16,11 +16,13 @@ import type { UserProfile, Post, UpdatePostInput } from '../../types/social';
 import { ProfileBioEditor } from './ProfileBioEditor';
 import { ProfileHeaderBanner } from './ProfileHeaderBanner';
 import { ProfileMetaDetails } from './ProfileMetaDetails';
+import { ProfileSkeleton } from './ProfileSkeleton';
 import { PostCard } from '../../app/feed/PostCard';
 
 export interface UserProfileViewProps {
   user: UserProfile;
   posts: Post[];
+  isLoading?: boolean;
   onBack?: () => void;
   isOwnProfile?: boolean;
   onUpdateBio?: (newBio: string) => void;
@@ -36,6 +38,7 @@ export interface UserProfileViewProps {
 export const UserProfileView: FC<UserProfileViewProps> = ({
   user,
   posts,
+  isLoading = false,
   isOwnProfile = true,
   onUpdateBio,
   onUpdateAvatar,
@@ -84,6 +87,10 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
     activeTab === 'media'
       ? posts.filter((p) => p.mediaUrls && p.mediaUrls.length > 0)
       : posts;
+
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
 
   return (
     <div data-testid="user-profile-view" style={{ width: '100%' }}>

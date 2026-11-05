@@ -34,7 +34,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/api/authApi.ts`, `frontend/src/context/AuthContext.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: M
 
-- [ ] Task 4: Astryx Profile Skeleton Loaders
+- [x] Task 4: Astryx Profile Skeleton Loaders
   - Acceptance: `ProfileSkeleton.tsx` created using `@astryxdesign/core/Skeleton` for banner, avatar, bio, and stats placeholders. `UserProfileView.tsx` shows `ProfileSkeleton` during loading.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/components/profile/ProfileSkeleton.tsx`, `frontend/src/components/profile/UserProfileView.tsx`
