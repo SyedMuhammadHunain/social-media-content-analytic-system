@@ -8,7 +8,7 @@ import type { Post, UserProfile, Comment } from '../../types/social.ts';
 import { socialApi, type BackendComment } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
 import { updateSharedPost } from '../../utils/sharedPostsStore.ts';
-import { parseCommentContent } from './postCommentUtils.ts';
+import { parseCommentContent, isGifUrl } from './postCommentUtils.ts';
 
 interface UseCommentActionParams {
   user: UserProfile;
@@ -64,26 +64,17 @@ function applyOptimisticComment(
   comment: Comment,
   setPosts: Dispatch<SetStateAction<Post[]>>
 ) {
-  updateSharedPost(postId, (p) => {
+  const appendComment = (p: Post): Post => {
     if (p.comments.some((c) => c.id === comment.id)) return p;
     return {
       ...p,
       commentsCount: p.commentsCount + 1,
       comments: [...p.comments, comment],
     };
-  });
+  };
 
-  setPosts((prev) =>
-    prev.map((p) => {
-      if (p.id !== postId) return p;
-      if (p.comments.some((c) => c.id === comment.id)) return p;
-      return {
-        ...p,
-        commentsCount: p.commentsCount + 1,
-        comments: [...p.comments, comment],
-      };
-    })
-  );
+  updateSharedPost(postId, appendComment);
+  setPosts((prev) => prev.map((p) => (p.id === postId ? appendComment(p) : p)));
 }
 
 function reconcileSavedComment(
@@ -94,7 +85,7 @@ function reconcileSavedComment(
 ) {
   const { text, mediaUrl, mediaType } = parseCommentContent(saved.content);
 
-  updateSharedPost(postId, (p) => ({
+  const updateComment = (p: Post): Post => ({
     ...p,
     comments: p.comments.map((c) =>
       c.id === tempCommentId
@@ -108,28 +99,10 @@ function reconcileSavedComment(
           }
         : c
     ),
-  }));
+  });
 
-  setPosts((prev) =>
-    prev.map((p) => {
-      if (p.id !== postId) return p;
-      return {
-        ...p,
-        comments: p.comments.map((c) =>
-          c.id === tempCommentId
-            ? {
-                ...c,
-                id: saved.id,
-                parentCommentId: saved.parentCommentId,
-                text: text || c.text,
-                mediaUrl: mediaUrl || c.mediaUrl,
-                mediaType: mediaType || c.mediaType,
-              }
-            : c
-        ),
-      };
-    })
-  );
+  updateSharedPost(postId, updateComment);
+  setPosts((prev) => prev.map((p) => (p.id === postId ? updateComment(p) : p)));
 }
 
 export function useCommentAction({
@@ -152,12 +125,7 @@ export function useCommentAction({
 
       const tempCommentId = `c_${Date.now()}`;
       const resolvedMediaType =
-        mediaType ||
-        (mediaUrl?.toLowerCase().includes('.gif') || mediaUrl?.includes('giphy.com') || mediaUrl?.includes('tenor.com')
-          ? 'GIF'
-          : mediaUrl
-            ? 'IMAGE'
-            : undefined);
+        mediaType || (mediaUrl ? (isGifUrl(mediaUrl) ? 'GIF' : 'IMAGE') : undefined);
 
       const newComment: Comment = {
         id: tempCommentId,

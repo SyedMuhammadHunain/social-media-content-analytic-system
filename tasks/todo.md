@@ -48,8 +48,15 @@ Plan: `tasks/plan.md`
     - `frontend/test/animated_gif_support.test.mjs`
   - **Estimated scope:** M (3 files)
 
+- [x] Task 6: Code Simplification & Refactoring Across Feed and Comment Handlers
+  - **Description:** Simplify comment deduplication logic from O(N^2) to O(N) using fingerprint index map; extract duplicate post transformation callbacks in `useCommentAction.ts`; reuse centralized `isGifUrl` helper across comment item and action handlers; simplify picker toggle in `CommentSection.tsx`.
+  - **Verification:**
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run test:unit`
+    - [x] `cd frontend && npm run build`
+
 ## Checkpoint: Complete
-- [x] Task 4 and Task 5 checked off
+- [x] Tasks 1 through 6 checked off
 - [x] Zero TypeScript or lint errors
-- [x] All unit and CDP test suites pass
+- [x] All 133 unit and CDP test suites pass
 - [x] Production build succeeds

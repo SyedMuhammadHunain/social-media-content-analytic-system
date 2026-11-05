@@ -131,6 +131,10 @@ export function CommentSection({
     setCommentText((prev) => prev + emoji);
   };
 
+  const togglePicker = (picker: 'emoji' | 'gif') => {
+    setActivePicker((curr) => (curr === picker ? 'none' : picker));
+  };
+
   return (
     <VStack gap={3}>
       <Divider />
@@ -240,7 +244,7 @@ export function CommentSection({
             variant={activePicker === 'gif' ? 'secondary' : 'ghost'}
             label="Choose a GIF"
             icon={<Icon icon={GifIcon} size="xsm" />}
-            onClick={() => setActivePicker((p) => (p === 'gif' ? 'none' : 'gif'))}
+            onClick={() => togglePicker('gif')}
           />
           <IconButton
             data-testid="comment-emoji-btn"
@@ -248,7 +252,7 @@ export function CommentSection({
             variant={activePicker === 'emoji' ? 'secondary' : 'ghost'}
             label="Insert emoji"
             icon={<Icon icon={EmojiIcon} size="xsm" />}
-            onClick={() => setActivePicker((p) => (p === 'emoji' ? 'none' : 'emoji'))}
+            onClick={() => togglePicker('emoji')}
           />
         </HStack>
 

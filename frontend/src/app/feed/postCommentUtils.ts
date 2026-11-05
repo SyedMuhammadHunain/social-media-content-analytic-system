@@ -16,29 +16,28 @@ export function shouldFetchRemoteComments(
   return totalCount > 0;
 }
 
+export function isGifUrl(url?: string): boolean {
+  if (!url) return false;
+  const lower = url.toLowerCase();
+  return lower.includes('.gif') || lower.includes('giphy.com') || lower.includes('tenor.com');
+}
+
 export function deduplicateComments(comments: Comment[]): Comment[] {
   const seenIds = new Set<string>();
-  const seenFp = new Set<string>();
+  const fpToIndex = new Map<string, number>();
   const result: Comment[] = [];
 
   for (const c of comments) {
-    if (!c || !c.id) continue;
-    if (seenIds.has(c.id)) continue;
+    if (!c || !c.id || seenIds.has(c.id)) continue;
 
     // Content fingerprint: authorId + parentCommentId + trimmed text + mediaUrl
     const authorId = c.author?.id || c.userId || '';
     const fp = `${authorId}:${c.parentCommentId || 'root'}:${c.text?.trim() || ''}:${c.mediaUrl || ''}`;
+    const existingIdx = fpToIndex.get(fp);
 
-    if (seenFp.has(fp)) {
+    if (existingIdx !== undefined) {
       // If we already recorded an optimistic placeholder and now receive the saved backend comment, upgrade it
-      const existingIdx = result.findIndex(
-        (existing) =>
-          (existing.author?.id || existing.userId || '') === authorId &&
-          (existing.parentCommentId || 'root') === (c.parentCommentId || 'root') &&
-          (existing.text?.trim() || '') === (c.text?.trim() || '') &&
-          (existing.mediaUrl || '') === (c.mediaUrl || '')
-      );
-      if (existingIdx !== -1 && result[existingIdx].id.startsWith('c_') && !c.id.startsWith('c_')) {
+      if (result[existingIdx].id.startsWith('c_') && !c.id.startsWith('c_')) {
         seenIds.delete(result[existingIdx].id);
         seenIds.add(c.id);
         result[existingIdx] = c;
@@ -47,7 +46,7 @@ export function deduplicateComments(comments: Comment[]): Comment[] {
     }
 
     seenIds.add(c.id);
-    seenFp.add(fp);
+    fpToIndex.set(fp, result.length);
     result.push(c);
   }
 
@@ -65,23 +64,20 @@ export function parseCommentContent(content?: string): {
   const match = content.match(mediaRegex);
   if (match) {
     const url = match[1];
-    const cleanText = content.replace(mediaRegex, '').trim();
-    const isGif = url.toLowerCase().includes('.gif') || url.includes('giphy.com') || url.includes('tenor.com');
     return {
-      text: cleanText,
+      text: content.replace(mediaRegex, '').trim(),
       mediaUrl: url,
-      mediaType: isGif ? 'GIF' : 'IMAGE',
+      mediaType: isGifUrl(url) ? 'GIF' : 'IMAGE',
     };
   }
 
   // Check if content is a direct GIF / image URL
   const trimmed = content.trim();
   if (/^https?:\/\/\S+\.(gif|jpe?g|png|webp)(\?\S*)?$/i.test(trimmed) || trimmed.includes('media.giphy.com/media/')) {
-    const isGif = trimmed.toLowerCase().includes('.gif') || trimmed.includes('giphy.com') || trimmed.includes('tenor.com');
     return {
       text: '',
       mediaUrl: trimmed,
-      mediaType: isGif ? 'GIF' : 'IMAGE',
+      mediaType: isGifUrl(trimmed) ? 'GIF' : 'IMAGE',
     };
   }
 

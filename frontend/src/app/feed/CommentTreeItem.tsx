@@ -15,6 +15,7 @@ import type { Comment, User } from '../../types/social.ts';
 import { resolveAuthorPresentation } from '../../utils/authorUtils.ts';
 import { formatPostTimestamp, getPostFullDate } from '../../utils/dateUtils.ts';
 import { CommentReplyComposer } from './CommentReplyComposer.tsx';
+import { isGifUrl } from './postCommentUtils.ts';
 
 export interface CommentTreeItemProps {
   comment: Comment;
@@ -130,7 +131,7 @@ export function CommentTreeItem({
                   borderRadius: 6,
                 }}
               />
-              {(comment.mediaType === 'GIF' || comment.mediaUrl.toLowerCase().includes('.gif')) && (
+              {(comment.mediaType === 'GIF' || isGifUrl(comment.mediaUrl)) && (
                 <div
                   data-testid={`comment-gif-badge-${comment.id}`}
                   style={{
