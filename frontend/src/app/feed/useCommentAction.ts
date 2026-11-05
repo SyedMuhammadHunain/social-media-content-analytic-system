@@ -5,7 +5,7 @@
 
 import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, UserProfile, Comment } from '../../types/social.ts';
-import { socialApi } from '../../api/socialApi.ts';
+import { socialApi, type BackendComment } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
 import { updateSharedPost } from '../../utils/sharedPostsStore.ts';
 
@@ -17,6 +17,89 @@ interface UseCommentActionParams {
   recordComment: () => void;
 }
 
+interface CommentNotificationContext {
+  recipientId: string;
+  backendUserId: string;
+  user: UserProfile;
+  postId: string;
+}
+
+function shouldNotifyRecipient(post: Post | undefined, backendUserId: string, userId: string): boolean {
+  if (!post) return false;
+  if (post.author.id === backendUserId) return false;
+  return post.author.id !== userId;
+}
+
+function notifyCommentRecipient(ctx: CommentNotificationContext, text: string) {
+  const { recipientId, backendUserId, user, postId } = ctx;
+  const commentSnippet = text.length > 45 ? `${text.slice(0, 45)}...` : text;
+  notificationsApi
+    .triggerNotification({
+      recipientUserId: recipientId,
+      actorUserId: backendUserId,
+      actorName: user.name,
+      actorAvatar: user.avatarUrl,
+      type: 'COMMENT',
+      targetPostId: postId,
+      message: `${user.name} commented: "${commentSnippet}"`,
+    })
+    .catch(() => {});
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('social:new-notification', {
+        detail: {
+          recipientUserId: recipientId,
+          actorName: user.name,
+          type: 'COMMENT',
+        },
+      })
+    );
+  }
+}
+
+function applyOptimisticComment(
+  postId: string,
+  comment: Comment,
+  setPosts: Dispatch<SetStateAction<Post[]>>
+) {
+  updateSharedPost(postId, (p) => ({
+    ...p,
+    commentsCount: p.commentsCount + 1,
+    comments: [...p.comments, comment],
+  }));
+
+  setPosts((prev) =>
+    prev.map((p) => {
+      if (p.id !== postId) return p;
+      return {
+        ...p,
+        commentsCount: p.commentsCount + 1,
+        comments: [...p.comments, comment],
+      };
+    })
+  );
+}
+
+function reconcileSavedComment(
+  postId: string,
+  tempCommentId: string,
+  saved: BackendComment,
+  setPosts: Dispatch<SetStateAction<Post[]>>
+) {
+  setPosts((prev) =>
+    prev.map((p) => {
+      if (p.id !== postId) return p;
+      return {
+        ...p,
+        comments: p.comments.map((c) =>
+          c.id === tempCommentId ? { ...c, id: saved.id, parentCommentId: saved.parentCommentId } : c
+        ),
+      };
+    })
+  );
+}
+
 export function useCommentAction({
   user,
   backendUserId,
@@ -26,7 +109,6 @@ export function useCommentAction({
 }: UseCommentActionParams) {
   const handleAddComment = useCallback(async (postId: string, text: string, parentCommentId?: string) => {
     const tempCommentId = `c_${Date.now()}`;
-
     const newComment: Comment = {
       id: tempCommentId,
       postId,
@@ -37,51 +119,15 @@ export function useCommentAction({
       createdAt: 'Just now',
     };
 
-    updateSharedPost(postId, (p) => ({
-      ...p,
-      commentsCount: p.commentsCount + 1,
-      comments: [...p.comments, newComment],
-    }));
-
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== postId) return p;
-        return {
-          ...p,
-          commentsCount: p.commentsCount + 1,
-          comments: [...p.comments, newComment],
-        };
-      })
-    );
+    applyOptimisticComment(postId, newComment, setPosts);
     recordComment();
 
     const post = posts?.find((p) => p.id === postId);
-    if (post && post.author.id !== backendUserId && post.author.id !== user.id) {
-      const recipientId = post.author.id;
-      const commentSnippet = text.length > 45 ? `${text.slice(0, 45)}...` : text;
-      notificationsApi
-        .triggerNotification({
-          recipientUserId: recipientId,
-          actorUserId: backendUserId,
-          actorName: user.name,
-          actorAvatar: user.avatarUrl,
-          type: 'COMMENT',
-          targetPostId: postId,
-          message: `${user.name} commented: "${commentSnippet}"`,
-        })
-        .catch(() => {});
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('social:new-notification', {
-            detail: {
-              recipientUserId: recipientId,
-              actorName: user.name,
-              type: 'COMMENT',
-            },
-          })
-        );
-      }
+    if (shouldNotifyRecipient(post, backendUserId, user.id)) {
+      notifyCommentRecipient(
+        { recipientId: post!.author.id, backendUserId, user, postId },
+        text
+      );
     }
 
     try {
@@ -93,24 +139,12 @@ export function useCommentAction({
       });
 
       if (saved?.id) {
-        setPosts((prev) =>
-          prev.map((p) => {
-            if (p.id !== postId) return p;
-            return {
-              ...p,
-              comments: p.comments.map((c) =>
-                c.id === tempCommentId ? { ...c, id: saved.id, parentCommentId: saved.parentCommentId } : c
-              ),
-            };
-          })
-        );
+        reconcileSavedComment(postId, tempCommentId, saved, setPosts);
       }
     } catch {
       // Offline fallback
     }
   }, [user, backendUserId, posts, setPosts, recordComment]);
 
-  return {
-    handleAddComment,
-  };
+  return { handleAddComment };
 }

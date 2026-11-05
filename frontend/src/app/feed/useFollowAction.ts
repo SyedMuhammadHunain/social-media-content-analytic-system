@@ -20,10 +20,97 @@ interface UseFollowActionParams {
   recordFollowToggle: (isFollowed: boolean) => void;
 }
 
+interface FollowIdentityBundle {
+  targetUserId: string;
+  backendUserId: string;
+  user?: UserProfile;
+}
+
+interface FollowUiDispatchers {
+  setSuggestedCreators: Dispatch<SetStateAction<SuggestedCreator[]>>;
+  setPosts: Dispatch<SetStateAction<Post[]>>;
+  setUser: Dispatch<SetStateAction<UserProfile>>;
+}
+
 function resolveNextFollowState(creator?: SuggestedCreator, post?: Post): boolean {
   if (creator) return !creator.isFollowed;
   if (post) return !post.author.isFollowed;
   return true;
+}
+
+function shouldNotifyFollowedUser(nextIsFollowed: boolean, bundle: FollowIdentityBundle): boolean {
+  if (!nextIsFollowed) return false;
+  if (bundle.targetUserId === bundle.backendUserId) return false;
+  return bundle.targetUserId !== bundle.user?.id;
+}
+
+function notifyFollowedUser(bundle: FollowIdentityBundle) {
+  const actorName = bundle.user?.name || 'A creator';
+  notificationsApi
+    .triggerNotification({
+      recipientUserId: bundle.targetUserId,
+      actorUserId: bundle.backendUserId,
+      actorName,
+      actorAvatar: bundle.user?.avatarUrl,
+      type: 'FOLLOW',
+      message: `${actorName} started following you.`,
+    })
+    .catch(() => {});
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(
+      new CustomEvent('social:new-notification', {
+        detail: {
+          recipientUserId: bundle.targetUserId,
+          actorName,
+          type: 'FOLLOW',
+        },
+      })
+    );
+  }
+}
+
+async function syncFollowApi(nextIsFollowed: boolean, backendUserId: string, targetUserId: string) {
+  try {
+    if (nextIsFollowed) {
+      await socialApi.followUser(backendUserId, targetUserId);
+    } else {
+      await socialApi.unfollowUser(backendUserId, targetUserId);
+    }
+  } catch {
+    // Offline fallback
+  }
+}
+
+function updateFollowUiCollections(
+  targetUserId: string,
+  nextIsFollowed: boolean,
+  dispatchers: FollowUiDispatchers
+) {
+  const { setSuggestedCreators, setPosts, setUser } = dispatchers;
+
+  setSuggestedCreators((prev) =>
+    prev.map((c) => (c.id === targetUserId ? { ...c, isFollowed: nextIsFollowed } : c))
+  );
+
+  setPosts((prev) =>
+    prev.map((p) =>
+      p.author.id === targetUserId ? { ...p, author: { ...p.author, isFollowed: nextIsFollowed } } : p
+    )
+  );
+
+  setUser((prev) => ({
+    ...prev,
+    followingCount: nextIsFollowed ? prev.followingCount + 1 : Math.max(0, prev.followingCount - 1),
+  }));
+}
+
+function updateConnectionRecords(targetUserId: string, nextIsFollowed: boolean, user?: UserProfile) {
+  const delta = nextIsFollowed ? 1 : -1;
+  if (user?.id) {
+    recordConnectionChange(user.id, delta, user.username);
+  }
+  recordConnectionChange(targetUserId, delta);
 }
 
 export function useFollowAction({
@@ -36,71 +123,22 @@ export function useFollowAction({
   setUser,
   recordFollowToggle,
 }: UseFollowActionParams) {
-  const handleToggleFollow = useCallback(async (userId: string) => {
-    const creator = suggestedCreators.find((c) => c.id === userId);
-    const post = posts.find((p) => p.author.id === userId);
+  const handleToggleFollow = useCallback(async (targetUserId: string) => {
+    const creator = suggestedCreators.find((c) => c.id === targetUserId);
+    const post = posts.find((p) => p.author.id === targetUserId);
     const nextIsFollowed = resolveNextFollowState(creator, post);
 
-    setSuggestedCreators((prev) =>
-      prev.map((c) => (c.id === userId ? { ...c, isFollowed: nextIsFollowed } : c))
-    );
-
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.author.id === userId ? { ...p, author: { ...p.author, isFollowed: nextIsFollowed } } : p
-      )
-    );
-
-    setUser((prev) => ({
-      ...prev,
-      followingCount: nextIsFollowed ? prev.followingCount + 1 : Math.max(0, prev.followingCount - 1),
-    }));
-
-    if (user?.id) {
-      recordConnectionChange(user.id, nextIsFollowed ? 1 : -1, user.username);
-    }
-    recordConnectionChange(userId, nextIsFollowed ? 1 : -1);
-
+    updateFollowUiCollections(targetUserId, nextIsFollowed, { setSuggestedCreators, setPosts, setUser });
+    updateConnectionRecords(targetUserId, nextIsFollowed, user);
     recordFollowToggle(nextIsFollowed);
 
-    if (nextIsFollowed && userId !== backendUserId && userId !== user?.id) {
-      const actorName = user?.name || 'A creator';
-      notificationsApi
-        .triggerNotification({
-          recipientUserId: userId,
-          actorUserId: backendUserId,
-          actorName,
-          actorAvatar: user?.avatarUrl,
-          type: 'FOLLOW',
-          message: `${actorName} started following you.`,
-        })
-        .catch(() => {});
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('social:new-notification', {
-            detail: {
-              recipientUserId: userId,
-              actorName,
-              type: 'FOLLOW',
-            },
-          })
-        );
-      }
+    const identityBundle: FollowIdentityBundle = { targetUserId, backendUserId, user };
+    if (shouldNotifyFollowedUser(nextIsFollowed, identityBundle)) {
+      notifyFollowedUser(identityBundle);
     }
 
-    try {
-      if (nextIsFollowed) {
-        await socialApi.followUser(backendUserId, userId);
-      } else {
-        await socialApi.unfollowUser(backendUserId, userId);
-      }
-    } catch {
-      // Offline fallback
-    }
+    await syncFollowApi(nextIsFollowed, backendUserId, targetUserId);
   }, [suggestedCreators, posts, backendUserId, user, setSuggestedCreators, setPosts, setUser, recordFollowToggle]);
 
-  return {
-    handleToggleFollow,
-  };
+  return { handleToggleFollow };
 }
