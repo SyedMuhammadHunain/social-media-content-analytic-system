@@ -7,6 +7,7 @@ import { useCallback, type Dispatch, type SetStateAction } from 'react';
 import type { Post, CreatePostInput, UpdatePostInput, UserProfile } from '../../types/social.ts';
 import { postsApi } from '../../api/postsApi.ts';
 import { saveSharedPost, updateSharedPost, deleteSharedPost } from '../../utils/sharedPostsStore.ts';
+import { deduplicatePosts } from '../../utils/postDeduplicationUtils.ts';
 
 interface UsePostCrudParams {
   user: UserProfile;
@@ -40,7 +41,7 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
     const newPost = buildOptimisticPost(input, user, tempId);
 
     saveSharedPost(newPost);
-    setPosts((prev) => [newPost, ...prev.filter((p) => p.id !== newPost.id)]);
+    setPosts((prev) => deduplicatePosts([newPost, ...prev.filter((p) => p.id !== newPost.id)]));
 
     try {
       const created = await postsApi.createPost({
@@ -54,7 +55,9 @@ export function usePostCrud({ user, backendUserId, setPosts }: UsePostCrudParams
       if (created?.id) {
         updateSharedPost(tempId, (p) => ({ ...p, id: created.id }));
         setPosts((prev) =>
-          prev.map((p) => (p.id === tempId ? { ...p, id: created.id } : p))
+          deduplicatePosts(
+            prev.map((p) => (p.id === tempId ? { ...p, id: created.id } : p))
+          )
         );
       }
     } catch {

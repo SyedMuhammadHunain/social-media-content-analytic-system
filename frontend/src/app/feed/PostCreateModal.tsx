@@ -41,6 +41,7 @@ export function PostCreateModal({
   onCreatePost,
 }: PostCreateModalProps) {
   const [text, setText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     mediaUrl,
     setMediaUrl,
@@ -68,8 +69,9 @@ export function PostCreateModal({
   const isValid = text.trim().length > 0 || mediaUrl.length > 0;
 
   const handleSubmit = () => {
-    if (!isValid || isUploading) return;
+    if (!isValid || isUploading || isSubmitting) return;
 
+    setIsSubmitting(true);
     const hashtags = extractHashtags(text);
     const effectiveType: PostType = mediaUrl.length > 0 ? mediaType : 'TEXT';
 
@@ -85,6 +87,7 @@ export function PostCreateModal({
     setText('');
     resetMediaState();
     onClose();
+    setTimeout(() => setIsSubmitting(false), 400);
   };
 
   const handleCancel = () => {
@@ -149,8 +152,8 @@ export function PostCreateModal({
             <Divider />
 
             <PostModalFooter
-              isSubmitDisabled={!isValid || isUploading}
-              isSubmitting={isUploading}
+              isSubmitDisabled={!isValid || isUploading || isSubmitting}
+              isSubmitting={isUploading || isSubmitting}
               onSubmit={handleSubmit}
               submitLabel="Post"
             />

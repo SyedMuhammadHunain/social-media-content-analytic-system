@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } 
 import type { Post, FeedFilter, FeedFilterType } from '../../types/social.ts';
 import { feedApi } from '../../api/feedApi.ts';
 import { syncSharedPosts } from '../../utils/sharedPostsStore.ts';
+import { deduplicatePosts } from '../../utils/postDeduplicationUtils.ts';
 
 const SHORTCUT_LABELS: Record<FeedFilterType, string> = {
   ALL: 'All Posts',
@@ -46,7 +47,8 @@ function mergeFeedPosts(livePosts: Post[], prevPosts: Post[]): Post[] {
     };
   });
   const combined = [...retainedMock, ...hydratedLive];
-  return combined.sort((a, b) => parsePostDate(b) - parsePostDate(a));
+  const deduplicated = deduplicatePosts(combined);
+  return deduplicated.sort((a, b) => parsePostDate(b) - parsePostDate(a));
 }
 
 export interface UseFeedLoaderResult {

@@ -43,6 +43,7 @@ import {
   type ProfileViewer,
 } from '../../utils/profileActivityStore.ts';
 import { getSharedPosts } from '../../utils/sharedPostsStore.ts';
+import { deduplicatePosts } from '../../utils/postDeduplicationUtils.ts';
 import { buildUserPool, type SearchableUser } from '../../utils/userSearchIndex.ts';
 
 const DashboardPage = lazy(() => import('../dashboard/page.tsx'));
@@ -532,7 +533,10 @@ export function NewsFeedPage({
       };
 
   const isOwnProfile = isViewingOwn;
-  const filteredPosts = filterPosts(posts, activeFilter);
+  const filteredPosts = useMemo(() => {
+    const deduplicated = deduplicatePosts(posts);
+    return filterPosts(deduplicated, activeFilter);
+  }, [posts, activeFilter]);
   const savedCount = posts.filter((p) => p.isBookmarked).length;
   const searchableUsers = useMemo(
     () => buildUserPool(demoUsers, suggestedCreators, posts, user),

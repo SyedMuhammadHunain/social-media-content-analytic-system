@@ -3,6 +3,7 @@
 
 import type { Post } from '../types/social.ts';
 import { INITIAL_POSTS } from '../mock/socialSeedData.ts';
+import { deduplicatePosts } from './postDeduplicationUtils.ts';
 
 const POSTS_STORAGE_KEY = 'smcas_shared_posts';
 
@@ -18,7 +19,7 @@ export function getSharedPosts(): Post[] {
       if (Array.isArray(parsed) && parsed.length > 0) {
         const existingIds = new Set(parsed.map((p: Post) => p.id));
         const missingSeeds = INITIAL_POSTS.filter((seed) => !existingIds.has(seed.id));
-        return [...parsed, ...missingSeeds];
+        return deduplicatePosts([...parsed, ...missingSeeds]);
       }
     }
   } catch (err) {
@@ -34,7 +35,7 @@ export function getSharedPosts(): Post[] {
 
 export function saveSharedPost(newPost: Post): Post[] {
   const current = getSharedPosts();
-  const updated = [newPost, ...current.filter((p) => p.id !== newPost.id)];
+  const updated = deduplicatePosts([newPost, ...current.filter((p) => p.id !== newPost.id)]);
 
   try {
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updated));
@@ -51,7 +52,7 @@ export function saveSharedPost(newPost: Post): Post[] {
 
 export function updateSharedPost(postId: string, updater: (post: Post) => Post): Post[] {
   const current = getSharedPosts();
-  const updated = current.map((p) => (p.id === postId ? updater(p) : p));
+  const updated = deduplicatePosts(current.map((p) => (p.id === postId ? updater(p) : p)));
 
   try {
     localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(updated));
@@ -84,11 +85,12 @@ export function deleteSharedPost(postId: string): Post[] {
 }
 
 export function syncSharedPosts(posts: Post[]): void {
+  const deduplicated = deduplicatePosts(posts);
   try {
-    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(deduplicated));
   } catch {}
 
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('social:posts-updated', { detail: posts }));
+    window.dispatchEvent(new CustomEvent('social:posts-updated', { detail: deduplicated }));
   }
 }
