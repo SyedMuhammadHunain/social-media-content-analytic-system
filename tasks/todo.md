@@ -29,15 +29,16 @@ Spec: `docs/specs/SPEC-landing-page.md`
     - `frontend/src/app/gallery-hero/marquee.css`
   - **Estimated scope:** S (2 files)
 
-- [ ] Task 3: Assemble `GalleryHeroLandingPage` with Astryx icons, "Get Started" handler, and "Learn More" no-op
+- [x] Task 3: Assemble `GalleryHeroLandingPage` with Astryx icons, "Get Started" handler, and "Learn More" no-op
   - **Description:** Integrate marquee into `page.tsx` with headline, subtext, Astryx icons only, "Get Started" callback, and "Learn More" no-op button.
   - **Acceptance criteria:**
-    - [ ] Uses only `@astryxdesign/core` components and icons.
-    - [ ] "Get Started" calls `onGetStarted` prop.
-    - [ ] "Learn More" is active and clickable as a no-op.
-    - [ ] Embeds the 4-photo marquee track.
+    - [x] Uses only `@astryxdesign/core` components and icons.
+    - [x] "Get Started" calls `onGetStarted` prop.
+    - [x] "Learn More" is active and clickable as a no-op.
+    - [x] Embeds the 4-photo marquee track.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run lint`
   - **Dependencies:** Task 2
   - **Files likely touched:**
     - `frontend/src/app/gallery-hero/page.tsx`
