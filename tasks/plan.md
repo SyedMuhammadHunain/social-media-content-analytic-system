@@ -1,51 +1,51 @@
-# Implementation Plan: Astryx Gallery Hero Landing Page
+# Implementation Plan: Landing Page Gallery & Navigation Refinements
 
 ## Overview
-Implement a standalone public landing page for the Social Media Content Analysis System using Meta Astryx (`@astryxdesign/core`) components and icons. Scaffolded from the `gallery-hero` Astryx template, this page features an unauthenticated entry hero, a "Get Started" CTA that transitions to the Login page, a "Learn More" no-op CTA, and a smooth right-to-left continuous marquee with exactly 4 photo placeholder slots ready for user assets.
+Refine the Astryx Gallery Hero Landing Page by incorporating 3 user-provided photography assets, optimizing image dimensions to span exactly 3 images across desktop screens and 1 image on mobile/Android devices, removing hover pauses and left/right gradient mask shadows, and removing the "Back to overview" button on the Login page.
 
 ## Architecture Decisions
-1. **Astryx Template Scaffold**:
-   - Use `npx @astryxdesign/cli template gallery-hero ./src/app/gallery-hero` inside `frontend`.
-   - Adapt the generated page to strict Astryx design tokens and components without external CSS or non-Astryx icons.
-2. **Infinite Smooth Marquee Motion**:
-   - Use CSS keyframe animation (`transform: translateX(...)`) with duplicate/looping content to ensure continuous right-to-left motion without hitching or jump cuts.
-   - Enforce `prefers-reduced-motion` fallback for accessibility per Hallmark floor.
-   - 4 image placeholder slots styled with Astryx `AspectRatio` and `Card` containers.
-3. **App View Routing**:
-   - In `frontend/src/App.tsx`, maintain state for unauthenticated navigation: default to `'landing'`, switch to `'login'` on "Get Started".
-   - Provide a way to return to the landing page from the login view.
-4. **Testing & Quality Assurance**:
-   - Create `frontend/test/landing_page_astryx.test.mjs` using `node:test` and `@testing-library/react`.
-   - Verify `npm run lint`, `npx tsc -b`, `npm test`, and `npm run build`.
+1. **Static Asset Placement**:
+   - Copy the 3 user-uploaded images to `frontend/public/landing/` as `gallery-1.jpg`, `gallery-2.jpg`, and `gallery-3.jpg`.
+   - Update `MarqueeTrack.tsx` to reference these 3 assets, looping them seamlessly (`[img1, img2, img3, img1, img2, img3]`).
+2. **Responsive Scale (3 Desktop, 1 Android)**:
+   - In `marquee.css`, configure `.marquee-item`:
+     - Desktop (> 768px): `width: calc((100vw - 4rem) / 3);` with height scaled up (e.g. `height: 480px` or `50vh`).
+     - Mobile (<= 768px): `width: calc(100vw - 2rem);` with height scaled (e.g. `height: 380px` or `45vh`).
+   - Use `objectFit: 'cover'` and Astryx tokens for corner radii.
+3. **Continuous Motion Without Hover Pause**:
+   - Delete `.marquee-track:hover { animation-play-state: paused; }` so the marquee constantly glides right-to-left even when cursor hovers over it.
+4. **Remove Gradient Edge Shadows**:
+   - Remove `mask-image` and `-webkit-mask-image` properties from `.marquee-container`.
+5. **Remove "Back to overview" Navigation**:
+   - Remove `onBack` prop and button from `frontend/src/app/login-card/page.tsx`.
+   - Remove `onBack` handler from `frontend/src/App.tsx`.
+6. **Automated Verification**:
+   - Create `frontend/test/landing_page_astryx.test.mjs`.
+   - Run typecheck, linting, tests, and build.
 
 ## Task List
 
-### Phase 1: Template Scaffold & Marquee Component
-- [ ] Task 1: Scaffold Astryx `gallery-hero` template in `frontend/src/app/gallery-hero`.
-- [ ] Task 2: Build smooth continuous right-to-left 4-photo marquee track with Astryx placeholder slots.
+### Phase 1: Asset Integration & Marquee Refactor
+- [ ] Task 1: Place 3 uploaded images into `frontend/public/landing/` and integrate into `MarqueeTrack.tsx`.
+- [ ] Task 2: Update `marquee.css` for 3-desktop/1-mobile sizing, remove hover pause, and remove edge shadows.
 
-### Checkpoint: Component Foundations
-- [ ] Template scaffolded and marquee renders cleanly.
+### Checkpoint: Gallery Presentation
+- [ ] 3 user images render with continuous loop, responsive layout, no edge shadows, and no hover pausing.
 
-### Phase 2: Hero Logic & App Integration
-- [ ] Task 3: Assemble `GalleryHeroLandingPage` with Astryx icons, "Get Started" handler, and "Learn More" no-op.
-- [ ] Task 4: Integrate landing page into `frontend/src/App.tsx` navigation flow.
+### Phase 2: Navigation & Login Cleanup
+- [ ] Task 3: Remove "Back to overview" button and `onBack` prop from `LoginCardPage` and `App.tsx`.
 
-### Checkpoint: Interactive Navigation
-- [ ] Clicking "Get Started" transitions cleanly to Login view.
+### Checkpoint: Clean Navigation Flow
+- [ ] "Get Started" opens clean LoginCardPage without back button.
 
-### Phase 3: Testing & Quality Gate
-- [ ] Task 5: Write automated test suite `frontend/test/landing_page_astryx.test.mjs` and execute full validation suite (`lint`, `tsc`, `test`, `build`).
+### Phase 3: Automated Testing & Verification
+- [ ] Task 4: Write automated tests in `frontend/test/landing_page_astryx.test.mjs` and execute quality gates (`npm run lint`, `npx tsc -b`, `npm test`, `npm run build`).
 
 ### Checkpoint: Complete
-- [ ] All 5 tasks done, 0 TypeScript errors, all tests pass.
+- [ ] All 4 tasks done, 0 TypeScript errors, 100% tests passing.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Marquee animation jank | Low | Use GPU-accelerated CSS `transform: translateX` with `will-change: transform` |
-| StyleX token / build friction | Low | Use standard Astryx StyleX rules and CSS variables declared in Astryx themes |
-| Non-Astryx icon leaks | High | Strictly inspect imports; allow only `@astryxdesign/core` / `@astryxdesign/core/icons` |
-
-## Open Questions
-- None.
+| Viewport overflow from large widths | Low | Use `overflow: hidden` on container and `box-sizing: border-box` |
+| Image distortion on wide screens | Low | Enforce `object-fit: cover` within container AspectRatio |

@@ -18,26 +18,27 @@ export interface ImageSlot {
   alt?: string;
 }
 
-export const FOUR_IMAGE_SLOTS: ImageSlot[] = [
+export const THREE_IMAGE_SLOTS: ImageSlot[] = [
   {
-    id: 'slot-1',
-    label: 'Photo Slot 01',
-    sublabel: 'Creator Analytics Dashboard',
+    id: 'gallery-img-1',
+    label: 'Urban Florals & Motion',
+    sublabel: 'Vibrant streetscape photography',
+    customSrc: '/landing/gallery-1.jpg',
+    alt: 'Vibrant outdoor flower wall streetscape with cyclists',
   },
   {
-    id: 'slot-2',
-    label: 'Photo Slot 02',
-    sublabel: 'Rich Content Composer',
+    id: 'gallery-img-2',
+    label: 'Artistic Yellow Architecture',
+    sublabel: 'Bugis Street mural and urban pedestrian',
+    customSrc: '/landing/gallery-2.jpg',
+    alt: 'Bright yellow architectural wall with street art and walking pedestrian',
   },
   {
-    id: 'slot-3',
-    label: 'Photo Slot 03',
-    sublabel: 'Realtime Feed Telemetry',
-  },
-  {
-    id: 'slot-4',
-    label: 'Photo Slot 04',
-    sublabel: 'Audience Demographics',
+    id: 'gallery-img-3',
+    label: 'Modern Interior Living',
+    sublabel: 'Spacious contemporary studio aesthetic',
+    customSrc: '/landing/gallery-3.jpg',
+    alt: 'Spacious Scandinavian-style living room with colorful modular sofa',
   },
 ];
 
@@ -53,7 +54,6 @@ const slotBoxStyle: CSSProperties = {
   borderRadius: 'var(--radius-container, 12px)',
   padding: '1.5rem',
   boxSizing: 'border-box',
-  transition: 'border-color 0.2s ease, background-color 0.2s ease',
 };
 
 const imageStyle: CSSProperties = {
@@ -61,44 +61,49 @@ const imageStyle: CSSProperties = {
   height: '100%',
   objectFit: 'cover',
   borderRadius: 'var(--radius-container, 12px)',
+  display: 'block',
 };
 
-export function MarqueeTrack({ slots = FOUR_IMAGE_SLOTS }: { slots?: ImageSlot[] }) {
-  // Duplicate slots to ensure continuous, seamless right-to-left marquee loop
+export function MarqueeTrack({ slots = THREE_IMAGE_SLOTS }: { slots?: ImageSlot[] }) {
+  // Duplicate 3 slots to create seamless 6-item infinite right-to-left loop
   const loopItems = [...slots, ...slots];
 
   return (
     <div className="marquee-container" data-testid="marquee-container">
       <div className="marquee-track" data-testid="marquee-track">
-        {loopItems.map((slot, idx) => (
-          <div
-            key={`${slot.id}-${idx}`}
-            className="marquee-item"
-            data-testid={`photo-slot-${idx < slots.length ? idx + 1 : `dup-${idx - slots.length + 1}`}`}
-          >
-            <AspectRatio ratio={4 / 5} style={{ borderRadius: 'var(--radius-container, 12px)' }}>
-              {slot.customSrc ? (
-                <img
-                  src={slot.customSrc}
-                  alt={slot.alt || slot.label}
-                  style={imageStyle}
-                />
-              ) : (
-                <div style={slotBoxStyle}>
-                  <VStack gap={3} hAlign="center">
-                    <Icon icon="upload" size="lg" color="secondary" />
-                    <Text type="label" color="primary" weight="medium">
-                      {slot.label}
-                    </Text>
-                    <Text type="supporting" color="secondary" justify="center">
-                      {slot.sublabel}
-                    </Text>
-                  </VStack>
-                </div>
-              )}
-            </AspectRatio>
-          </div>
-        ))}
+        {loopItems.map((slot, idx) => {
+          const itemIndex = idx % slots.length;
+          return (
+            <div
+              key={`${slot.id}-${idx}`}
+              className="marquee-item"
+              data-testid={`photo-slot-${itemIndex + 1}`}
+            >
+              <AspectRatio ratio={16 / 10} style={{ borderRadius: 'var(--radius-container, 12px)', overflow: 'hidden' }}>
+                {slot.customSrc ? (
+                  <img
+                    src={slot.customSrc}
+                    alt={slot.alt || slot.label}
+                    style={imageStyle}
+                    data-testid={`gallery-image-${itemIndex + 1}`}
+                  />
+                ) : (
+                  <div style={slotBoxStyle}>
+                    <VStack gap={3} hAlign="center">
+                      <Icon icon="upload" size="lg" color="secondary" />
+                      <Text type="label" color="primary" weight="medium">
+                        {slot.label}
+                      </Text>
+                      <Text type="supporting" color="secondary" justify="center">
+                        {slot.sublabel}
+                      </Text>
+                    </VStack>
+                  </div>
+                )}
+              </AspectRatio>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
