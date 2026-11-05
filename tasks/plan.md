@@ -14,37 +14,42 @@ Decompose all 10 identified bloated/complex frontend hotspot files into high-coh
 ## Task List
 
 ### Phase 1: State & Context Tier
-- [ ] Task 1: `client.ts` Token & HTTP Dispatcher Decomposition
-- [ ] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
-- [ ] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
+- [x] Task 1: `client.ts` Token & HTTP Dispatcher Decomposition
+- [x] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
+- [x] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
 
 ### Checkpoint: Contexts & API
-- [ ] Context and API files reduced below 150 lines.
-- [ ] All 97 unit tests pass, `tsc -b` clean.
+- [x] Context and API files reduced below 150 lines.
+- [x] All 97 unit tests pass, `tsc -b` clean.
 
 ### Phase 2: Navigation & Notifications Tier
-- [ ] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
+- [x] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
 
 ### Checkpoint: Navigation & Notifications
-- [ ] Polling hook reduced below 100 lines.
-- [ ] Notifications tests pass without regression.
+- [x] Polling hook reduced below 100 lines.
+- [x] Notifications tests pass without regression.
 
 ### Phase 3: Feed, Composer & Toolbar Tier
-- [ ] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
-- [ ] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
+- [x] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
+- [x] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
 
 ### Checkpoint: Feed & Composer
-- [ ] Post card, modal, and toolbar files reduced below 120 lines.
-- [ ] Composer and feed tests pass cleanly.
+- [x] Post card, modal, and toolbar files reduced below 120 lines.
+- [x] Composer and feed tests pass cleanly.
 
 ### Phase 4: Auth & Modal Tier
-- [ ] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
-- [ ] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
-- [ ] Task 9: Verification Suite & Quality Gates (`codescene_code_health_refactor.test.mjs`)
+- [x] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
+- [x] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
+- [x] Task 9: Verification Suite & Quality Gates (`codescene_code_health_refactor.test.mjs`)
 
 ### Checkpoint: Complete
-- [ ] All 10 files under 150 lines.
-- [ ] CodeScene Code Health 10.0 / 10.0, all unit tests passing, build succeeds.
+- [x] All 10 files under 150 lines.
+- [x] CodeScene Code Health 10.0 / 10.0, all unit tests passing, build succeeds.
+
+### Phase 5: Hotspots 10/10 & Code Health 10/10 Repository-Wide
+- [x] Task 10: All 128 frontend TypeScript/TSX source files brought to CodeScene Code Health 10.00 / 10.00.
+- [x] Task 11: 0 warnings, 0 hotspots repository-wide.
+- [x] Task 12: 104 / 104 unit tests pass cleanly, `tsc -b` clean, Vite production build clean.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
