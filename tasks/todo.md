@@ -32,16 +32,16 @@ Plan: `tasks/plan.md`
     - `frontend/src/App.tsx`
   - **Estimated scope:** S (2 files)
 
-- [ ] Task 3: Write automated test suite and execute full verification suite
+- [x] Task 3: Write automated test suite and execute full verification suite
   - **Description:** Create `frontend/test/landing_page_astryx.test.mjs` verifying static 3-image grid, headline, "Get Started" navigation, and "Learn More" no-op. Execute `npm run lint`, `npx tsc -b`, `npm test`, and `npm run build`.
   - **Acceptance criteria:**
-    - [ ] `frontend/test/landing_page_astryx.test.mjs` passes cleanly.
-    - [ ] `npm run lint` passes (0 errors).
-    - [ ] `npx tsc -b` passes (0 errors).
-    - [ ] `npm test` passes all tests.
-    - [ ] `npm run build` succeeds.
+    - [x] `frontend/test/landing_page_astryx.test.mjs` passes cleanly.
+    - [x] `npm run lint` passes (0 errors).
+    - [x] `npx tsc -b` passes (0 errors).
+    - [x] `npm test` passes all tests (156/156 passed).
+    - [x] `npm run build` succeeds.
   - **Verification:**
-    - [ ] `cd frontend && npm run lint && npx tsc -b && npm test && npm run build`
+    - [x] `cd frontend && npm run lint && npx tsc -b && npm test && npm run build`
   - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
     - `frontend/test/landing_page_astryx.test.mjs`
@@ -50,7 +50,7 @@ Plan: `tasks/plan.md`
 
 ## Checkpoints
 ### Checkpoint: Static Layout & Clean Navigation (After Task 2)
-- [ ] Static Astryx gallery hero renders 3 images in grid, "Get Started" opens login, no back button on login.
+- [x] Static Astryx gallery hero renders 3 images in grid, "Get Started" opens login, no back button on login.
 
 ### Checkpoint: Complete (After Task 3)
-- [ ] All 3 tasks done, 0 TypeScript errors, 100% tests pass, build succeeds.
+- [x] All 3 tasks done, 0 TypeScript errors, 100% tests pass (156/156), build succeeds.
