@@ -23,7 +23,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: UI Integration
 
-- [ ] Task 3: Wire search dropdown into `SidebarSearchBox` and `NewsFeedRightSidebar`
+- [x] Task 3: Wire search dropdown into `SidebarSearchBox` and `NewsFeedRightSidebar`
   - Acceptance: Dropdown displays matching users with avatar, name, and username. Keyboard navigation (ArrowDown, ArrowUp, Enter, Escape) and click outside support. Invokes `onViewProfile`.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/app/feed/NewsFeedRightSidebar.tsx`
