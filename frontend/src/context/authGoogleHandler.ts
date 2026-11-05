@@ -32,111 +32,153 @@ const DEFAULT_GOOGLE_ACCOUNT: GoogleAuthParams = {
   googleId: 'google_1082938472910',
 };
 
-export async function executeGoogleLogin(
-  inputAccount?: GoogleAuthParams,
-  accounts: AuthUserAccount[] = []
-): Promise<GoogleAuthResult> {
+interface GoogleContext {
+  cleanEmail: string;
+  cleanUsername: string;
+  googlePassword: string;
+  account: GoogleAuthParams;
+}
+
+interface ProfileFields {
+  id: string;
+  username: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  coverBannerUrl?: string;
+  bio?: string;
+}
+
+interface AuthResponseDto {
+  userId: string;
+  username: string;
+  token: string;
+  fullName?: string;
+  avatarUrl?: string;
+  coverBannerUrl?: string;
+  bio?: string;
+}
+
+function buildGoogleUserProfile(fields: ProfileFields): UserProfile {
+  return {
+    id: fields.id,
+    username: fields.username,
+    name: fields.name,
+    avatarUrl: fields.avatarUrl,
+    coverBannerUrl: fields.coverBannerUrl || '',
+    isFollowed: false,
+    headline: 'Verified Google Creator',
+    tags: ['Google Verified', 'Creator'],
+    bio: fields.bio || `Authenticated via Google (${fields.email})`,
+    followerCount: 0,
+    followingCount: 0,
+  };
+}
+
+function createGoogleAuthResult(res: AuthResponseDto, ctx: GoogleContext): GoogleAuthResult {
+  const user = buildGoogleUserProfile({
+    id: res.userId,
+    username: res.username,
+    name: res.fullName || ctx.account.name,
+    email: ctx.account.email,
+    avatarUrl: res.avatarUrl || ctx.account.avatarUrl,
+    coverBannerUrl: res.coverBannerUrl,
+    bio: res.bio,
+  });
+  return {
+    user,
+    token: res.token,
+    account: { user, email: ctx.cleanEmail, passwordHash: ctx.googlePassword },
+  };
+}
+
+function prepareGoogleContext(inputAccount?: GoogleAuthParams): GoogleContext {
   const account = inputAccount || DEFAULT_GOOGLE_ACCOUNT;
   const cleanEmail = account.email.trim().toLowerCase();
   const cleanUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') + '_goog';
-  const deterministicGoogleId = account.googleId || `goog_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
-  const googlePassword = `goog_oauth_${deterministicGoogleId}`;
+  const deterministicGoogleId = deriveDeterministicGoogleId(cleanEmail, account.googleId);
+  const googlePassword = `${GOOGLE_OAUTH_PREFIX}${deterministicGoogleId}`;
 
-  // 1. Try to log in with existing account on Gateway
+  return { cleanEmail, cleanUsername, googlePassword, account };
+}
+
+async function attemptGoogleGatewayLogin(ctx: GoogleContext): Promise<GoogleAuthResult | null> {
   try {
-    const loginRes = await authApi.login({
-      usernameOrEmail: cleanEmail,
-      password: googlePassword,
+    const res = await authApi.login({
+      usernameOrEmail: ctx.cleanEmail,
+      password: ctx.googlePassword,
     });
 
-    if (loginRes && loginRes.token) {
-      const userProfile: UserProfile = {
-        id: loginRes.userId,
-        username: loginRes.username,
-        name: loginRes.fullName || account.name,
-        avatarUrl: loginRes.avatarUrl || account.avatarUrl,
-        coverBannerUrl: loginRes.coverBannerUrl || '',
-        isFollowed: false,
-        headline: 'Verified Google Creator',
-        tags: ['Google Verified', 'Creator'],
-        bio: loginRes.bio || `Authenticated via Google (${account.email})`,
-        followerCount: 0,
-        followingCount: 0,
-      };
-      return {
-        user: userProfile,
-        token: loginRes.token,
-        account: { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
-      };
+    if (res?.token) {
+      return createGoogleAuthResult(res, ctx);
     }
   } catch {
     // Proceed to register
   }
+  return null;
+}
 
-  // 2. Try to register new user on Gateway
+async function attemptGoogleGatewayRegister(ctx: GoogleContext): Promise<GoogleAuthResult | null> {
   try {
-    const regRes = await authApi.register({
-      username: cleanUsername,
-      email: cleanEmail,
-      password: googlePassword,
-      fullName: account.name,
+    const res = await authApi.register({
+      username: ctx.cleanUsername,
+      email: ctx.cleanEmail,
+      password: ctx.googlePassword,
+      fullName: ctx.account.name,
       authProvider: 'GOOGLE',
-      avatarUrl: account.avatarUrl,
+      avatarUrl: ctx.account.avatarUrl,
     });
 
-    if (regRes && regRes.token) {
-      const userProfile: UserProfile = {
-        id: regRes.userId,
-        username: regRes.username,
-        name: regRes.fullName || account.name,
-        avatarUrl: regRes.avatarUrl || account.avatarUrl,
-        coverBannerUrl: regRes.coverBannerUrl || '',
-        isFollowed: false,
-        headline: 'Verified Google Creator',
-        tags: ['Google Verified', 'Creator'],
-        bio: regRes.bio || `Authenticated via Google (${account.email})`,
-        followerCount: 0,
-        followingCount: 0,
-      };
-      return {
-        user: userProfile,
-        token: regRes.token,
-        account: { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
-      };
+    if (res?.token) {
+      return createGoogleAuthResult(res, ctx);
     }
   } catch {
     // Fall through to offline mock login
   }
+  return null;
+}
 
-  // 3. Seamless offline Google profile creation/re-login
-  const existingOffline = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+function resolveOfflineGoogleLogin(ctx: GoogleContext, accounts: AuthUserAccount[]): GoogleAuthResult {
+  const existingOffline = accounts.find((a) => a.email.toLowerCase() === ctx.cleanEmail);
   if (existingOffline) {
-    const mockToken = `goog_token_${existingOffline.user.id}`;
     return {
       user: existingOffline.user,
-      token: mockToken,
+      token: `goog_token_${existingOffline.user.id}`,
       account: existingOffline,
     };
   }
 
-  const offlineProfile: UserProfile = {
-    id: `usr_${deterministicGoogleId}`,
-    username: cleanUsername,
-    name: account.name,
-    avatarUrl: account.avatarUrl,
-    coverBannerUrl: '',
-    isFollowed: false,
-    headline: 'Verified Google Creator',
-    tags: ['Google Verified', 'Creator'],
-    bio: `Authenticated via Google (${account.email})`,
-    followerCount: 0,
-    followingCount: 0,
-  };
+  const deterministicId = deriveDeterministicGoogleId(ctx.cleanEmail, ctx.account.googleId);
+  const offlineProfile = buildGoogleUserProfile({
+    id: `usr_${deterministicId}`,
+    username: ctx.cleanUsername,
+    name: ctx.account.name,
+    email: ctx.account.email,
+    avatarUrl: ctx.account.avatarUrl,
+  });
 
-  const mockToken = `goog_token_${offlineProfile.id}`;
   return {
     user: offlineProfile,
-    token: mockToken,
-    account: { user: offlineProfile, email: cleanEmail, passwordHash: googlePassword },
+    token: `goog_token_${offlineProfile.id}`,
+    account: { user: offlineProfile, email: ctx.cleanEmail, passwordHash: ctx.googlePassword },
   };
+}
+
+export async function executeGoogleLogin(
+  inputAccount?: GoogleAuthParams,
+  accounts: AuthUserAccount[] = []
+): Promise<GoogleAuthResult> {
+  const ctx = prepareGoogleContext(inputAccount);
+
+  const loginResult = await attemptGoogleGatewayLogin(ctx);
+  if (loginResult) {
+    return loginResult;
+  }
+
+  const registerResult = await attemptGoogleGatewayRegister(ctx);
+  if (registerResult) {
+    return registerResult;
+  }
+
+  return resolveOfflineGoogleLogin(ctx, accounts);
 }

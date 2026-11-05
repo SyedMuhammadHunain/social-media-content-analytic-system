@@ -7,27 +7,33 @@ import type { UserProfile } from '../types/social.ts';
 import type { DemoUserSummary } from './auth-context-def.ts';
 import { DEFAULT_DEMO_USERS } from './authAccountStorage.ts';
 
+function matchSeedAccount(id: string, username: string) {
+  const normUser = username.toLowerCase();
+  return SEED_ACCOUNTS.find((a) => a.user.id === id || a.user.username.toLowerCase() === normUser);
+}
+
+function mapRawUserToDemoSummary(u: { id: string; username: string; name?: string; avatarUrl?: string }): DemoUserSummary {
+  const matched = matchSeedAccount(u.id, u.username);
+  const name = u.name || matched?.user.name || u.username;
+  const avatarUrl = u.avatarUrl || matched?.user.avatarUrl;
+  return {
+    id: u.id,
+    username: u.username,
+    name,
+    avatarUrl,
+    headline: matched?.user.headline,
+  };
+}
+
 export async function fetchDemoUsersWithFallback(): Promise<DemoUserSummary[]> {
   try {
     const users = await authApi.getDemoUsers();
     if (!users || users.length === 0) return DEFAULT_DEMO_USERS;
 
-    const mapped: DemoUserSummary[] = users.map((u) => {
-      const matchedSeed = SEED_ACCOUNTS.find(
-        (a) => a.user.id === u.id || a.user.username.toLowerCase() === u.username.toLowerCase()
-      );
-      return {
-        id: u.id,
-        username: u.username,
-        name: u.name || (matchedSeed ? matchedSeed.user.name : u.username),
-        avatarUrl: u.avatarUrl || (matchedSeed ? matchedSeed.user.avatarUrl : undefined),
-        headline: matchedSeed?.user.headline,
-      };
-    });
-
+    const mapped = users.map(mapRawUserToDemoSummary);
     const existingIds = new Set(mapped.map((m) => m.id));
-    const preservedAdditional = DEFAULT_DEMO_USERS.filter((d) => !existingIds.has(d.id));
-    return [...mapped, ...preservedAdditional];
+    const preserved = DEFAULT_DEMO_USERS.filter((d) => !existingIds.has(d.id));
+    return [...mapped, ...preserved];
   } catch {
     return DEFAULT_DEMO_USERS;
   }
