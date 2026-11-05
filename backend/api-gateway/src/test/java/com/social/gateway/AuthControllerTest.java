@@ -131,4 +131,55 @@ class AuthControllerTest {
                 .jsonPath("$.data[0].username").isEqualTo("hunain")
                 .jsonPath("$.data[1].username").isEqualTo("alice_tech");
     }
+
+    @Test
+    @DisplayName("GET /v1/auth/verify returns 401 when Authorization header is missing")
+    void testVerifyMissingAuthHeader() {
+        webTestClient.get()
+                .uri("/v1/auth/verify")
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("ERROR")
+                .jsonPath("$.message").isEqualTo("Missing or invalid Authorization header");
+    }
+
+    @Test
+    @DisplayName("GET /v1/auth/verify returns 401 when token is invalid")
+    void testVerifyInvalidToken() {
+        when(authService.validateToken("bad_token")).thenReturn(false);
+
+        webTestClient.get()
+                .uri("/v1/auth/verify")
+                .header("Authorization", "Bearer bad_token")
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("ERROR")
+                .jsonPath("$.message").isEqualTo("Invalid or expired token");
+    }
+
+    @Test
+    @DisplayName("GET /v1/auth/verify returns 200 with claims when token is valid")
+    void testVerifyValidToken() {
+        com.social.gateway.security.JwtTokenProvider mockJwtProvider =
+                org.mockito.Mockito.mock(com.social.gateway.security.JwtTokenProvider.class);
+
+        when(authService.validateToken("valid_token")).thenReturn(true);
+        when(authService.getJwtTokenProvider()).thenReturn(mockJwtProvider);
+        when(mockJwtProvider.extractClaims("valid_token")).thenReturn(java.util.Map.of(
+                "sub", "user_hunain",
+                "username", "hunain"
+        ));
+
+        webTestClient.get()
+                .uri("/v1/auth/verify")
+                .header("Authorization", "Bearer valid_token")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo("SUCCESS")
+                .jsonPath("$.data.sub").isEqualTo("user_hunain")
+                .jsonPath("$.data.username").isEqualTo("hunain");
+    }
 }

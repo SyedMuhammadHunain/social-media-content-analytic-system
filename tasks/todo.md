@@ -18,22 +18,24 @@ Plan: `tasks/plan.md`
     - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
     - `backend/api-gateway/src/test/java/com/social/gateway/service/GatewayAuthServiceTest.java`
 
-- [ ] Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
+- [x] Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
   - **Description:** Implement `JwtTokenProvider` using standard Java `javax.crypto.Mac` (HmacSHA256). Generate compact standard JWTs (`header.payload.signature`), validate expiration and constant-time signature match, and integrate with `GatewayAuthService` and `AuthController`.
   - **Acceptance criteria:**
-    - [ ] Compact standard JWTs generated with header `{"alg":"HS256","typ":"JWT"}` and signed with HMAC-SHA256.
-    - [ ] Token claims contain `sub` (userId), `username`, `email`, `iat`, and `exp`.
-    - [ ] Constant-time signature comparison using `MessageDigest.isEqual` to prevent timing attacks.
-    - [ ] Endpoint `/v1/auth/verify` validates tokens and rejects forged/expired tokens.
-    - [ ] Unit tests verify token generation, valid verification, and rejection of tampered/expired tokens.
+    - [x] Compact standard JWTs generated with header `{"alg":"HS256","typ":"JWT"}` and signed with HMAC-SHA256.
+    - [x] Token claims contain `sub` (userId), `username`, `email`, `iat`, and `exp`.
+    - [x] Constant-time signature comparison using `MessageDigest.isEqual` to prevent timing attacks.
+    - [x] Endpoint `/v1/auth/verify` validates tokens and rejects forged/expired tokens.
+    - [x] Unit tests verify token generation, valid verification, and rejection of tampered/expired tokens.
   - **Verification:**
-    - [ ] Backend test: `cd backend && mvn test -pl api-gateway`
+    - [x] Backend test: `cd backend && mvn test -pl api-gateway` (29/29 passed)
+    - [x] Frontend test: `cd frontend && npm run test:unit` (104/104 passed)
   - **Dependencies:** Task 1
   - **Files likely touched:**
     - `backend/api-gateway/src/main/java/com/social/gateway/security/JwtTokenProvider.java`
     - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
     - `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`
     - `backend/api-gateway/src/test/java/com/social/gateway/security/JwtTokenProviderTest.java`
+    - `backend/api-gateway/src/test/java/com/social/gateway/AuthControllerTest.java`
 
 - [ ] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
   - **Description:** Add `POST /v1/auth/google` endpoint to `AuthController` and `GatewayAuthService`. Refactor frontend `authGoogleHandler.ts` and `authApi.ts` to call `/v1/auth/google` without fabricating fake client-side passwords.

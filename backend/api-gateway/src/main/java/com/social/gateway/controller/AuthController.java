@@ -65,6 +65,28 @@ public class AuthController {
                 .map(users -> ResponseEntity.ok(ApiResponse.success(users, "Demo users fetched")));
     }
 
+    @GetMapping("/verify")
+    public Mono<ResponseEntity<ApiResponse<Map<String, Object>>>> verifyToken(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.<Map<String, Object>>builder()
+                            .status("ERROR")
+                            .message("Missing or invalid Authorization header")
+                            .build()));
+        }
+        String token = authHeader.substring(7).trim();
+        if (!authService.validateToken(token)) {
+            return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.<Map<String, Object>>builder()
+                            .status("ERROR")
+                            .message("Invalid or expired token")
+                            .build()));
+        }
+        Map<String, Object> claims = authService.getJwtTokenProvider().extractClaims(token);
+        return Mono.just(ResponseEntity.ok(ApiResponse.success(claims, "Token verified")));
+    }
+
     @PutMapping("/profile")
     public Mono<ResponseEntity<ApiResponse<User>>> updateProfile(@RequestBody Map<String, String> payload) {
         String userId = payload.get("userId");

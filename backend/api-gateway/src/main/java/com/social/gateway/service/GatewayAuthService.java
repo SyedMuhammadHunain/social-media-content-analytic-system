@@ -12,16 +12,24 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.Base64;
+import com.social.gateway.security.JwtTokenProvider;
 import java.util.UUID;
 
 @Service
 public class GatewayAuthService {
 
     private final ReactiveUserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public GatewayAuthService(ReactiveUserRepository userRepository) {
+        this(userRepository, new JwtTokenProvider(null));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public GatewayAuthService(ReactiveUserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider != null ? jwtTokenProvider : new JwtTokenProvider(null);
     }
 
     public Mono<AuthResponse> login(AuthRequest request) {
@@ -107,9 +115,16 @@ public class GatewayAuthService {
         return userRepository.findAll();
     }
 
+    public boolean validateToken(String token) {
+        return jwtTokenProvider.validateToken(token);
+    }
+
+    public JwtTokenProvider getJwtTokenProvider() {
+        return jwtTokenProvider;
+    }
+
     private AuthResponse toAuthResponse(User user) {
-        String token = "jwt_" + Base64.getUrlEncoder().withoutPadding()
-                .encodeToString((user.getId() + ":" + user.getUsername() + ":" + System.currentTimeMillis()).getBytes());
+        String token = jwtTokenProvider.generateToken(user);
 
         return AuthResponse.builder()
                 .userId(user.getId())
