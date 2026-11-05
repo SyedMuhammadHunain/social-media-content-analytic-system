@@ -4,7 +4,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { notificationsApi, type Notification, type NotificationType } from '../../api/notificationsApi.ts';
+import { notificationsApi, type Notification } from '../../api/notificationsApi.ts';
 import type { UserProfile } from '../../types/social.ts';
 import {
   loadStoredNotifications,
@@ -20,6 +20,7 @@ import {
   type CandidateActor,
   BASE_PLATFORM_ACTORS,
 } from './notificationGenerator.ts';
+import { fetchLiveOrDefaultNotifications } from './notificationFetcher.ts';
 
 export {
   generateDynamicNotificationsForUser,
@@ -30,14 +31,32 @@ export {
   type CandidateActor,
 };
 
+function resolveUserIdentity(userOrId?: UserProfile | string | null) {
+  const userId = typeof userOrId === 'string' ? userOrId : userOrId?.id;
+  const userName = typeof userOrId === 'object' && userOrId ? userOrId.name : undefined;
+  const userUsername = typeof userOrId === 'object' && userOrId ? userOrId.username : undefined;
+  return { userId, userName, userUsername };
+}
+
+function createLiveNotification(detail: any, userId: string): Notification {
+  if (detail.notification) return detail.notification;
+  return {
+    id: `live_${Date.now()}`,
+    recipientUserId: userId,
+    actorUserId: 'actor_live',
+    actorName: detail.actorName || 'A creator',
+    type: detail.type || 'LIKE',
+    message: `${detail.actorName || 'A creator'} interacted with your content.`,
+    read: false,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export function useNotificationPolling(
   userOrId?: UserProfile | string | null,
   availableUsers?: Array<{ id: string; name?: string; username?: string; avatarUrl?: string; avatar?: string }>
 ) {
-  const userId = typeof userOrId === 'string' ? userOrId : userOrId?.id;
-  const userName = typeof userOrId === 'object' && userOrId ? userOrId.name : undefined;
-  const userUsername = typeof userOrId === 'object' && userOrId ? userOrId.username : undefined;
-
+  const { userId, userName, userUsername } = resolveUserIdentity(userOrId);
   const [notifications, setNotifications] = useState<Notification[]>(() => loadStoredNotifications(userId));
   const [unreadCount, setUnreadCount] = useState<number>(() => loadStoredUnreadCount(userId));
 
@@ -62,63 +81,27 @@ export function useNotificationPolling(
     if (!userId) return;
     let isMounted = true;
 
-    const fetchNotifications = async () => {
-      try {
-        const list = await notificationsApi.getNotifications(userId);
-        if (!isMounted || activeUserIdRef.current !== userId) return;
+    const syncNotifications = async () => {
+      const items = await fetchLiveOrDefaultNotifications(
+        userId,
+        { id: userId, name: userName, username: userUsername },
+        availableUsers
+      );
+      if (!isMounted || activeUserIdRef.current !== userId) return;
 
-        if (list && list.length > 0) {
-          setNotifications(list);
-          setUnreadCount(list.filter((n) => !n.read).length);
-          saveToStorage(userId, list);
-        } else {
-          const dynamicList = generateDynamicNotificationsForUser(
-            { id: userId, name: userName, username: userUsername },
-            availableUsers
-          );
-          if (activeUserIdRef.current === userId) {
-            setNotifications(dynamicList);
-            setUnreadCount(dynamicList.filter((n) => !n.read).length);
-            saveToStorage(userId, dynamicList);
-          }
-        }
-      } catch {
-        if (isMounted && activeUserIdRef.current === userId) {
-          setNotifications((prev) => {
-            if (prev.length > 0 && prev[0]?.recipientUserId === userId) return prev;
-            const dynamicList = generateDynamicNotificationsForUser(
-              { id: userId, name: userName, username: userUsername },
-              availableUsers
-            );
-            saveToStorage(userId, dynamicList);
-            return dynamicList;
-          });
-          setUnreadCount((prev) => (prev > 0 ? prev : 3));
-        }
-      }
+      setNotifications(items);
+      setUnreadCount(items.filter((n) => !n.read).length);
+      saveToStorage(userId, items);
     };
 
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 10000);
+    syncNotifications();
+    const interval = setInterval(syncNotifications, 10000);
 
     const handleNewInteraction = (e: Event) => {
-      const customEvt = e as CustomEvent<{
-        recipientUserId: string;
-        notification?: Notification;
-        actorName?: string;
-        type?: NotificationType;
-      }>;
+      const customEvt = e as CustomEvent<{ recipientUserId: string }>;
       if (!customEvt.detail || customEvt.detail.recipientUserId !== userId) return;
-      const newNotif: Notification = customEvt.detail.notification || {
-        id: `live_${Date.now()}`,
-        recipientUserId: userId,
-        actorUserId: 'actor_live',
-        actorName: customEvt.detail.actorName || 'A creator',
-        type: customEvt.detail.type || 'LIKE',
-        message: `${customEvt.detail.actorName || 'A creator'} interacted with your content.`,
-        read: false,
-        createdAt: new Date().toISOString(),
-      };
+
+      const newNotif = createLiveNotification(customEvt.detail, userId);
       setNotifications((prev) => {
         const next = [newNotif, ...prev];
         saveToStorage(userId, next);
