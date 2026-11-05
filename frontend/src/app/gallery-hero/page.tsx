@@ -40,6 +40,7 @@ const galleryImage: CSSProperties = {
   width: '100%',
   height: '100%',
   objectFit: 'cover',
+  display: 'block',
 };
 
 // Rounds the image corners. No radius prop on AspectRatio (#2582).
@@ -47,6 +48,9 @@ const galleryImageClip: CSSProperties = {
   borderRadius: 'var(--radius-container, 12px)',
   overflow: 'hidden',
   boxShadow: 'var(--elevation-low, 0 1px 3px rgba(0, 0, 0, 0.2))',
+  width: '100%',
+  height: '100%',
+  minHeight: 0,
 };
 
 export function GalleryHeroLandingPage({
@@ -68,10 +72,13 @@ export function GalleryHeroLandingPage({
   return (
     <div
       style={{
-        width: '100%',
-        maxWidth: '100vw',
-        overflowX: 'clip',
+        width: '100vw',
+        height: '100vh',
+        maxHeight: '100vh',
+        overflow: 'hidden',
         boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Layout
@@ -79,16 +86,32 @@ export function GalleryHeroLandingPage({
           <LayoutContent padding={4}>
             <div
               style={{
-                maxWidth: 1200,
                 width: '100%',
+                height: 'calc(100vh - 2rem)',
+                maxHeight: 'calc(100vh - 2rem)',
                 margin: '0 auto',
                 boxSizing: 'border-box',
-                overflowX: 'clip',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                padding: '0 0.5rem',
               }}
             >
-              <VStack gap={6}>
-                <VStack gap={4} hAlign="center" style={{ paddingTop: '0.5rem' }}>
-                  <VStack gap={2} hAlign="center">
+              <VStack
+                gap={5}
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <VStack
+                  gap={3}
+                  hAlign="center"
+                  style={{ flexShrink: 0, paddingTop: '0.25rem' }}
+                >
+                  <VStack gap={1} hAlign="center">
                     <Heading
                       level={1}
                       type="display-2"
@@ -124,23 +147,38 @@ export function GalleryHeroLandingPage({
                     />
                   </HStack>
                 </VStack>
-                <Grid columns={{ minWidth: 240, repeat: 'fit' }} gap={4} data-testid="gallery-grid">
-                  {IMAGES.map((image, idx) => (
-                    <AspectRatio
-                      key={image.src}
-                      ratio={16 / 10}
-                      style={galleryImageClip}
-                      data-testid={`gallery-aspect-ratio-${idx + 1}`}
-                    >
-                      <img
-                        style={galleryImage}
-                        src={image.src}
-                        alt={image.alt}
-                        data-testid={`gallery-image-${idx + 1}`}
-                      />
-                    </AspectRatio>
-                  ))}
-                </Grid>
+
+                <div
+                  style={{
+                    flex: 1,
+                    minHeight: 0,
+                    width: '100%',
+                    paddingBottom: '0.75rem',
+                  }}
+                >
+                  <Grid
+                    columns={{ minWidth: 260, repeat: 'fit' }}
+                    gap={4}
+                    style={{ height: '100%', minHeight: 0 }}
+                    data-testid="gallery-grid"
+                  >
+                    {IMAGES.map((image, idx) => (
+                      <AspectRatio
+                        key={image.src}
+                        ratio={1}
+                        style={galleryImageClip}
+                        data-testid={`gallery-aspect-ratio-${idx + 1}`}
+                      >
+                        <img
+                          style={galleryImage}
+                          src={image.src}
+                          alt={image.alt}
+                          data-testid={`gallery-image-${idx + 1}`}
+                        />
+                      </AspectRatio>
+                    ))}
+                  </Grid>
+                </div>
               </VStack>
             </div>
           </LayoutContent>
