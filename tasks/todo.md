@@ -11,15 +11,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/utils/userSearchIndex.ts`
   - Scope: S
 
-- [ ] Task 2: Unit tests for search logic
+- [x] Task 2: Unit tests for search logic
   - Acceptance: Tests verify deduplication, name/username matching, exclude current user, limit 8, empty query handling.
-  - Verify: `cd frontend && node --test test/userSearch.test.ts`
-  - Files: `frontend/test/userSearch.test.ts`
+  - Verify: `cd frontend && node --test test/user_search.test.mjs`
+  - Files: `frontend/test/user_search.test.mjs`
   - Scope: S
 
 ### Checkpoint: Search Logic
-- [ ] `npx tsc -b` clean
-- [ ] `node --test test/userSearch.test.ts` passes
+- [x] `npx tsc -b` clean
+- [x] `node --test test/user_search.test.mjs` passes
 
 ## Phase 2: UI Integration
 
