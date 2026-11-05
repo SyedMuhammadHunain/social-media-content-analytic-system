@@ -32,17 +32,14 @@ public class GatewayAuthService {
         String targetIdentifier = ("hunain_creator".equals(normalized) || "usr_me_01".equals(normalized)) ? "hunain" : normalized;
 
         return userRepository.findByUsernameOrEmail(targetIdentifier, targetIdentifier)
-                .switchIfEmpty(userRepository.findByUsername(targetIdentifier))
-                .switchIfEmpty(userRepository.findByEmail(targetIdentifier))
-                .switchIfEmpty(userRepository.findByUsernameOrEmail(rawIdentifier, rawIdentifier))
-                .switchIfEmpty(userRepository.findByUsername(rawIdentifier))
-                .switchIfEmpty(userRepository.findByEmail(rawIdentifier))
-                .filter(user -> passwordEncoder.matches(rawPassword, user.getPasswordHash())
-                        || "GOOGLE".equalsIgnoreCase(user.getAuthProvider())
-                        || (rawPassword != null && rawPassword.startsWith("goog_oauth_"))
-                        || "password".equals(rawPassword) // Developer friendly fallback for demo
-                        || "password123".equals(rawPassword)
-                        || "admin123".equals(rawPassword))
+                .switchIfEmpty(Mono.defer(() -> userRepository.findByUsername(targetIdentifier)))
+                .switchIfEmpty(Mono.defer(() -> userRepository.findByEmail(targetIdentifier)))
+                .switchIfEmpty(Mono.defer(() -> userRepository.findByUsernameOrEmail(rawIdentifier, rawIdentifier)))
+                .switchIfEmpty(Mono.defer(() -> userRepository.findByUsername(rawIdentifier)))
+                .switchIfEmpty(Mono.defer(() -> userRepository.findByEmail(rawIdentifier)))
+                .filter(user -> rawPassword != null
+                        && user.getPasswordHash() != null
+                        && passwordEncoder.matches(rawPassword, user.getPasswordHash()))
                 .map(this::toAuthResponse)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Invalid username or password")));
     }

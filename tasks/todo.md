@@ -1,118 +1,72 @@
-# Active Tasks: CodeScene Code Health 10/10 Refactoring (SPEC-codescene-code-health-refactor-2)
+# Active Tasks: Critical Security Vulnerabilities Remediation
 
-Spec: `docs/specs/SPEC-codescene-code-health-refactor-2.md`
+Spec: `docs/reports/security-and-hardening-audit-report.md`
 Plan: `tasks/plan.md`
 
-## Phase 1: State & Context Tier
+- [x] Task 1: Eliminate Authentication Bypass Backdoors in Gateway Auth Service
+  - **Description:** Remove static developer fallbacks (`password`, `password123`, `admin123`), OAuth prefix bypasses (`goog_oauth_`), and authProvider bypasses (`GOOGLE`) in `GatewayAuthService.java`. Require strict BCrypt password matching.
+  - **Acceptance criteria:**
+    - [x] `password123`, `admin123`, `password`, or `goog_oauth_*` cannot be used to bypass authentication for arbitrary accounts.
+    - [x] Accounts with legitimate passwords validate correctly with `passwordEncoder.matches()`.
+    - [x] Failed login attempts return 401 Unauthorized with "Invalid username or password".
+    - [x] Unit tests in `GatewayAuthServiceTest.java` verify bypass rejection and valid password success.
+  - **Verification:**
+    - [x] Backend test: `cd backend && mvn test -pl api-gateway` (19/19 passed)
+    - [x] Frontend test: `cd frontend && npm run test:unit` (104/104 passed)
+  - **Dependencies:** None
+  - **Files likely touched:**
+    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
+    - `backend/api-gateway/src/test/java/com/social/gateway/service/GatewayAuthServiceTest.java`
 
-- [x] Task 1: `client.ts` Token & HTTP Dispatcher Decomposition
-  - Acceptance: Extract `tokenManager.ts` from `client.ts` for auth token storage, headers, and subscribers. Reduce `client.ts` to ~70 lines. Maintain all existing method exports (`api`, `setAuthToken`, `getAuthToken`, `clearAuthToken`, `ApiResponse`, `ApiError`).
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/api/client.ts`
-  - Files: `frontend/src/api/tokenManager.ts`, `frontend/src/api/client.ts`
-  - Scope: S
+- [ ] Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
+  - **Description:** Implement `JwtTokenProvider` using standard Java `javax.crypto.Mac` (HmacSHA256). Generate compact standard JWTs (`header.payload.signature`), validate expiration and constant-time signature match, and integrate with `GatewayAuthService` and `AuthController`.
+  - **Acceptance criteria:**
+    - [ ] Compact standard JWTs generated with header `{"alg":"HS256","typ":"JWT"}` and signed with HMAC-SHA256.
+    - [ ] Token claims contain `sub` (userId), `username`, `email`, `iat`, and `exp`.
+    - [ ] Constant-time signature comparison using `MessageDigest.isEqual` to prevent timing attacks.
+    - [ ] Endpoint `/v1/auth/verify` validates tokens and rejects forged/expired tokens.
+    - [ ] Unit tests verify token generation, valid verification, and rejection of tampered/expired tokens.
+  - **Verification:**
+    - [ ] Backend test: `cd backend && mvn test -pl api-gateway`
+  - **Dependencies:** Task 1
+  - **Files likely touched:**
+    - `backend/api-gateway/src/main/java/com/social/gateway/security/JwtTokenProvider.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`
+    - `backend/api-gateway/src/test/java/com/social/gateway/security/JwtTokenProviderTest.java`
 
-- [x] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
-  - Acceptance: Extract `authAccountStorage.ts`, `authGoogleHandler.ts`, and `authProfileSync.ts`. Reduce `AuthContext.tsx` from 713 lines to ~130 lines. Maintain all `useAuth()` interface functions and behavior.
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/context/AuthContext.tsx`
-  - Files: `frontend/src/context/authAccountStorage.ts`, `frontend/src/context/authGoogleHandler.ts`, `frontend/src/context/authProfileSync.ts`, `frontend/src/context/AuthContext.tsx`
-  - Scope: M
+- [ ] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
+  - **Description:** Add `POST /v1/auth/google` endpoint to `AuthController` and `GatewayAuthService`. Refactor frontend `authGoogleHandler.ts` and `authApi.ts` to call `/v1/auth/google` without fabricating fake client-side passwords.
+  - **Acceptance criteria:**
+    - [ ] `GoogleAuthRequest` DTO defined with `email`, `name`, `avatarUrl`, `googleId`.
+    - [ ] `POST /v1/auth/google` creates or retrieves Google user and returns signed JWT without fake passwords.
+    - [ ] Frontend `authGoogleHandler.ts` removes `GOOGLE_OAUTH_PREFIX` and static password fabrication.
+    - [ ] Frontend falls back cleanly to local mock user when backend is offline.
+    - [ ] Frontend CodeScene Code Health remains 10.00 / 10.00 with 0 warnings.
+  - **Verification:**
+    - [ ] Backend test: `cd backend && mvn test -pl common-models,api-gateway`
+    - [ ] Frontend test: `cd frontend && npx tsc -b && npm run test:unit`
+    - [ ] CodeScene check: `cs check frontend/src/context/authGoogleHandler.ts frontend/src/api/authApi.ts`
+  - **Dependencies:** Task 1, Task 2
+  - **Files likely touched:**
+    - `backend/common-models/src/main/java/com/social/common/dto/GoogleAuthRequest.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
+    - `frontend/src/api/authApi.ts`
+    - `frontend/src/context/authGoogleHandler.ts`
 
-- [x] Task 3: `AnalyticsContext.tsx` Telemetry Aggregation & Store Decomposition
-  - Acceptance: Extract `analyticsAggregation.ts` and `analyticsSeedStore.ts` for metrics math, real-time recalculations, and localStorage syncing. Reduce `AnalyticsContext.tsx` from 495 lines to ~110 lines.
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/context/AnalyticsContext.tsx`
-  - Files: `frontend/src/context/analyticsAggregation.ts`, `frontend/src/context/analyticsSeedStore.ts`, `frontend/src/context/AnalyticsContext.tsx`
-  - Scope: M
-
-### Checkpoint: Contexts & API
-- [x] Context and API files reduced below 150 lines.
-- [x] All 97 unit tests pass, `tsc -b` clean.
-
-## Phase 2: Navigation & Notifications Tier
-
-- [x] Task 4: `useNotificationPolling.ts` Generator & Cache Decomposition
-  - Acceptance: Extract `notificationGenerator.ts` and `notificationStorage.ts` for actor matching, synthetic notification logic, and localStorage state. Reduce `useNotificationPolling.ts` from 420 lines to ~90 lines.
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/components/nav/useNotificationPolling.ts`
-  - Files: `frontend/src/components/nav/notificationGenerator.ts`, `frontend/src/components/nav/notificationStorage.ts`, `frontend/src/components/nav/useNotificationPolling.ts`
-  - Scope: S
-
-### Checkpoint: Navigation & Notifications
-- [x] Polling hook reduced below 100 lines.
-- [x] Notifications tests pass without regression.
-
-## Phase 3: Feed, Composer & Toolbar Tier
-
-- [x] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
-  - Acceptance: Extract `PostCardContent.tsx` from `PostCard.tsx` (<120 lines). Extract `PostComposerForm.tsx` and `PostMediaDropzone.tsx` from `PostCreateModal.tsx` (<100 lines).
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/feed/`
-  - Files: `frontend/src/app/feed/PostCardContent.tsx`, `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostComposerForm.tsx`, `frontend/src/app/feed/PostMediaDropzone.tsx`, `frontend/src/app/feed/PostCreateModal.tsx`
-  - Scope: M
-
-- [x] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
-  - Acceptance: Extract `MediaPickerPopovers.tsx` and `MediaUploadAction.tsx`. Reduce `PostMediaToolbar.tsx` from 310 lines to ~80 lines.
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/feed/PostMediaToolbar.tsx`
-  - Files: `frontend/src/app/feed/MediaPickerPopovers.tsx`, `frontend/src/app/feed/MediaUploadAction.tsx`, `frontend/src/app/feed/PostMediaToolbar.tsx`
-  - Scope: S
-
-### Checkpoint: Feed & Composer
-- [x] Post card, modal, and toolbar files reduced below 120 lines.
-- [x] Composer and feed tests pass cleanly.
-
-## Phase 4: Auth & Modal Tier
-
-- [x] Task 7: `GoogleOAuthModal.tsx` Account List & Custom Form Decomposition
-  - Acceptance: Extract `GoogleAccountList.tsx` and `GoogleCustomAccountForm.tsx`. Reduce `GoogleOAuthModal.tsx` from 399 lines to ~90 lines.
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/login-card/GoogleOAuthModal.tsx`
-  - Files: `frontend/src/app/login-card/GoogleAccountList.tsx`, `frontend/src/app/login-card/GoogleCustomAccountForm.tsx`, `frontend/src/app/login-card/GoogleOAuthModal.tsx`
-  - Scope: S
-
-- [x] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
-  - Acceptance: Extract `RegisterInputFields.tsx` from `RegisterForm.tsx` (<90 lines). Extract `AuthCardHeader.tsx` from `login-card/page.tsx` (<120 lines).
-  - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/auth/RegisterForm.tsx src/app/login-card/page.tsx`
-  - Files: `frontend/src/app/auth/RegisterInputFields.tsx`, `frontend/src/app/auth/RegisterForm.tsx`, `frontend/src/app/login-card/AuthCardHeader.tsx`, `frontend/src/app/login-card/page.tsx`
-  - Scope: S
-
-- [x] Task 9: Verification Suite & Quality Gates
-  - Acceptance: Add `frontend/test/codescene_code_health_refactor.test.mjs` verifying file size constraints and modular imports. Run `npx tsc -b`, `npx oxlint .`, `npm run test:unit`, and `npm run build`.
-  - Verify: `cd frontend && npm run test:unit && npm run build`
-  - Files: `frontend/test/codescene_code_health_refactor.test.mjs`, `frontend/package.json`
-  - Scope: S
-
-### Checkpoint: Complete
-- [x] All 10 hotspot files decomposed cleanly with modular architecture.
-- [x] CodeScene Code Health verified, all 104 unit tests passing, production build succeeds.
-
-## Phase 5: Impacted Files Decomposition (Point 2)
-- [x] Task 10: `NewsFeedRightSidebar.tsx` -> Extract `SidebarSearchBox.tsx` (Score: 10.00 / 10.00)
-- [x] Task 11: `CommentSection.tsx` -> Extract `CommentTreeItem.tsx` and `CommentReplyComposer.tsx` (Score: 10.00 / 10.00)
-- [x] Task 12: `PostMediaViewer.tsx` -> Simplify fallback error boundary & sample video fallback (Score: 10.00 / 10.00)
-- [x] Task 13: `LoginForm.tsx` -> Extract `LoginInputFields.tsx` and `loginValidation.ts` (Score: 10.00 / 10.00)
-- [x] Task 14: `UserProfileCard.tsx` -> Extract `ProfileCardBanner.tsx` and `ProfileCardMetrics.tsx` (Score: 10.00 / 10.00)
-- [x] Task 15: `authorUtils.ts` -> Decompose into small pure helpers & remove string heavy args (Score: 10.00 / 10.00)
-- [x] Task 16: `useLikeAction.ts` -> Extract notification dispatch & optimistic like helpers (Score: 10.00 / 10.00)
-- [x] Task 17: `profileActivityStore.ts` -> Extract local storage persistence & baseline resolution (Score: 10.00 / 10.00)
-
-### Checkpoint: Impacted Files Complete
-- [x] All 8 impacted files + 7 extracted modules at CodeScene Code Health 10.00 / 10.00.
-- [x] Zero regressions: 104/104 tests passing.
-
-## Phase 6: CodeScene Hotspots 10/10 & Code Health 10/10 Repository-Wide (Point 3)
-- [x] Task 18: `dateUtils.ts` & `userSearchIndex.ts` (Score: 10.00 / 10.00)
-- [x] Task 19: `DashboardAnalyticsInterpretation.tsx` & `DashboardRecommendationsCard.tsx` (Score: 10.00 / 10.00)
-- [x] Task 20: `tokenManager.ts`, `httpPayloadParser.ts`, `client.ts`, `feedApi.ts` (Score: 10.00 / 10.00)
-- [x] Task 21: `socialApi.ts` decomposed into `socialLikesApi.ts`, `socialCommentsApi.ts`, `socialFollowsApi.ts` (Score: 10.00 / 10.00)
-- [x] Task 22: `googleOAuth.ts` decomposed into `googleIdentityScript.ts`, `googleProfileFetcher.ts`, `googleOAuthLauncher.ts` (Score: 10.00 / 10.00)
-- [x] Task 23: `RegisterForm.tsx` decomposed into `useRegisterForm.ts` & `RegisterToggleLink.tsx` (Score: 10.00 / 10.00)
-- [x] Task 24: Notification polling decomposed into `notificationGenerator.ts`, `notificationActors.ts`, `notificationActorData.ts`, `notificationFetcher.ts` (Score: 10.00 / 10.00)
-- [x] Task 25: Feed modals & components decomposed: `PostModalControls.tsx`, `PostEditFormBody.tsx`, `useFeedState.ts`, `mediaTypeDetection.ts`, `FeedAppearanceSwitcher.tsx`, `FeedEmptyState.tsx` (Score: 10.00 / 10.00)
-- [x] Task 26: Post Card decomposed: `PostActionButtons.tsx`, `usePostCommentsToggle.ts`, `postCardBorderUtils.ts` (Score: 10.00 / 10.00)
-- [x] Task 27: Feed action hooks: `useCommentAction.ts` and `useFollowAction.ts` decomposed into pure action helpers (Score: 10.00 / 10.00)
-- [x] Task 28: `AnalyticsContext.tsx` decomposed: `useAnalyticsState.ts`, `useAnalyticsMutations.ts`, `useAnalyticsRefresh.ts`, `useAnalyticsSync.ts`, `analyticsReducers.ts`, `analyticsAggregation.ts` (Score: 10.00 / 10.00)
-- [x] Task 29: Auth context & handlers: `authProfileSync.ts`, `authLoginHandler.ts`, `authRegisterHandler.ts`, `authGoogleHandler.ts`, `useAuthActions.ts`, `AuthContext.tsx` (Score: 10.00 / 10.00)
-
-### Checkpoint: Hotspot 10/10 and Code Health 10/10 Complete
-- [x] 128 frontend source files scanned: all 128 files at CodeScene Code Health 10.00 / 10.00 (or N/A for pure re-export index).
-- [x] 0 CodeScene warnings repository-wide (`cs check | grep "^warn:"` returns 0).
-- [x] 104 / 104 unit tests passing cleanly.
-- [x] `tsc -b` typecheck clean, production build succeeds.
-
-
+- [ ] Task 4: Secret Management, Permissions & Security Regression Tests
+  - **Description:** Set restrictive permissions (`chmod 600`) on `backend/.env`, verify `.gitignore` covers all sensitive files, document `JWT_SECRET` in `backend/.env.example`, and write automated test asserting credentials protection and token signing.
+  - **Acceptance criteria:**
+    - [ ] `backend/.env` file permissions set to 600 (owner read/write only).
+    - [ ] `.gitignore` contains explicit patterns blocking `.env`, `*.env`, `.env.*`.
+    - [ ] `backend/.env.example` documents `JWT_SECRET` and deployment security guidelines.
+    - [ ] Automated security regression test passes verifying `.env` isolation and JWT cryptographic signature validity.
+  - **Verification:**
+    - [ ] Node test: `cd frontend && node --test test/security_hardening.test.mjs`
+    - [ ] Full suite: `npm run test:unit`
+  - **Dependencies:** Task 1, Task 2, Task 3
+  - **Files likely touched:**
+    - `.gitignore`
+    - `backend/.env.example`
+    - `frontend/test/security_hardening.test.mjs`

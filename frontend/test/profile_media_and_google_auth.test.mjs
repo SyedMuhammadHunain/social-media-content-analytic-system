@@ -127,7 +127,7 @@ test('Profile Media Synchronization, Azure Storage, Google Re-Login & Video Suit
     );
   });
 
-  await suite.test('4. Deterministic Google OAuth Re-Login Flow', () => {
+  await suite.test('4. Deterministic Google OAuth Re-Login Flow & Security Hardening', () => {
     const authContextSrc = fs.readFileSync(
       path.join(projectRoot, 'src', 'context', 'AuthContext.tsx'),
       'utf-8'
@@ -141,30 +141,28 @@ test('Profile Media Synchronization, Azure Storage, Google Re-Login & Video Suit
       'utf-8'
     );
 
-    // Verify deterministic credentials in AuthContext
-    assert.ok(
-      authContextSrc.includes('deterministicGoogleId'),
-      'AuthContext must derive deterministic Google ID'
-    );
-    assert.ok(
-      authContextSrc.includes('goog_oauth_'),
-      'AuthContext must use goog_oauth_ token scheme'
-    );
-
-    // Verify backend recognition of Google provider
-    assert.ok(
-      gatewayAuthJava.includes('"GOOGLE".equalsIgnoreCase(user.getAuthProvider())'),
-      'Backend GatewayAuthService must allow GOOGLE provider login'
-    );
-    assert.ok(
-      gatewayAuthJava.includes('rawPassword.startsWith("goog_oauth_")'),
-      'Backend must recognize goog_oauth_ prefix'
-    );
-
     // Verify Google modal passes stable accounts
     assert.ok(
       modalSrc.includes('googleId:'),
       'GoogleOAuthModal must specify deterministic googleId'
+    );
+
+    // Verify backend enforces strict BCrypt password matching without backdoors
+    assert.ok(
+      !gatewayAuthJava.includes('"password123".equals(rawPassword)'),
+      'Backend GatewayAuthService must NOT contain hardcoded password123 bypass'
+    );
+    assert.ok(
+      !gatewayAuthJava.includes('"admin123".equals(rawPassword)'),
+      'Backend GatewayAuthService must NOT contain hardcoded admin123 bypass'
+    );
+    assert.ok(
+      !gatewayAuthJava.includes('"password".equals(rawPassword)'),
+      'Backend GatewayAuthService must NOT contain hardcoded password bypass'
+    );
+    assert.ok(
+      gatewayAuthJava.includes('passwordEncoder.matches(rawPassword, user.getPasswordHash())'),
+      'Backend GatewayAuthService must enforce BCrypt password matching'
     );
   });
 
