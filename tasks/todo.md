@@ -29,14 +29,14 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/NewsFeedRightSidebar.tsx`
   - Scope: S
 
-- [ ] Task 4: Thread user data from `NewsFeedPage` to sidebar search
+- [x] Task 4: Thread user data from `NewsFeedPage` to sidebar search
   - Acceptance: `NewsFeedPage` passes `demoUsers`, `suggestedCreators`, and `posts` authors pool plus `user` to `NewsFeedRightSidebar`.
   - Verify: `cd frontend && npx tsc -b && npx oxlint . && npm run build`
   - Files: `frontend/src/app/feed/NewsFeedPage.tsx`
   - Scope: S
 
 ### Checkpoint: Complete
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] `npm run build` succeeds
-- [ ] Native test suite passes
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] `npm run build` succeeds
+- [x] Native test suite passes

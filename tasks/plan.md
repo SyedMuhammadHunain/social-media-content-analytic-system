@@ -12,26 +12,26 @@ Wire sidebar search box to search all registered users client-side. Dropdown sho
 ## Task List
 
 ### Phase 1: Search Logic
-- [ ] Task 1: Create `userSearchIndex.ts` with `buildUserPool` and `matchUsers`
-- [ ] Task 2: Unit tests for search logic
+- [x] Task 1: Create `userSearchIndex.ts` with `buildUserPool` and `matchUsers`
+- [x] Task 2: Unit tests for search logic
 
 ### Checkpoint: Search Logic
-- [ ] `npx tsc -b` clean
-- [ ] `npm test` passes (existing + new)
+- [x] `npx tsc -b` clean
+- [x] `npm test` passes (existing + new)
 
 ### Phase 2: UI Integration
-- [ ] Task 3: Wire search dropdown into `SidebarSearchBox` + `NewsFeedRightSidebar`
-- [ ] Task 4: Thread user data from `NewsFeedPage` to sidebar search
+- [x] Task 3: Wire search dropdown into `SidebarSearchBox` + `NewsFeedRightSidebar`
+- [x] Task 4: Thread user data from `NewsFeedPage` to sidebar search
 
 ### Checkpoint: Complete
-- [ ] `npx tsc -b` clean
-- [ ] `npx oxlint .` clean
-- [ ] `npm run build` succeeds
-- [ ] All tests pass
-- [ ] Type "al" → matching users appear in dropdown
-- [ ] Click result → profile opens
-- [ ] Escape / click outside → dropdown closes
-- [ ] Arrow keys navigate, Enter selects
+- [x] `npx tsc -b` clean
+- [x] `npx oxlint .` clean
+- [x] `npm run build` succeeds
+- [x] All tests pass
+- [x] Type "al" → matching users appear in dropdown
+- [x] Click result → profile opens
+- [x] Escape / click outside → dropdown closes
+- [x] Arrow keys navigate, Enter selects
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

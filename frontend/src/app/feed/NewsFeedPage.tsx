@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { Layout, LayoutContent, VStack } from '@astryxdesign/core/Layout';
 
 import type {
@@ -38,6 +38,7 @@ import {
   type ProfileViewer,
 } from '../../utils/profileActivityStore.ts';
 import { getSharedPosts } from '../../utils/sharedPostsStore.ts';
+import { buildUserPool, type SearchableUser } from '../../utils/userSearchIndex.ts';
 
 const DashboardPage = lazy(() => import('../dashboard/page.tsx'));
 
@@ -330,7 +331,7 @@ export function NewsFeedPage({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleViewUserProfile = (targetUser: UserProfile | User | SuggestedCreator | ProfileViewer) => {
+  const handleViewUserProfile = (targetUser: UserProfile | User | SuggestedCreator | ProfileViewer | SearchableUser) => {
     const isOwn =
       targetUser.id === user.id ||
       targetUser.username.toLowerCase() === user.username.toLowerCase();
@@ -405,6 +406,10 @@ export function NewsFeedPage({
   const isOwnProfile = activeProfile.id === user.id;
   const filteredPosts = filterPosts(posts, activeFilter);
   const savedCount = posts.filter((p) => p.isBookmarked).length;
+  const searchableUsers = useMemo(
+    () => buildUserPool(demoUsers, suggestedCreators, posts, user),
+    [demoUsers, suggestedCreators, posts, user]
+  );
 
   return (
     <Layout
@@ -542,6 +547,8 @@ export function NewsFeedPage({
             <NewsFeedRightSidebar
               activeHashtag={activeTab === 'feed' && activeFilter.type === 'HASHTAG' ? activeFilter.value : undefined}
               suggestedCreators={suggestedCreators}
+              searchableUsers={searchableUsers}
+              currentUserId={user.id}
               onSelectHashtag={handleSelectHashtagFilter}
               onToggleFollow={mutations.handleToggleFollow}
               onViewProfile={handleViewUserProfile}
