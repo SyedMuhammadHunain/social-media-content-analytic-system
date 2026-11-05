@@ -156,6 +156,29 @@ test('Mobile Responsive Navigation & Scroll Unlocking (Task 1)', async (suite) =
     assert.ok(newsfeedContent.includes('isOpen={isMobileDrawerOpen}'), 'Drawer must receive isMobileDrawerOpen');
     assert.ok(newsfeedContent.includes('setIsMobileDrawerOpen(false)'), 'Must wire close handler');
   });
+
+  await suite.test('PostCardActionBar and PostActionButtons render icon-only on mobile (< 768px) (Task 4)', () => {
+    const actionBarPath = path.join(projectRoot, 'frontend/src/app/feed/PostCardActionBar.tsx');
+    const actionButtonsPath = path.join(projectRoot, 'frontend/src/app/feed/PostActionButtons.tsx');
+    const newsfeedPath = path.join(projectRoot, 'frontend/src/app/feed/NewsFeedPage.tsx');
+
+    const actionBarContent = fs.readFileSync(actionBarPath, 'utf8');
+    const actionButtonsContent = fs.readFileSync(actionButtonsPath, 'utf8');
+    const newsfeedContent = fs.readFileSync(newsfeedPath, 'utf8');
+
+    assert.ok(actionBarContent.includes('useMediaQuery'), 'PostCardActionBar must use useMediaQuery');
+    assert.ok(actionBarContent.includes("'(max-width: 767px)'"), 'PostCardActionBar must check mobile breakpoint (max-width: 767px)');
+    assert.ok(actionBarContent.includes('isIconOnly={isMobile}'), 'PostCardActionBar must pass isIconOnly={isMobile}');
+    assert.ok(actionBarContent.includes('post-card-action-bar'), 'PostCardActionBar must have post-card-action-bar wrapper');
+
+    assert.ok(actionButtonsContent.includes('isIconOnly?: boolean'), 'LikeActionButton and BookmarkActionButton must accept isIconOnly');
+    assert.ok(actionButtonsContent.includes('isIconOnly={isIconOnly}'), 'Buttons must forward isIconOnly to Astryx Button');
+
+    assert.ok(
+      newsfeedContent.includes('.post-card-action-bar button'),
+      'NewsFeedPage CSS must include mobile rule for .post-card-action-bar'
+    );
+  });
 });
 
 const CDP_PORT = 9288;
@@ -392,5 +415,42 @@ test('Mobile Responsive App Shell & Navigation CDP Live Verification', async (t)
     })()
   `);
   assert.ok(notifViewCheck, 'Clicking bottom nav notifications should swap center view to notifications');
+
+  // Step 6: Mobile Icon-Only Action Buttons in NewsFeed (Task 4)
+  // Switch back to Feed
+  await evalExpr(`
+    (() => {
+      const logo = document.querySelector('[data-testid="mobile-header-logo"]');
+      if (logo) logo.click();
+    })()
+  `);
+  await sleep(600);
+
+  const actionButtonsMobileCheck = await evalExpr(`
+    (() => {
+      const actionBar = document.querySelector('.post-card-action-bar');
+      if (!actionBar) return { found: false };
+      const buttons = Array.from(actionBar.querySelectorAll('button'));
+      const textSpans = Array.from(actionBar.querySelectorAll('button span.xb3r6kr, button span > span:nth-child(2)'));
+      const svgs = Array.from(actionBar.querySelectorAll('button svg'));
+
+      const allTextsHiddenOrOmitted = textSpans.length === 0 || textSpans.every(span => {
+        const style = window.getComputedStyle(span);
+        return style.display === 'none' || span.innerText.trim() === '';
+      });
+
+      return {
+        found: true,
+        buttonCount: buttons.length,
+        hasIcons: svgs.length > 0,
+        allTextsHiddenOrOmitted,
+      };
+    })()
+  `);
+
+  assert.ok(
+    actionButtonsMobileCheck && (!actionButtonsMobileCheck.found || actionButtonsMobileCheck.allTextsHiddenOrOmitted),
+    'On mobile viewport (< 768px), post card actions must be icon-only with text labels hidden'
+  );
 });
 

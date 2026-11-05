@@ -1,74 +1,54 @@
-# Active Tasks: Mobile Responsive App Shell & Navigation
+# Active Tasks: Mobile Refinements & Animated GIF Integration
 
 Spec: `docs/specs/SPEC-mobile-responsive-navigation.md`
 Plan: `tasks/plan.md`
 
 - [x] Task 1: Unlock Viewport Scrolling and Implement Mobile Header
-  - **Description:** Remove global `overflow: hidden` from `App.tsx` (`html`, `body`, and outer container). Build `MobileAppHeader.tsx` styled with Astryx tokens, featuring centered App Logo and top-right Search and Hamburger Astryx `IconButton`s, displayed only on viewports < 768px.
+- [x] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping
+- [x] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification
+
+- [x] Task 4: Mobile Icon-Only Post Actions and Top Header Polishing
+  - **Description:** Ensure `MobileAppHeader.tsx` places Hamburger button on top-left, centered App Logo only (no "SocialPulse" text), and Search button on top-right. In `PostCardActionBar.tsx` and `PostActionButtons.tsx`, render Like, Comment, Bookmark, and Share buttons as icon-only on mobile screens (< 768px), hiding text strings ("5 Likes", "3 Comments", "Save", "Share"), while retaining counts and labels on desktop (≥ 768px).
   - **Acceptance criteria:**
-    - [x] `html` and `body` no longer have hardcoded `overflow: hidden` set by `App.tsx`.
-    - [x] Root container allows vertical scrolling (`min-height: 100vh`, `overflow-y: auto`).
-    - [x] `MobileAppHeader` renders with centered App Logo/Title on screens < 768px.
-    - [x] Search and Hamburger icons (`search`, `menu`) render side-by-side at top right using Astryx `IconButton` and `Icon`.
-    - [x] On viewports ≥ 768px, `MobileAppHeader` is hidden.
+    - [x] `MobileAppHeader.tsx` renders Hamburger button on top left, App Logo centered without text, and Search button on top right.
+    - [x] On mobile viewports (< 768px), post card actions (Like, Comment, Bookmark, Share) render strictly as icons with no accompanying label text.
+    - [x] On desktop viewports (≥ 768px), post card actions display numerical counts and text labels.
+    - [x] Unit and CDP tests pass with 100% green verification.
   - **Verification:**
     - [x] `cd frontend && npx tsc -b`
     - [x] `cd frontend && npm run lint`
-    - [x] Focused unit test in `frontend/tests/mobile_responsive_navigation.test.mjs` verifying styles and header rendering.
-  - **Dependencies:** None
+    - [x] `cd frontend && npm run test:unit`
+  - **Dependencies:** Task 1, Task 2, Task 3
   - **Files likely touched:**
-    - `frontend/src/App.tsx`
     - `frontend/src/app/feed/MobileAppHeader.tsx`
+    - `frontend/src/app/feed/PostCardActionBar.tsx`
+    - `frontend/src/app/feed/PostActionButtons.tsx`
     - `frontend/src/app/feed/NewsFeedPage.tsx`
     - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** S (3 files)
 
-- [x] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping
-  - **Description:** Build `MobileBottomNav.tsx` containing 5 icons in sequential order: Saved, Creator Analytics, + Create Post (center), Notifications, Profile. Connect it to `NewsFeedPage.tsx` so clicking each icon swaps the center column view (Saved, Analytics, Notifications, Profile) or opens Create Post modal, while hiding desktop sidebars on screens < 768px.
+- [ ] Task 5: Animated GIF Provider, Search & Direct URL Attachment
+  - **Description:** Upgrade `GifPickerPopover` in `MediaPickerPopovers.tsx` to support real animated GIFs (`.gif`), live search input with instant tag filtering, and custom direct GIF URL input. Connect selection to `PostComposerForm` and `PostCreateModal` so animated GIFs preview and post cleanly.
   - **Acceptance criteria:**
-    - [x] `MobileBottomNav` renders fixed at bottom on viewports < 768px with exactly 5 icons in order: `[Saved, Creator Analytics, + Create Post, Notifications, Profile]`.
-    - [x] Desktop left sidebar (profile/navigation) and right sidebar (recommendations/search) hidden on screens < 768px via media queries.
-    - [x] Main center column occupies full width on mobile viewports.
-    - [x] Tapping "Creator Analytics" swaps center feed to Creator Analytics charts.
-    - [x] Tapping "Notifications" swaps center feed to Notifications list.
-    - [x] Tapping "Saved" swaps center feed to saved posts filter.
-    - [x] Tapping "Profile" displays profile card view.
-    - [x] Tapping "+" opens the post creation composer modal.
+    - [ ] `GifPickerPopover` provides an Astryx search bar filtering animated GIFs in real time.
+    - [ ] Library contains real animated `.gif` reaction assets (Celebration, Dancing, Applause, Mind Blown, Fire, Shocked, Laughing, etc.).
+    - [ ] Allows pasting custom external GIF URL to attach any animated GIF directly.
+    - [ ] Selecting a GIF attaches it to the post composer and renders animated preview in `PostMediaViewer`.
+    - [ ] Unit tests verify search filtering, GIF selection, and post attachment.
   - **Verification:**
-    - [x] `cd frontend && npx tsc -b`
-    - [x] `cd frontend && npm run lint`
-    - [x] Focused unit test verifying bottom navigation order and view switching callbacks.
-  - **Dependencies:** Task 1
+    - [ ] `cd frontend && npx tsc -b`
+    - [ ] `cd frontend && npm run lint`
+    - [ ] `cd frontend && npm run test:unit`
+  - **Dependencies:** None
   - **Files likely touched:**
-    - `frontend/src/app/feed/MobileBottomNav.tsx`
-    - `frontend/src/app/feed/astryxMobileIcons.tsx`
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
-    - `frontend/test/mobile_responsive_navigation.test.mjs`
-  - **Estimated scope:** M (3 files)
-
-- [x] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification
-  - **Description:** Build `MobileNavigationDrawer.tsx` utilizing Astryx `Drawer` to slide in from the left on Hamburger menu click. Host Appearance (Dark/Light theme switch with Astryx styling), Logout action, and user identity info. Create headless Chrome CDP automated test suite verifying mobile viewport (390x844) scroll behavior, drawer slide, view switches, and desktop (1440x900) 3-column preservation.
-  - **Acceptance criteria:**
-    - [x] Tapping Hamburger button triggers left slide-out Astryx `Drawer`.
-    - [x] Drawer contains current user identity, Appearance theme switch (toggle dark/light), and Logout button.
-    - [x] Backdrop click or escape key closes the drawer.
-    - [x] Mobile viewport (390x844) scrolls vertically without hindrance.
-    - [x] Desktop viewport (1440x900) retains complete 3-column layout without regressions.
-    - [x] Full test suite (`npm test`) passes with 100% green tests.
-  - **Verification:**
-    - [x] `cd frontend && npx tsc -b`
-    - [x] `cd frontend && npm run lint`
-    - [x] `cd frontend && npm test`
-    - [x] `cd frontend && npm run build`
-  - **Dependencies:** Task 1, Task 2
-  - **Files likely touched:**
-    - `frontend/src/app/feed/MobileNavigationDrawer.tsx`
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
+    - `frontend/src/app/feed/MediaPickerPopovers.tsx`
+    - `frontend/src/app/feed/PostMediaToolbar.tsx`
+    - `frontend/src/app/feed/PostCreateModal.tsx`
     - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** M (3 files)
 
 ## Checkpoint: Complete
-- [x] All 3 tasks checked off
-- [x] Zero TypeScript or lint errors
-- [x] All unit and CDP test suites pass
-- [x] Production build succeeds
+- [ ] Task 4 and Task 5 checked off
+- [ ] Zero TypeScript or lint errors
+- [ ] All unit and CDP test suites pass
+- [ ] Production build succeeds

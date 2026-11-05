@@ -1,40 +1,39 @@
-# Implementation Plan: Mobile Responsive App Shell & Navigation
+# Implementation Plan: Mobile Refinements & Animated GIF Integration
 
 Spec: `docs/specs/SPEC-mobile-responsive-navigation.md`
 
 ## Overview
-Decompose the implementation of the mobile-first responsive app shell into 3 thin, verifiable tasks. The solution eliminates root viewport scroll locks, hides desktop sidebars on screens < 768px, introduces a sticky top header with centered logo and right search/hamburger icons, a left-sliding Astryx drawer for Appearance & Logout, an Astryx 5-icon bottom bar for in-place center view switching, and verifies behavior via headless Chrome CDP.
+Decompose the requested refinements into two focused, verifiable slices:
+1. **Task 4 (Mobile Post Actions & Header)**: Verify top-left Hamburger, centered App Logo without text, and render post action buttons (Like, Comment, Bookmark, Share) icon-only without text strings on mobile viewports (< 768px).
+2. **Task 5 (Animated GIF Provider & Search)**: Upgrade `GifPickerPopover` with search input, instant keyword filtering, animated `.gif` reaction library (Tenor/Giphy CDN animated assets), custom GIF link input, and seamless attachment to the post composer.
 
 ## Architecture Decisions
-- **Responsive Breakpoint:** `@media (max-width: 767px)` for mobile single-column shell; `min-width: 768px` for desktop multi-column workspace.
-- **Root Scroll Architecture:** Remove hardcoded `overflow: hidden` on `html`, `body`, and root container in `App.tsx`. Use `min-height: 100vh` and standard overflow scrolling so mobile browsers natively handle touch scrolling.
-- **Astryx Component & Icon Architecture:** Use `@astryxdesign/core` primitives (`Drawer`, `IconButton`, `Icon`, `Button`). Use Astryx icon registry names (`menu`, `search`, `checkDouble`, `calendar`, `viewColumns`, `info`) with zero external icon packages.
-- **In-Place View Switching:** In `NewsFeedPage.tsx`, manage active mobile view state (`feed | analytics | notifications | saved | profile`). Dynamically render the respective view component within the center column without requiring full-page route refreshes.
+- **Mobile Icon-Only Actions:** Scope `@media (max-width: 767px)` rules so post action buttons in `PostCardActionBar.tsx` hide text labels on mobile while keeping labels and counts on desktop screens (≥ 768px). Maintain `aria-label` for screen reader accessibility.
+- **GIF Provider & Search Architecture:**
+  - In `MediaPickerPopovers.tsx`, create an expandable search-driven GIF picker.
+  - Curate popular animated reaction GIFs categorized by keywords (e.g., `celebration`, `clap`, `funny`, `mind blown`, `dance`, `fire`, `love`, `thumbs up`, `agree`, `shocked`, `cat`).
+  - Search input filters GIFs by title, category, and tags in real time.
+  - Custom GIF URL input tab allows pasting any valid animated GIF link directly.
+  - Selected GIF attaches to `PostComposerForm` / `PostCreateModal` as `mediaUrl` and renders in `PostMediaViewer.tsx`.
 
 ## Task List
 
-### Phase 1: Viewport Foundation & Mobile Header
-- [ ] Task 1: Unlock Viewport Scrolling and Implement Mobile Header (`tasks/todo.md`)
+### Phase 1: Mobile Icon-Only Post Actions & Header
+- [x] Task 4: Mobile Icon-Only Post Actions and Top Header Polishing (`tasks/todo.md`)
 
-### Phase 2: Bottom Navigation & Center View Swapping
-- [ ] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping (`tasks/todo.md`)
-
-### Phase 3: Slide Drawer & Full Verification
-- [ ] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification (`tasks/todo.md`)
+### Phase 2: Animated GIF Support & Search
+- [ ] Task 5: Animated GIF Provider, Search & Direct URL Attachment (`tasks/todo.md`)
 
 ### Checkpoint: Complete
-- [ ] All tests pass (`npm test`)
+- [ ] All unit and CDP test suites pass (`npm test`)
 - [ ] TypeScript compilation clean (`npx tsc -b`)
 - [ ] Linter clean (`npm run lint`)
 - [ ] Production build succeeds (`npm run build`)
-- [ ] Headless mobile touch scrolling and responsive layout verified via CDP
+- [ ] Mobile viewports display icon-only post actions and top-left hamburger
+- [ ] GIF picker searches, filters, and attaches animated GIFs to posts
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Desktop 3-column layout regresses | High | Scope mobile CSS strictly within `@media (max-width: 767px)`; verify desktop viewport (1440x900) in CDP test suite |
-| Mobile bottom bar obscures feed content | Med | Add bottom padding (`padding-bottom: 72px`) to mobile scroll container when bottom bar is active |
-| Unsaved composer state lost on view switch | Low | Keep post composer in modal or persist draft in state when switching to analytics/saved |
-
-## Open Questions
-- None. Confirmed in interview.
+| GIF loading latency | Low | Use high-speed CDN URLs and tiny preview thumbnails |
+| Desktop post button counts hidden accidentally | Med | Enforce strict `@media (max-width: 767px)` CSS scoping |

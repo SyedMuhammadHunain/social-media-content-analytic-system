@@ -132,6 +132,17 @@ const NEWSFEED_CSS = `
   .newsfeed-page-wrapper {
     padding: 0 !important;
   }
+  /* Mobile / Android: Icon-only post actions in newsfeed */
+  .post-card-action-bar button span.xjp7ctv > span:nth-child(2),
+  .post-card-action-bar button > span:first-child > span:nth-child(2) {
+    display: none !important;
+  }
+  .post-card-action-bar button {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    min-width: 36px !important;
+    justify-content: center !important;
+  }
 }
 @media (min-width: 768px) {
   .mobile-app-header,

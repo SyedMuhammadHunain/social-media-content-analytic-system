@@ -6,6 +6,7 @@
 import { HStack } from '@astryxdesign/core/Layout';
 import { Button } from '@astryxdesign/core/Button';
 import { Icon } from '@astryxdesign/core/Icon';
+import { useMediaQuery } from '@astryxdesign/core/hooks';
 import {
   ChatBubbleBottomCenterTextIcon,
   ShareIcon,
@@ -33,38 +34,47 @@ export function PostCardActionBar({
   onToggleComments,
   onToggleBookmark,
 }: PostCardActionBarProps) {
+  const isMobile = useMediaQuery('(max-width: 767px)', false);
+
   return (
-    <HStack hAlign="between" vAlign="center">
-      <HStack gap={3} vAlign="center">
-        <LikeActionButton
-          likesCount={likesCount}
-          isLiked={isLiked}
-          onToggle={() => onToggleLike(postId)}
-        />
+    <div className="post-card-action-bar" data-testid="post-card-action-bar">
+      <HStack hAlign="between" vAlign="center">
+        <HStack gap={isMobile ? 1 : 3} vAlign="center">
+          <LikeActionButton
+            likesCount={likesCount}
+            isLiked={isLiked}
+            isIconOnly={isMobile}
+            onToggle={() => onToggleLike(postId)}
+          />
 
-        <Button
-          data-testid="post-comment-btn"
-          label={`${commentsCount} Comments`}
-          variant="secondary"
-          size="sm"
-          icon={<Icon icon={ChatBubbleBottomCenterTextIcon} size="sm" />}
-          onClick={onToggleComments}
-        />
-      </HStack>
+          <Button
+            data-testid="post-comment-btn"
+            label={`${commentsCount} Comments`}
+            isIconOnly={isMobile}
+            variant="secondary"
+            size="sm"
+            icon={<Icon icon={ChatBubbleBottomCenterTextIcon} size="sm" />}
+            onClick={onToggleComments}
+          />
+        </HStack>
 
-      <HStack gap={2}>
-        <BookmarkActionButton
-          postId={postId}
-          isBookmarked={isBookmarked}
-          onToggle={() => onToggleBookmark?.(postId)}
-        />
-        <Button
-          label="Share"
-          variant="ghost"
-          size="sm"
-          icon={<Icon icon={ShareIcon} size="xsm" />}
-        />
+        <HStack gap={isMobile ? 1 : 2}>
+          <BookmarkActionButton
+            postId={postId}
+            isBookmarked={isBookmarked}
+            isIconOnly={isMobile}
+            onToggle={() => onToggleBookmark?.(postId)}
+          />
+          <Button
+            data-testid="post-share-btn"
+            label="Share"
+            isIconOnly={isMobile}
+            variant="ghost"
+            size="sm"
+            icon={<Icon icon={ShareIcon} size="xsm" />}
+          />
+        </HStack>
       </HStack>
-    </HStack>
+    </div>
   );
 }

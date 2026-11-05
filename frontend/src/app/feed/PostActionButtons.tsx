@@ -18,14 +18,16 @@ interface LikeButtonProps {
   likesCount: number;
   isLiked: boolean;
   onToggle: () => void;
+  isIconOnly?: boolean;
 }
 
-export function LikeActionButton({ likesCount, isLiked, onToggle }: LikeButtonProps) {
+export function LikeActionButton({ likesCount, isLiked, onToggle, isIconOnly }: LikeButtonProps) {
   const likeLabel = `${likesCount.toLocaleString()} ${isLiked ? 'Liked' : 'Like'}`;
   return (
     <Button
       data-testid="post-like-btn"
       label={likeLabel}
+      isIconOnly={isIconOnly}
       variant={isLiked ? 'primary' : 'secondary'}
       size="sm"
       icon={
@@ -44,9 +46,10 @@ interface BookmarkButtonProps {
   postId: string;
   isBookmarked?: boolean;
   onToggle?: () => void;
+  isIconOnly?: boolean;
 }
 
-export function BookmarkActionButton({ postId, isBookmarked, onToggle }: BookmarkButtonProps) {
+export function BookmarkActionButton({ postId, isBookmarked, onToggle, isIconOnly }: BookmarkButtonProps) {
   const bookmarkLabel = isBookmarked ? 'Saved' : 'Save';
   return (
     <div
@@ -56,6 +59,7 @@ export function BookmarkActionButton({ postId, isBookmarked, onToggle }: Bookmar
       <Button
         data-testid={`post-bookmark-btn-${postId}`}
         label={bookmarkLabel}
+        isIconOnly={isIconOnly}
         variant={isBookmarked ? 'secondary' : 'ghost'}
         size="sm"
         icon={
