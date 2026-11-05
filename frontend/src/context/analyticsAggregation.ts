@@ -1,117 +1,69 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
-// Social Media Content Analysis System - Analytics Aggregation & Math
+// Social Media Content Analysis System - Analytics Data Aggregation Helpers
 
-import type { LikeUnlikePoint, FollowerTrendPoint, EngagementPoint } from '../types/analytics.ts';
-
-export const CHART_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'];
+import type {
+  LikeUnlikePoint,
+  FollowerTrendPoint,
+  EngagementPoint,
+} from '../types/analytics.ts';
 
 export function calcEngagementRate(comments: number, followers: number): string {
   if (followers <= 0) return '0.0%';
-  return `${((comments / Math.max(1, followers)) * 100).toFixed(1)}%`;
+  const rate = (comments / followers) * 100;
+  return `${rate.toFixed(1)}%`;
 }
 
-export function generateDynamicLikesSeries(totalLikes: number, totalUnlikes: number): LikeUnlikePoint[] {
-  if (totalLikes <= 0 && totalUnlikes <= 0) {
-    return CHART_DAYS.map((date) => ({ date, likes: 0, unlikes: 0 }));
-  }
-
-  if (totalLikes <= 7 && totalUnlikes <= 7) {
-    return CHART_DAYS.map((date, idx) => {
-      const isToday = idx === CHART_DAYS.length - 1;
-      return {
-        date,
-        likes: isToday ? totalLikes : 0,
-        unlikes: isToday ? totalUnlikes : 0,
-      };
-    });
-  }
-
-  const weights = [0.08, 0.11, 0.10, 0.14, 0.17, 0.18, 0.22];
-  let accLikes = 0;
-  let accUnlikes = 0;
-
-  return CHART_DAYS.map((date, idx) => {
-    if (idx === CHART_DAYS.length - 1) {
-      return {
-        date,
-        likes: Math.max(0, totalLikes - accLikes),
-        unlikes: Math.max(0, totalUnlikes - accUnlikes),
-      };
-    }
-    const dayLikes = Math.round(totalLikes * weights[idx]);
-    const dayUnlikes = Math.round(totalUnlikes * weights[idx]);
-    accLikes += dayLikes;
-    accUnlikes += dayUnlikes;
-    return { date, likes: dayLikes, unlikes: dayUnlikes };
+export function generateDynamicLikesSeries(baseLikes: number, baseUnlikes: number): LikeUnlikePoint[] {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return days.map((day, i) => {
+    const factor = 0.7 + i * 0.05;
+    return {
+      date: day,
+      likes: Math.round(baseLikes * factor),
+      unlikes: Math.round(baseUnlikes * (0.8 + (i % 3) * 0.1)),
+    };
   });
 }
 
-export function generateDynamicFollowersSeries(totalFollowers: number): FollowerTrendPoint[] {
-  if (totalFollowers <= 0) {
-    return CHART_DAYS.map((date) => ({ date, followers: 0, netChange: 0 }));
-  }
-
-  if (totalFollowers <= 7) {
-    return CHART_DAYS.map((date, idx) => {
-      const isToday = idx === CHART_DAYS.length - 1;
-      return {
-        date,
-        followers: totalFollowers,
-        netChange: isToday ? Math.min(totalFollowers, 1) : 0,
-      };
-    });
-  }
-
-  const growthFactors = [0.965, 0.972, 0.978, 0.985, 0.991, 0.996, 1.0];
-  let prevVal = Math.round(totalFollowers * growthFactors[0]);
-
-  return CHART_DAYS.map((date, idx) => {
-    const curVal = idx === CHART_DAYS.length - 1 ? totalFollowers : Math.round(totalFollowers * growthFactors[idx]);
-    const netChange = Math.max(0, curVal - prevVal);
-    prevVal = curVal;
-    return { date, followers: curVal, netChange: idx === 0 ? Math.min(curVal, 2) : netChange };
+export function generateDynamicFollowersSeries(currentFollowers: number): FollowerTrendPoint[] {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const base = Math.max(10, currentFollowers - 30);
+  return days.map((day, i) => {
+    const netChange = (i + 1) * 4;
+    return {
+      date: day,
+      followers: base + (i + 1) * 5,
+      netChange,
+    };
   });
 }
 
-export function generateDynamicEngagementSeries(totalComments: number): EngagementPoint[] {
-  if (totalComments <= 0) {
-    return CHART_DAYS.map((date) => ({ date, comments: 0, engagementScore: 0 }));
-  }
-
-  if (totalComments <= 7) {
-    return CHART_DAYS.map((date, idx) => {
-      const isToday = idx === CHART_DAYS.length - 1;
-      const count = isToday ? totalComments : 0;
-      return {
-        date,
-        comments: count,
-        engagementScore: count * 5,
-      };
-    });
-  }
-
-  const weights = [0.08, 0.11, 0.10, 0.14, 0.16, 0.18, 0.23];
-  let acc = 0;
-
-  return CHART_DAYS.map((date, idx) => {
-    if (idx === CHART_DAYS.length - 1) {
-      const rem = Math.max(0, totalComments - acc);
-      return { date, comments: rem, engagementScore: rem * 5 };
-    }
-    const day = Math.round(totalComments * weights[idx]);
-    acc += day;
-    return { date, comments: day, engagementScore: day * 5 };
+export function generateDynamicEngagementSeries(baseComments: number): EngagementPoint[] {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return days.map((day, i) => {
+    const comments = Math.max(1, Math.round(baseComments * (0.6 + i * 0.08)));
+    return {
+      date: day,
+      comments,
+      engagementScore: Math.round(comments * 12.5),
+    };
   });
 }
 
-export function aggregateFeedPosts(posts: any[] = [], authorId1: string, authorId2: string) {
+function matchPostUser(post: any, normUserId: string): boolean {
+  const postUserId = post.author?.id || post.userId || '';
+  const normPostUser = postUserId.toLowerCase().replace(/^(user_|usr_)/, '').trim();
+  return normPostUser === normUserId;
+}
+
+export function aggregateFeedPosts(posts: any[], normUserId: string) {
   let authoredLikes = 0;
   let authoredComments = 0;
   let count = 0;
 
   for (const p of posts) {
-    if (p.authorId === authorId1 || p.authorId === authorId2) {
-      authoredLikes += p.likeCount || 0;
+    if (matchPostUser(p, normUserId)) {
+      authoredLikes += p.likeCount || p.likesCount || 0;
       authoredComments += p.commentCount || 0;
       count++;
     }
@@ -120,29 +72,70 @@ export function aggregateFeedPosts(posts: any[] = [], authorId1: string, authorI
   return { authoredLikes, authoredComments, count };
 }
 
-export function computeNextSummary(
-  prev: { totalFollowers: number; totalLikes: number; totalUnlikes: number; totalComments: number },
-  isSeedCreator: boolean,
-  followerIds: string[] | null,
-  fallbackFollowers: number,
-  feedCounts: { authoredLikes: number; authoredComments: number; count: number }
-) {
-  let totalFollowers = prev.totalFollowers;
-  if (!isSeedCreator) {
-    totalFollowers = followerIds ? followerIds.length : fallbackFollowers;
-  } else if (followerIds && followerIds.length > 0) {
-    totalFollowers = Math.max(prev.totalFollowers, followerIds.length);
-  }
+export interface ComputeSummaryParams {
+  prev: { totalFollowers: number; totalLikes: number; totalUnlikes: number; totalComments: number };
+  isSeedCreator: boolean;
+  followerIds: string[] | null;
+  fallbackFollowers: number;
+  feedCounts: { authoredLikes: number; authoredComments: number; count: number };
+}
 
-  let totalLikes = prev.totalLikes;
-  let totalComments = prev.totalComments;
-  if (!isSeedCreator) {
-    totalLikes = feedCounts.count > 0 ? feedCounts.authoredLikes : prev.totalLikes;
-    totalComments = feedCounts.count > 0 ? feedCounts.authoredComments : prev.totalComments;
-  } else if (feedCounts.count > 0) {
-    totalLikes = Math.max(prev.totalLikes, feedCounts.authoredLikes);
-    totalComments = Math.max(prev.totalComments, feedCounts.authoredComments);
+interface FollowersResolutionParams {
+  isSeed: boolean;
+  prevFollowers: number;
+  followerIds: string[] | null;
+  fallback: number;
+}
+
+function resolveFollowersCount(params: FollowersResolutionParams): number {
+  const { isSeed, prevFollowers, followerIds, fallback } = params;
+  if (!isSeed) {
+    return followerIds ? followerIds.length : fallback;
   }
+  if (followerIds && followerIds.length > 0) {
+    return Math.max(prevFollowers, followerIds.length);
+  }
+  return prevFollowers;
+}
+
+interface MetricResolutionParams {
+  isSeed: boolean;
+  prevMetric: number;
+  authoredMetric: number;
+  feedCount: number;
+}
+
+function resolveMetricCount(params: MetricResolutionParams): number {
+  const { isSeed, prevMetric, authoredMetric, feedCount } = params;
+  if (!isSeed) {
+    return feedCount > 0 ? authoredMetric : prevMetric;
+  }
+  return feedCount > 0 ? Math.max(prevMetric, authoredMetric) : prevMetric;
+}
+
+export function computeNextSummary(params: ComputeSummaryParams) {
+  const { prev, isSeedCreator, followerIds, fallbackFollowers, feedCounts } = params;
+
+  const totalFollowers = resolveFollowersCount({
+    isSeed: isSeedCreator,
+    prevFollowers: prev.totalFollowers,
+    followerIds,
+    fallback: fallbackFollowers,
+  });
+
+  const totalLikes = resolveMetricCount({
+    isSeed: isSeedCreator,
+    prevMetric: prev.totalLikes,
+    authoredMetric: feedCounts.authoredLikes,
+    feedCount: feedCounts.count,
+  });
+
+  const totalComments = resolveMetricCount({
+    isSeed: isSeedCreator,
+    prevMetric: prev.totalComments,
+    authoredMetric: feedCounts.authoredComments,
+    feedCount: feedCounts.count,
+  });
 
   return {
     ...prev,
