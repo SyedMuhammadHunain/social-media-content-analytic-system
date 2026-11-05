@@ -236,11 +236,19 @@ test('Dynamic Profile Activity, Viewers & Multi-User Viewing Flow', async (t) =>
     assert.strictEqual(hasEditBioBtn, false, 'Edit Bio button hidden for visitor');
   });
 
-  await t.test('5. Clicking Back to Feed returns to main feed', async () => {
+  await t.test('5. Back to Feed button removed and returning to main feed works', async () => {
+    const hasBackBtn = await evaluate(`
+      (() => {
+        return !!Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Back to Feed"));
+      })()
+    `);
+    assert.strictEqual(hasBackBtn, false, 'Back to Feed button should be removed');
+
     await evaluate(`
       (() => {
-        const backBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Back to Feed"));
-        if (backBtn) backBtn.click();
+        const brand = document.querySelector('[data-testid="navbar-brand-button"]');
+        if (brand) brand.click();
+        else window.dispatchEvent(new CustomEvent('social:refresh-feed'));
       })()
     `);
     await sleep(600);

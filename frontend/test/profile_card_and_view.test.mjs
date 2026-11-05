@@ -270,18 +270,21 @@ test('User Profile Card & Full Profile View Flow', async (t) => {
     assert.strictEqual(hasAuthoredPost, true, 'Past post history displays authored post');
   });
 
-  await t.test('6. Clicking Back to Feed returns to news feed stream', async () => {
-    const backClicked = await evaluate(`
+  await t.test('6. Back to Feed button removed and returning to news feed stream works', async () => {
+    const hasBackBtn = await evaluate(`
       (() => {
-        const btn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Back to Feed"));
-        if (btn) {
-          btn.click();
-          return true;
-        }
-        return false;
+        return !!Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("Back to Feed"));
       })()
     `);
-    assert.strictEqual(backClicked, true, 'Clicked Back to Feed button');
+    assert.strictEqual(hasBackBtn, false, 'Back to Feed button should be removed');
+
+    await evaluate(`
+      (() => {
+        const brand = document.querySelector('[data-testid="navbar-brand-button"]');
+        if (brand) brand.click();
+        else window.dispatchEvent(new CustomEvent('social:refresh-feed'));
+      })()
+    `);
     await sleep(600);
 
     const feedRestored = await evaluate('!!document.querySelector("[data-testid=\'user-profile-card\']")');

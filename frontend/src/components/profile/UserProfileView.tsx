@@ -7,8 +7,6 @@ import { useState, useRef, useEffect } from 'react';
 import type { FC } from 'react';
 import { HStack, VStack } from '@astryxdesign/core/Layout';
 import { Card } from '@astryxdesign/core/Card';
-import { Button } from '@astryxdesign/core/Button';
-import { Icon } from '@astryxdesign/core/Icon';
 import { Heading, Text } from '@astryxdesign/core/Text';
 import { TabList, Tab } from '@astryxdesign/core/TabList';
 import { Skeleton } from '@astryxdesign/core/Skeleton';
@@ -38,7 +36,6 @@ export interface UserProfileViewProps {
 export const UserProfileView: FC<UserProfileViewProps> = ({
   user,
   posts,
-  onBack,
   isOwnProfile = true,
   onUpdateBio,
   onUpdateAvatar,
@@ -91,19 +88,6 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   return (
     <div data-testid="user-profile-view" style={{ width: '100%' }}>
       <VStack gap={4} align="stretch">
-        {/* Back to Feed Navigation Bar */}
-        {onBack && (
-          <HStack vAlign="center">
-            <Button
-              label="Back to Feed"
-              icon={<Icon icon="chevronLeft" size="xsm" />}
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-            />
-          </HStack>
-        )}
-
         {/* Profile Cover Banner & Overlapping Avatar */}
         <ProfileHeaderBanner
           user={user}
