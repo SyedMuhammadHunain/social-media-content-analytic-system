@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { UserProfile } from '../types/social.ts';
-import { SEED_ACCOUNTS, type AuthUserAccount } from '../mock/authSeedData.ts';
+import { SEED_ACCOUNTS, normalizeBackendUserId, type AuthUserAccount } from '../mock/authSeedData.ts';
 import { AuthContext, type DemoUserSummary } from './auth-context-def.ts';
 import { authApi } from '../api/authApi.ts';
 import { setAuthToken } from '../api/client.ts';
@@ -15,6 +15,7 @@ export type { AuthContextType, DemoUserSummary } from './auth-context-def.ts';
 
 const AUTH_STORAGE_KEY = 'smcas_session_user';
 const TOKEN_STORAGE_KEY = 'smcas_auth_token';
+const ACCOUNTS_STORAGE_KEY = 'social_accounts_v1';
 
 const DEFAULT_DEMO_USERS: DemoUserSummary[] = [
   {
@@ -76,7 +77,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   });
 
-  const [accounts, setAccounts] = useState<AuthUserAccount[]>(SEED_ACCOUNTS);
+  const [accounts, setAccounts] = useState<AuthUserAccount[]>(() => {
+    try {
+      const stored = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const storedIds = new Set(parsed.map((p) => p.user.id));
+          const missingSeeds = SEED_ACCOUNTS.filter((s) => !storedIds.has(s.user.id));
+          return [...parsed, ...missingSeeds];
+        }
+      }
+    } catch {}
+    return SEED_ACCOUNTS;
+  });
   const [demoUsers, setDemoUsers] = useState<DemoUserSummary[]>(DEFAULT_DEMO_USERS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -275,6 +289,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
 
         setCurrentUser(newUser);
+        const registeredAccount: AuthUserAccount = {
+          user: newUser,
+          email: cleanEmail,
+          passwordHash: password,
+        };
+        setAccounts((prev) => {
+          const updated = [...prev.filter((a) => a.user.id !== newUser.id), registeredAccount];
+          try {
+            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
         try {
           localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
         } catch {}
@@ -337,7 +363,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       passwordHash: password,
     };
 
-    setAccounts((prev) => [...prev, newAccount]);
+    setAccounts((prev) => {
+      const updated = [...prev, newAccount];
+      try {
+        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     setCurrentUser(newUser);
     setIsLoading(false);
     try {
@@ -483,37 +515,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = async (partial: Partial<UserProfile>): Promise<void> => {
+    let resolvedUser: UserProfile | null = null;
     setCurrentUser((prev) => {
       if (!prev) return null;
-      const updated = { ...prev, ...partial };
+      resolvedUser = { ...prev, ...partial };
       try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated));
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(resolvedUser));
+      } catch {}
+      return resolvedUser;
+    });
+
+    const activeUser: UserProfile | null =
+      resolvedUser || (currentUser ? { ...currentUser, ...partial } : null);
+    if (!activeUser?.id) return;
+
+    // 1. Update stored accounts in state and localStorage so re-logging in keeps changes
+    setAccounts((prev) => {
+      const updated = prev.map((acc) =>
+        acc.user.id === activeUser.id || acc.user.username.toLowerCase() === activeUser.username.toLowerCase()
+          ? { ...acc, user: { ...acc.user, ...partial } }
+          : acc
+      );
+      try {
+        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
       } catch {}
       return updated;
     });
 
-    if (currentUser?.id) {
-      try {
-        await authApi.updateProfile({
-          userId: currentUser.id,
-          fullName: partial.name,
-          avatarUrl: partial.avatarUrl,
-          bio: partial.bio,
-          coverBannerUrl: partial.coverBannerUrl,
-        });
+    // 2. Persist to MongoDB Atlas via Spring Boot PUT /v1/auth/profile
+    try {
+      const backendUserId = normalizeBackendUserId(activeUser.id);
+      await authApi.updateProfile({
+        userId: backendUserId,
+        fullName: activeUser.name,
+        avatarUrl: activeUser.avatarUrl,
+        bio: activeUser.bio,
+        coverBannerUrl: activeUser.coverBannerUrl,
+      });
 
-        const users = await authApi.getDemoUsers();
-        if (users && users.length > 0) {
-          setDemoUsers(users.map((u) => ({
+      const users = await authApi.getDemoUsers();
+      if (users && users.length > 0) {
+        setDemoUsers(
+          users.map((u) => ({
             id: u.id,
             username: u.username,
             name: u.name,
             avatarUrl: u.avatarUrl,
-          })));
-        }
-      } catch (e) {
-        console.warn('Failed to sync profile update to backend:', e);
+          }))
+        );
       }
+    } catch (e) {
+      console.warn('Failed to sync profile update to backend:', e);
     }
   };
 

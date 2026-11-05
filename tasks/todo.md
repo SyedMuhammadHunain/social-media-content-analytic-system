@@ -28,7 +28,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 2: Cloud Persistence & Astryx Skeletons
 
-- [ ] Task 3: Backend Profile Persistence & API Integration
+- [x] Task 3: Backend Profile Persistence & API Integration
   - Acceptance: `authApi.updateProfile` added to `authApi.ts` calling `PUT /v1/auth/profile`. `AuthContext.updateUser` calls `authApi.updateProfile` and saves to `localStorage` cache. `NewsFeedPage` calls `updateUser` for avatar, banner, and bio updates.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/api/authApi.ts`, `frontend/src/context/AuthContext.tsx`, `frontend/src/app/feed/NewsFeedPage.tsx`
