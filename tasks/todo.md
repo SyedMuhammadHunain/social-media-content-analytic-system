@@ -57,18 +57,19 @@ Plan: `tasks/plan.md`
     - `frontend/src/api/authApi.ts`
     - `frontend/src/context/authGoogleHandler.ts`
 
-- [ ] Task 4: Secret Management, Permissions & Security Regression Tests
+- [x] Task 4: Secret Management, Permissions & Security Regression Tests
   - **Description:** Set restrictive permissions (`chmod 600`) on `backend/.env`, verify `.gitignore` covers all sensitive files, document `JWT_SECRET` in `backend/.env.example`, and write automated test asserting credentials protection and token signing.
   - **Acceptance criteria:**
-    - [ ] `backend/.env` file permissions set to 600 (owner read/write only).
-    - [ ] `.gitignore` contains explicit patterns blocking `.env`, `*.env`, `.env.*`.
-    - [ ] `backend/.env.example` documents `JWT_SECRET` and deployment security guidelines.
-    - [ ] Automated security regression test passes verifying `.env` isolation and JWT cryptographic signature validity.
+    - [x] `backend/.env` file permissions set to 600 (owner read/write only).
+    - [x] `.gitignore` contains explicit patterns blocking `.env`, `*.env`, `.env.*`.
+    - [x] `backend/.env.example` documents `JWT_SECRET` and deployment security guidelines.
+    - [x] Automated security regression test passes verifying `.env` isolation and JWT cryptographic signature validity.
   - **Verification:**
-    - [ ] Node test: `cd frontend && node --test test/security_hardening.test.mjs`
-    - [ ] Full suite: `npm run test:unit`
+    - [x] Node test: `cd frontend && node --test test/security_hardening.test.mjs` (6/6 passed)
+    - [x] Full suite: `npm run test:unit` (111/111 passed)
   - **Dependencies:** Task 1, Task 2, Task 3
   - **Files likely touched:**
     - `.gitignore`
     - `backend/.env.example`
     - `frontend/test/security_hardening.test.mjs`
+    - `frontend/package.json`

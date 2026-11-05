@@ -128,10 +128,6 @@ test('Profile Media Synchronization, Azure Storage, Google Re-Login & Video Suit
   });
 
   await suite.test('4. Deterministic Google OAuth Re-Login Flow & Security Hardening', () => {
-    const authContextSrc = fs.readFileSync(
-      path.join(projectRoot, 'src', 'context', 'AuthContext.tsx'),
-      'utf-8'
-    );
     const modalSrc = fs.readFileSync(
       path.join(projectRoot, 'src', 'app', 'login-card', 'GoogleOAuthModal.tsx'),
       'utf-8'
