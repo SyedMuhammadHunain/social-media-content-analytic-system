@@ -7,62 +7,54 @@ import { useState, useRef } from 'react';
 import type { FC, FormEvent, MouseEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { Button } from '@astryxdesign/core/Button';
 import { Banner } from '@astryxdesign/core/Banner';
 import { useAuth } from '../../context/useAuth';
+import { LoginInputFields, type LoginInputErrors, type LoginInputTouched } from './LoginInputFields.tsx';
+import { validateLoginField, validateLoginIdentifier, validateLoginPassword } from './loginValidation.ts';
 
 export interface LoginFormProps {
   onToggleRegister: () => void;
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function resolveInputValues(form: HTMLFormElement | null, stateId: string, statePass: string) {
+  const emailEl = form?.querySelector<HTMLInputElement>(
+    'input[name="email"], input[type="email"], input[placeholder*="email" i], input[type="text"]'
+  );
+  const passEl = form?.querySelector<HTMLInputElement>('input[type="password"]');
+  return {
+    finalIdentifier: emailEl?.value ?? stateId,
+    finalPassword: passEl?.value ?? statePass,
+  };
+}
 
 export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
   const { login, error, isLoading, clearError } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
-  const [touched, setTouched] = useState<{ identifier?: boolean; password?: boolean }>({});
-
-  const validateField = (field: 'identifier' | 'password', val: string) => {
-    const trimmed = val.trim();
-    if (field === 'identifier') {
-      if (!trimmed) return 'Email or username is required.';
-      if (trimmed.includes('@') && !EMAIL_REGEX.test(trimmed)) {
-        return 'Please enter a valid email address.';
-      }
-      if (!trimmed.includes('@') && trimmed.length < 3) {
-        return 'Username must be at least 3 characters.';
-      }
-    }
-    if (field === 'password') {
-      if (!val) return 'Password is required.';
-      if (val.length < 6) return 'Password must be at least 6 characters.';
-    }
-    return undefined;
-  };
+  const [errors, setErrors] = useState<LoginInputErrors>({});
+  const [touched, setTouched] = useState<LoginInputTouched>({});
 
   const handleBlur = (field: 'identifier' | 'password', val: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    const err = validateField(field, val);
+    const err = validateLoginField(field, val);
     setErrors((prev) => ({ ...prev, [field]: err }));
+  };
+
+  const handleClearError = (field: 'identifier' | 'password') => {
+    clearError();
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
   };
 
   const handleSubmit = async (e?: FormEvent | MouseEvent) => {
     if (e) e.preventDefault();
 
-    const emailEl = formRef.current?.querySelector<HTMLInputElement>(
-      'input[name="email"], input[type="email"], input[placeholder*="email" i], input[type="text"]'
-    );
-    const passEl = formRef.current?.querySelector<HTMLInputElement>('input[type="password"]');
-
-    const finalIdentifier = emailEl?.value ?? identifier;
-    const finalPassword = passEl?.value ?? password;
-
-    const idError = validateField('identifier', finalIdentifier);
-    const passError = validateField('password', finalPassword);
+    const { finalIdentifier, finalPassword } = resolveInputValues(formRef.current, identifier, password);
+    const idError = validateLoginIdentifier(finalIdentifier);
+    const passError = validateLoginPassword(finalPassword);
 
     if (idError || passError) {
       setErrors({ identifier: idError, password: passError });
@@ -73,19 +65,21 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
     await login(finalIdentifier, finalPassword);
   };
 
+  const handleFormInput = (e: React.FormEvent<HTMLFormElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (target.type === 'password') {
+      setPassword(target.value);
+    } else {
+      setIdentifier(target.value);
+    }
+  };
+
   return (
     <form
       ref={formRef}
       noValidate
       onSubmit={handleSubmit}
-      onInput={(e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.type === 'password') {
-          setPassword(target.value);
-        } else {
-          setIdentifier(target.value);
-        }
-      }}
+      onInput={handleFormInput}
       style={{ width: '100%' }}
     >
       <VStack gap={4} hAlign="stretch" width="100%">
@@ -104,46 +98,16 @@ export const LoginForm: FC<LoginFormProps> = ({ onToggleRegister }) => {
           </div>
         )}
 
-        <VStack gap={3}>
-          <TextInput
-            label="Email or Username"
-            type="text"
-            htmlName="email"
-            placeholder="name@example.com or @username"
-            value={identifier}
-            status={
-              touched.identifier && errors.identifier
-                ? { type: 'error', message: errors.identifier }
-                : undefined
-            }
-            onChange={(v) => {
-              setIdentifier(v);
-              clearError();
-              if (errors.identifier) setErrors((prev) => ({ ...prev, identifier: undefined }));
-            }}
-            onBlur={() => handleBlur('identifier', identifier)}
-            size="lg"
-          />
-
-          <TextInput
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            status={
-              touched.password && errors.password
-                ? { type: 'error', message: errors.password }
-                : undefined
-            }
-            onChange={(v) => {
-              setPassword(v);
-              clearError();
-              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-            }}
-            onBlur={() => handleBlur('password', password)}
-            size="lg"
-          />
-        </VStack>
+        <LoginInputFields
+          identifier={identifier}
+          setIdentifier={setIdentifier}
+          password={password}
+          setPassword={setPassword}
+          errors={errors}
+          touched={touched}
+          onBlur={handleBlur}
+          onClearError={handleClearError}
+        />
 
         <Button
           data-testid="auth-submit-btn"
