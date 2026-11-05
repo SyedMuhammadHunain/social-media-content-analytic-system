@@ -5,9 +5,7 @@
 
 import { useState } from 'react';
 import { Card } from '@astryxdesign/core/Card';
-import { VStack, HStack } from '@astryxdesign/core/Layout';
-import { Text } from '@astryxdesign/core/Text';
-import { Badge } from '@astryxdesign/core/Badge';
+import { VStack } from '@astryxdesign/core/Layout';
 import { Divider } from '@astryxdesign/core/Divider';
 
 import type { Post, UpdatePostInput, UserProfile, Comment, User } from '../../types/social.ts';
@@ -15,25 +13,10 @@ import { normalizeBackendUserId } from '../../mock/authSeedData.ts';
 import { CommentSection } from './CommentSection.tsx';
 import { PostEditModal } from './PostEditModal.tsx';
 import { PostHeader } from './PostHeader.tsx';
-import { PostMediaViewer } from './PostMediaViewer.tsx';
 import { PostDeleteModal } from './PostDeleteModal.tsx';
 import { PostCardActionBar } from './PostCardActionBar.tsx';
+import { PostCardContent } from './PostCardContent.tsx';
 import { shouldFetchRemoteComments, fetchRemoteCommentsForPost } from './postCommentUtils.ts';
-
-function formatTag(tag: string): string {
-  return tag.startsWith('#') ? tag : `#${tag}`;
-}
-
-function PostHashtags({ hashtags }: { hashtags: string[] }) {
-  if (hashtags.length === 0) return null;
-  return (
-    <HStack gap={2} wrap="wrap">
-      {hashtags.map((tag) => (
-        <Badge key={tag} variant="neutral" label={formatTag(tag)} />
-      ))}
-    </HStack>
-  );
-}
 
 function checkIsAuthor(currentUserId?: string, authorId?: string): boolean {
   if (!currentUserId || !authorId) return false;
@@ -76,7 +59,6 @@ export function PostCard({
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const isAuthor = checkIsAuthor(currentUser?.id, post.author.id);
-  const postContent = post.text || post.description;
 
   const handleToggleComments = async () => {
     const nextShow = !showComments;
@@ -132,20 +114,14 @@ export function PostCard({
             onViewProfile={onViewProfile}
           />
 
-          {postContent && (
-            <Text type="body">
-              {postContent}
-            </Text>
-          )}
-
-          <PostMediaViewer
-            mediaUrls={post.mediaUrls}
-            type={post.type}
+          <PostCardContent
+            text={post.text}
             description={post.description}
+            type={post.type}
+            mediaUrls={post.mediaUrls}
             mediaId={post.mediaId}
+            hashtags={post.hashtags}
           />
-
-          <PostHashtags hashtags={post.hashtags} />
 
           <Divider />
 

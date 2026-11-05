@@ -41,7 +41,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 3: Feed, Composer & Toolbar Tier
 
-- [ ] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
+- [x] Task 5: `PostCard.tsx` & `PostCreateModal.tsx` Form & Dropzone Decomposition
   - Acceptance: Extract `PostCardContent.tsx` from `PostCard.tsx` (<120 lines). Extract `PostComposerForm.tsx` and `PostMediaDropzone.tsx` from `PostCreateModal.tsx` (<100 lines).
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/feed/`
   - Files: `frontend/src/app/feed/PostCardContent.tsx`, `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostComposerForm.tsx`, `frontend/src/app/feed/PostMediaDropzone.tsx`, `frontend/src/app/feed/PostCreateModal.tsx`
