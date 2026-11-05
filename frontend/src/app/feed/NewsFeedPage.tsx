@@ -112,36 +112,106 @@ const NEWSFEED_CSS = `
   }
 }
 @media (max-width: 767px) {
+  /* 1. Hide desktop sidebars */
   .newsfeed-fixed-sidebar,
   .newsfeed-right-sidebar {
     display: none !important;
   }
+
+  /* 2. Full width covering the whole device without side margins */
+  .newsfeed-page-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
   .newsfeed-layout {
     max-width: 100% !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
   }
   .newsfeed-center-scroll {
     max-width: 100% !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
     height: auto !important;
     min-height: calc(100vh - 56px) !important;
     padding-bottom: 84px !important;
   }
-  .newsfeed-page-wrapper {
-    padding: 0 !important;
+
+  /* 3. Edge-to-edge full width cards & optimal mobile padding */
+  .post-card-root,
+  .post-card-animated,
+  .post-card-item,
+  [data-testid^="post-card-"],
+  [data-testid="post-composer-prompt-bar"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
-  /* Mobile / Android: Icon-only post actions in newsfeed */
+
+  .post-card-surface,
+  .post-composer-surface,
+  [data-testid^="post-card-"] > div,
+  [data-testid="post-composer-prompt-bar"] > div {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 16px 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+
+  /* 4. Improve Readability, Visibility & Font-Size on Android / Mobile */
+  .post-card-content-text p,
+  .post-card-content-text span,
+  [data-testid^="post-card-"] [data-astryx-text="body"] {
+    font-size: 15.5px !important;
+    line-height: 1.55 !important;
+    color: #f1f5f9 !important;
+    letter-spacing: -0.01em !important;
+    word-break: break-word !important;
+  }
+
+  [data-testid^="post-author-"] span {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+  }
+
+  [data-testid^="post-card-"] time,
+  [data-testid^="post-card-"] [data-astryx-text="supporting"] {
+    font-size: 13px !important;
+    color: #94a3b8 !important;
+  }
+
+  /* 5. Mobile / Android: Icon-only post actions with 44px tap targets */
+  .post-card-action-bar {
+    width: 100% !important;
+    padding-top: 6px !important;
+  }
   .post-card-action-bar button span.xjp7ctv > span:nth-child(2),
   .post-card-action-bar button > span:first-child > span:nth-child(2) {
     display: none !important;
   }
   .post-card-action-bar button {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    min-width: 36px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    min-width: 44px !important;
+    min-height: 40px !important;
     justify-content: center !important;
+  }
+
+  /* Media images & videos fill full width with rounded inner corners */
+  [data-testid^="post-card-"] img,
+  [data-testid^="post-card-"] video {
+    max-height: 380px !important;
+    border-radius: 8px !important;
   }
 }
 @media (min-width: 768px) {

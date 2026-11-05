@@ -22,15 +22,16 @@ Decompose the requested refinements into two focused, verifiable slices:
 - [x] Task 4: Mobile Icon-Only Post Actions and Top Header Polishing (`tasks/todo.md`)
 
 ### Phase 2: Animated GIF Support & Search
-- [ ] Task 5: Animated GIF Provider, Search & Direct URL Attachment (`tasks/todo.md`)
+- [x] Task 5: Animated GIF Provider, Search & Direct URL Attachment (`tasks/todo.md`)
 
-### Checkpoint: Complete
-- [ ] All unit and CDP test suites pass (`npm test`)
-- [ ] TypeScript compilation clean (`npx tsc -b`)
-- [ ] Linter clean (`npm run lint`)
-- [ ] Production build succeeds (`npm run build`)
-- [ ] Mobile viewports display icon-only post actions and top-left hamburger
-- [ ] GIF picker searches, filters, and attaches animated GIFs to posts
+## Checkpoint: Complete
+- [x] All unit and CDP test suites pass (`npm test`)
+- [x] TypeScript compilation clean (`npx tsc -b`)
+- [x] Linter clean (`npm run lint`)
+- [x] Production build succeeds (`npm run build`)
+- [x] Mobile viewports display icon-only post actions and top-left hamburger
+- [x] Mobile viewports cover full device width edge-to-edge with enhanced readability and 16px padding
+- [x] GIF picker searches, filters, and attaches animated GIFs to posts
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |

@@ -31,6 +31,13 @@ function getMediaBadgeLabel(mediaUrl: string, mediaType: PostType): string {
   if (mediaUrl.includes('blob.core.windows.net')) {
     return 'Uploaded to Azure Blob';
   }
+  if (
+    mediaUrl.toLowerCase().includes('.gif') ||
+    mediaUrl.includes('giphy.com') ||
+    mediaUrl.includes('tenor.com')
+  ) {
+    return 'GIF Attached';
+  }
   return mediaType === 'VIDEO' ? 'Video Attached' : 'Photo Attached';
 }
 

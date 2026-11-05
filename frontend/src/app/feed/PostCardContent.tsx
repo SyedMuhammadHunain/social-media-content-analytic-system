@@ -45,7 +45,11 @@ export function PostCardContent({
 
   return (
     <>
-      {content && <Text type="body">{content}</Text>}
+      {content && (
+        <div className="post-card-content-text">
+          <Text type="body">{content}</Text>
+        </div>
+      )}
 
       <PostMediaViewer
         mediaUrls={mediaUrls}

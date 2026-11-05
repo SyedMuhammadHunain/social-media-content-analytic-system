@@ -152,16 +152,45 @@ function PostMediaContent({
   }
 
   if (type === 'IMAGE' && !isVideo) {
+    const isGif =
+      resolvedUrl.toLowerCase().includes('.gif') ||
+      resolvedUrl.includes('giphy.com') ||
+      resolvedUrl.includes('tenor.com');
+
     return (
-      <img
-        data-testid="post-media-image"
-        src={resolvedUrl}
-        alt={description || 'Post image'}
-        loading="lazy"
-        decoding="async"
-        onError={onError}
-        style={imageStyle}
-      />
+      <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <img
+          data-testid="post-media-image"
+          src={resolvedUrl}
+          alt={description || 'Post image'}
+          loading="lazy"
+          decoding="async"
+          onError={onError}
+          style={imageStyle}
+        />
+        {isGif && (
+          <div
+            data-testid="post-gif-badge"
+            style={{
+              position: 'absolute',
+              bottom: 12,
+              right: 12,
+              backgroundColor: 'rgba(0, 0, 0, 0.72)',
+              color: '#ffffff',
+              padding: '2px 8px',
+              borderRadius: 4,
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              backdropFilter: 'blur(4px)',
+              pointerEvents: 'none',
+              zIndex: 3,
+            }}
+          >
+            GIF
+          </div>
+        )}
+      </div>
     );
   }
 

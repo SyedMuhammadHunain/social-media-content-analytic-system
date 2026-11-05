@@ -33,6 +33,7 @@ export function PostComposer({
   return (
     <div
       data-testid="post-composer-prompt-bar"
+      className="post-composer-prompt-card"
       onClick={handleOpen}
       style={{
         width: '100%',
@@ -41,6 +42,7 @@ export function PostComposer({
     >
       <Card
         padding={4}
+        className="post-composer-surface"
         style={{
           width: '100%',
           borderBottomLeftRadius: 0,

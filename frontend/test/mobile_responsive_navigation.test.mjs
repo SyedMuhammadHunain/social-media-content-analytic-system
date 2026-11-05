@@ -179,6 +179,28 @@ test('Mobile Responsive Navigation & Scroll Unlocking (Task 1)', async (suite) =
       'NewsFeedPage CSS must include mobile rule for .post-card-action-bar'
     );
   });
+
+  await suite.test('NewsFeedPage.tsx provides full-width edge-to-edge layout, enhanced font sizes and padding on mobile', () => {
+    const newsfeedPath = path.join(projectRoot, 'frontend/src/app/feed/NewsFeedPage.tsx');
+    const newsfeedContent = fs.readFileSync(newsfeedPath, 'utf8');
+
+    assert.ok(
+      newsfeedContent.includes('padding-left: 0 !important;\n    padding-right: 0 !important;'),
+      'Mobile center feed must have zero horizontal padding to cover full device width'
+    );
+    assert.ok(
+      newsfeedContent.includes('.post-card-surface'),
+      'NewsFeedPage CSS must target .post-card-surface for mobile styling'
+    );
+    assert.ok(
+      newsfeedContent.includes('15.5px !important'),
+      'NewsFeedPage CSS must improve body font size to 15.5px on mobile'
+    );
+    assert.ok(
+      newsfeedContent.includes('padding: 16px 16px !important'),
+      'NewsFeedPage CSS must optimize card padding to 16px on mobile'
+    );
+  });
 });
 
 const CDP_PORT = 9288;

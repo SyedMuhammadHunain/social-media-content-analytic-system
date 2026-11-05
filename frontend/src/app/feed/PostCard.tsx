@@ -74,8 +74,8 @@ export function PostCard({
   const cardStyle = buildCardStyle({ hasTopComposer, isFirst, isLast });
 
   return (
-    <div data-testid={`post-card-${post.id}`}>
-      <Card padding={5} style={cardStyle}>
+    <div className="post-card-root" data-testid={`post-card-${post.id}`}>
+      <Card padding={5} className="post-card-surface" style={cardStyle}>
         <VStack gap={4}>
           <PostHeader
             author={post.author}

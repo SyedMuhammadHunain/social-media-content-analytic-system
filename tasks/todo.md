@@ -27,28 +27,29 @@ Plan: `tasks/plan.md`
     - `frontend/test/mobile_responsive_navigation.test.mjs`
   - **Estimated scope:** S (3 files)
 
-- [ ] Task 5: Animated GIF Provider, Search & Direct URL Attachment
+- [x] Task 5: Animated GIF Provider, Search & Direct URL Attachment
   - **Description:** Upgrade `GifPickerPopover` in `MediaPickerPopovers.tsx` to support real animated GIFs (`.gif`), live search input with instant tag filtering, and custom direct GIF URL input. Connect selection to `PostComposerForm` and `PostCreateModal` so animated GIFs preview and post cleanly.
   - **Acceptance criteria:**
-    - [ ] `GifPickerPopover` provides an Astryx search bar filtering animated GIFs in real time.
-    - [ ] Library contains real animated `.gif` reaction assets (Celebration, Dancing, Applause, Mind Blown, Fire, Shocked, Laughing, etc.).
-    - [ ] Allows pasting custom external GIF URL to attach any animated GIF directly.
-    - [ ] Selecting a GIF attaches it to the post composer and renders animated preview in `PostMediaViewer`.
-    - [ ] Unit tests verify search filtering, GIF selection, and post attachment.
+    - [x] `GifPickerPopover` provides an Astryx search bar filtering animated GIFs in real time.
+    - [x] Library contains real animated `.gif` reaction assets (Celebration, Dancing, Applause, Mind Blown, Fire, Shocked, Laughing, etc.).
+    - [x] Allows pasting custom external GIF URL to attach any animated GIF directly.
+    - [x] Selecting a GIF attaches it to the post composer and renders animated preview in `PostMediaViewer`.
+    - [x] Unit tests verify search filtering, GIF selection, and post attachment.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
-    - [ ] `cd frontend && npm run lint`
-    - [ ] `cd frontend && npm run test:unit`
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run lint`
+    - [x] `cd frontend && npm run test:unit`
   - **Dependencies:** None
   - **Files likely touched:**
     - `frontend/src/app/feed/MediaPickerPopovers.tsx`
+    - `frontend/src/app/feed/presetGifs.ts`
     - `frontend/src/app/feed/PostMediaToolbar.tsx`
     - `frontend/src/app/feed/PostCreateModal.tsx`
-    - `frontend/test/mobile_responsive_navigation.test.mjs`
+    - `frontend/test/animated_gif_support.test.mjs`
   - **Estimated scope:** M (3 files)
 
 ## Checkpoint: Complete
-- [ ] Task 4 and Task 5 checked off
-- [ ] Zero TypeScript or lint errors
-- [ ] All unit and CDP test suites pass
-- [ ] Production build succeeds
+- [x] Task 4 and Task 5 checked off
+- [x] Zero TypeScript or lint errors
+- [x] All unit and CDP test suites pass
+- [x] Production build succeeds
