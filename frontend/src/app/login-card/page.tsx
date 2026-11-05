@@ -4,11 +4,10 @@
 'use client';
 
 import { useState, useEffect, type CSSProperties } from 'react';
-import { VStack, HStack } from '@astryxdesign/core/Layout';
+import { VStack } from '@astryxdesign/core/Layout';
 import { Center } from '@astryxdesign/core/Center';
 import { Text, Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
-import { Icon } from '@astryxdesign/core/Icon';
 import { Card } from '@astryxdesign/core/Card';
 import { Banner } from '@astryxdesign/core/Banner';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
@@ -30,11 +29,7 @@ const contentStyle: CSSProperties = {
   maxWidth: 400,
 };
 
-export interface LoginCardPageProps {
-  onBack?: () => void;
-}
-
-export default function LoginCardPage({ onBack }: LoginCardPageProps = {}) {
+export default function LoginCardPage() {
   const {
     login,
     register,
@@ -156,18 +151,6 @@ export default function LoginCardPage({ onBack }: LoginCardPageProps = {}) {
   return (
     <Center axis="both" padding={6} style={pageStyle}>
       <VStack gap={5} hAlign="center" style={contentStyle}>
-        {onBack && (
-          <HStack hAlign="start" style={{ width: '100%' }}>
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<Icon icon="chevronLeft" size="sm" />}
-              label="Back to overview"
-              onClick={onBack}
-              data-testid="back-to-landing-btn"
-            />
-          </HStack>
-        )}
         <VStack gap={2} hAlign="center">
           <img
             src="/auth-brand-logo.png"

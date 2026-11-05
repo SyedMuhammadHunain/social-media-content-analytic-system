@@ -19,13 +19,13 @@ Plan: `tasks/plan.md`
     - `frontend/src/app/gallery-hero/marquee.css` (delete)
   - **Estimated scope:** S (3 files)
 
-- [ ] Task 2: Remove "Back to overview" button and `onBack` prop from `LoginCardPage` and `App.tsx`
+- [x] Task 2: Remove "Back to overview" button and `onBack` prop from `LoginCardPage` and `App.tsx`
   - **Description:** Remove `onBack` prop, button, and references from `frontend/src/app/login-card/page.tsx` and `frontend/src/App.tsx`.
   - **Acceptance criteria:**
-    - [ ] No `onBack` prop or "Back to overview" button in `LoginCardPage`.
-    - [ ] `App.tsx` cleanly renders `LoginCardPage` without `onBack`.
+    - [x] No `onBack` prop or "Back to overview" button in `LoginCardPage`.
+    - [x] `App.tsx` cleanly renders `LoginCardPage` without `onBack`.
   - **Verification:**
-    - [ ] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npx tsc -b`
   - **Dependencies:** None
   - **Files likely touched:**
     - `frontend/src/app/login-card/page.tsx`

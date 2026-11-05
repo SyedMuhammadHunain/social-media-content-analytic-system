@@ -34,7 +34,7 @@ function AppContent() {
 
     return (
       <Suspense fallback={null}>
-        <LoginCardPage onBack={() => setUnauthView('landing')} />
+        <LoginCardPage />
       </Suspense>
     );
   }
