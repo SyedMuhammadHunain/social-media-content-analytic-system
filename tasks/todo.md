@@ -47,15 +47,15 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/feed/PostCardContent.tsx`, `frontend/src/app/feed/PostCard.tsx`, `frontend/src/app/feed/PostComposerForm.tsx`, `frontend/src/app/feed/PostMediaDropzone.tsx`, `frontend/src/app/feed/PostCreateModal.tsx`
   - Scope: M
 
-- [ ] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
+- [x] Task 6: `PostMediaToolbar.tsx` Popover & Upload Decomposition
   - Acceptance: Extract `MediaPickerPopovers.tsx` and `MediaUploadAction.tsx`. Reduce `PostMediaToolbar.tsx` from 310 lines to ~80 lines.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/feed/PostMediaToolbar.tsx`
   - Files: `frontend/src/app/feed/MediaPickerPopovers.tsx`, `frontend/src/app/feed/MediaUploadAction.tsx`, `frontend/src/app/feed/PostMediaToolbar.tsx`
   - Scope: S
 
 ### Checkpoint: Feed & Composer
-- [ ] Post card, modal, and toolbar files reduced below 120 lines.
-- [ ] Composer and feed tests pass cleanly.
+- [x] Post card, modal, and toolbar files reduced below 120 lines.
+- [x] Composer and feed tests pass cleanly.
 
 ## Phase 4: Auth & Modal Tier
 
