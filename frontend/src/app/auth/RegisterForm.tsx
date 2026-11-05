@@ -7,10 +7,10 @@ import { useState, useRef } from 'react';
 import type { FC, FormEvent, MouseEvent } from 'react';
 import { VStack } from '@astryxdesign/core/Layout';
 import { Heading, Text } from '@astryxdesign/core/Text';
-import { TextInput } from '@astryxdesign/core/TextInput';
 import { Button } from '@astryxdesign/core/Button';
 import { Banner } from '@astryxdesign/core/Banner';
 import { useAuth } from '../../context/useAuth';
+import { RegisterInputFields } from './RegisterInputFields.tsx';
 
 export interface RegisterFormProps {
   onToggleLogin: () => void;
@@ -135,63 +135,30 @@ export const RegisterForm: FC<RegisterFormProps> = ({ onToggleLogin }) => {
           </div>
         )}
 
-        <VStack gap={3}>
-          <TextInput
-            label="Username"
-            placeholder="Choose a username (e.g. alex_creator)"
-            value={username}
-            status={
-              touched.username && errors.username
-                ? { type: 'error', message: errors.username }
-                : undefined
-            }
-            onChange={(v) => {
-              setUsername(v);
-              clearError();
-              if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
-            }}
-            onBlur={() => handleBlur('username', username)}
-            size="lg"
-          />
-
-          <TextInput
-            label="Email"
-            type="email"
-            placeholder="alex@example.com"
-            value={email}
-            status={
-              touched.email && errors.email
-                ? { type: 'error', message: errors.email }
-                : undefined
-            }
-            onChange={(v) => {
-              setEmail(v);
-              clearError();
-              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
-            }}
-            onBlur={() => handleBlur('email', email)}
-            size="lg"
-          />
-
-          <TextInput
-            label="Password"
-            type="password"
-            placeholder="Create a strong password"
-            value={password}
-            status={
-              touched.password && errors.password
-                ? { type: 'error', message: errors.password }
-                : undefined
-            }
-            onChange={(v) => {
-              setPassword(v);
-              clearError();
-              if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
-            }}
-            onBlur={() => handleBlur('password', password)}
-            size="lg"
-          />
-        </VStack>
+        <RegisterInputFields
+          username={username}
+          setUsername={(v) => {
+            setUsername(v);
+            clearError();
+            if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
+          }}
+          email={email}
+          setEmail={(v) => {
+            setEmail(v);
+            clearError();
+            if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+          }}
+          password={password}
+          setPassword={(v) => {
+            setPassword(v);
+            clearError();
+            if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+          }}
+          errors={errors}
+          touched={touched}
+          onBlur={handleBlur}
+          onClearError={clearError}
+        />
 
         <Button
           data-testid="auth-submit-btn"

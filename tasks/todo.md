@@ -65,7 +65,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/app/login-card/GoogleAccountList.tsx`, `frontend/src/app/login-card/GoogleCustomAccountForm.tsx`, `frontend/src/app/login-card/GoogleOAuthModal.tsx`
   - Scope: S
 
-- [ ] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
+- [x] Task 8: `RegisterForm.tsx` & `login-card/page.tsx` Card & Header Decomposition
   - Acceptance: Extract `RegisterInputFields.tsx` from `RegisterForm.tsx` (<90 lines). Extract `AuthCardHeader.tsx` from `login-card/page.tsx` (<120 lines).
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/app/auth/RegisterForm.tsx src/app/login-card/page.tsx`
   - Files: `frontend/src/app/auth/RegisterInputFields.tsx`, `frontend/src/app/auth/RegisterForm.tsx`, `frontend/src/app/login-card/AuthCardHeader.tsx`, `frontend/src/app/login-card/page.tsx`
