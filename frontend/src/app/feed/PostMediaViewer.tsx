@@ -116,13 +116,11 @@ function useResolvedMediaUrl(mediaId: string | undefined, initialUrl: string) {
           setResolvedUrl(rehydrated);
         }
       });
-    } else if (initialUrl) {
-      setResolvedUrl(initialUrl);
     }
     return () => {
       isMounted = false;
     };
-  }, [mediaId, initialUrl]);
+  }, [mediaId]);
 
   return [resolvedUrl, setResolvedUrl] as const;
 }

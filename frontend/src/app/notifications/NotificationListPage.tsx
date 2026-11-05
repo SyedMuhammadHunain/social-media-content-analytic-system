@@ -15,6 +15,18 @@ import { Icon } from '@astryxdesign/core/Icon';
 import { useAuth } from '../../context/useAuth';
 import { notificationsApi, type Notification } from '../../api/notificationsApi';
 
+function formatNotificationDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 export function NotificationListPage() {
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -152,12 +164,7 @@ export function NotificationListPage() {
                         </Text>
                       </HStack>
                       <Text type="supporting" color="secondary">
-                        {new Date(item.createdAt || Date.now()).toLocaleString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
+                        {formatNotificationDate(item.createdAt)}
                       </Text>
                     </VStack>
                   </HStack>
