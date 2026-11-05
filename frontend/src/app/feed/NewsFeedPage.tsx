@@ -313,7 +313,7 @@ export function NewsFeedPage({
   });
 
   const handleOpenProfile = () => {
-    setViewedUser(user);
+    setViewedUser(null);
     changeTab('profile');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     onOpenProfile?.();
@@ -384,8 +384,16 @@ export function NewsFeedPage({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const activeProfile: UserProfile = viewedUser
-    ? {
+  const isViewingOwn =
+    !viewedUser ||
+    viewedUser.id === user.id ||
+    (Boolean(viewedUser.username) &&
+      Boolean(user.username) &&
+      viewedUser.username.toLowerCase() === user.username.toLowerCase());
+
+  const activeProfile: UserProfile = isViewingOwn
+    ? user
+    : {
         id: viewedUser.id,
         username: viewedUser.username,
         name: viewedUser.name,
@@ -400,10 +408,9 @@ export function NewsFeedPage({
         bio: (viewedUser as any).bio || `Welcome to @${viewedUser.username}'s profile.`,
         followerCount: (viewedUser as any).followerCount ?? 0,
         followingCount: (viewedUser as any).followingCount ?? 0,
-      }
-    : user;
+      };
 
-  const isOwnProfile = activeProfile.id === user.id;
+  const isOwnProfile = isViewingOwn;
   const filteredPosts = filterPosts(posts, activeFilter);
   const savedCount = posts.filter((p) => p.isBookmarked).length;
   const searchableUsers = useMemo(
@@ -513,18 +520,21 @@ export function NewsFeedPage({
                   onUpdateBio={(newBio) => {
                     if (isOwnProfile) {
                       setUser((prev) => ({ ...prev, bio: newBio }));
+                      setViewedUser((prev: any) => (prev ? { ...prev, bio: newBio } : null));
                       updateUser?.({ bio: newBio });
                     }
                   }}
                   onUpdateAvatar={(newAvatarUrl) => {
                     if (isOwnProfile) {
                       setUser((prev) => ({ ...prev, avatarUrl: newAvatarUrl }));
+                      setViewedUser((prev: any) => (prev ? { ...prev, avatarUrl: newAvatarUrl } : null));
                       updateUser?.({ avatarUrl: newAvatarUrl });
                     }
                   }}
                   onUpdateBanner={(newBannerUrl) => {
                     if (isOwnProfile) {
                       setUser((prev) => ({ ...prev, coverBannerUrl: newBannerUrl }));
+                      setViewedUser((prev: any) => (prev ? { ...prev, coverBannerUrl: newBannerUrl } : null));
                       updateUser?.({ coverBannerUrl: newBannerUrl });
                     }
                   }}
