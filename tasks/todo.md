@@ -1,75 +1,73 @@
-# Active Tasks: Critical Security Vulnerabilities Remediation
+# Active Tasks: Mobile Responsive App Shell & Navigation
 
-Spec: `docs/reports/security-and-hardening-audit-report.md`
+Spec: `docs/specs/SPEC-mobile-responsive-navigation.md`
 Plan: `tasks/plan.md`
 
-- [x] Task 1: Eliminate Authentication Bypass Backdoors in Gateway Auth Service
-  - **Description:** Remove static developer fallbacks (`password`, `password123`, `admin123`), OAuth prefix bypasses (`goog_oauth_`), and authProvider bypasses (`GOOGLE`) in `GatewayAuthService.java`. Require strict BCrypt password matching.
+- [x] Task 1: Unlock Viewport Scrolling and Implement Mobile Header
+  - **Description:** Remove global `overflow: hidden` from `App.tsx` (`html`, `body`, and outer container). Build `MobileAppHeader.tsx` styled with Astryx tokens, featuring centered App Logo and top-right Search and Hamburger Astryx `IconButton`s, displayed only on viewports < 768px.
   - **Acceptance criteria:**
-    - [x] `password123`, `admin123`, `password`, or `goog_oauth_*` cannot be used to bypass authentication for arbitrary accounts.
-    - [x] Accounts with legitimate passwords validate correctly with `passwordEncoder.matches()`.
-    - [x] Failed login attempts return 401 Unauthorized with "Invalid username or password".
-    - [x] Unit tests in `GatewayAuthServiceTest.java` verify bypass rejection and valid password success.
+    - [x] `html` and `body` no longer have hardcoded `overflow: hidden` set by `App.tsx`.
+    - [x] Root container allows vertical scrolling (`min-height: 100vh`, `overflow-y: auto`).
+    - [x] `MobileAppHeader` renders with centered App Logo/Title on screens < 768px.
+    - [x] Search and Hamburger icons (`search`, `menu`) render side-by-side at top right using Astryx `IconButton` and `Icon`.
+    - [x] On viewports ≥ 768px, `MobileAppHeader` is hidden.
   - **Verification:**
-    - [x] Backend test: `cd backend && mvn test -pl api-gateway` (19/19 passed)
-    - [x] Frontend test: `cd frontend && npm run test:unit` (104/104 passed)
+    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd frontend && npm run lint`
+    - [x] Focused unit test in `frontend/tests/mobile_responsive_navigation.test.mjs` verifying styles and header rendering.
   - **Dependencies:** None
   - **Files likely touched:**
-    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
-    - `backend/api-gateway/src/test/java/com/social/gateway/service/GatewayAuthServiceTest.java`
+    - `frontend/src/App.tsx`
+    - `frontend/src/app/feed/MobileAppHeader.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+    - `frontend/test/mobile_responsive_navigation.test.mjs`
+  - **Estimated scope:** S (3 files)
 
-- [x] Task 2: Implement Cryptographic HMAC-SHA256 Signed JWT Provider
-  - **Description:** Implement `JwtTokenProvider` using standard Java `javax.crypto.Mac` (HmacSHA256). Generate compact standard JWTs (`header.payload.signature`), validate expiration and constant-time signature match, and integrate with `GatewayAuthService` and `AuthController`.
+- [ ] Task 2: Implement Astryx 5-Icon Bottom Bar and In-Place View Swapping
+  - **Description:** Build `MobileBottomNav.tsx` containing 5 icons in sequential order: Saved, Creator Analytics, + Create Post (center), Notifications, Profile. Connect it to `NewsFeedPage.tsx` so clicking each icon swaps the center column view (Saved, Analytics, Notifications, Profile) or opens Create Post modal, while hiding desktop sidebars on screens < 768px.
   - **Acceptance criteria:**
-    - [x] Compact standard JWTs generated with header `{"alg":"HS256","typ":"JWT"}` and signed with HMAC-SHA256.
-    - [x] Token claims contain `sub` (userId), `username`, `email`, `iat`, and `exp`.
-    - [x] Constant-time signature comparison using `MessageDigest.isEqual` to prevent timing attacks.
-    - [x] Endpoint `/v1/auth/verify` validates tokens and rejects forged/expired tokens.
-    - [x] Unit tests verify token generation, valid verification, and rejection of tampered/expired tokens.
+    - [ ] `MobileBottomNav` renders fixed at bottom on viewports < 768px with exactly 5 icons in order: `[Saved, Creator Analytics, + Create Post, Notifications, Profile]`.
+    - [ ] Desktop left sidebar (profile/navigation) and right sidebar (recommendations/search) hidden on screens < 768px via media queries.
+    - [ ] Main center column occupies full width on mobile viewports.
+    - [ ] Tapping "Creator Analytics" swaps center feed to Creator Analytics charts.
+    - [ ] Tapping "Notifications" swaps center feed to Notifications list.
+    - [ ] Tapping "Saved" swaps center feed to saved posts filter.
+    - [ ] Tapping "Profile" displays profile card view.
+    - [ ] Tapping "+" opens the post creation composer modal.
   - **Verification:**
-    - [x] Backend test: `cd backend && mvn test -pl api-gateway` (29/29 passed)
-    - [x] Frontend test: `cd frontend && npm run test:unit` (104/104 passed)
+    - [ ] `cd frontend && npx tsc -b`
+    - [ ] `cd frontend && npm run lint`
+    - [ ] Focused unit test verifying bottom navigation order and view switching callbacks.
   - **Dependencies:** Task 1
   - **Files likely touched:**
-    - `backend/api-gateway/src/main/java/com/social/gateway/security/JwtTokenProvider.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`
-    - `backend/api-gateway/src/test/java/com/social/gateway/security/JwtTokenProviderTest.java`
-    - `backend/api-gateway/src/test/java/com/social/gateway/AuthControllerTest.java`
+    - `frontend/src/app/feed/MobileBottomNav.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+    - `frontend/tests/mobile_responsive_navigation.test.mjs`
+  - **Estimated scope:** M (3 files)
 
-- [x] Task 3: Secure Server-Side Google OAuth Endpoint & Refactor Frontend Handler
-  - **Description:** Add `POST /v1/auth/google` endpoint to `AuthController` and `GatewayAuthService`. Refactor frontend `authGoogleHandler.ts` and `authApi.ts` to call `/v1/auth/google` without fabricating fake client-side passwords.
+- [ ] Task 3: Implement Left Slide Navigation Drawer and Automated Mobile Verification
+  - **Description:** Build `MobileNavigationDrawer.tsx` utilizing Astryx `Drawer` to slide in from the left on Hamburger menu click. Host Appearance (Dark/Light theme switch with Astryx styling), Logout action, and user identity info. Create headless Chrome CDP automated test suite verifying mobile viewport (390x844) scroll behavior, drawer slide, view switches, and desktop (1440x900) 3-column preservation.
   - **Acceptance criteria:**
-    - [x] `GoogleAuthRequest` DTO defined with `email`, `name`, `avatarUrl`, `googleId`.
-    - [x] `POST /v1/auth/google` creates or retrieves Google user and returns signed JWT without fake passwords.
-    - [x] Frontend `authGoogleHandler.ts` removes `GOOGLE_OAUTH_PREFIX` and static password fabrication.
-    - [x] Frontend falls back cleanly to local mock user when backend is offline.
-    - [x] Frontend CodeScene Code Health remains 10.00 / 10.00 with 0 warnings.
+    - [ ] Tapping Hamburger button triggers left slide-out Astryx `Drawer`.
+    - [ ] Drawer contains current user identity, Appearance theme switch (toggle dark/light), and Logout button.
+    - [ ] Backdrop click or escape key closes the drawer.
+    - [ ] Mobile viewport (390x844) scrolls vertically without hindrance.
+    - [ ] Desktop viewport (1440x900) retains complete 3-column layout without regressions.
+    - [ ] Full test suite (`npm test`) passes with 100% green tests.
   - **Verification:**
-    - [x] Backend test: `cd backend && mvn test -pl common-models,api-gateway` (32/32 passed)
-    - [x] Frontend test: `cd frontend && npx tsc -b && npm run test:unit` (104/104 passed)
-    - [x] CodeScene check: `cs check frontend/src/context/authGoogleHandler.ts frontend/src/api/authApi.ts` (10.00/10.00)
+    - [ ] `cd frontend && npx tsc -b`
+    - [ ] `cd frontend && npm run lint`
+    - [ ] `cd frontend && npm test`
+    - [ ] `cd frontend && npm run build`
   - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
-    - `backend/common-models/src/main/java/com/social/common/dto/GoogleAuthRequest.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/controller/AuthController.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`
-    - `frontend/src/api/authApi.ts`
-    - `frontend/src/context/authGoogleHandler.ts`
+    - `frontend/src/app/feed/MobileNavigationDrawer.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+    - `frontend/tests/mobile_responsive_navigation.test.mjs`
+  - **Estimated scope:** M (3 files)
 
-- [x] Task 4: Secret Management, Permissions & Security Regression Tests
-  - **Description:** Set restrictive permissions (`chmod 600`) on `backend/.env`, verify `.gitignore` covers all sensitive files, document `JWT_SECRET` in `backend/.env.example`, and write automated test asserting credentials protection and token signing.
-  - **Acceptance criteria:**
-    - [x] `backend/.env` file permissions set to 600 (owner read/write only).
-    - [x] `.gitignore` contains explicit patterns blocking `.env`, `*.env`, `.env.*`.
-    - [x] `backend/.env.example` documents `JWT_SECRET` and deployment security guidelines.
-    - [x] Automated security regression test passes verifying `.env` isolation and JWT cryptographic signature validity.
-  - **Verification:**
-    - [x] Node test: `cd frontend && node --test test/security_hardening.test.mjs` (6/6 passed)
-    - [x] Full suite: `npm run test:unit` (111/111 passed)
-  - **Dependencies:** Task 1, Task 2, Task 3
-  - **Files likely touched:**
-    - `.gitignore`
-    - `backend/.env.example`
-    - `frontend/test/security_hardening.test.mjs`
-    - `frontend/package.json`
+## Checkpoint: Complete
+- [ ] All 3 tasks checked off
+- [ ] Zero TypeScript or lint errors
+- [ ] All unit and CDP test suites pass
+- [ ] Production build succeeds

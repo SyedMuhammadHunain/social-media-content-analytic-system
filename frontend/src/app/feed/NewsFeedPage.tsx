@@ -31,6 +31,8 @@ import { FeedFilterPill } from './FeedFilterPill.tsx';
 import { FeedRefreshBanner } from './FeedRefreshBanner.tsx';
 import { NewsFeedLeftSidebar } from './NewsFeedLeftSidebar.tsx';
 import { NewsFeedRightSidebar } from './NewsFeedRightSidebar.tsx';
+import { MobileAppHeader } from './MobileAppHeader.tsx';
+import { SidebarSearchBox } from './SidebarSearchBox.tsx';
 import { ProfileViewersModal } from '../../components/profile/ProfileViewersModal.tsx';
 import {
   getProfileActivity,
@@ -99,11 +101,39 @@ const NEWSFEED_CSS = `
     display: none !important;
   }
 }
-@media (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1024px) {
   .newsfeed-fixed-sidebar {
     position: static;
     width: 100%;
     margin-bottom: 24px;
+  }
+}
+@media (max-width: 767px) {
+  .newsfeed-fixed-sidebar,
+  .newsfeed-right-sidebar {
+    display: none !important;
+  }
+  .newsfeed-layout {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .newsfeed-center-scroll {
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    height: auto !important;
+    min-height: calc(100vh - 56px) !important;
+    padding-bottom: 84px !important;
+  }
+  .newsfeed-page-wrapper {
+    padding: 0 !important;
+  }
+}
+@media (min-width: 768px) {
+  .mobile-app-header,
+  .mobile-search-dropdown {
+    display: none !important;
   }
 }
 
@@ -189,6 +219,9 @@ export function NewsFeedPage({
   const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
   const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
   const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  void isMobileDrawerOpen;
   const centerScrollRef = useRef<HTMLElement>(null);
   const [profileActivity, setProfileActivity] = useState(() =>
     getProfileActivity(user.id, user.username, user.followingCount)
@@ -422,10 +455,37 @@ export function NewsFeedPage({
     <Layout
       height="auto"
       content={
-        <LayoutContent padding={6}>
+        <div className="newsfeed-page-wrapper">
           <style>{NEWSFEED_CSS}</style>
 
-          <div className="newsfeed-layout">
+          <MobileAppHeader
+            onOpenSearch={() => setIsMobileSearchOpen((prev) => !prev)}
+            onOpenDrawer={() => setIsMobileDrawerOpen((prev) => !prev)}
+          />
+
+          {isMobileSearchOpen && (
+            <div
+              className="mobile-search-dropdown"
+              data-testid="mobile-search-dropdown"
+              style={{
+                maxWidth: 680,
+                margin: '8px auto 16px auto',
+                padding: '0 12px',
+              }}
+            >
+              <SidebarSearchBox
+                users={searchableUsers}
+                currentUserId={user.id}
+                onSelectUser={(selectedUser) => {
+                  handleViewUserProfile(selectedUser);
+                  setIsMobileSearchOpen(false);
+                }}
+              />
+            </div>
+          )}
+
+          <LayoutContent padding={6}>
+            <div className="newsfeed-layout">
             <NewsFeedLeftSidebar
               user={user}
               activeFilterType={activeTab === 'feed' ? activeFilter.type : ('' as any)}
@@ -579,7 +639,8 @@ export function NewsFeedPage({
             currentUser={user}
             onCreatePost={handleModalCreatePost}
           />
-        </LayoutContent>
+          </LayoutContent>
+        </div>
       }
     />
   );

@@ -29,8 +29,8 @@ function AppContent() {
   return (
     <div
       style={{
-        height: '100vh',
-        overflow: 'hidden',
+        minHeight: '100vh',
+        overflowX: 'hidden',
         backgroundColor: 'var(--color-background-body, #111111)',
         color: 'var(--color-text-primary, #FFFFFF)',
         transition: 'background-color 0.2s ease, color 0.2s ease',
@@ -55,8 +55,8 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode);
     document.documentElement.style.colorScheme = mode;
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
   }, [mode]);
 
   useEffect(() => {
