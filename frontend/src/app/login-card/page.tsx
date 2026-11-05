@@ -72,16 +72,54 @@ export default function LoginCardPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string }>({});
   const [isSuccess, setIsSuccess] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [isGoogleAuthenticating, setIsGoogleAuthenticating] = useState(false);
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateLogin = (): boolean => {
+    const nextErrors: { username?: string; email?: string; password?: string } = {};
+    if (!email.trim()) {
+      nextErrors.email = 'Email is required';
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      nextErrors.email = 'Please enter a valid email address';
+    }
+    if (!password) {
+      nextErrors.password = 'Password is required';
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const validateRegister = (): boolean => {
+    const nextErrors: { username?: string; email?: string; password?: string } = {};
+    if (!username.trim()) {
+      nextErrors.username = 'Username is required';
+    } else if (username.trim().length < 3) {
+      nextErrors.username = 'Username must be at least 3 characters';
+    }
+    if (!email.trim()) {
+      nextErrors.email = 'Email is required';
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      nextErrors.email = 'Please enter a valid email address';
+    }
+    if (!password) {
+      nextErrors.password = 'Password is required';
+    } else if (password.length < 8) {
+      nextErrors.password = 'Password must be at least 8 characters';
+    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
   const handleManualLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!email || !password) return;
+    if (!validateLogin()) return;
     clearLogoutMessage();
     clearError();
-    const success = await login(email, password);
+    const success = await login(email.trim(), password);
     if (success) {
       setIsSuccess(true);
     }
@@ -89,7 +127,7 @@ export default function LoginCardPage() {
 
   const handleManualRegister = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!username || !email || !password) return;
+    if (!validateRegister()) return;
     clearLogoutMessage();
     clearError();
     const success = await register(username.trim(), email.trim(), password);
@@ -221,8 +259,14 @@ export default function LoginCardPage() {
                         type="text"
                         placeholder="Username (e.g. johndoe)"
                         value={username}
-                        onChange={setUsername}
+                        onChange={(val) => {
+                          setUsername(val);
+                          if (errors.username) setErrors((prev) => ({ ...prev, username: undefined }));
+                        }}
+                        status={errors.username ? { type: 'error', message: errors.username } : undefined}
+                        statusVariant="detached"
                         size="lg"
+                        data-testid="auth-username-input"
                       />
                     )}
                     <TextInput
@@ -231,8 +275,14 @@ export default function LoginCardPage() {
                       type="email"
                       placeholder="name@company.com"
                       value={email}
-                      onChange={setEmail}
+                      onChange={(val) => {
+                        setEmail(val);
+                        if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                      }}
+                      status={errors.email ? { type: 'error', message: errors.email } : undefined}
+                      statusVariant="detached"
                       size="lg"
+                      data-testid="auth-email-input"
                     />
                     <TextInput
                       label="Password"
@@ -244,8 +294,14 @@ export default function LoginCardPage() {
                       }
                       type="password"
                       value={password}
-                      onChange={setPassword}
+                      onChange={(val) => {
+                        setPassword(val);
+                        if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                      }}
+                      status={errors.password ? { type: 'error', message: errors.password } : undefined}
+                      statusVariant="detached"
                       size="lg"
+                      data-testid="auth-password-input"
                     />
                     <Button
                       data-testid={authMode === 'signup' ? 'signup-submit-btn' : 'login-submit-btn'}
@@ -290,6 +346,7 @@ export default function LoginCardPage() {
                       e?.preventDefault();
                       clearError();
                       clearLogoutMessage();
+                      setErrors({});
                       setAuthMode((prev) => (prev === 'login' ? 'signup' : 'login'));
                     }}
                   >

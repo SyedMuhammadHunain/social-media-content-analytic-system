@@ -11,7 +11,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/public/auth-brand-logo.png`, `frontend/src/app/login-card/page.tsx`
   - Scope: S
 
-- [ ] Task 2: SignUp & Login Input Form Validations
+- [x] Task 2: SignUp & Login Input Form Validations
   - Acceptance: `TextInput` displays inline `status={{ type: 'error', message }}` when:
     1. Email is empty or doesn't match RFC 5322 regex.
     2. Password is empty or under 8 chars on signup.
@@ -22,9 +22,9 @@ Plan: `tasks/plan.md`
   - Scope: S
 
 ### Checkpoint: Auth Modernization
-- [ ] `npx tsc -b` clean
-- [ ] Logo displays in login and signup views
-- [ ] Invalid inputs trigger inline Astryx error statuses
+- [x] `npx tsc -b` clean
+- [x] Logo displays in login and signup views
+- [x] Invalid inputs trigger inline Astryx error statuses
 
 ## Phase 2: Cloud Persistence & Astryx Skeletons
 
