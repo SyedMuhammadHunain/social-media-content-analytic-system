@@ -6,267 +6,111 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { UserProfile } from '../types/social.ts';
-import { SEED_ACCOUNTS, normalizeBackendUserId, type AuthUserAccount } from '../mock/authSeedData.ts';
+import type { AuthUserAccount } from '../mock/authSeedData.ts';
 import { AuthContext, type DemoUserSummary } from './auth-context-def.ts';
 import { authApi } from '../api/authApi.ts';
 import { setAuthToken } from '../api/client.ts';
+import {
+  DEFAULT_DEMO_USERS,
+  loadStoredUser,
+  saveStoredUser,
+  loadStoredAccounts,
+  saveStoredAccounts,
+  loadStoredToken,
+  saveStoredToken,
+  findAccount,
+} from './authAccountStorage.ts';
+import {
+  fetchDemoUsersWithFallback,
+  syncProfileUpdate,
+} from './authProfileSync.ts';
+import { executeGoogleLogin, type GoogleAuthParams } from './authGoogleHandler.ts';
 
 export type { AuthContextType, DemoUserSummary } from './auth-context-def.ts';
-
-const AUTH_STORAGE_KEY = 'smcas_session_user';
-const TOKEN_STORAGE_KEY = 'smcas_auth_token';
-const ACCOUNTS_STORAGE_KEY = 'social_accounts_v1';
-
-const DEFAULT_DEMO_USERS: DemoUserSummary[] = [
-  {
-    id: 'user_hunain',
-    username: 'hunain',
-    name: 'Syed Muhammad Hunain',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    headline: 'Staff Infrastructure Architect • Distributed Media Systems',
-  },
-  {
-    id: 'user_alice',
-    username: 'alice',
-    name: 'Alice Walker',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    headline: 'Distributed Systems & Cloud Lead',
-  },
-  {
-    id: 'user_bob',
-    username: 'bob',
-    name: 'Bob Creator',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    headline: 'Creative Media Director & Video Producer',
-  },
-  {
-    id: 'user_charlie',
-    username: 'charlie',
-    name: 'Charlie Dev',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    headline: 'Full-Stack Engineer & Reactive Microservices Dev',
-  },
-  {
-    id: 'usr_alex_01',
-    username: 'alex_chen_ai',
-    name: 'Alex Chen',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    headline: 'AI Systems Architect & LLM Engineer',
-  },
-  {
-    id: 'usr_alex_02',
-    username: 'alex_distrib',
-    name: 'Alex Rivera',
-    avatarUrl:
-      'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80',
-    headline: 'Principal Distributed Systems Engineer',
-  },
-];
+// Deterministic Google OAuth scheme uses deterministicGoogleId and goog_oauth_ prefix via authGoogleHandler.
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
-    try {
-      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
-    } catch {}
-    return null;
-  });
-
-  const [accounts, setAccounts] = useState<AuthUserAccount[]>(() => {
-    try {
-      const stored = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const storedIds = new Set(parsed.map((p) => p.user.id));
-          const missingSeeds = SEED_ACCOUNTS.filter((s) => !storedIds.has(s.user.id));
-          return [...parsed, ...missingSeeds];
-        }
-      }
-    } catch {}
-    return SEED_ACCOUNTS;
-  });
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(loadStoredUser);
+  const [accounts, setAccounts] = useState<AuthUserAccount[]>(loadStoredAccounts);
   const [demoUsers, setDemoUsers] = useState<DemoUserSummary[]>(DEFAULT_DEMO_USERS);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logoutMessage, setLogoutMessage] = useState<string | null>(null);
 
-  // Restore stored token if present
   useEffect(() => {
-    try {
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      if (token) {
-        setAuthToken(token);
-      }
-    } catch {}
-  }, []);
-
-  // Fetch demo users from API Gateway with graceful fallback
-  useEffect(() => {
-    let isMounted = true;
-    authApi
-      .getDemoUsers()
-      .then((users) => {
-        if (!isMounted || !users || users.length === 0) return;
-        const mapped: DemoUserSummary[] = users.map((u) => {
-          const matchedSeed = SEED_ACCOUNTS.find(
-            (a) => a.user.id === u.id || a.user.username.toLowerCase() === u.username.toLowerCase()
-          );
-          return {
-            id: u.id,
-            username: u.username,
-            name: u.name || (matchedSeed ? matchedSeed.user.name : u.username),
-            avatarUrl: u.avatarUrl || (matchedSeed ? matchedSeed.user.avatarUrl : undefined),
-            headline: matchedSeed?.user.headline,
-          };
-        });
-
-        // Retain existing known demo accounts (Alex Chen, Alex Rivera) so no user is removed
-        const existingIds = new Set(mapped.map((m) => m.id));
-        const preservedAdditional = DEFAULT_DEMO_USERS.filter((d) => !existingIds.has(d.id));
-        setDemoUsers([...mapped, ...preservedAdditional]);
-      })
-      .catch(() => {
-        // Gateway offline: silently retain DEFAULT_DEMO_USERS
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    const token = loadStoredToken();
+    if (token) setAuthToken(token);
+    fetchDemoUsersWithFallback().then(setDemoUsers);
   }, []);
 
   const clearError = () => setError(null);
   const clearLogoutMessage = () => setLogoutMessage(null);
 
+  const applyAuthSuccess = (user: UserProfile, token: string, account?: AuthUserAccount) => {
+    setAuthToken(token);
+    saveStoredToken(token);
+    setCurrentUser(user);
+    saveStoredUser(user);
+    if (account) {
+      setAccounts((prev) => {
+        const updated = [...prev.filter((a) => a.user.id !== user.id && a.email.toLowerCase() !== account.email.toLowerCase()), account];
+        saveStoredAccounts(updated);
+        return updated;
+      });
+    }
+  };
+
   const login = async (emailOrUsername: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setLogoutMessage(null);
-
     const normalized = emailOrUsername.trim().toLowerCase();
 
-    // 1. Attempt API Gateway login first
     try {
       const res = await authApi.login({ usernameOrEmail: normalized, password });
       if (res && res.token) {
-        setAuthToken(res.token);
-        try {
-          localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
-        } catch {}
-
-        const seedMatch = accounts.find(
-          (a) =>
-            a.user.id === res.userId ||
-            a.user.username.toLowerCase() === res.username.toLowerCase() ||
-            a.email.toLowerCase() === normalized
-        );
-
-        const profile: UserProfile = seedMatch
-          ? {
-              ...seedMatch.user,
-              id: res.userId,
-              username: res.username,
-              name: res.fullName || seedMatch.user.name,
-              avatarUrl: res.avatarUrl || seedMatch.user.avatarUrl,
-              coverBannerUrl: res.coverBannerUrl || seedMatch.user.coverBannerUrl || '',
-              bio: res.bio || seedMatch.user.bio || 'Active creator on Social Media Content Analysis System',
-            }
-          : {
-              id: res.userId,
-              username: res.username,
-              name: res.fullName || res.username,
-              avatarUrl:
-                res.avatarUrl ||
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-              coverBannerUrl: res.coverBannerUrl || '',
-              isFollowed: false,
-              headline: 'Social Media Creator',
-              tags: ['Creator', 'Meta Astryx'],
-              bio: res.bio || 'Active creator on Social Media Content Analysis System',
-              followerCount: 0,
-              followingCount: 0,
-            };
-
-        setCurrentUser(profile);
-        setAccounts((prev) => {
-          const idx = prev.findIndex(
-            (a) => a.user.id === profile.id || a.email.toLowerCase() === normalized
-          );
-          if (idx !== -1) {
-            const updated = [...prev];
-            updated[idx] = { ...updated[idx], user: profile };
-            try {
-              localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-            } catch {}
-            return updated;
-          }
-          return prev;
-        });
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
-        } catch {}
-
+        const seedMatch = findAccount(accounts, normalized) || findAccount(accounts, res.userId);
+        const profile: UserProfile = {
+          ...(seedMatch ? seedMatch.user : {
+            isFollowed: false,
+            headline: 'Social Media Creator',
+            tags: ['Creator', 'Meta Astryx'],
+            followerCount: 0,
+            followingCount: 0,
+          }),
+          id: res.userId,
+          username: res.username,
+          name: res.fullName || seedMatch?.user.name || res.username,
+          avatarUrl: res.avatarUrl || seedMatch?.user.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+          coverBannerUrl: res.coverBannerUrl || seedMatch?.user.coverBannerUrl || '',
+          bio: res.bio || seedMatch?.user.bio || 'Active creator on Social Media Content Analysis System',
+        };
+        applyAuthSuccess(profile, res.token, { user: profile, email: seedMatch?.email || normalized, passwordHash: password });
         setIsLoading(false);
         return true;
       }
     } catch (err: any) {
-      if (err?.status === 401 || err?.name === 'ApiError') {
-        const localAccount = accounts.find(
-          (a) =>
-            (a.email.toLowerCase() === normalized ||
-              a.user.username.toLowerCase() === normalized ||
-              a.user.id.toLowerCase() === normalized) &&
-            a.passwordHash === password
-        );
-        if (!localAccount) {
-          setIsLoading(false);
-          setError(err?.message || 'Invalid username/email or password. Please try again.');
-          return false;
-        }
+      if ((err?.status === 401 || err?.name === 'ApiError') && !findAccount(accounts, normalized, password)) {
+        setIsLoading(false);
+        setError(err?.message || 'Invalid username/email or password. Please try again.');
+        return false;
       }
-      // Gateway unreachable -> continue to offline fallback check below
     }
 
-    // 2. Offline fallback check against seed accounts
-    const localAccount = accounts.find(
-      (a) =>
-        (a.email.toLowerCase() === normalized ||
-          a.user.username.toLowerCase() === normalized ||
-          a.user.id.toLowerCase() === normalized) &&
-        a.passwordHash === password
-    );
-
+    const localAccount = findAccount(accounts, normalized, password);
     setIsLoading(false);
-
     if (localAccount) {
-      setCurrentUser(localAccount.user);
-      const mockToken = `mock_token_${localAccount.user.id}`;
-      setAuthToken(mockToken);
-      try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(localAccount.user));
-        localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
-      } catch {}
+      applyAuthSuccess(localAccount.user, `mock_token_${localAccount.user.id}`);
       return true;
     }
-
     setError('Invalid username/email or password. Please try again.');
     return false;
   };
 
-  const register = async (
-    username: string,
-    email: string,
-    password: string
-  ): Promise<boolean> => {
+  const register = async (username: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setLogoutMessage(null);
-
     const cleanUsername = username.trim();
     const cleanEmail = email.trim();
 
@@ -276,21 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    // 1. Attempt API Gateway registration
     try {
-      const res = await authApi.register({
-        username: cleanUsername,
-        email: cleanEmail,
-        password,
-        fullName: cleanUsername,
-      });
-
+      const res = await authApi.register({ username: cleanUsername, email: cleanEmail, password, fullName: cleanUsername });
       if (res && res.token) {
-        setAuthToken(res.token);
-        try {
-          localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
-        } catch {}
-
         const newUser: UserProfile = {
           id: res.userId,
           username: res.username,
@@ -304,57 +136,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           followerCount: 0,
           followingCount: 0,
         };
-
-        setCurrentUser(newUser);
-        const registeredAccount: AuthUserAccount = {
-          user: newUser,
-          email: cleanEmail,
-          passwordHash: password,
-        };
-        setAccounts((prev) => {
-          const updated = [...prev.filter((a) => a.user.id !== newUser.id), registeredAccount];
-          try {
-            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-          } catch {}
-          return updated;
-        });
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
-        } catch {}
-
-        // Refresh demo users so user appears in dropdown
-        authApi.getDemoUsers().then((users) => {
-          if (users && users.length > 0) {
-            setDemoUsers(users.map((u) => ({
-              id: u.id,
-              username: u.username,
-              name: u.name,
-              avatarUrl: u.avatarUrl,
-            })));
-          }
-        }).catch(() => {});
-
+        applyAuthSuccess(newUser, res.token, { user: newUser, email: cleanEmail, passwordHash: password });
+        fetchDemoUsersWithFallback().then(setDemoUsers);
         setIsLoading(false);
         return true;
       }
     } catch (err: any) {
-      // If server explicitly returned an error (e.g. 409 Conflict, duplicate email), do NOT fall back to offline mode
       if (err?.status === 409 || err?.status === 400 || err?.name === 'ApiError') {
         setIsLoading(false);
         setError(err.message || 'Account with this email or username already exists.');
         return false;
       }
-      // Offline fallback only for genuine connectivity failure
     }
 
-    // 2. Offline fallback registration
-    if (
-      accounts.some(
-        (a) =>
-          a.email.toLowerCase() === cleanEmail.toLowerCase() ||
-          a.user.username.toLowerCase() === cleanUsername.toLowerCase()
-      )
-    ) {
+    if (accounts.some((a) => a.email.toLowerCase() === cleanEmail.toLowerCase() || a.user.username.toLowerCase() === cleanUsername.toLowerCase())) {
       setIsLoading(false);
       setError('Account with this email or username already exists.');
       return false;
@@ -373,307 +168,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       followerCount: 0,
       followingCount: 0,
     };
-
-    const newAccount: AuthUserAccount = {
-      user: newUser,
-      email: cleanEmail,
-      passwordHash: password,
-    };
-
-    setAccounts((prev) => {
-      const updated = [...prev, newAccount];
-      try {
-        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-    setCurrentUser(newUser);
+    applyAuthSuccess(newUser, `mock_token_${newUser.id}`, { user: newUser, email: cleanEmail, passwordHash: password });
     setIsLoading(false);
-    try {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(newUser));
-    } catch {}
     return true;
   };
 
-  const loginWithGoogle = async (googleAccount?: {
-    name: string;
-    email: string;
-    avatarUrl?: string;
-    googleId?: string;
-  }): Promise<boolean> => {
+  const loginWithGoogle = async (googleAccount?: GoogleAuthParams): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     setLogoutMessage(null);
-
-    const defaultAccount = {
-      name: 'Syed Muhammad Hunain',
-      email: 'hunain.google@gmail.com',
-      avatarUrl:
-        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-      googleId: 'google_1082938472910',
-    };
-
-    const account = googleAccount || defaultAccount;
-    const cleanEmail = account.email.trim().toLowerCase();
-    const cleanUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') + '_goog';
-    const deterministicGoogleId = account.googleId || `goog_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const googlePassword = `goog_oauth_${deterministicGoogleId}`;
-
-    // 1. Try to log in with existing account on Gateway
     try {
-      const loginRes = await authApi.login({
-        usernameOrEmail: cleanEmail,
-        password: googlePassword,
-      });
-
-      if (loginRes && loginRes.token) {
-        setAuthToken(loginRes.token);
-        const userProfile: UserProfile = {
-          id: loginRes.userId,
-          username: loginRes.username,
-          name: loginRes.fullName || account.name,
-          avatarUrl: loginRes.avatarUrl || account.avatarUrl,
-          coverBannerUrl: loginRes.coverBannerUrl || '',
-          isFollowed: false,
-          headline: 'Verified Google Creator',
-          tags: ['Google Verified', 'Creator'],
-          bio: loginRes.bio || `Authenticated via Google (${account.email})`,
-          followerCount: 0,
-          followingCount: 0,
-        };
-        setCurrentUser(userProfile);
-        setAccounts((prev) => {
-          const updated = [
-            ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail && a.user.id !== userProfile.id),
-            { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
-          ];
-          try {
-            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-          } catch {}
-          return updated;
-        });
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
-          localStorage.setItem(TOKEN_STORAGE_KEY, loginRes.token);
-        } catch {}
-        setIsLoading(false);
-        return true;
-      }
-    } catch {
-      // Not registered or gateway returned 401 -> proceed to register below
-    }
-
-    // 2. Try to register new user on Gateway
-    try {
-      const regRes = await authApi.register({
-        username: cleanUsername,
-        email: cleanEmail,
-        password: googlePassword,
-        fullName: account.name,
-        authProvider: 'GOOGLE',
-        avatarUrl: account.avatarUrl,
-      });
-
-      if (regRes && regRes.token) {
-        setAuthToken(regRes.token);
-        const userProfile: UserProfile = {
-          id: regRes.userId,
-          username: regRes.username,
-          name: regRes.fullName || account.name,
-          avatarUrl: regRes.avatarUrl || account.avatarUrl,
-          coverBannerUrl: regRes.coverBannerUrl || '',
-          isFollowed: false,
-          headline: 'Verified Google Creator',
-          tags: ['Google Verified', 'Creator'],
-          bio: regRes.bio || `Authenticated via Google (${account.email})`,
-          followerCount: 0,
-          followingCount: 0,
-        };
-        setCurrentUser(userProfile);
-        setAccounts((prev) => {
-          const updated = [
-            ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail && a.user.id !== userProfile.id),
-            { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
-          ];
-          try {
-            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-          } catch {}
-          return updated;
-        });
-        try {
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
-          localStorage.setItem(TOKEN_STORAGE_KEY, regRes.token);
-        } catch {}
-
-        authApi
-          .getDemoUsers()
-          .then((users) => {
-            if (users && users.length > 0) {
-              setDemoUsers(
-                users.map((u) => ({
-                  id: u.id,
-                  username: u.username,
-                  name: u.name,
-                  avatarUrl: u.avatarUrl,
-                }))
-              );
-            }
-          })
-          .catch(() => {});
-
-        setIsLoading(false);
-        return true;
-      }
-    } catch {
-      // Fall through to offline mock login
-    }
-
-    // 3. Seamless offline Google profile creation/re-login
-    const existingOffline = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
-    if (existingOffline) {
-      const mockToken = `goog_token_${existingOffline.user.id}`;
-      setAuthToken(mockToken);
-      setCurrentUser(existingOffline.user);
-      try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(existingOffline.user));
-        localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
-      } catch {}
+      const result = await executeGoogleLogin(googleAccount, accounts);
+      applyAuthSuccess(result.user, result.token, result.account);
+      fetchDemoUsersWithFallback().then(setDemoUsers);
       setIsLoading(false);
       return true;
+    } catch (e: any) {
+      setIsLoading(false);
+      setError(e?.message || 'Google authentication failed.');
+      return false;
     }
-
-    const offlineProfile: UserProfile = {
-      id: `usr_${deterministicGoogleId}`,
-      username: cleanUsername,
-      name: account.name,
-      avatarUrl: account.avatarUrl,
-      coverBannerUrl: '',
-      isFollowed: false,
-      headline: 'Verified Google Creator',
-      tags: ['Google Verified', 'Creator'],
-      bio: `Authenticated via Google (${account.email})`,
-      followerCount: 0,
-      followingCount: 0,
-    };
-
-    const mockToken = `goog_token_${offlineProfile.id}`;
-    setAuthToken(mockToken);
-    setCurrentUser(offlineProfile);
-    setAccounts((prev) => {
-      const updated = [
-        ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail),
-        { user: offlineProfile, email: cleanEmail, passwordHash: googlePassword },
-      ];
-      try {
-        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-    try {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(offlineProfile));
-      localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
-    } catch {}
-
-    setIsLoading(false);
-    return true;
   };
 
   const updateUser = async (partial: Partial<UserProfile>): Promise<void> => {
-    let resolvedUser: UserProfile | null = null;
+    let activeUser: UserProfile | null = null;
     setCurrentUser((prev) => {
       if (!prev) return null;
-      resolvedUser = { ...prev, ...partial };
-      try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(resolvedUser));
-      } catch {}
-      return resolvedUser;
+      activeUser = { ...prev, ...partial };
+      saveStoredUser(activeUser);
+      return activeUser;
     });
 
-    const activeUser: UserProfile | null =
-      resolvedUser || (currentUser ? { ...currentUser, ...partial } : null);
-    if (!activeUser?.id) return;
+    const targetUser = activeUser || (currentUser ? { ...currentUser, ...partial } : null);
+    if (!targetUser?.id) return;
 
-    // 1. Update stored accounts in state and localStorage so re-logging in keeps changes
     setAccounts((prev) => {
       const updated = prev.map((acc) =>
-        acc.user.id === activeUser.id || acc.user.username.toLowerCase() === activeUser.username.toLowerCase()
+        acc.user.id === targetUser.id || acc.user.username.toLowerCase() === targetUser.username.toLowerCase()
           ? { ...acc, user: { ...acc.user, ...partial } }
           : acc
       );
-      try {
-        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
-      } catch {}
+      saveStoredAccounts(updated);
       return updated;
     });
 
-    // 2. Persist to MongoDB Atlas via Spring Boot PUT /v1/auth/profile
-    try {
-      const backendUserId = normalizeBackendUserId(activeUser.id);
-      await authApi.updateProfile({
-        userId: backendUserId,
-        fullName: activeUser.name,
-        avatarUrl: activeUser.avatarUrl,
-        bio: activeUser.bio,
-        coverBannerUrl: activeUser.coverBannerUrl,
-      });
-
-      const users = await authApi.getDemoUsers();
-      if (users && users.length > 0) {
-        setDemoUsers(
-          users.map((u) => ({
-            id: u.id,
-            username: u.username,
-            name: u.name,
-            avatarUrl: u.avatarUrl,
-          }))
-        );
-      }
-    } catch (e) {
-      console.warn('Failed to sync profile update to backend:', e);
-    }
+    const updatedDemos = await syncProfileUpdate(targetUser);
+    if (updatedDemos) setDemoUsers(updatedDemos);
   };
 
   const switchUser = async (userId: string): Promise<boolean> => {
     setLogoutMessage(null);
-    const matchedAccount = accounts.find(
-      (a) => a.user.id === userId || a.user.username.toLowerCase() === userId.toLowerCase()
-    );
-
-    if (matchedAccount) {
-      setCurrentUser(matchedAccount.user);
-      const token = `token_${matchedAccount.user.id}`;
-      setAuthToken(token);
-      try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(matchedAccount.user));
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
-      } catch {}
+    const matched = findAccount(accounts, userId);
+    if (matched) {
+      applyAuthSuccess(matched.user, `token_${matched.user.id}`);
       return true;
     }
-
-    const matchedDemo = demoUsers.find((d) => d.id === userId || d.username === userId);
-    if (matchedDemo) {
-      const userProfile: UserProfile = {
-        id: matchedDemo.id,
-        username: matchedDemo.username,
-        name: matchedDemo.name,
-        avatarUrl: matchedDemo.avatarUrl,
+    const demo = demoUsers.find((d) => d.id === userId || d.username === userId);
+    if (demo) {
+      const profile: UserProfile = {
+        id: demo.id,
+        username: demo.username,
+        name: demo.name,
+        avatarUrl: demo.avatarUrl,
         isFollowed: false,
-        headline: matchedDemo.headline || 'Social Media Creator',
+        headline: demo.headline || 'Social Media Creator',
         tags: ['Creator', 'Meta Astryx'],
         bio: 'Creator on Social Media Content Analysis System',
         followerCount: 0,
         followingCount: 0,
       };
-      setCurrentUser(userProfile);
-      const token = `token_${matchedDemo.id}`;
-      setAuthToken(token);
-      try {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
-      } catch {}
+      applyAuthSuccess(profile, `token_${demo.id}`);
       return true;
     }
-
     return false;
   };
 
@@ -682,10 +248,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null);
     setError(null);
     setLogoutMessage('You have been logged out successfully.');
-    try {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-    } catch {}
+    saveStoredUser(null);
+    saveStoredToken(null);
   };
 
   return (

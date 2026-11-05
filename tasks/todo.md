@@ -11,7 +11,7 @@ Plan: `tasks/plan.md`
   - Files: `frontend/src/api/tokenManager.ts`, `frontend/src/api/client.ts`
   - Scope: S
 
-- [ ] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
+- [x] Task 2: `AuthContext.tsx` Multi-Account, Google OAuth & Storage Decomposition
   - Acceptance: Extract `authAccountStorage.ts`, `authGoogleHandler.ts`, and `authProfileSync.ts`. Reduce `AuthContext.tsx` from 713 lines to ~130 lines. Maintain all `useAuth()` interface functions and behavior.
   - Verify: `cd frontend && npx tsc -b && npx oxlint src/context/AuthContext.tsx`
   - Files: `frontend/src/context/authAccountStorage.ts`, `frontend/src/context/authGoogleHandler.ts`, `frontend/src/context/authProfileSync.ts`, `frontend/src/context/AuthContext.tsx`
