@@ -42,7 +42,7 @@ export function PostComposerForm({
     <HStack gap={3} align="start" style={{ width: '100%' }}>
       <Avatar
         size="md"
-        src={currentUser.avatarUrl}
+        src={currentUser.avatarUrl || undefined}
         name={currentUser.name}
       />
 

@@ -82,7 +82,7 @@ export function GoogleAccountList({
           onClick={() => onSelectAccount(acc)}
         >
           <HStack gap={3} vAlign="center">
-            <Avatar name={acc.name} src={acc.avatarUrl} size="md" />
+            <Avatar name={acc.name} src={acc.avatarUrl || undefined} size="md" />
             <VStack gap={0}>
               <Text type="body" weight="bold">
                 {acc.name}

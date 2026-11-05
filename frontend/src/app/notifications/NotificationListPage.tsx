@@ -142,7 +142,7 @@ export function NotificationListPage() {
                     <Avatar
                       size="md"
                       name={item.actorName || 'User'}
-                      src={item.actorAvatar}
+                      src={item.actorAvatar || undefined}
                     />
                     <VStack gap={1}>
                       <HStack gap={1} vAlign="center">

@@ -54,7 +54,7 @@ export function PostComposer({
           <HStack vAlign="center" gap={3} style={{ flex: 1, minWidth: 0 }}>
             <Avatar
               size="md"
-              src={currentUser.avatarUrl}
+              src={currentUser.avatarUrl || undefined}
               name={currentUser.name}
             />
             <Text

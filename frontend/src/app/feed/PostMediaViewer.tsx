@@ -136,6 +136,11 @@ interface PostMediaContentProps {
   onError: () => void;
 }
 
+function shouldRenderVideo(type: PostType, isVideo: boolean): boolean {
+  if (isVideo) return true;
+  return type === 'VIDEO';
+}
+
 function PostMediaContent({
   type,
   isVideo,
@@ -144,6 +149,10 @@ function PostMediaContent({
   description,
   onError,
 }: PostMediaContentProps) {
+  if (!resolvedUrl) {
+    return null;
+  }
+
   if (type === 'IMAGE' && !isVideo) {
     return (
       <img
@@ -160,6 +169,10 @@ function PostMediaContent({
 
   if (hasError) {
     return <VideoPlaybackFallbackNotice url={resolvedUrl} />;
+  }
+
+  if (!shouldRenderVideo(type, isVideo)) {
+    return null;
   }
 
   return (
@@ -182,6 +195,10 @@ export function PostMediaViewer({ mediaUrls, type, description, mediaId }: PostM
   const initialUrl = mediaUrls?.[0] || '';
   const [resolvedUrl, setResolvedUrl] = useResolvedMediaUrl(mediaId, initialUrl);
   const [failedMediaUrl, setFailedMediaUrl] = useState<string | null>(null);
+
+  if (!resolvedUrl) {
+    return null;
+  }
 
   const isVideo = checkIsVideo(type, resolvedUrl);
   const hasError = Boolean(resolvedUrl) && failedMediaUrl === resolvedUrl;
