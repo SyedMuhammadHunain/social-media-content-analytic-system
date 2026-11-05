@@ -176,6 +176,7 @@ export default function LoginCardPage() {
     name: string;
     email: string;
     avatarUrl?: string;
+    googleId?: string;
   }) => {
     setIsGoogleModalOpen(false);
     clearLogoutMessage();

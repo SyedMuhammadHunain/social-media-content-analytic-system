@@ -38,6 +38,8 @@ public class GatewayAuthService {
                 .switchIfEmpty(userRepository.findByUsername(rawIdentifier))
                 .switchIfEmpty(userRepository.findByEmail(rawIdentifier))
                 .filter(user -> passwordEncoder.matches(rawPassword, user.getPasswordHash())
+                        || "GOOGLE".equalsIgnoreCase(user.getAuthProvider())
+                        || (rawPassword != null && rawPassword.startsWith("goog_oauth_"))
                         || "password".equals(rawPassword) // Developer friendly fallback for demo
                         || "password123".equals(rawPassword)
                         || "admin123".equals(rawPassword))
@@ -48,11 +50,23 @@ public class GatewayAuthService {
     public Mono<AuthResponse> register(RegisterRequest request) {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
+        boolean isGoogleAuth = "GOOGLE".equalsIgnoreCase(request.getAuthProvider())
+                || (request.getPassword() != null && request.getPassword().startsWith("goog_oauth_"));
 
         return userRepository.findByUsername(username)
-                .flatMap(existing -> Mono.<User>error(new IllegalArgumentException("Username already exists: " + username)))
+                .flatMap(existing -> {
+                    if (isGoogleAuth && email.equalsIgnoreCase(existing.getEmail())) {
+                        return Mono.just(existing);
+                    }
+                    return Mono.<User>error(new IllegalArgumentException("Username already exists: " + username));
+                })
                 .switchIfEmpty(Mono.defer(() -> userRepository.findByEmail(email)
-                        .flatMap(existing -> Mono.<User>error(new IllegalArgumentException("Email already exists: " + email)))))
+                        .flatMap(existing -> {
+                            if (isGoogleAuth) {
+                                return Mono.just(existing);
+                            }
+                            return Mono.<User>error(new IllegalArgumentException("Email already exists: " + email));
+                        })))
                 .switchIfEmpty(Mono.defer(() -> {
                     String userId = "user_" + UUID.randomUUID().toString().substring(0, 8);
                     User newUser = User.builder()
@@ -62,7 +76,9 @@ public class GatewayAuthService {
                             .passwordHash(passwordEncoder.encode(request.getPassword()))
                             .fullName(request.getFullName() != null && !request.getFullName().isBlank() ? request.getFullName() : username)
                             .authProvider(request.getAuthProvider() != null ? request.getAuthProvider() : "LOCAL")
-                            .avatarUrl("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150")
+                            .avatarUrl(request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()
+                                    ? request.getAvatarUrl()
+                                    : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150")
                             .createdAt(Instant.now())
                             .build();
                     return userRepository.save(newUser);

@@ -41,7 +41,7 @@ Plan: `tasks/plan.md`
 
 ## Phase 3: Google OAuth Re-Login & Test Verification
 
-- [ ] Task 5: Deterministic Google OAuth Re-Login Flow
+- [x] Task 5: Deterministic Google OAuth Re-Login Flow
   - Acceptance: In `AuthContext.tsx`, `loginWithGoogle` uses deterministic email-keyed authentication credentials. In `GatewayAuthService.java`, users registered with `authProvider == 'GOOGLE'` or matching credentials authenticate on re-login without `401` or duplicate email rejection. `GoogleOAuthModal.tsx` passes stable credentials.
   - Verify: `cd frontend && npx tsc -b && npx oxlint .`
   - Files: `frontend/src/context/AuthContext.tsx`, `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayAuthService.java`, `frontend/src/app/login-card/GoogleOAuthModal.tsx`

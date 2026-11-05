@@ -416,7 +416,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const account = googleAccount || defaultAccount;
     const cleanEmail = account.email.trim().toLowerCase();
     const cleanUsername = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_') + '_goog';
-    const googlePassword = `goog_oauth_${account.googleId || 'sec_token'}`;
+    const deterministicGoogleId = account.googleId || `goog_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const googlePassword = `goog_oauth_${deterministicGoogleId}`;
 
     // 1. Try to log in with existing account on Gateway
     try {
@@ -441,6 +442,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           followingCount: 0,
         };
         setCurrentUser(userProfile);
+        setAccounts((prev) => {
+          const updated = [
+            ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail && a.user.id !== userProfile.id),
+            { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
+          ];
+          try {
+            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
         try {
           localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
           localStorage.setItem(TOKEN_STORAGE_KEY, loginRes.token);
@@ -470,14 +481,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: regRes.username,
           name: regRes.fullName || account.name,
           avatarUrl: regRes.avatarUrl || account.avatarUrl,
+          coverBannerUrl: regRes.coverBannerUrl || '',
           isFollowed: false,
           headline: 'Verified Google Creator',
           tags: ['Google Verified', 'Creator'],
-          bio: `Authenticated via Google (${account.email})`,
+          bio: regRes.bio || `Authenticated via Google (${account.email})`,
           followerCount: 0,
           followingCount: 0,
         };
         setCurrentUser(userProfile);
+        setAccounts((prev) => {
+          const updated = [
+            ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail && a.user.id !== userProfile.id),
+            { user: userProfile, email: cleanEmail, passwordHash: googlePassword },
+          ];
+          try {
+            localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
         try {
           localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userProfile));
           localStorage.setItem(TOKEN_STORAGE_KEY, regRes.token);
@@ -506,12 +528,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Fall through to offline mock login
     }
 
-    // 3. Seamless offline Google profile creation
+    // 3. Seamless offline Google profile creation/re-login
+    const existingOffline = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+    if (existingOffline) {
+      const mockToken = `goog_token_${existingOffline.user.id}`;
+      setAuthToken(mockToken);
+      setCurrentUser(existingOffline.user);
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(existingOffline.user));
+        localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);
+      } catch {}
+      setIsLoading(false);
+      return true;
+    }
+
     const offlineProfile: UserProfile = {
-      id: `usr_goog_${Date.now()}`,
+      id: `usr_${deterministicGoogleId}`,
       username: cleanUsername,
       name: account.name,
       avatarUrl: account.avatarUrl,
+      coverBannerUrl: '',
       isFollowed: false,
       headline: 'Verified Google Creator',
       tags: ['Google Verified', 'Creator'],
@@ -520,9 +556,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       followingCount: 0,
     };
 
-    const mockToken = `goog_token_${Date.now()}`;
+    const mockToken = `goog_token_${offlineProfile.id}`;
     setAuthToken(mockToken);
     setCurrentUser(offlineProfile);
+    setAccounts((prev) => {
+      const updated = [
+        ...prev.filter((a) => a.email.toLowerCase() !== cleanEmail),
+        { user: offlineProfile, email: cleanEmail, passwordHash: googlePassword },
+      ];
+      try {
+        localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
     try {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(offlineProfile));
       localStorage.setItem(TOKEN_STORAGE_KEY, mockToken);

@@ -47,6 +47,7 @@ export interface GoogleAccountOption {
   email: string;
   avatarUrl: string;
   headline?: string;
+  googleId?: string;
 }
 
 const PRESET_GOOGLE_ACCOUNTS: GoogleAccountOption[] = [
@@ -55,25 +56,28 @@ const PRESET_GOOGLE_ACCOUNTS: GoogleAccountOption[] = [
     email: 'hunain.creator@gmail.com',
     avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
     headline: 'Current Active Account',
+    googleId: 'google_hunain_creator',
   },
   {
     name: 'Afzal Khan',
     email: 'afzal.khan@gmail.com',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     headline: 'Google Verified Creator',
+    googleId: 'google_afzal_khan',
   },
   {
     name: 'Alice Walker',
     email: 'alice.walker@gmail.com',
     avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     headline: 'Google Workspace Account',
+    googleId: 'google_alice_walker',
   },
 ];
 
 export interface GoogleOAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectAccount: (account: { name: string; email: string; avatarUrl?: string }) => void;
+  onSelectAccount: (account: { name: string; email: string; avatarUrl?: string; googleId?: string }) => void;
   isLoading?: boolean;
 }
 
@@ -94,10 +98,12 @@ export const GoogleOAuthModal: FC<GoogleOAuthModalProps> = ({
     if (e) e.preventDefault();
     if (!customEmail.trim()) return;
     const cleanName = customName.trim() || customEmail.split('@')[0];
+    const cleanEmail = customEmail.trim().toLowerCase();
     onSelectAccount({
       name: cleanName,
-      email: customEmail.trim(),
+      email: cleanEmail,
       avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      googleId: `google_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
     });
   };
 

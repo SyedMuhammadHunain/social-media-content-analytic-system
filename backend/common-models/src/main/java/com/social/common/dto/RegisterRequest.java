@@ -28,6 +28,8 @@ public class RegisterRequest {
 
     private String fullName;
 
+    private String avatarUrl;
+
     @Builder.Default
     private String authProvider = "LOCAL"; // LOCAL, GOOGLE, APPLE
 }
