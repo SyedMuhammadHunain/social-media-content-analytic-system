@@ -20,10 +20,93 @@ export interface PostMediaViewerProps {
   mediaId?: string;
 }
 
-export function PostMediaViewer({ mediaUrls, type, description, mediaId }: PostMediaViewerProps) {
-  const initialUrl = mediaUrls?.[0] || '';
+const VIDEO_EXT_REGEX = /\.(mp4|webm|ogg|mov|mkv|avi|wmv)$/i;
+
+const containerStyle: React.CSSProperties = {
+  borderRadius: 8,
+  overflow: 'hidden',
+  backgroundColor: 'rgba(0,0,0,0.3)',
+  border: '1px solid rgba(255, 255, 255, 0.08)',
+  maxHeight: 480,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+};
+
+const imageStyle: React.CSSProperties = {
+  width: '100%',
+  maxHeight: 480,
+  objectFit: 'cover',
+  display: 'block',
+};
+
+const videoStyle: React.CSSProperties = {
+  width: '100%',
+  maxHeight: 480,
+  backgroundColor: '#000000',
+  display: 'block',
+};
+
+function checkIsVideo(type: PostType, url: string): boolean {
+  if (type === 'VIDEO') return true;
+  if (!url) return false;
+  return VIDEO_EXT_REGEX.test(url) || url.startsWith('data:video/');
+}
+
+function shouldFallbackToSample(isVideo: boolean, url: string): boolean {
+  if (!isVideo || !url) return false;
+  return url !== '/sample-video.mp4';
+}
+
+async function resolveMediaFallback(
+  mediaId: string | undefined,
+  currentUrl: string,
+  isVideo: boolean
+): Promise<string | null> {
+  if (mediaId) {
+    const fresh = await getOrRehydrateObjectUrl(mediaId);
+    if (fresh && fresh !== currentUrl) {
+      return fresh;
+    }
+  }
+  if (shouldFallbackToSample(isVideo, currentUrl)) {
+    return '/sample-video.mp4';
+  }
+  return null;
+}
+
+function VideoPlaybackFallbackNotice({ url }: { url: string }) {
+  return (
+    <div style={{ width: '100%', padding: '16px' }}>
+      <Card padding={4}>
+        <VStack gap={3} align="center">
+          <HStack gap={2} vAlign="center">
+            <Icon icon={VideoCameraSlashIcon} size="md" color="accent" />
+            <Text type="body" weight="semibold">
+              Video Playback Notice
+            </Text>
+          </HStack>
+          <Text type="supporting" color="secondary">
+            This browser cannot decode this video stream natively. Standard web browsers require MP4 (H.264/AAC) or WebM formats.
+          </Text>
+          {Boolean(url) && (
+            <Button
+              label="Open Video Source"
+              variant="secondary"
+              size="sm"
+              icon={<Icon icon={ArrowTopRightOnSquareIcon} size="xsm" />}
+              onClick={() => window.open(url, '_blank')}
+            />
+          )}
+        </VStack>
+      </Card>
+    </div>
+  );
+}
+
+function useResolvedMediaUrl(mediaId: string | undefined, initialUrl: string) {
   const [resolvedUrl, setResolvedUrl] = useState<string>(initialUrl);
-  const [failedMediaUrl, setFailedMediaUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -41,101 +124,87 @@ export function PostMediaViewer({ mediaUrls, type, description, mediaId }: PostM
     };
   }, [mediaId, initialUrl]);
 
-  const hasError = !!resolvedUrl && failedMediaUrl === resolvedUrl;
+  return [resolvedUrl, setResolvedUrl] as const;
+}
 
-  const isVideo =
-    type === 'VIDEO' ||
-    (Boolean(resolvedUrl) && (/\.(mp4|webm|ogg|mov|mkv|avi|wmv)$/i.test(resolvedUrl) || resolvedUrl.startsWith('data:video/')));
+interface PostMediaContentProps {
+  type: PostType;
+  isVideo: boolean;
+  hasError: boolean;
+  resolvedUrl: string;
+  description?: string;
+  onError: () => void;
+}
+
+function PostMediaContent({
+  type,
+  isVideo,
+  hasError,
+  resolvedUrl,
+  description,
+  onError,
+}: PostMediaContentProps) {
+  if (type === 'IMAGE' && !isVideo) {
+    return (
+      <img
+        data-testid="post-media-image"
+        src={resolvedUrl}
+        alt={description || 'Post image'}
+        loading="lazy"
+        decoding="async"
+        onError={onError}
+        style={imageStyle}
+      />
+    );
+  }
+
+  if (hasError) {
+    return <VideoPlaybackFallbackNotice url={resolvedUrl} />;
+  }
+
+  return (
+    <video
+      key={resolvedUrl}
+      data-testid="post-media-video"
+      src={resolvedUrl}
+      controls
+      playsInline
+      preload="metadata"
+      onError={onError}
+      style={videoStyle}
+    >
+      Your browser does not support HTML5 video playback.
+    </video>
+  );
+}
+
+export function PostMediaViewer({ mediaUrls, type, description, mediaId }: PostMediaViewerProps) {
+  const initialUrl = mediaUrls?.[0] || '';
+  const [resolvedUrl, setResolvedUrl] = useResolvedMediaUrl(mediaId, initialUrl);
+  const [failedMediaUrl, setFailedMediaUrl] = useState<string | null>(null);
+
+  const isVideo = checkIsVideo(type, resolvedUrl);
+  const hasError = Boolean(resolvedUrl) && failedMediaUrl === resolvedUrl;
 
   const handleMediaError = async () => {
-    if (mediaId) {
-      const fresh = await getOrRehydrateObjectUrl(mediaId);
-      if (fresh && fresh !== resolvedUrl) {
-        setResolvedUrl(fresh);
-        return;
-      }
-    }
-    // Graceful fallback to verified local sample video if remote network/storage fails
-    if (isVideo && resolvedUrl && resolvedUrl !== '/sample-video.mp4') {
-      setResolvedUrl('/sample-video.mp4');
+    const fallback = await resolveMediaFallback(mediaId, resolvedUrl, isVideo);
+    if (fallback) {
+      setResolvedUrl(fallback);
       return;
     }
     setFailedMediaUrl(resolvedUrl);
   };
 
   return (
-    <div
-      style={{
-        borderRadius: 8,
-        overflow: 'hidden',
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        maxHeight: 480,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
-      }}
-    >
-      {type === 'IMAGE' && !isVideo ? (
-        <img
-          data-testid="post-media-image"
-          src={resolvedUrl}
-          alt={description || 'Post image'}
-          loading="lazy"
-          decoding="async"
-          onError={handleMediaError}
-          style={{
-            width: '100%',
-            maxHeight: 480,
-            objectFit: 'cover',
-            display: 'block',
-          }}
-        />
-      ) : hasError ? (
-        <div style={{ width: '100%', padding: '16px' }}>
-          <Card padding={4}>
-            <VStack gap={3} align="center">
-              <HStack gap={2} vAlign="center">
-                <Icon icon={VideoCameraSlashIcon} size="md" color="accent" />
-                <Text type="body" weight="semibold">
-                  Video Playback Notice
-                </Text>
-              </HStack>
-              <Text type="supporting" color="secondary">
-                This browser cannot decode this video stream natively. Standard web browsers require MP4 (H.264/AAC) or WebM formats.
-              </Text>
-              {resolvedUrl && (
-                <Button
-                  label="Open Video Source"
-                  variant="secondary"
-                  size="sm"
-                  icon={<Icon icon={ArrowTopRightOnSquareIcon} size="xsm" />}
-                  onClick={() => window.open(resolvedUrl, '_blank')}
-                />
-              )}
-            </VStack>
-          </Card>
-        </div>
-      ) : (
-        <video
-          key={resolvedUrl}
-          data-testid="post-media-video"
-          src={resolvedUrl}
-          controls
-          playsInline
-          preload="metadata"
-          onError={handleMediaError}
-          style={{
-            width: '100%',
-            maxHeight: 480,
-            backgroundColor: '#000000',
-            display: 'block',
-          }}
-        >
-          Your browser does not support HTML5 video playback.
-        </video>
-      )}
+    <div style={containerStyle}>
+      <PostMediaContent
+        type={type}
+        isVideo={isVideo}
+        hasError={hasError}
+        resolvedUrl={resolvedUrl}
+        description={description}
+        onError={handleMediaError}
+      />
     </div>
   );
 }
