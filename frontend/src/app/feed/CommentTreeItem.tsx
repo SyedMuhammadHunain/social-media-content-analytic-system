@@ -97,9 +97,62 @@ export function CommentTreeItem({
         <VStack gap={1}>
           <CommentHeader comment={comment} isNested={isNested} onViewProfile={onViewProfile} />
 
-          <div style={{ paddingLeft: paddingIndent }}>
-            <Text type="body">{comment.text}</Text>
-          </div>
+          {comment.text && (
+            <div style={{ paddingLeft: paddingIndent }}>
+              <Text type="body">{comment.text}</Text>
+            </div>
+          )}
+
+          {comment.mediaUrl && (
+            <div
+              data-testid={`comment-media-${comment.id}`}
+              style={{
+                paddingLeft: paddingIndent,
+                marginTop: 6,
+                position: 'relative',
+                display: 'inline-block',
+                maxWidth: 280,
+                borderRadius: 8,
+                overflow: 'hidden',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              <img
+                src={comment.mediaUrl}
+                alt="Comment attachment"
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  maxHeight: 180,
+                  objectFit: 'contain',
+                  display: 'block',
+                  borderRadius: 6,
+                }}
+              />
+              {(comment.mediaType === 'GIF' || comment.mediaUrl.toLowerCase().includes('.gif')) && (
+                <div
+                  data-testid={`comment-gif-badge-${comment.id}`}
+                  style={{
+                    position: 'absolute',
+                    bottom: 6,
+                    right: 6,
+                    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+                    color: '#ffffff',
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    backdropFilter: 'blur(2px)',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  GIF
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{ paddingLeft: paddingIndent, paddingTop: 2 }}>
             <Button

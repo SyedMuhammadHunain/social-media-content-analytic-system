@@ -28,6 +28,8 @@ export interface Comment {
   text: string;
   parentCommentId?: string;
   createdAt: string;
+  mediaUrl?: string;
+  mediaType?: 'IMAGE' | 'GIF' | 'VIDEO';
 }
 
 export interface Post {

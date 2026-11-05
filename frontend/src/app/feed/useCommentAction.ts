@@ -8,6 +8,7 @@ import type { Post, UserProfile, Comment } from '../../types/social.ts';
 import { socialApi, type BackendComment } from '../../api/socialApi.ts';
 import { notificationsApi } from '../../api/notificationsApi.ts';
 import { updateSharedPost } from '../../utils/sharedPostsStore.ts';
+import { parseCommentContent } from './postCommentUtils.ts';
 
 interface UseCommentActionParams {
   user: UserProfile;
@@ -63,15 +64,19 @@ function applyOptimisticComment(
   comment: Comment,
   setPosts: Dispatch<SetStateAction<Post[]>>
 ) {
-  updateSharedPost(postId, (p) => ({
-    ...p,
-    commentsCount: p.commentsCount + 1,
-    comments: [...p.comments, comment],
-  }));
+  updateSharedPost(postId, (p) => {
+    if (p.comments.some((c) => c.id === comment.id)) return p;
+    return {
+      ...p,
+      commentsCount: p.commentsCount + 1,
+      comments: [...p.comments, comment],
+    };
+  });
 
   setPosts((prev) =>
     prev.map((p) => {
       if (p.id !== postId) return p;
+      if (p.comments.some((c) => c.id === comment.id)) return p;
       return {
         ...p,
         commentsCount: p.commentsCount + 1,
@@ -87,13 +92,40 @@ function reconcileSavedComment(
   saved: BackendComment,
   setPosts: Dispatch<SetStateAction<Post[]>>
 ) {
+  const { text, mediaUrl, mediaType } = parseCommentContent(saved.content);
+
+  updateSharedPost(postId, (p) => ({
+    ...p,
+    comments: p.comments.map((c) =>
+      c.id === tempCommentId
+        ? {
+            ...c,
+            id: saved.id,
+            parentCommentId: saved.parentCommentId,
+            text: text || c.text,
+            mediaUrl: mediaUrl || c.mediaUrl,
+            mediaType: mediaType || c.mediaType,
+          }
+        : c
+    ),
+  }));
+
   setPosts((prev) =>
     prev.map((p) => {
       if (p.id !== postId) return p;
       return {
         ...p,
         comments: p.comments.map((c) =>
-          c.id === tempCommentId ? { ...c, id: saved.id, parentCommentId: saved.parentCommentId } : c
+          c.id === tempCommentId
+            ? {
+                ...c,
+                id: saved.id,
+                parentCommentId: saved.parentCommentId,
+                text: text || c.text,
+                mediaUrl: mediaUrl || c.mediaUrl,
+                mediaType: mediaType || c.mediaType,
+              }
+            : c
         ),
       };
     })
@@ -107,44 +139,70 @@ export function useCommentAction({
   setPosts,
   recordComment,
 }: UseCommentActionParams) {
-  const handleAddComment = useCallback(async (postId: string, text: string, parentCommentId?: string) => {
-    const tempCommentId = `c_${Date.now()}`;
-    const newComment: Comment = {
-      id: tempCommentId,
-      postId,
-      userId: user.id,
-      author: user,
-      text,
-      parentCommentId,
-      createdAt: 'Just now',
-    };
+  const handleAddComment = useCallback(
+    async (
+      postId: string,
+      text: string,
+      parentCommentId?: string,
+      mediaUrl?: string,
+      mediaType?: 'IMAGE' | 'GIF' | 'VIDEO'
+    ) => {
+      const trimmedText = text.trim();
+      if (!trimmedText && !mediaUrl) return;
 
-    applyOptimisticComment(postId, newComment, setPosts);
-    recordComment();
+      const tempCommentId = `c_${Date.now()}`;
+      const resolvedMediaType =
+        mediaType ||
+        (mediaUrl?.toLowerCase().includes('.gif') || mediaUrl?.includes('giphy.com') || mediaUrl?.includes('tenor.com')
+          ? 'GIF'
+          : mediaUrl
+            ? 'IMAGE'
+            : undefined);
 
-    const post = posts?.find((p) => p.id === postId);
-    if (shouldNotifyRecipient(post, backendUserId, user.id)) {
-      notifyCommentRecipient(
-        { recipientId: post!.author.id, backendUserId, user, postId },
-        text
-      );
-    }
-
-    try {
-      const saved = await socialApi.addComment({
-        userId: backendUserId,
+      const newComment: Comment = {
+        id: tempCommentId,
         postId,
-        content: text,
+        userId: user.id,
+        author: user,
+        text: trimmedText,
         parentCommentId,
-      });
+        mediaUrl,
+        mediaType: resolvedMediaType,
+        createdAt: 'Just now',
+      };
 
-      if (saved?.id) {
-        reconcileSavedComment(postId, tempCommentId, saved, setPosts);
+      applyOptimisticComment(postId, newComment, setPosts);
+      recordComment();
+
+      const post = posts?.find((p) => p.id === postId);
+      if (shouldNotifyRecipient(post, backendUserId, user.id)) {
+        notifyCommentRecipient(
+          { recipientId: post!.author.id, backendUserId, user, postId },
+          trimmedText || 'shared an attachment'
+        );
       }
-    } catch {
-      // Offline fallback
-    }
-  }, [user, backendUserId, posts, setPosts, recordComment]);
+
+      const backendContent = mediaUrl
+        ? `${trimmedText} [media:${mediaUrl}]`.trim()
+        : trimmedText;
+
+      try {
+        const saved = await socialApi.addComment({
+          userId: backendUserId,
+          postId,
+          content: backendContent,
+          parentCommentId,
+        });
+
+        if (saved?.id) {
+          reconcileSavedComment(postId, tempCommentId, saved, setPosts);
+        }
+      } catch {
+        // Offline fallback
+      }
+    },
+    [user, backendUserId, posts, setPosts, recordComment]
+  );
 
   return { handleAddComment };
 }

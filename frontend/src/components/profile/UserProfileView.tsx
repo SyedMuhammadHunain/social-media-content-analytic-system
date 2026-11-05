@@ -30,7 +30,13 @@ export interface UserProfileViewProps {
   onUpdateBanner?: (newBannerUrl: string) => void;
   onToggleLike?: (postId: string) => void;
   onToggleFollow?: (userId: string) => void;
-  onAddComment?: (postId: string, text: string, parentCommentId?: string) => void;
+  onAddComment?: (
+    postId: string,
+    text: string,
+    parentCommentId?: string,
+    mediaUrl?: string,
+    mediaType?: 'IMAGE' | 'GIF' | 'VIDEO'
+  ) => void;
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
 }

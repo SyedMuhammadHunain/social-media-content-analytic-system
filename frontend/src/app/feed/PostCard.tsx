@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type React from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack } from '@astryxdesign/core/Layout';
@@ -19,6 +19,7 @@ import { PostCardActionBar } from './PostCardActionBar.tsx';
 import { PostCardContent } from './PostCardContent.tsx';
 import { usePostCommentsToggle } from './usePostCommentsToggle.ts';
 import { resolveCardBorderRadius, type CardPositionFlags } from './postCardBorderUtils.ts';
+import { deduplicateComments } from './postCommentUtils.ts';
 
 function checkIsAuthor(currentUserId?: string, authorId?: string): boolean {
   if (!currentUserId || !authorId) return false;
@@ -33,7 +34,13 @@ export interface PostCardProps {
   currentUser?: UserProfile;
   onToggleLike: (postId: string) => void;
   onToggleFollow: (userId: string) => void;
-  onAddComment: (postId: string, text: string, parentCommentId?: string) => void;
+  onAddComment: (
+    postId: string,
+    text: string,
+    parentCommentId?: string,
+    mediaUrl?: string,
+    mediaType?: 'IMAGE' | 'GIF' | 'VIDEO'
+  ) => void;
   onToggleBookmark?: (postId: string) => void;
   onEditPost?: (postId: string, input: UpdatePostInput) => void;
   onDeletePost?: (postId: string) => void;
@@ -72,6 +79,10 @@ export function PostCard({
 
   const isAuthor = checkIsAuthor(currentUser?.id, post.author.id);
   const cardStyle = buildCardStyle({ hasTopComposer, isFirst, isLast });
+
+  const displayedComments = useMemo(() => {
+    return deduplicateComments([...post.comments, ...remoteComments]);
+  }, [post.comments, remoteComments]);
 
   return (
     <div className="post-card-root" data-testid={`post-card-${post.id}`}>
@@ -114,7 +125,7 @@ export function PostCard({
           {showComments && (
             <CommentSection
               postId={post.id}
-              comments={[...post.comments, ...remoteComments]}
+              comments={displayedComments}
               onAddComment={onAddComment}
               onViewProfile={onViewProfile}
             />
