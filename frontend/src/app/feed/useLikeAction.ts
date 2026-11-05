@@ -134,11 +134,14 @@ export function useLikeAction({
   }, [posts, backendUserId, user, setPosts, recordLikeToggle]);
 
   const handleToggleBookmark = useCallback((postId: string) => {
-    updateSharedPost(postId, (p) => ({ ...p, isBookmarked: !p.isBookmarked }));
+    const post = posts.find((p) => p.id === postId);
+    const nextIsBookmarked = post ? !post.isBookmarked : true;
+
+    updateSharedPost(postId, (p) => ({ ...p, isBookmarked: nextIsBookmarked }));
     setPosts((prev) =>
-      prev.map((p) => (p.id === postId ? { ...p, isBookmarked: !p.isBookmarked } : p))
+      prev.map((p) => (p.id === postId ? { ...p, isBookmarked: nextIsBookmarked } : p))
     );
-  }, [setPosts]);
+  }, [posts, setPosts]);
 
   return {
     handleToggleLike,
