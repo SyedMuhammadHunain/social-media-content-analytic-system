@@ -52,10 +52,7 @@ interface BookmarkButtonProps {
 export function BookmarkActionButton({ postId, isBookmarked, onToggle, isIconOnly }: BookmarkButtonProps) {
   const bookmarkLabel = isBookmarked ? 'Saved' : 'Save';
   return (
-    <div
-      data-testid={`post-bookmark-container-${postId}`}
-      onClick={onToggle}
-    >
+    <div data-testid={`post-bookmark-container-${postId}`}>
       <Button
         data-testid={`post-bookmark-btn-${postId}`}
         label={bookmarkLabel}

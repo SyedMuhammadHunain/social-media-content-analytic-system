@@ -67,6 +67,16 @@ export async function getMediaBlob(mediaId: string): Promise<Blob | null> {
   }
 }
 
+const MAX_ACTIVE_URLS = 30;
+
+export function revokeActiveObjectUrl(mediaId: string): void {
+  const url = activeObjectUrls.get(mediaId);
+  if (url && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+    URL.revokeObjectURL(url);
+    activeObjectUrls.delete(mediaId);
+  }
+}
+
 export async function getOrRehydrateObjectUrl(mediaId: string): Promise<string | null> {
   if (activeObjectUrls.has(mediaId)) {
     return activeObjectUrls.get(mediaId)!;
@@ -76,6 +86,12 @@ export async function getOrRehydrateObjectUrl(mediaId: string): Promise<string |
   if (!blob) return null;
 
   if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+    if (activeObjectUrls.size >= MAX_ACTIVE_URLS) {
+      const oldestKey = activeObjectUrls.keys().next().value;
+      if (oldestKey) {
+        revokeActiveObjectUrl(oldestKey);
+      }
+    }
     const freshUrl = URL.createObjectURL(blob);
     activeObjectUrls.set(mediaId, freshUrl);
     return freshUrl;

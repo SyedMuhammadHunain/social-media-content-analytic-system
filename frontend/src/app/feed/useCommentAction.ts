@@ -26,7 +26,7 @@ interface CommentNotificationContext {
 }
 
 function shouldNotifyRecipient(post: Post | undefined, backendUserId: string, userId: string): boolean {
-  if (!post) return false;
+  if (!post?.author?.id) return false;
   if (post.author.id === backendUserId) return false;
   return post.author.id !== userId;
 }
@@ -143,9 +143,9 @@ export function useCommentAction({
       recordComment();
 
       const post = posts?.find((p) => p.id === postId);
-      if (shouldNotifyRecipient(post, backendUserId, user.id)) {
+      if (post?.author?.id && shouldNotifyRecipient(post, backendUserId, user.id)) {
         notifyCommentRecipient(
-          { recipientId: post!.author.id, backendUserId, user, postId },
+          { recipientId: post.author.id, backendUserId, user, postId },
           trimmedText || 'shared an attachment'
         );
       }

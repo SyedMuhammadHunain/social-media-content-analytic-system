@@ -96,4 +96,4 @@ export const PRESET_GIFS: PresetGif[] = [
   },
 ];
 
-export const GIF_CATEGORIES = ['ALL', 'Party', 'Clap', 'Dance', 'Fire', 'Laugh', 'Mind Blown', 'Cat', 'Thumbs Up'];
+export const GIF_CATEGORIES = ['ALL', 'Party', 'Clap', 'Dance', 'Fire', 'Laugh', 'Mind Blown', 'Cat', 'Thumbs Up', 'Drama', 'Confused'];

@@ -107,7 +107,7 @@ async function attemptGatewayLogin(ctx: LoginAttemptContext): Promise<AuthOperat
         success: true,
         user,
         token: res.token,
-        account: { user, email, passwordHash: ctx.password },
+        account: { user, email, passwordHash: 'MANAGED_TOKEN_SESSION' },
       };
     }
   } catch (err: any) {

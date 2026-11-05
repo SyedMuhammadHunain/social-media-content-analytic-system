@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useRef, useMemo, type ChangeEvent } from 'react';
+import { useState, useRef, useMemo, useEffect, type ChangeEvent } from 'react';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Heading } from '@astryxdesign/core/Text';
 import { Button } from '@astryxdesign/core/Button';
@@ -75,6 +75,21 @@ export function CommentSection({
   const deduplicatedComments = useMemo(() => deduplicateComments(comments), [comments]);
   const { rootComments, repliesByParent } = partitionCommentTree(deduplicatedComments);
 
+  useEffect(() => {
+    return () => {
+      if (attachedMedia?.url?.startsWith('blob:')) {
+        URL.revokeObjectURL(attachedMedia.url);
+      }
+    };
+  }, [attachedMedia]);
+
+  const removeAttachedMedia = () => {
+    if (attachedMedia?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(attachedMedia.url);
+    }
+    setAttachedMedia(null);
+  };
+
   const handleMainSubmit = () => {
     const trimmed = commentText.trim();
     if (!trimmed && !attachedMedia) return;
@@ -109,6 +124,9 @@ export function CommentSection({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (attachedMedia?.url?.startsWith('blob:')) {
+        URL.revokeObjectURL(attachedMedia.url);
+      }
       const objectUrl = URL.createObjectURL(file);
       const isGif = file.type === 'image/gif';
       setAttachedMedia({
@@ -176,7 +194,7 @@ export function CommentSection({
           <button
             type="button"
             data-testid="comment-remove-media-btn"
-            onClick={() => setAttachedMedia(null)}
+            onClick={removeAttachedMedia}
             style={{
               position: 'absolute',
               top: 4,

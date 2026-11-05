@@ -12,6 +12,7 @@ import { Icon } from '@astryxdesign/core/Icon';
 import { VideoCameraSlashIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import type { PostType } from '../../types/social.ts';
 import { getOrRehydrateObjectUrl } from '../../utils/mediaBlobStore.ts';
+import { isGifUrl } from './postCommentUtils.ts';
 
 export interface PostMediaViewerProps {
   mediaUrls?: string[];
@@ -96,7 +97,11 @@ function VideoPlaybackFallbackNotice({ url }: { url: string }) {
               variant="secondary"
               size="sm"
               icon={<Icon icon={ArrowTopRightOnSquareIcon} size="xsm" />}
-              onClick={() => window.open(url, '_blank')}
+              onClick={() => {
+                if (/^https?:\/\//i.test(url)) {
+                  window.open(url, '_blank', 'noopener,noreferrer');
+                }
+              }}
             />
           )}
         </VStack>
@@ -152,10 +157,7 @@ function PostMediaContent({
   }
 
   if (type === 'IMAGE' && !isVideo) {
-    const isGif =
-      resolvedUrl.toLowerCase().includes('.gif') ||
-      resolvedUrl.includes('giphy.com') ||
-      resolvedUrl.includes('tenor.com');
+    const isGif = isGifUrl(resolvedUrl);
 
     return (
       <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -166,7 +168,10 @@ function PostMediaContent({
           loading="lazy"
           decoding="async"
           onError={onError}
-          style={imageStyle}
+          style={{
+            ...imageStyle,
+            aspectRatio: '16 / 9',
+          }}
         />
         {isGif && (
           <div

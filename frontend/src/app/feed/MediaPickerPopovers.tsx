@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { Card } from '@astryxdesign/core/Card';
 import { Text } from '@astryxdesign/core/Text';
@@ -86,6 +86,7 @@ export function GifPickerPopover({ onSelectGif }: GifPickerPopoverProps) {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [customUrl, setCustomUrl] = useState('');
   const [customError, setCustomError] = useState<string | null>(null);
+  const deferredQuery = useDeferredValue(searchQuery);
 
   const filteredGifs = useMemo(() => {
     return PRESET_GIFS.filter((gif) => {
@@ -95,7 +96,7 @@ export function GifPickerPopover({ onSelectGif }: GifPickerPopoverProps) {
 
       if (!matchesCategory) return false;
 
-      const q = searchQuery.trim().toLowerCase();
+      const q = deferredQuery.trim().toLowerCase();
       if (!q) return true;
 
       const inLabel = gif.label.toLowerCase().includes(q);
@@ -104,7 +105,7 @@ export function GifPickerPopover({ onSelectGif }: GifPickerPopoverProps) {
 
       return inLabel || inCategory || inTags;
     });
-  }, [searchQuery, activeCategory]);
+  }, [deferredQuery, activeCategory]);
 
   const handleAttachCustomUrl = () => {
     const trimmed = customUrl.trim();
@@ -114,8 +115,15 @@ export function GifPickerPopover({ onSelectGif }: GifPickerPopoverProps) {
     }
     try {
       const parsed = new URL(trimmed);
-      if (!parsed.protocol.startsWith('http')) {
-        setCustomError('URL must begin with http:// or https://');
+      const isHttps = parsed.protocol === 'https:';
+      const isDevLocal = (parsed.protocol === 'http:' || parsed.protocol === 'https:') && (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1');
+      if (!isHttps && !isDevLocal) {
+        setCustomError('Only secure HTTPS URLs are allowed');
+        return;
+      }
+      const isPrivateNetwork = /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|169\.254\.)/.test(parsed.hostname);
+      if (isPrivateNetwork) {
+        setCustomError('Private network addresses are not allowed');
         return;
       }
       setCustomError(null);

@@ -32,21 +32,28 @@ export function deduplicateComments(comments: Comment[]): Comment[] {
 
     // Content fingerprint: authorId + parentCommentId + trimmed text + mediaUrl
     const authorId = c.author?.id || c.userId || '';
-    const fp = `${authorId}:${c.parentCommentId || 'root'}:${c.text?.trim() || ''}:${c.mediaUrl || ''}`;
-    const existingIdx = fpToIndex.get(fp);
+    const fp = authorId ? `${authorId}:${c.parentCommentId || 'root'}:${c.text?.trim() || ''}:${c.mediaUrl || ''}` : '';
+    const existingIdx = fp ? fpToIndex.get(fp) : undefined;
 
     if (existingIdx !== undefined) {
-      // If we already recorded an optimistic placeholder and now receive the saved backend comment, upgrade it
-      if (result[existingIdx].id.startsWith('c_') && !c.id.startsWith('c_')) {
-        seenIds.delete(result[existingIdx].id);
+      const existing = result[existingIdx];
+      // Only reconcile if one is an optimistic temporary comment and the other is a saved comment
+      if (existing.id.startsWith('c_') && !c.id.startsWith('c_')) {
+        seenIds.delete(existing.id);
         seenIds.add(c.id);
         result[existingIdx] = c;
+        continue;
       }
-      continue;
+      if (!existing.id.startsWith('c_') && c.id.startsWith('c_')) {
+        continue;
+      }
+      if (existing.id.startsWith('c_') && c.id.startsWith('c_')) {
+        continue;
+      }
     }
 
     seenIds.add(c.id);
-    fpToIndex.set(fp, result.length);
+    if (fp) fpToIndex.set(fp, result.length);
     result.push(c);
   }
 
@@ -71,9 +78,11 @@ export function parseCommentContent(content?: string): {
     };
   }
 
-  // Check if content is a direct GIF / image URL
+  // Check if content is a direct GIF / image URL (anchored)
   const trimmed = content.trim();
-  if (/^https?:\/\/\S+\.(gif|jpe?g|png|webp)(\?\S*)?$/i.test(trimmed) || trimmed.includes('media.giphy.com/media/')) {
+  const isDirectMedia = /^https?:\/\/\S+\.(gif|jpe?g|png|webp)(\?\S*)?$/i.test(trimmed);
+  const isDirectGiphy = /^https?:\/\/media\.giphy\.com\/media\/\S+$/i.test(trimmed);
+  if (isDirectMedia || isDirectGiphy) {
     return {
       text: '',
       mediaUrl: trimmed,

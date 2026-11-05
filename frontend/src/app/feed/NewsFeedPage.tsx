@@ -144,6 +144,10 @@ const NEWSFEED_CSS = `
   }
 
   /* 3. Edge-to-edge full width cards & optimal mobile padding */
+  .post-card-root {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 380px;
+  }
   .post-card-root,
   .post-card-animated,
   .post-card-item,
@@ -195,7 +199,6 @@ const NEWSFEED_CSS = `
     width: 100% !important;
     padding-top: 6px !important;
   }
-  .post-card-action-bar button span.xjp7ctv > span:nth-child(2),
   .post-card-action-bar button > span:first-child > span:nth-child(2) {
     display: none !important;
   }

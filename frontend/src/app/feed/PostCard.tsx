@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import type React from 'react';
 import { Card } from '@astryxdesign/core/Card';
 import { VStack } from '@astryxdesign/core/Layout';
@@ -59,7 +59,7 @@ function buildCardStyle(flags: CardPositionFlags): React.CSSProperties {
   };
 }
 
-export function PostCard({
+function PostCardComponent({
   post,
   currentUser,
   onToggleLike,
@@ -81,8 +81,9 @@ export function PostCard({
   const cardStyle = buildCardStyle({ hasTopComposer, isFirst, isLast });
 
   const displayedComments = useMemo(() => {
+    if (!showComments) return post.comments;
     return deduplicateComments([...post.comments, ...remoteComments]);
-  }, [post.comments, remoteComments]);
+  }, [showComments, post.comments, remoteComments]);
 
   return (
     <div className="post-card-root" data-testid={`post-card-${post.id}`}>
@@ -152,4 +153,5 @@ export function PostCard({
   );
 }
 
+export const PostCard = memo(PostCardComponent);
 export default PostCard;

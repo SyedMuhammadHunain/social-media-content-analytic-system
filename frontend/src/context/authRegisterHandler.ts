@@ -63,7 +63,7 @@ async function attemptGatewayRegister(cleanUsername: string, cleanEmail: string,
         success: true,
         user: newUser,
         token: res.token,
-        account: { user: newUser, email: cleanEmail, passwordHash: password },
+        account: { user: newUser, email: cleanEmail, passwordHash: 'MANAGED_TOKEN_SESSION' },
       };
     }
   } catch (err: any) {
