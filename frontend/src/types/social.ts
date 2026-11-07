@@ -64,7 +64,7 @@ export interface SuggestedCreator extends User {
   mutualFollowersCount?: number;
 }
 
-export type FeedFilterType = 'ALL' | 'MEDIA' | 'BOOKMARKS' | 'HASHTAG';
+export type FeedFilterType = 'ALL' | 'MEDIA' | 'BOOKMARKS' | 'HASHTAG' | 'MESSAGES';
 
 export interface FeedFilter {
   type: FeedFilterType;

@@ -14,6 +14,7 @@ const SHORTCUT_LABELS: Record<FeedFilterType, string> = {
   MEDIA: 'Media Only',
   BOOKMARKS: 'Saved Posts',
   HASHTAG: 'Filtered Posts',
+  MESSAGES: 'Messages',
 };
 
 function hasFeedItems(posts: unknown): posts is Post[] {

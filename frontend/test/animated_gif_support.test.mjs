@@ -172,7 +172,7 @@ test('Animated GIF Live CDP Creation & Preview Flow', async (t) => {
     `,
   });
 
-  await send('Page.reload');
+  await send('Page.navigate', { url: 'http://localhost:5173' });
 
   // Wait for React app to mount NewsFeedPage
   let appReady = false;

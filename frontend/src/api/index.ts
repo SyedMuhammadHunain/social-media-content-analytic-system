@@ -8,3 +8,4 @@ export * from './postsApi.ts';
 export * from './socialApi.ts';
 export * from './mediaApi.ts';
 export * from './notificationsApi.ts';
+export * from './chatApi.ts';

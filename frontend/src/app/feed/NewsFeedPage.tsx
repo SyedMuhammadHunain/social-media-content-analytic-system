@@ -47,6 +47,7 @@ import { deduplicatePosts } from '../../utils/postDeduplicationUtils.ts';
 import { buildUserPool, type SearchableUser } from '../../utils/userSearchIndex.ts';
 
 const DashboardPage = lazy(() => import('../dashboard/page.tsx'));
+const ChatPage = lazy(() => import('../chat/ChatPage.tsx'));
 
 const NEWSFEED_CSS = `
 .newsfeed-layout {
@@ -142,6 +143,31 @@ const NEWSFEED_CSS = `
     height: auto !important;
     min-height: calc(100vh - 56px) !important;
     padding-bottom: 84px !important;
+  }
+  .newsfeed-center-scroll.is-messages {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+  }
+  .newsfeed-page-wrapper div:has(> .newsfeed-layout),
+  .newsfeed-page-wrapper [class*="LayoutContent"],
+  .newsfeed-page-wrapper [data-astryx-layout="content"] {
+    padding: 0 !important;
+  }
+  .chat-page-root {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .chat-thread-view {
+    width: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    box-sizing: border-box !important;
   }
 
   /* 3. Edge-to-edge full width cards & optimal mobile padding */
@@ -284,7 +310,7 @@ function filterPosts(posts: Post[], activeFilter: FeedFilter): Post[] {
   return posts;
 }
 
-export type AppTab = 'feed' | 'dashboard' | 'notifications' | 'profile';
+export type AppTab = 'feed' | 'dashboard' | 'notifications' | 'profile' | 'messages';
 
 interface NewsFeedPageProps {
   currentUser?: UserProfile;
@@ -442,6 +468,11 @@ export function NewsFeedPage({
   };
 
   const handleSelectFeedShortcut = (type: any) => {
+    if (type === 'MESSAGES') {
+      changeTab('messages');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     changeTab('feed');
     handleSelectShortcut(type);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -590,7 +621,7 @@ export function NewsFeedPage({
             </div>
           )}
 
-          <LayoutContent padding={6}>
+          <LayoutContent padding={activeTab === 'messages' ? 0 : 6}>
             <div className="newsfeed-layout">
             <NewsFeedLeftSidebar
               user={user}
@@ -608,13 +639,17 @@ export function NewsFeedPage({
                 changeTab('notifications');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
+              onNavigateMessages={() => {
+                changeTab('messages');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
             />
 
             <main
               ref={centerScrollRef}
-              className="newsfeed-center-scroll"
+              className={`newsfeed-center-scroll ${activeTab === 'messages' ? 'is-messages' : ''}`}
               data-testid="newsfeed-center-container"
-              style={{ width: '100%', maxWidth: 680, minWidth: 0 }}
+              style={{ width: '100%', maxWidth: activeTab === 'messages' ? 720 : 680, minWidth: 0 }}
             >
               {activeTab === 'feed' && (
                 <VStack gap={4}>
@@ -665,6 +700,15 @@ export function NewsFeedPage({
 
               {activeTab === 'notifications' && (
                 <NotificationListPage />
+              )}
+
+              {activeTab === 'messages' && (
+                <Suspense fallback={null}>
+                  <ChatPage
+                    currentUser={user}
+                    onViewProfile={(profileUser) => handleViewUserProfile(profileUser)}
+                  />
+                </Suspense>
               )}
 
               {activeTab === 'profile' && (
@@ -795,6 +839,10 @@ export function NewsFeedPage({
             onClose={() => setIsMobileDrawerOpen(false)}
             onNavigateProfile={() => {
               handleOpenProfile();
+              setIsMobileDrawerOpen(false);
+            }}
+            onNavigateMessages={() => {
+              changeTab('messages');
               setIsMobileDrawerOpen(false);
             }}
           />

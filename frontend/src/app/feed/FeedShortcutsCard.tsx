@@ -18,9 +18,13 @@ import {
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
+import { useState, useEffect } from 'react';
+import type { ComponentType, SVGProps } from 'react';
 import type { FeedFilterType } from '../../types/social';
 import { useAuth } from '../../context/useAuth';
 import { FeedAppearanceSwitcher } from './FeedAppearanceSwitcher.tsx';
+import { MessagesNavIcon } from './astryxMobileIcons.tsx';
+import { getTotalUnreadCount, subscribeToChatUpdates } from '../../utils/chatStorage.ts';
 
 export interface FeedShortcutsCardProps {
   activeFilterType: FeedFilterType;
@@ -29,6 +33,7 @@ export interface FeedShortcutsCardProps {
   onSelectShortcut: (type: FeedFilterType) => void;
   onNavigateAnalytics?: () => void;
   onNavigateNotifications?: () => void;
+  onNavigateMessages?: () => void;
   onToggleTheme?: () => void;
   onLogout?: () => void;
 }
@@ -40,10 +45,18 @@ export function FeedShortcutsCard({
   onSelectShortcut,
   onNavigateAnalytics,
   onNavigateNotifications,
+  onNavigateMessages,
   onToggleTheme,
   onLogout,
 }: FeedShortcutsCardProps) {
   const { logout } = useAuth();
+  const [unreadMessages, setUnreadMessages] = useState<number>(() => getTotalUnreadCount());
+
+  useEffect(() => {
+    return subscribeToChatUpdates((count) => {
+      setUnreadMessages(count);
+    });
+  }, []);
 
   const handleNotificationsClick = () => {
     if (onNavigateNotifications) {
@@ -52,6 +65,14 @@ export function FeedShortcutsCard({
       window.dispatchEvent(
         new CustomEvent('social:navigate-tab', { detail: 'notifications' })
       );
+    }
+  };
+
+  const handleMessagesClick = () => {
+    if (onNavigateMessages) {
+      onNavigateMessages();
+    } else {
+      onSelectShortcut('MESSAGES');
     }
   };
 
@@ -66,13 +87,21 @@ export function FeedShortcutsCard({
   const items: Array<{
     type: FeedFilterType;
     label: string;
-    icon: typeof NewspaperIcon;
+    icon: ComponentType<SVGProps<SVGSVGElement>>;
     badge?: string | number;
+    onClick?: () => void;
   }> = [
     {
       type: 'ALL',
       label: 'All Posts',
       icon: NewspaperIcon,
+    },
+    {
+      type: 'MESSAGES',
+      label: 'Messages',
+      icon: MessagesNavIcon,
+      badge: unreadMessages > 0 ? unreadMessages : undefined,
+      onClick: handleMessagesClick,
     },
     {
       type: 'BOOKMARKS',
@@ -101,7 +130,7 @@ export function FeedShortcutsCard({
                   <Badge variant="neutral" label={item.badge} />
                 ) : undefined
               }
-              onClick={() => onSelectShortcut(item.type)}
+              onClick={() => (item.onClick ? item.onClick() : onSelectShortcut(item.type))}
             />
           ))}
         </VStack>

@@ -1,56 +1,80 @@
-# Active Tasks: Astryx Static Gallery Hero Landing Page
+# Active Tasks: Direct Messaging Persistence & Receiver Synchronization
 
 Plan: `tasks/plan.md`
 
-- [x] Task 1: Refactor `gallery-hero/page.tsx` with static Astryx Grid and 3 user photos
-  - **Description:** Implement clean Astryx `<Layout>`, `<LayoutContent>`, `<Heading>`, `<Text>`, `<Button>`, and `<Grid>` with 3 user photos in `<AspectRatio ratio={4 / 5}>`. Retain `onGetStarted` navigation callback and `onLearnMore` no-op. Use Astryx `chevronRight` icon only. Remove `MarqueeTrack.tsx` and `marquee.css`.
+- [x] Task 1: Create ChatMessage document model and DTOs in `common-models`
+  - **Description:** Implement `ChatMessage.java` (@Document collection "chat_messages"), `ChatMediaItem.java`, `SendMessageRequest.java`, and `ChatConversationSummary.java` in `com.social.common`.
   - **Acceptance criteria:**
-    - [x] No marquee animation or moving track.
-    - [x] Static Astryx `<Grid>` renders 3 user photos with `AspectRatio`.
-    - [x] "Get Started" calls `onGetStarted`.
-    - [x] "Learn More" is active clickable no-op.
-    - [x] Strictly Meta Astryx icons only (no `@heroicons`).
+    - [x] `ChatMessage.java` maps to MongoDB collection `chat_messages` with compound indexes.
+    - [x] `SendMessageRequest.java` validates recipient and text/media content.
+    - [x] `common-models` compiles cleanly via Maven.
   - **Verification:**
-    - [x] `cd frontend && npx tsc -b`
+    - [x] `cd backend/common-models && mvn clean compile`
   - **Dependencies:** None
   - **Files likely touched:**
-    - `frontend/src/app/gallery-hero/page.tsx`
-    - `frontend/src/app/gallery-hero/MarqueeTrack.tsx` (delete)
-    - `frontend/src/app/gallery-hero/marquee.css` (delete)
+    - `backend/common-models/src/main/java/com/social/common/model/ChatMessage.java`
+    - `backend/common-models/src/main/java/com/social/common/model/ChatMediaItem.java`
+    - `backend/common-models/src/main/java/com/social/common/dto/SendMessageRequest.java`
+    - `backend/common-models/src/main/java/com/social/common/dto/ChatConversationSummary.java`
+  - **Estimated scope:** S (4 files)
+
+- [x] Task 2: Implement Reactive repository, Service, and REST Controller in `api-gateway`
+  - **Description:** Implement `ReactiveChatMessageRepository.java` for MongoDB reactive queries, `GatewayChatMessageService.java` for business logic (deterministic conversation ID, send, query, mark as read), and `ChatMessageController.java` with endpoints: `POST /v1/chat/messages`, `GET /v1/chat/messages?with={userId}`, `GET /v1/chat/conversations`, and `PUT /v1/chat/conversations/{id}/read`.
+  - **Acceptance criteria:**
+    - [x] Controller exposes `/v1/chat/messages` endpoints returning standard `ApiResponse` envelope.
+    - [x] Service implements deterministic conversation ID logic so both participants share the same thread.
+    - [x] `api-gateway` compiles cleanly via Maven.
+  - **Verification:**
+    - [x] `cd backend/api-gateway && mvn clean compile`
+  - **Dependencies:** Task 1
+  - **Files likely touched:**
+    - `backend/api-gateway/src/main/java/com/social/gateway/repository/ReactiveChatMessageRepository.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayChatMessageService.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/controller/ChatMessageController.java`
+  - **Estimated scope:** M (3 files)
+
+- [x] Task 3: Create `chatApi.ts` and integrate 3s polling synchronization in `useChatState.ts`
+  - **Description:** Build `frontend/src/api/chatApi.ts` for calling `/v1/chat/messages` endpoints with auth tokens. Update `useChatState.ts` to poll messages every 3 seconds for active conversations, update local storage cache, and fall back gracefully if backend is offline.
+  - **Acceptance criteria:**
+    - [x] `chatApi.ts` supports sending, fetching conversation messages, and marking read.
+    - [x] `useChatState.ts` synchronizes messages every 3 seconds while thread is active.
+    - [x] Transparent fallback to `chatStorage` if backend returns an error or is unreachable.
+  - **Verification:**
+    - [x] `cd frontend && npx tsc -b`
+  - **Dependencies:** Task 2
+  - **Files likely touched:**
+    - `frontend/src/api/chatApi.ts`
+    - `frontend/src/api/index.ts`
+    - `frontend/src/app/chat/useChatState.ts`
   - **Estimated scope:** S (3 files)
 
-- [x] Task 2: Remove "Back to overview" button and `onBack` prop from `LoginCardPage` and `App.tsx`
-  - **Description:** Remove `onBack` prop, button, and references from `frontend/src/app/login-card/page.tsx` and `frontend/src/App.tsx`.
+- [x] Task 4: Automated unit & integration tests and quality gates
+  - **Description:** Update `frontend/test/chat_messaging.test.mjs` to test `chatApi` client methods, deterministic ID generation, polling synchronization, and offline fallback. Run full quality gates (tsc, lint, tests, build).
   - **Acceptance criteria:**
-    - [x] No `onBack` prop or "Back to overview" button in `LoginCardPage`.
-    - [x] `App.tsx` cleanly renders `LoginCardPage` without `onBack`.
+    - [x] `node --test test/chat_messaging.test.mjs` passes all tests.
+    - [x] `npx tsc -b` passes with 0 errors.
+    - [x] `npm run lint` passes with 0 errors.
+    - [x] `npm run build` succeeds cleanly.
   - **Verification:**
-    - [x] `cd frontend && npx tsc -b`
-  - **Dependencies:** None
+    - [x] `cd frontend && npm run lint && npx tsc -b && node --test test/chat_messaging.test.mjs && npm run build`
+  - **Dependencies:** Task 1, Task 2, Task 3
   - **Files likely touched:**
-    - `frontend/src/app/login-card/page.tsx`
-    - `frontend/src/App.tsx`
-  - **Estimated scope:** S (2 files)
+    - `frontend/test/chat_messaging.test.mjs`
+  - **Estimated scope:** S (1 file)
 
-- [x] Task 3: Write automated test suite and execute full verification suite
-  - **Description:** Create `frontend/test/landing_page_astryx.test.mjs` verifying static 3-image grid, headline, "Get Started" navigation, and "Learn More" no-op. Execute `npm run lint`, `npx tsc -b`, `npm test`, and `npm run build`.
+- [x] Task 5: Live Browser Testing with Chrome DevTools Protocol
+  - **Description:** Run CDP automated testing script `frontend/scripts/run-devtools-chat-test.mjs` to verify desktop rendering, mobile edge-to-edge responsiveness, profile navigation, and message deduplication.
   - **Acceptance criteria:**
-    - [x] `frontend/test/landing_page_astryx.test.mjs` passes cleanly.
-    - [x] `npm run lint` passes (0 errors).
-    - [x] `npx tsc -b` passes (0 errors).
-    - [x] `npm test` passes all tests (156/156 passed).
-    - [x] `npm run build` succeeds.
+    - [x] Desktop chat navigation, profile presentation in scroll area, top identity bar fixed outside scroll area.
+    - [x] Composer centered scroll button and clutter-free input verified.
+    - [x] Sent message appears exactly 1 time (no duplicate).
+    - [x] Mobile viewport 390x844 verifies 100% full width and 100dvh coverage.
+    - [x] "View profile" button navigates cleanly to user profile.
+    - [x] 0 fatal runtime console errors.
   - **Verification:**
-    - [x] `cd frontend && npm run lint && npx tsc -b && npm test && npm run build`
-  - **Dependencies:** Task 1, Task 2
-  - **Files likely touched:**
-    - `frontend/test/landing_page_astryx.test.mjs`
-    - `frontend/package.json`
-  - **Estimated scope:** S (2 files)
+    - [x] `cd frontend && node scripts/run-devtools-chat-test.mjs`
+  - **Dependencies:** Task 1-4
+  - **Files touched:**
+    - `frontend/scripts/run-devtools-chat-test.mjs`
+    - `docs/reports/DEVTOOLS_CHAT_VERIFICATION.md`
 
-## Checkpoints
-### Checkpoint: Static Layout & Clean Navigation (After Task 2)
-- [x] Static Astryx gallery hero renders 3 images in grid, "Get Started" opens login, no back button on login.
-
-### Checkpoint: Complete (After Task 3)
-- [x] All 3 tasks done, 0 TypeScript errors, 100% tests pass (156/156), build succeeds.

@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Astryx Mobile Navigation Left Slide Drawer
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Drawer } from '@astryxdesign/core/Drawer';
 import { VStack, HStack } from '@astryxdesign/core/Layout';
 import { IconButton } from '@astryxdesign/core/IconButton';
@@ -9,13 +9,15 @@ import { Icon } from '@astryxdesign/core/Icon';
 import { Divider } from '@astryxdesign/core/Divider';
 import type { UserProfile } from '../../types/social.ts';
 import { useAuth } from '../../context/useAuth.ts';
-import { AppearanceNavIcon, LogoutNavIcon } from './astryxMobileIcons.tsx';
+import { AppearanceNavIcon, LogoutNavIcon, MessagesNavIcon } from './astryxMobileIcons.tsx';
+import { getTotalUnreadCount, subscribeToChatUpdates } from '../../utils/chatStorage.ts';
 
 export interface MobileNavigationDrawerProps {
   isOpen: boolean;
   user: UserProfile;
   onClose: () => void;
   onNavigateProfile?: () => void;
+  onNavigateMessages?: () => void;
 }
 
 export function MobileNavigationDrawer({
@@ -23,8 +25,16 @@ export function MobileNavigationDrawer({
   user,
   onClose,
   onNavigateProfile,
+  onNavigateMessages,
 }: MobileNavigationDrawerProps) {
   const { logout } = useAuth();
+  const [unreadMessages, setUnreadMessages] = useState<number>(() => getTotalUnreadCount());
+
+  useEffect(() => {
+    return subscribeToChatUpdates((count) => {
+      setUnreadMessages(count);
+    });
+  }, []);
   const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
     if (typeof document !== 'undefined') {
       return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'dark';
@@ -123,6 +133,52 @@ export function MobileNavigationDrawer({
 
         {/* Drawer Menu Items */}
         <VStack gap={3} style={{ marginTop: 24, flex: 1 }}>
+          {/* Messages Navigation */}
+          <div
+            data-testid="drawer-messages-action"
+            onClick={() => {
+              onClose();
+              if (onNavigateMessages) {
+                onNavigateMessages();
+              } else {
+                window.dispatchEvent(
+                  new CustomEvent('social:navigate-tab', { detail: 'messages' })
+                );
+              }
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 14px',
+              borderRadius: 8,
+              backgroundColor: 'var(--color-background-surface, rgba(255, 255, 255, 0.05))',
+              cursor: 'pointer',
+              userSelect: 'none',
+              transition: 'background-color 0.15s ease',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Icon icon={MessagesNavIcon} size="md" color="secondary" />
+              <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Messages</span>
+            </div>
+            {unreadMessages > 0 && (
+              <span
+                data-testid="drawer-messages-badge"
+                style={{
+                  fontSize: '0.8rem',
+                  padding: '2px 8px',
+                  borderRadius: 10,
+                  backgroundColor: 'var(--color-primary, #0084ff)',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                }}
+              >
+                {unreadMessages}
+              </span>
+            )}
+          </div>
+
           {/* Appearance Toggle */}
           <div
             data-testid="drawer-appearance-toggle"
