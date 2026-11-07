@@ -211,13 +211,14 @@ export function ChatThreadView({
                             <video
                               src={item.url}
                               controls
-                              style={{ width: '100%', maxHeight: 200, display: 'block' }}
+                              style={{ width: '100%', maxHeight: 200, aspectRatio: '16 / 9', display: 'block' }}
                             />
                           ) : (
                             <img
                               src={item.url}
                               alt={item.name || 'attachment'}
-                              style={{ width: '100%', maxHeight: 200, objectFit: 'cover', display: 'block' }}
+                              loading="lazy"
+                              style={{ width: '100%', maxHeight: 200, aspectRatio: '16 / 9', objectFit: 'cover', display: 'block' }}
                             />
                           )}
                         </div>

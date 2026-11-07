@@ -6,6 +6,7 @@ import { api } from './client.ts';
 export interface SendMessagePayload {
   recipientId: string;
   conversationId?: string;
+  clientMessageId?: string;
   text?: string;
   media?: Array<{ url: string; type: string; name?: string; size?: number }>;
 }

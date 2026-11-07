@@ -53,8 +53,12 @@ public class GatewayChatMessageService {
         String effectiveSenderId = (senderId != null && !senderId.isBlank()) ? senderId : "usr_me_01";
         String conversationId = generateConversationId(effectiveSenderId, request.getRecipientId());
 
+        String messageId = (request.getClientMessageId() != null && !request.getClientMessageId().isBlank())
+                ? request.getClientMessageId().trim()
+                : ("msg_" + UUID.randomUUID().toString());
+
         ChatMessage message = ChatMessage.builder()
-                .id("msg_" + UUID.randomUUID().toString())
+                .id(messageId)
                 .conversationId(conversationId)
                 .senderId(effectiveSenderId)
                 .recipientId(request.getRecipientId())
@@ -85,13 +89,6 @@ public class GatewayChatMessageService {
     }
 
     private Notification createMessageNotification(String senderId, String senderName, String avatarUrl, ChatMessage msg) {
-        String snippet = msg.getText();
-        if (snippet != null && snippet.length() > 60) {
-            snippet = snippet.substring(0, 57) + "...";
-        } else if (snippet == null || snippet.isBlank()) {
-            snippet = (msg.getMedia() != null && !msg.getMedia().isEmpty()) ? "Sent an attachment" : "Sent a message";
-        }
-
         return Notification.builder()
                 .id("notif_" + UUID.randomUUID())
                 .recipientUserId(msg.getRecipientId())
@@ -100,7 +97,7 @@ public class GatewayChatMessageService {
                 .actorAvatar(avatarUrl)
                 .type(NotificationType.MESSAGE)
                 .targetPostId(msg.getConversationId())
-                .message(senderName + ": " + snippet)
+                .message("New message from " + senderName)
                 .read(false)
                 .createdAt(Instant.now())
                 .build();

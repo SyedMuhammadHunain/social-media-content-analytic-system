@@ -242,6 +242,7 @@ export function useChatState(currentUser?: UserProfile) {
         .sendMessage({
           recipientId: targetConv.participant.id,
           conversationId: activeConversationId,
+          clientMessageId: newMsg.id,
           text,
           media: media as any,
         })

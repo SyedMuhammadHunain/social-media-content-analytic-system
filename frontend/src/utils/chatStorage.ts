@@ -55,6 +55,12 @@ export function getTotalUnreadCount(conversations?: ChatConversation[]): number 
   return list.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
 }
 
+export function getDeterministicConversationId(userA: string, userB: string): string {
+  const a = (userA || '').trim();
+  const b = (userB || '').trim();
+  return a.localeCompare(b) <= 0 ? `conv_${a}_${b}` : `conv_${b}_${a}`;
+}
+
 export function getOrCreateConversation(
   conversations: ChatConversation[],
   participant: UserProfile
@@ -70,8 +76,10 @@ export function getOrCreateConversation(
     };
   }
 
+  const deterministicId = getDeterministicConversationId('usr_me_01', participant.id || participant.username);
+
   const newConv: ChatConversation = {
-    id: `conv_${participant.id}_${Date.now()}`,
+    id: deterministicId,
     participant,
     unreadCount: 0,
     updatedAt: new Date().toISOString(),

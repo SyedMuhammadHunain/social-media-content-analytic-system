@@ -20,7 +20,9 @@ import java.util.List;
 @Document(collection = "chat_messages")
 @CompoundIndexes({
     @CompoundIndex(name = "convo_created_idx", def = "{'conversationId': 1, 'createdAt': 1}"),
-    @CompoundIndex(name = "recipient_read_idx", def = "{'recipientId': 1, 'read': 1}")
+    @CompoundIndex(name = "recipient_read_idx", def = "{'recipientId': 1, 'read': 1}"),
+    @CompoundIndex(name = "sender_created_idx", def = "{'senderId': 1, 'createdAt': -1}"),
+    @CompoundIndex(name = "recipient_created_idx", def = "{'recipientId': 1, 'createdAt': -1}")
 })
 public class ChatMessage {
 
