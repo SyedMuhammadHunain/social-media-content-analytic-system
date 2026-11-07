@@ -3,8 +3,11 @@ package com.social.gateway.service;
 import com.social.common.dto.ChatConversationSummary;
 import com.social.common.dto.SendMessageRequest;
 import com.social.common.model.ChatMessage;
+import com.social.common.model.Notification;
+import com.social.common.model.NotificationType;
 import com.social.common.model.User;
 import com.social.gateway.repository.ReactiveChatMessageRepository;
+import com.social.gateway.repository.ReactiveNotificationRepository;
 import com.social.gateway.repository.ReactiveUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +25,15 @@ public class GatewayChatMessageService {
 
     private final ReactiveChatMessageRepository chatMessageRepository;
     private final ReactiveUserRepository userRepository;
+    private final ReactiveNotificationRepository notificationRepository;
 
     public GatewayChatMessageService(
             ReactiveChatMessageRepository chatMessageRepository,
-            ReactiveUserRepository userRepository) {
+            ReactiveUserRepository userRepository,
+            ReactiveNotificationRepository notificationRepository) {
         this.chatMessageRepository = chatMessageRepository;
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     /**
@@ -41,7 +47,7 @@ public class GatewayChatMessageService {
     }
 
     /**
-     * Save a new direct message between users.
+     * Save a new direct message between users and notify recipient.
      */
     public Mono<ChatMessage> sendMessage(String senderId, SendMessageRequest request) {
         String effectiveSenderId = (senderId != null && !senderId.isBlank()) ? senderId : "usr_me_01";
@@ -61,7 +67,43 @@ public class GatewayChatMessageService {
         log.debug("Persisting direct message: id={}, convo={}, sender={}, recipient={}",
                 message.getId(), conversationId, effectiveSenderId, request.getRecipientId());
 
-        return chatMessageRepository.save(message);
+        return chatMessageRepository.save(message)
+                .flatMap(savedMsg -> userRepository.findById(effectiveSenderId)
+                        .map(sender -> {
+                            String actorName = (sender.getFullName() != null && !sender.getFullName().isBlank())
+                                    ? sender.getFullName()
+                                    : (sender.getUsername() != null ? sender.getUsername() : effectiveSenderId);
+                            return createMessageNotification(effectiveSenderId, actorName, sender.getAvatarUrl(), savedMsg);
+                        })
+                        .defaultIfEmpty(createMessageNotification(effectiveSenderId, effectiveSenderId, null, savedMsg))
+                        .flatMap(notificationRepository::save)
+                        .onErrorResume(e -> {
+                            log.warn("Failed to create message notification: {}", e.getMessage());
+                            return Mono.empty();
+                        })
+                        .thenReturn(savedMsg));
+    }
+
+    private Notification createMessageNotification(String senderId, String senderName, String avatarUrl, ChatMessage msg) {
+        String snippet = msg.getText();
+        if (snippet != null && snippet.length() > 60) {
+            snippet = snippet.substring(0, 57) + "...";
+        } else if (snippet == null || snippet.isBlank()) {
+            snippet = (msg.getMedia() != null && !msg.getMedia().isEmpty()) ? "Sent an attachment" : "Sent a message";
+        }
+
+        return Notification.builder()
+                .id("notif_" + UUID.randomUUID())
+                .recipientUserId(msg.getRecipientId())
+                .actorUserId(senderId)
+                .actorName(senderName)
+                .actorAvatar(avatarUrl)
+                .type(NotificationType.MESSAGE)
+                .targetPostId(msg.getConversationId())
+                .message(senderName + ": " + snippet)
+                .read(false)
+                .createdAt(Instant.now())
+                .build();
     }
 
     /**

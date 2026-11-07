@@ -29,6 +29,7 @@ interface ChatThreadViewProps {
   onSendMessage: (payload: { text?: string; media?: ChatMediaAttachment[] }) => void;
   onBack?: () => void;
   onViewProfile?: (user: UserProfile) => void;
+  onToggleFollow?: (user: UserProfile) => void;
 }
 
 export function ChatThreadView({
@@ -37,6 +38,7 @@ export function ChatThreadView({
   onSendMessage,
   onBack,
   onViewProfile,
+  onToggleFollow,
 }: ChatThreadViewProps) {
   const [inputText, setInputText] = useState('');
   const [isMediaMenuOpen, setIsMediaMenuOpen] = useState(false);
@@ -158,6 +160,7 @@ export function ChatThreadView({
         <ChatProfilePresentation
           participant={conversation.participant}
           onViewProfile={onViewProfile}
+          onToggleFollow={onToggleFollow}
         />
 
         <div style={{ paddingBottom: 16 }}>

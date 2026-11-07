@@ -62,6 +62,68 @@ export function useChatState(currentUser?: UserProfile) {
     return unsubscribe;
   }, []);
 
+  // Initial rehydration from MongoDB Atlas conversations
+  useEffect(() => {
+    let isMounted = true;
+    chatApi
+      .getConversations()
+      .then((summaries) => {
+        if (!isMounted || !summaries || summaries.length === 0) return;
+        setConversations((prev) => {
+          let hasChanges = false;
+          let list = [...prev];
+
+          summaries.forEach((sum) => {
+            const partner: UserProfile = {
+              id: sum.partnerId,
+              username: sum.partnerUsername,
+              name: sum.partnerName,
+              avatarUrl: sum.partnerAvatar || '',
+              followerCount: 0,
+              followingCount: 0,
+              bio: '',
+              tags: [],
+              headline: 'Direct Contact',
+              isFollowed: false,
+            };
+
+            const { conversation, updatedList } = getOrCreateConversation(list, partner);
+            list = updatedList;
+
+            if (sum.lastMessage) {
+              const lm = sum.lastMessage;
+              const directMsg: DirectChatMessage = {
+                id: lm.id,
+                conversationId: conversation.id,
+                senderId: lm.senderId,
+                recipientId: lm.recipientId,
+                text: lm.text,
+                media: lm.media as any,
+                timestamp: lm.createdAt,
+                status: 'sent',
+              };
+              const { updatedList: msgList } = appendMessage(list, conversation.id, directMsg);
+              list = msgList;
+              hasChanges = true;
+            }
+          });
+
+          if (hasChanges) {
+            saveStoredConversations(list);
+            return list;
+          }
+          return prev;
+        });
+      })
+      .catch(() => {
+        // Offline fallback
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const activeConversation = useMemo(() => {
     if (!activeConversationId) return null;
     return conversations.find((c) => c.id === activeConversationId) || null;

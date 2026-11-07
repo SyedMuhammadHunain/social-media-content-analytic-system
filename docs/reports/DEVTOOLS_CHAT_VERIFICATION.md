@@ -1,6 +1,6 @@
 # DevTools Browser Verification Report: Direct Messaging & Chat
 
-**Generated:** 2026-11-07T06:21:01.458Z  
+**Generated:** 2026-11-07T06:40:25.737Z  
 **Environment:** Headless Chromium via Chrome DevTools Protocol (CDP)  
 **Target:** `http://127.0.0.1:5173/`  
 
@@ -9,7 +9,9 @@
 ## 1. Desktop Verification (1440 x 900)
 - **Thread Rendering:** `ChatThreadView` successfully mounted in center column.
 - **Top Identity Bar (Fixed):** Compact identity bar present outside scroll area (PASSED).
+- **Horizontal Desktop Alignment:** Center message scroll area top sits at `24px` vs sidebar top `24px` (Aligned level horizontally: **PASSED**).
 - **Profile Presentation (Scrollable):** Large profile presentation correctly rendered inside `chat-messages-scroll-area` (PASSED). As the chat grows, it scrolls upward naturally.
+- **Chat Follow Button Toggle:** Toggled successfully (PASSED).
 - **Bottom Composer Layout:**
   - Left icon: `+` action button present (PASSED).
   - Middle: Message text input present (PASSED).
@@ -29,10 +31,14 @@
 
 ---
 
-## 3. "View Profile" Navigation
+## 3. "View Profile" & Profile "Message" Button Navigation
 - **Action:** Clicked "View profile" button inside `ChatProfilePresentation`.
 - **Navigation Result:** Successfully resolved user profile and transitioned to the user profile page (PASSED).
-- **Screenshot:** ![View Profile Navigation](screenshots/chat_view_profile_navigation_verified.png)
+- **Profile Message Button:** "Message" button rendered on visited profile (PASSED).
+- **Return to Chat via Message Button:** Clicked "Message" on visited profile and returned to chat thread (PASSED).
+- **Screenshots:**
+  - ![View Profile Navigation](screenshots/chat_view_profile_navigation_verified.png)
+  - ![Return to Chat](screenshots/profile_message_btn_return_chat_verified.png)
 
 ---
 

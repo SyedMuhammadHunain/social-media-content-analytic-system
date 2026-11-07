@@ -12,12 +12,14 @@ import { ChatThreadView } from './ChatThreadView';
 interface ChatPageProps {
   currentUser?: UserProfile;
   onViewProfile?: (user: UserProfile) => void;
+  onToggleFollow?: (user: UserProfile) => void;
   initialTargetUser?: UserProfile;
 }
 
 export function ChatPage({
   currentUser,
   onViewProfile,
+  onToggleFollow,
   initialTargetUser,
 }: ChatPageProps) {
   const {
@@ -60,6 +62,7 @@ export function ChatPage({
           onSendMessage={sendMessage}
           onBack={() => setActiveConversationId(null)}
           onViewProfile={onViewProfile}
+          onToggleFollow={onToggleFollow}
         />
       ) : (
         <ChatContactList

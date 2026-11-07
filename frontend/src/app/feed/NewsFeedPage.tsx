@@ -113,6 +113,14 @@ const NEWSFEED_CSS = `
     margin-bottom: 24px;
   }
 }
+@media (min-width: 768px) {
+  .newsfeed-center-scroll.is-messages {
+    margin-top: 24px;
+    height: calc(100vh - 48px);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+}
 @media (max-width: 767px) {
   /* 1. Hide desktop sidebars */
   .newsfeed-fixed-sidebar,
@@ -147,7 +155,9 @@ const NEWSFEED_CSS = `
   .newsfeed-center-scroll.is-messages {
     height: 100dvh !important;
     min-height: 100dvh !important;
+    padding-top: 0 !important;
     padding-bottom: 0 !important;
+    margin: 0 !important;
     overflow: hidden !important;
   }
   .newsfeed-page-wrapper div:has(> .newsfeed-layout),
@@ -332,6 +342,7 @@ export function NewsFeedPage({
   const [user, setUser] = useState<UserProfile>(currentUser);
   const [activeTab, setActiveTab] = useState<AppTab>(initialTab);
   const [viewedUser, setViewedUser] = useState<UserProfile | User | null>(null);
+  const [chatTargetUser, setChatTargetUser] = useState<UserProfile | null>(null);
   const [isViewersModalOpen, setIsViewersModalOpen] = useState(false);
   const [isNewPostModalOpen, setIsNewPostModalOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
@@ -475,6 +486,12 @@ export function NewsFeedPage({
     }
     changeTab('feed');
     handleSelectShortcut(type);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenChatWithUser = (target: UserProfile) => {
+    setChatTargetUser(target);
+    changeTab('messages');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -699,14 +716,31 @@ export function NewsFeedPage({
               )}
 
               {activeTab === 'notifications' && (
-                <NotificationListPage />
+                <NotificationListPage
+                  onOpenChatWithUser={(actorUserId, actorName, actorAvatar) => {
+                    handleOpenChatWithUser({
+                      id: actorUserId,
+                      username: actorUserId,
+                      name: actorName || actorUserId,
+                      avatarUrl: actorAvatar || '',
+                      followerCount: 0,
+                      followingCount: 0,
+                      bio: '',
+                      tags: [],
+                      headline: 'Direct Contact',
+                      isFollowed: false,
+                    });
+                  }}
+                />
               )}
 
               {activeTab === 'messages' && (
                 <Suspense fallback={null}>
                   <ChatPage
                     currentUser={user}
+                    initialTargetUser={chatTargetUser || undefined}
                     onViewProfile={(profileUser) => handleViewUserProfile(profileUser)}
+                    onToggleFollow={(targetParticipant) => mutations.handleToggleFollow(targetParticipant.id)}
                   />
                 </Suspense>
               )}
@@ -749,6 +783,7 @@ export function NewsFeedPage({
                     }
                   }}
                   onToggleLike={mutations.handleToggleLike}
+                  onMessageUser={handleOpenChatWithUser}
                   onToggleFollow={(userId) => {
                     mutations.handleToggleFollow(userId);
                     if (viewedUser && viewedUser.id === userId) {

@@ -30,6 +30,7 @@ export interface UserProfileViewProps {
   onUpdateBanner?: (newBannerUrl: string) => void;
   onToggleLike?: (postId: string) => void;
   onToggleFollow?: (userId: string) => void;
+  onMessageUser?: (user: UserProfile) => void;
   onAddComment?: (
     postId: string,
     text: string,
@@ -51,6 +52,7 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
   onUpdateBanner,
   onToggleLike = () => {},
   onToggleFollow = () => {},
+  onMessageUser,
   onAddComment = () => {},
   onEditPost,
   onDeletePost,
@@ -115,6 +117,7 @@ export const UserProfileView: FC<UserProfileViewProps> = ({
           user={user}
           isOwnProfile={isOwnProfile}
           onToggleFollow={onToggleFollow}
+          onMessageUser={onMessageUser}
         />
 
         {/* Rich Bio Section */}

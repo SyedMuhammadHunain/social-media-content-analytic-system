@@ -271,4 +271,80 @@ test('Direct Chat & Messaging Unit & Integration Suite', async (t) => {
       'useChatState must dispatch messages to backend chatApi'
     );
   });
+
+  await t.test('7. ChatProfilePresentation and Follow connection integration', () => {
+    const headerPath = path.join(FRONTEND_DIR, 'src/app/chat/ChatRecipientHeader.tsx');
+    const threadPath = path.join(FRONTEND_DIR, 'src/app/chat/ChatThreadView.tsx');
+    const chatPagePath = path.join(FRONTEND_DIR, 'src/app/chat/ChatPage.tsx');
+
+    const headerContent = fs.readFileSync(headerPath, 'utf8');
+    const threadContent = fs.readFileSync(threadPath, 'utf8');
+    const chatPageContent = fs.readFileSync(chatPagePath, 'utf8');
+
+    assert.ok(
+      headerContent.includes('onToggleFollow'),
+      'ChatProfilePresentation must accept onToggleFollow'
+    );
+    assert.ok(
+      threadContent.includes('onToggleFollow'),
+      'ChatThreadView must forward onToggleFollow'
+    );
+    assert.ok(
+      chatPageContent.includes('onToggleFollow'),
+      'ChatPage must accept onToggleFollow'
+    );
+  });
+
+  await t.test('8. ProfileMetaDetails: Message button for visited profiles', () => {
+    const metaPath = path.join(FRONTEND_DIR, 'src/components/profile/ProfileMetaDetails.tsx');
+    const viewPath = path.join(FRONTEND_DIR, 'src/components/profile/UserProfileView.tsx');
+
+    const metaContent = fs.readFileSync(metaPath, 'utf8');
+    const viewContent = fs.readFileSync(viewPath, 'utf8');
+
+    assert.ok(
+      metaContent.includes('profile-header-message-btn'),
+      'ProfileMetaDetails must render profile-header-message-btn'
+    );
+    assert.ok(
+      metaContent.includes('onMessageUser'),
+      'ProfileMetaDetails must accept onMessageUser'
+    );
+    assert.ok(
+      viewContent.includes('onMessageUser'),
+      'UserProfileView must accept onMessageUser'
+    );
+  });
+
+  await t.test('9. NotificationListPage: MESSAGE notification rendering and chat navigation', () => {
+    const notifPath = path.join(FRONTEND_DIR, 'src/app/notifications/NotificationListPage.tsx');
+    const notifContent = fs.readFileSync(notifPath, 'utf8');
+
+    assert.ok(
+      notifContent.includes("'MESSAGE'"),
+      'NotificationListPage must handle MESSAGE type'
+    );
+    assert.ok(
+      notifContent.includes('MessagesNavIcon'),
+      'NotificationListPage must use MessagesNavIcon for chat notifications'
+    );
+    assert.ok(
+      notifContent.includes('onOpenChatWithUser'),
+      'NotificationListPage must accept onOpenChatWithUser'
+    );
+  });
+
+  await t.test('10. Desktop horizontal alignment and Android responsiveness in NewsFeedPage', () => {
+    const newsfeedPath = path.join(FRONTEND_DIR, 'src/app/feed/NewsFeedPage.tsx');
+    const newsfeedContent = fs.readFileSync(newsfeedPath, 'utf8');
+
+    assert.ok(
+      newsfeedContent.includes('.newsfeed-center-scroll.is-messages'),
+      'NewsFeedPage must have .newsfeed-center-scroll.is-messages styling'
+    );
+    assert.ok(
+      newsfeedContent.includes('margin-top: 24px') || newsfeedContent.includes('padding-top: 24px'),
+      'Desktop message center scroll must have 24px offset for horizontal leveling'
+    );
+  });
 });

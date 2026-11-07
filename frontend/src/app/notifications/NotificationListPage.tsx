@@ -14,6 +14,11 @@ import { Avatar } from '@astryxdesign/core/Avatar';
 import { Icon } from '@astryxdesign/core/Icon';
 import { useAuth } from '../../context/useAuth';
 import { notificationsApi, type Notification } from '../../api/notificationsApi';
+import { MessagesNavIcon } from '../feed/astryxMobileIcons';
+
+export interface NotificationListPageProps {
+  onOpenChatWithUser?: (actorUserId: string, actorName?: string, actorAvatar?: string) => void;
+}
 
 function formatNotificationDate(dateStr?: string): string {
   if (!dateStr) return '';
@@ -27,7 +32,7 @@ function formatNotificationDate(dateStr?: string): string {
   });
 }
 
-export function NotificationListPage() {
+export function NotificationListPage({ onOpenChatWithUser }: NotificationListPageProps = {}) {
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,6 +93,8 @@ export function NotificationListPage() {
         return <Icon icon="info" size="xsm" color="secondary" />;
       case 'FOLLOW':
         return <Icon icon="checkDouble" size="xsm" color="secondary" />;
+      case 'MESSAGE':
+        return <Icon icon={MessagesNavIcon} size="xsm" color="primary" />;
       default:
         return <Icon icon="info" size="xsm" color="secondary" />;
     }
@@ -147,7 +154,12 @@ export function NotificationListPage() {
                   opacity: item.read ? 0.75 : 1,
                   cursor: item.read ? 'default' : 'pointer',
                 }}
-                onClick={() => !item.read && handleMarkRead(item.id)}
+                onClick={() => {
+                  if (!item.read) handleMarkRead(item.id);
+                  if (item.type.toUpperCase() === 'MESSAGE') {
+                    onOpenChatWithUser?.(item.actorUserId, item.actorName, item.actorAvatar);
+                  }
+                }}
               >
                 <HStack gap={3} vAlign="center" hAlign="between">
                   <HStack gap={3} vAlign="center">

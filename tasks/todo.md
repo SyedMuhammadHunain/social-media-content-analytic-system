@@ -1,80 +1,118 @@
-# Active Tasks: Direct Messaging Persistence & Receiver Synchronization
+# Active Tasks: Direct Messaging Full-Stack Enhancements & UX Fixes
 
 Plan: `tasks/plan.md`
 
-- [x] Task 1: Create ChatMessage document model and DTOs in `common-models`
-  - **Description:** Implement `ChatMessage.java` (@Document collection "chat_messages"), `ChatMediaItem.java`, `SendMessageRequest.java`, and `ChatConversationSummary.java` in `com.social.common`.
+- [x] Task 1: Extend `NotificationType` with `MESSAGE` and trigger notification on `sendMessage` in `GatewayChatMessageService`
+  - **Description:** Add `MESSAGE` to `NotificationType.java`. When `GatewayChatMessageService.sendMessage` executes, persist an incoming message notification in MongoDB via `ReactiveNotificationRepository` for `recipientId` with the sender's name and message preview.
   - **Acceptance criteria:**
-    - [x] `ChatMessage.java` maps to MongoDB collection `chat_messages` with compound indexes.
-    - [x] `SendMessageRequest.java` validates recipient and text/media content.
-    - [x] `common-models` compiles cleanly via Maven.
+    - [x] `NotificationType.java` contains `MESSAGE` enum constant.
+    - [x] `GatewayChatMessageService.java` creates and saves a `Notification` entity when a direct message is sent.
+    - [x] `common-models` and `api-gateway` compile cleanly.
   - **Verification:**
     - [x] `cd backend/common-models && mvn clean compile`
+    - [x] `cd backend/api-gateway && mvn test-compile`
   - **Dependencies:** None
   - **Files likely touched:**
-    - `backend/common-models/src/main/java/com/social/common/model/ChatMessage.java`
-    - `backend/common-models/src/main/java/com/social/common/model/ChatMediaItem.java`
-    - `backend/common-models/src/main/java/com/social/common/dto/SendMessageRequest.java`
-    - `backend/common-models/src/main/java/com/social/common/dto/ChatConversationSummary.java`
-  - **Estimated scope:** S (4 files)
+    - `backend/common-models/src/main/java/com/social/common/model/NotificationType.java`
+    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayChatMessageService.java`
+  - **Estimated scope:** S (2 files)
 
-- [x] Task 2: Implement Reactive repository, Service, and REST Controller in `api-gateway`
-  - **Description:** Implement `ReactiveChatMessageRepository.java` for MongoDB reactive queries, `GatewayChatMessageService.java` for business logic (deterministic conversation ID, send, query, mark as read), and `ChatMessageController.java` with endpoints: `POST /v1/chat/messages`, `GET /v1/chat/messages?with={userId}`, `GET /v1/chat/conversations`, and `PUT /v1/chat/conversations/{id}/read`.
+- [x] Task 2: Recompile and restart Spring Boot `api-gateway` on port 8080 and verify MongoDB Atlas persistence
+  - **Description:** Stop the old `api-gateway` process running on port 8080, compile the updated project, and restart `api-gateway` with Spring Boot profile connecting to MongoDB Atlas. Verify `/v1/chat/messages` and `/v1/notifications` with curl tests.
   - **Acceptance criteria:**
-    - [x] Controller exposes `/v1/chat/messages` endpoints returning standard `ApiResponse` envelope.
-    - [x] Service implements deterministic conversation ID logic so both participants share the same thread.
-    - [x] `api-gateway` compiles cleanly via Maven.
+    - [x] `POST /v1/chat/messages` returns 200 OK and persists to MongoDB `chat_messages` collection.
+    - [x] `GET /v1/chat/messages?with={userId}` returns the saved messages.
+    - [x] Notification is queryable via `GET /v1/notifications?userId={recipientId}`.
   - **Verification:**
-    - [x] `cd backend/api-gateway && mvn clean compile`
+    - [x] `curl -X POST http://127.0.0.1:8080/v1/chat/messages ...` returns HTTP 200.
+    - [x] `curl -X GET http://127.0.0.1:8080/v1/chat/messages?with=...` returns persisted array.
   - **Dependencies:** Task 1
   - **Files likely touched:**
-    - `backend/api-gateway/src/main/java/com/social/gateway/repository/ReactiveChatMessageRepository.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayChatMessageService.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/controller/ChatMessageController.java`
-  - **Estimated scope:** M (3 files)
+    - `backend/api-gateway/target/` (runtime restart)
+  - **Estimated scope:** XS (runtime process restart)
 
-- [x] Task 3: Create `chatApi.ts` and integrate 3s polling synchronization in `useChatState.ts`
-  - **Description:** Build `frontend/src/api/chatApi.ts` for calling `/v1/chat/messages` endpoints with auth tokens. Update `useChatState.ts` to poll messages every 3 seconds for active conversations, update local storage cache, and fall back gracefully if backend is offline.
+- [x] Task 3: Implement initial transcript rehydration on refresh/mount in `useChatState.ts`
+  - **Description:** Update `useChatState.ts` to fetch remote messages from MongoDB `/v1/chat/messages` on initial mount and when a conversation becomes active, merging with local cache so refreshing the page preserves all database messages.
   - **Acceptance criteria:**
-    - [x] `chatApi.ts` supports sending, fetching conversation messages, and marking read.
-    - [x] `useChatState.ts` synchronizes messages every 3 seconds while thread is active.
-    - [x] Transparent fallback to `chatStorage` if backend returns an error or is unreachable.
+    - [x] When active conversation opens, remote messages from backend are immediately loaded and merged.
+    - [x] Refreshing the browser preserves all messages previously saved in MongoDB.
   - **Verification:**
     - [x] `cd frontend && npx tsc -b`
+    - [x] `node --test test/chat_messaging.test.mjs`
   - **Dependencies:** Task 2
   - **Files likely touched:**
-    - `frontend/src/api/chatApi.ts`
-    - `frontend/src/api/index.ts`
     - `frontend/src/app/chat/useChatState.ts`
-  - **Estimated scope:** S (3 files)
-
-- [x] Task 4: Automated unit & integration tests and quality gates
-  - **Description:** Update `frontend/test/chat_messaging.test.mjs` to test `chatApi` client methods, deterministic ID generation, polling synchronization, and offline fallback. Run full quality gates (tsc, lint, tests, build).
-  - **Acceptance criteria:**
-    - [x] `node --test test/chat_messaging.test.mjs` passes all tests.
-    - [x] `npx tsc -b` passes with 0 errors.
-    - [x] `npm run lint` passes with 0 errors.
-    - [x] `npm run build` succeeds cleanly.
-  - **Verification:**
-    - [x] `cd frontend && npm run lint && npx tsc -b && node --test test/chat_messaging.test.mjs && npm run build`
-  - **Dependencies:** Task 1, Task 2, Task 3
-  - **Files likely touched:**
-    - `frontend/test/chat_messaging.test.mjs`
   - **Estimated scope:** S (1 file)
 
-- [x] Task 5: Live Browser Testing with Chrome DevTools Protocol
-  - **Description:** Run CDP automated testing script `frontend/scripts/run-devtools-chat-test.mjs` to verify desktop rendering, mobile edge-to-edge responsiveness, profile navigation, and message deduplication.
+- [x] Task 4: Add `MESSAGE` notification handling and chat navigation in `NotificationListPage.tsx`
+  - **Description:** Update `NotificationListPage.tsx` to display `MESSAGE` notifications with a chat icon, sender avatar, message snippet, and an action button to open that conversation directly in the chat tab.
   - **Acceptance criteria:**
-    - [x] Desktop chat navigation, profile presentation in scroll area, top identity bar fixed outside scroll area.
-    - [x] Composer centered scroll button and clutter-free input verified.
-    - [x] Sent message appears exactly 1 time (no duplicate).
-    - [x] Mobile viewport 390x844 verifies 100% full width and 100dvh coverage.
-    - [x] "View profile" button navigates cleanly to user profile.
-    - [x] 0 fatal runtime console errors.
+    - [x] `NotificationListPage.tsx` renders `MESSAGE` notifications cleanly.
+    - [x] Clicking a message notification triggers `onOpenChatWithUser` and switches to the messages tab.
+  - **Verification:**
+    - [x] `cd frontend && npx tsc -b && npm run lint`
+  - **Dependencies:** Task 1
+  - **Files likely touched:**
+    - `frontend/src/app/notifications/NotificationListPage.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+  - **Estimated scope:** S (2 files)
+
+- [x] Task 5: Wire Follow button in `ChatProfilePresentation` to update connections and profile following count
+  - **Description:** Connect the Follow button inside `ChatProfilePresentation` (and `ChatRecipientHeader`) to call `onToggleFollow(participant)`, triggering `recordConnectionChange` in `profileActivityStore` and incrementing/decrementing `user.followingCount`.
+  - **Acceptance criteria:**
+    - [x] Clicking Follow in the chat interface increments connection count in profile activity store.
+    - [x] Profile following count updates immediately.
+    - [x] Button toggles between "Follow" and "Following".
+  - **Verification:**
+    - [x] `cd frontend && node --test test/chat_messaging.test.mjs`
+  - **Dependencies:** None
+  - **Files likely touched:**
+    - `frontend/src/app/chat/ChatRecipientHeader.tsx`
+    - `frontend/src/app/chat/ChatThreadView.tsx`
+    - `frontend/src/app/chat/ChatPage.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+  - **Estimated scope:** M (4 files)
+
+- [x] Task 6: Add "Message" action button in `ProfileMetaDetails.tsx` for visited profiles
+  - **Description:** Add a secondary "Message" button in `ProfileMetaDetails.tsx` next to "Follow" when `!isOwnProfile`. Clicking "Message" initiates chat with that user via `openChatWithUser(viewedUser)` and switches to the Messages tab.
+  - **Acceptance criteria:**
+    - [x] "Message" button appears on all visited user profiles (not on own profile).
+    - [x] Clicking "Message" opens the chat thread with that user and displays the message interface.
+  - **Verification:**
+    - [x] `cd frontend && npx tsc -b && npm run lint`
+  - **Dependencies:** None
+  - **Files likely touched:**
+    - `frontend/src/components/profile/ProfileMetaDetails.tsx`
+    - `frontend/src/components/profile/UserProfileView.tsx`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+  - **Estimated scope:** S (3 files)
+
+- [x] Task 7: Level Message page horizontally with sidebars on desktop; polish Android mobile viewports
+  - **Description:** Fix the desktop layout where the Message page touches `top: 0` by ensuring `margin-top: 24px` or `padding-top: 24px` on desktop (`min-width: 768px`) so it sits level with the left and right sidebars. Ensure Android mobile viewports (`max-width: 767px`) remain 100% full-width, edge-to-edge with no top gaps or navbar clipping.
+  - **Acceptance criteria:**
+    - [x] On desktop (>= 768px), the top bar of the Messages container is aligned horizontally at `top: 24px` with left and right sidebars.
+    - [x] On mobile (390x844), messages container covers 100% width and 100dvh cleanly.
   - **Verification:**
     - [x] `cd frontend && node scripts/run-devtools-chat-test.mjs`
-  - **Dependencies:** Task 1-4
-  - **Files touched:**
+  - **Dependencies:** None
+  - **Files likely touched:**
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
+    - `frontend/src/app/chat/ChatPage.tsx`
+    - `frontend/src/app/chat/ChatThreadView.tsx`
+  - **Estimated scope:** S (3 files)
+
+- [x] Task 8: Automated unit tests, Maven backend tests, and Chrome DevTools Protocol verification
+  - **Description:** Update `test/chat_messaging.test.mjs` and `run-devtools-chat-test.mjs` to test all 8 items: Follow connection update, backend MongoDB message saving & fetching on reload, receiver synchronization, notification generation, profile "Message" button click, desktop alignment, and mobile layout.
+  - **Acceptance criteria:**
+    - [x] All unit and integration tests pass cleanly.
+    - [x] DevTools script verifies desktop alignment, mobile width, profile message button, and deduplication.
+    - [x] 0 fatal console errors.
+  - **Verification:**
+    - [x] `cd frontend && npx tsc -b && npm run lint && node --test test/chat_messaging.test.mjs && npm run build`
+    - [x] `cd frontend && node scripts/run-devtools-chat-test.mjs`
+  - **Dependencies:** Task 1-7
+  - **Files likely touched:**
+    - `frontend/test/chat_messaging.test.mjs`
     - `frontend/scripts/run-devtools-chat-test.mjs`
     - `docs/reports/DEVTOOLS_CHAT_VERIFICATION.md`
-
+  - **Estimated scope:** S (3 files)

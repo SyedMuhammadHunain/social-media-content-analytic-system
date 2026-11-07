@@ -201,6 +201,12 @@ async function runChatDevToolsAudit() {
         scrollBtnLeftPercent = scrollBtnContainer.style.left;
       }
 
+      const centerScroll = document.querySelector('.newsfeed-center-scroll.is-messages') || document.querySelector('.newsfeed-center-scroll');
+      const sideBar = document.querySelector('.newsfeed-fixed-sidebar');
+      const centerRect = centerScroll ? centerScroll.getBoundingClientRect() : null;
+      const sideRect = sideBar ? sideBar.getBoundingClientRect() : null;
+      const isHorizontallyLeveled = centerRect && sideRect ? Math.abs(centerRect.top - sideRect.top) <= 8 : false;
+
       return {
         hasThread: !!thread,
         hasTopBar: !!topBar,
@@ -213,10 +219,27 @@ async function runChatDevToolsAudit() {
         hasInput,
         hasEnterToSendText,
         scrollBtnLeftPercent,
+        isHorizontallyLeveled,
+        centerTop: centerRect ? centerRect.top : 0,
+        sideTop: sideRect ? sideRect.top : 0,
       };
     })()
   `);
   console.log('Chat thread inspection:', threadInspect);
+
+  // Test Follow button toggle in chat
+  const followToggleResult = await evalExpr(`
+    (() => {
+      const followBtn = document.querySelector('[data-testid="chat-follow-toggle-btn"]');
+      if (followBtn) {
+        const initialText = followBtn.innerText;
+        followBtn.click();
+        return { success: true, initialText, newText: followBtn.innerText };
+      }
+      return { success: false };
+    })()
+  `);
+  console.log('Chat follow button toggle:', followToggleResult);
 
   // Send a test message
   const testMessageText = 'DevTools live verification message #' + Date.now();
@@ -311,14 +334,41 @@ async function runChatDevToolsAudit() {
     (() => {
       const profileHeader = document.querySelector('[data-testid="profile-header-banner"]') || document.querySelector('[data-testid="profile-bio-editor"]');
       const textMatches = document.body.innerText.includes('uxui_howard.le') || document.body.innerText.includes('Howard Le');
+      const messageBtn = document.querySelector('[data-testid="profile-header-message-btn"]');
       return {
         hasProfileElements: !!profileHeader || textMatches,
+        hasMessageBtn: !!messageBtn,
       };
     })()
   `);
   console.log('Navigated to user profile page:', profilePageMounted);
 
   await captureScreenshot('chat_view_profile_navigation_verified.png');
+
+  console.log('\n--- 3b. PROFILE "MESSAGE" BUTTON TO CHAT TEST ---');
+  const returnToChatResult = await evalExpr(`
+    (() => {
+      const msgBtn = document.querySelector('[data-testid="profile-header-message-btn"]');
+      if (msgBtn) {
+        msgBtn.click();
+        return true;
+      }
+      return false;
+    })()
+  `);
+  console.log('Clicked "Message" button on visited profile:', returnToChatResult);
+  await sleep(800);
+
+  const returnedToChat = await evalExpr(`
+    (() => {
+      const thread = document.querySelector('[data-testid="chat-thread-view"]');
+      return {
+        isInChat: !!thread,
+      };
+    })()
+  `);
+  console.log('Returned to chat thread from profile:', returnedToChat);
+  await captureScreenshot('profile_message_btn_return_chat_verified.png');
 
   console.log('\n--- 4. CONSOLE AUDIT ---');
   const errors = consoleLogs.filter((l) => l.type === 'error');
@@ -340,7 +390,9 @@ async function runChatDevToolsAudit() {
 ## 1. Desktop Verification (1440 x 900)
 - **Thread Rendering:** \`ChatThreadView\` successfully mounted in center column.
 - **Top Identity Bar (Fixed):** Compact identity bar present outside scroll area (${threadInspect.isTopBarOutsideScrollArea ? 'PASSED' : 'FAILED'}).
+- **Horizontal Desktop Alignment:** Center message scroll area top sits at \`${threadInspect.centerTop}px\` vs sidebar top \`${threadInspect.sideTop}px\` (Aligned level horizontally: **${threadInspect.isHorizontallyLeveled ? 'PASSED' : 'FAILED'}**).
 - **Profile Presentation (Scrollable):** Large profile presentation correctly rendered inside \`chat-messages-scroll-area\` (${threadInspect.isProfileInScrollArea ? 'PASSED' : 'FAILED'}). As the chat grows, it scrolls upward naturally.
+- **Chat Follow Button Toggle:** Toggled successfully (${followToggleResult.success ? 'PASSED' : 'FAILED'}).
 - **Bottom Composer Layout:**
   - Left icon: \`+\` action button present (${threadInspect.hasPlusBtn ? 'PASSED' : 'FAILED'}).
   - Middle: Message text input present (${threadInspect.hasInput ? 'PASSED' : 'FAILED'}).
@@ -360,10 +412,14 @@ async function runChatDevToolsAudit() {
 
 ---
 
-## 3. "View Profile" Navigation
+## 3. "View Profile" & Profile "Message" Button Navigation
 - **Action:** Clicked "View profile" button inside \`ChatProfilePresentation\`.
 - **Navigation Result:** Successfully resolved user profile and transitioned to the user profile page (${profilePageMounted.hasProfileElements ? 'PASSED' : 'FAILED'}).
-- **Screenshot:** ![View Profile Navigation](screenshots/chat_view_profile_navigation_verified.png)
+- **Profile Message Button:** "Message" button rendered on visited profile (${profilePageMounted.hasMessageBtn ? 'PASSED' : 'FAILED'}).
+- **Return to Chat via Message Button:** Clicked "Message" on visited profile and returned to chat thread (${returnedToChat.isInChat ? 'PASSED' : 'FAILED'}).
+- **Screenshots:**
+  - ![View Profile Navigation](screenshots/chat_view_profile_navigation_verified.png)
+  - ![Return to Chat](screenshots/profile_message_btn_return_chat_verified.png)
 
 ---
 

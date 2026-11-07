@@ -27,14 +27,17 @@ function formatFollowers(count: number): string {
 export function ChatProfilePresentation({
   participant,
   onViewProfile,
+  onToggleFollow,
 }: {
   participant: UserProfile;
   onViewProfile?: (user: UserProfile) => void;
+  onToggleFollow?: (participant: UserProfile) => void;
 }) {
   const [isFollowed, setIsFollowed] = useState<boolean>(participant.isFollowed ?? false);
 
   const handleToggleFollow = () => {
     setIsFollowed((prev) => !prev);
+    onToggleFollow?.(participant);
   };
 
   return (

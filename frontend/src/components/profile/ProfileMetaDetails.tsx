@@ -17,12 +17,14 @@ export interface ProfileMetaDetailsProps {
   user: UserProfile;
   isOwnProfile?: boolean;
   onToggleFollow?: (userId: string) => void;
+  onMessageUser?: (user: UserProfile) => void;
 }
 
 export function ProfileMetaDetails({
   user,
   isOwnProfile = true,
   onToggleFollow,
+  onMessageUser,
 }: ProfileMetaDetailsProps) {
   return (
     <Card variant="default">
@@ -37,22 +39,31 @@ export function ProfileMetaDetails({
             </VStack>
 
             {isOwnProfile ? null : (
-              onToggleFollow && (
+              <HStack gap={2} vAlign="center">
                 <Button
-                  data-testid="profile-header-follow-btn"
-                  label={user.isFollowed ? 'Following' : 'Follow'}
-                  variant={user.isFollowed ? 'secondary' : 'primary'}
+                  data-testid="profile-header-message-btn"
+                  label="Message"
+                  variant="secondary"
                   size="sm"
-                  icon={
-                    user.isFollowed ? (
-                      <Icon icon={CheckIcon} size="xsm" />
-                    ) : (
-                      <Icon icon={UserPlusIcon} size="xsm" />
-                    )
-                  }
-                  onClick={() => onToggleFollow(user.id)}
+                  onClick={() => onMessageUser?.(user)}
                 />
-              )
+                {onToggleFollow && (
+                  <Button
+                    data-testid="profile-header-follow-btn"
+                    label={user.isFollowed ? 'Following' : 'Follow'}
+                    variant={user.isFollowed ? 'secondary' : 'primary'}
+                    size="sm"
+                    icon={
+                      user.isFollowed ? (
+                        <Icon icon={CheckIcon} size="xsm" />
+                      ) : (
+                        <Icon icon={UserPlusIcon} size="xsm" />
+                      )
+                    }
+                    onClick={() => onToggleFollow(user.id)}
+                  />
+                )}
+              </HStack>
             )}
           </HStack>
 
