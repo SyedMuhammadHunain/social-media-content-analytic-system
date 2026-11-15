@@ -214,7 +214,7 @@ const NEWSFEED_CSS = `
   [data-testid^="post-card-"] [data-astryx-text="body"] {
     font-size: 15.5px !important;
     line-height: 1.55 !important;
-    color: #f1f5f9 !important;
+    color: var(--color-text-primary, currentColor) !important;
     letter-spacing: -0.01em !important;
     word-break: break-word !important;
   }
@@ -222,13 +222,13 @@ const NEWSFEED_CSS = `
   [data-testid^="post-author-"] span {
     font-size: 15px !important;
     font-weight: 600 !important;
-    color: #ffffff !important;
+    color: var(--color-text-primary, currentColor) !important;
   }
 
   [data-testid^="post-card-"] time,
   [data-testid^="post-card-"] [data-astryx-text="supporting"] {
     font-size: 13px !important;
-    color: #94a3b8 !important;
+    color: var(--color-text-secondary, currentColor) !important;
   }
 
   /* 5. Mobile / Android: Icon-only post actions with 44px tap targets */

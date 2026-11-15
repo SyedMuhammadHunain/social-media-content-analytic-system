@@ -1,105 +1,65 @@
-# Active Tasks: Full-Stack Deployment (Vercel Frontend + Azure VM Backend)
+# Active Tasks: Mobile Light Theme Contrast & Legibility Pass
 
 Plan: `tasks/plan.md`
 
-- [x] Task 1: Update `api-gateway` CORS configuration for Vercel and dynamic origins
-  - **Description:** Update `CorsConfig.java` in `api-gateway` to allow `https://*.vercel.app` pattern and allow reading an optional comma-separated environment variable `ALLOWED_ORIGIN_PATTERNS`. This prevents browser CORS preflight blocking when the Vercel-hosted frontend calls the Azure backend.
+- [x] Task 1: Replace hardcoded colors in `NewsFeedPage.tsx` mobile styles with Astryx theme tokens
+  - **Description:** Update `@media (max-width: 767px)` in `NewsFeedPage.tsx` to replace `#f1f5f9 !important`, `#ffffff !important`, and `#94a3b8 !important` with `var(--color-text-primary, currentColor) !important` for body/author text and `var(--color-text-secondary, currentColor) !important` for timestamps and supporting text. Ensure text remains visible in light theme while retaining dark theme contrast.
   - **Acceptance criteria:**
-    - [x] `CorsConfig.java` allows `https://*.vercel.app` pattern alongside `localhost` and `127.0.0.1`.
-    - [x] Optional environment variable `ALLOWED_ORIGIN_PATTERNS` overrides or extends origin patterns.
-    - [x] `api-gateway` compiles and passes tests without errors.
+    - [x] `.post-card-content-text p, .post-card-content-text span, [data-testid^="post-card-"] [data-astryx-text="body"]` uses `var(--color-text-primary, currentColor) !important`.
+    - [x] `[data-testid^="post-author-"] span` uses `var(--color-text-primary, currentColor) !important`.
+    - [x] `[data-testid^="post-card-"] time, [data-testid^="post-card-"] [data-astryx-text="supporting"]` uses `var(--color-text-secondary, currentColor) !important`.
+    - [x] Retains mobile font-size (`15.5px`) and line-height enhancements.
   - **Verification:**
-    - [x] `cd backend/api-gateway && mvn test-compile`
+    - [x] Code review of CSS rules in `frontend/src/app/feed/NewsFeedPage.tsx`.
+    - [x] Ensure existing mobile responsive tests pass.
   - **Dependencies:** None
   - **Files likely touched:**
-    - `backend/api-gateway/src/main/java/com/social/gateway/config/CorsConfig.java`
+    - `frontend/src/app/feed/NewsFeedPage.tsx`
   - **Estimated scope:** XS (1 file)
 
-- [x] Task 2: Create `frontend/vercel.json` for SPA routing and asset caching
-  - **Description:** Create `frontend/vercel.json` configuring client-side routing rewrites (`"source": "/(.*)", "destination": "/index.html"`) so route refreshes on Vercel do not yield 404s. Include cache-control headers for static assets.
+- [ ] Task 2: Audit and harden mobile drawer and header fallback tokens for light theme
+  - **Description:** Review `MobileNavigationDrawer.tsx`, `MobileAppHeader.tsx`, and `MobileBottomNav.tsx` to ensure any inline style colors use theme-neutral fallbacks (`currentColor`, `inherit`) rather than hardcoded `#FFFFFF` against potential white surfaces in light theme.
   - **Acceptance criteria:**
-    - [x] `frontend/vercel.json` exists with SPA catch-all rewrite rule.
-    - [x] `frontend` builds cleanly with `npm run build`.
+    - [ ] `MobileNavigationDrawer.tsx` user profile text uses `var(--color-text-primary, currentColor)`.
+    - [ ] Secondary labels use `var(--color-text-secondary, currentColor)`.
+    - [ ] Badge text retains appropriate contrast against badge backgrounds.
   - **Verification:**
-    - [x] `cd frontend && npm run build`
-    - [x] Verify `frontend/vercel.json` syntax with `jq . frontend/vercel.json`
-  - **Dependencies:** None
+    - [ ] Verify drawer appearance in both light and dark mode contexts.
+  - **Dependencies:** Task 1
   - **Files likely touched:**
-    - `frontend/vercel.json`
+    - `frontend/src/app/feed/MobileNavigationDrawer.tsx`
   - **Estimated scope:** XS (1 file)
 
-- [x] Task 3: Create multi-service `docker-compose.yml` for backend orchestration
-  - **Description:** Create `docker-compose.yml` in repository root (or `deploy/docker/docker-compose.yml`) defining containers for all 8 microservices (`api-gateway`, `presigned-url-service`, `post-writer-service`, `like-unlike-service`, `follow-service`, `comment-service`, `newsfeed-generator-service`, `newsfeed-reader-service`) with JVM memory caps (160MB max), port exposures, and environment variable bindings.
-  - **Acceptance criteria:**
-    - [x] `docker-compose.yml` cleanly defines all 8 microservice containers.
-    - [x] Memory limits (`deploy.resources.limits.memory: 200M`) are defined to prevent VM OOM.
-    - [x] Configuration validates via Docker CLI.
-  - **Verification:**
-    - [x] `docker compose config`
-  - **Dependencies:** Task 1
-  - **Files likely touched:**
-    - `docker-compose.yml`
-    - `backend/Dockerfile` (or service Dockerfiles)
-  - **Estimated scope:** M (2-3 files)
+## Checkpoint: Foundation & Tokenization
+- [ ] No hardcoded `#f1f5f9` or `#ffffff` text rules in mobile CSS.
+- [ ] Astryx theme tokens are properly declared and responsive.
 
-- [x] Task 4: Create Nginx reverse proxy configuration template with SSL support
-  - **Description:** Create `deploy/nginx/smcas.conf` configured to reverse proxy external HTTPS traffic to `api-gateway` on port 8080, handling CORS headers, WebSocket / SSE upgrades, request timeouts, and Certbot Let's Encrypt SSL paths.
+- [ ] Task 3: Author automated test suite for mobile light theme contrast
+  - **Description:** Create `frontend/test/mobile_light_theme_contrast.test.mjs` verifying: (1) `NewsFeedPage.tsx` mobile CSS does not contain hardcoded `#f1f5f9` or `#ffffff` color rules, (2) Astryx `--color-text-primary` and `--color-text-secondary` are bound to mobile typography, (3) `MobileNavigationDrawer.tsx` does not hardcode white text fallbacks on non-primary surfaces.
   - **Acceptance criteria:**
-    - [x] `smcas.conf` directs `/` and `/v1/` to `http://127.0.0.1:8080`.
-    - [x] Includes SSL parameters and proxy headers (`X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`).
+    - [ ] Test file exists in `frontend/test/mobile_light_theme_contrast.test.mjs`.
+    - [ ] Runs with `node --test frontend/test/mobile_light_theme_contrast.test.mjs` and passes 100%.
   - **Verification:**
-    - [x] `nginx -t -c deploy/nginx/smcas.conf` (or syntax check)
-  - **Dependencies:** None
+    - [ ] `node --test frontend/test/mobile_light_theme_contrast.test.mjs`
+  - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
-    - `deploy/nginx/smcas.conf`
+    - `frontend/test/mobile_light_theme_contrast.test.mjs`
   - **Estimated scope:** S (1 file)
 
-- [x] Task 5: Create automated Azure VM bootstrap script
-  - **Description:** Create `deploy/azure/bootstrap-vm.sh` that automates setting up a fresh Ubuntu 24.04 LTS VM on Azure: configures 2GB swap file (for JVM safety), installs OpenJDK 21, Docker, Docker Compose, Nginx, and Certbot, and sets up firewall rules.
+- [ ] Task 4: Full regression verification, TypeScript compile, and production build
+  - **Description:** Run TypeScript compiler (`npx tsc -b frontend`), existing mobile tests (`node --test frontend/test/mobile_responsive_navigation.test.mjs`), and `npm run build` to confirm zero build or styling regressions.
   - **Acceptance criteria:**
-    - [x] Script is idempotent and executes unattended with `bash deploy/azure/bootstrap-vm.sh`.
-    - [x] Configures swap space to ensure 8 JVM services never crash under burst load.
+    - [ ] `npx tsc -b frontend` exits with code 0.
+    - [ ] `node --test frontend/test/mobile_responsive_navigation.test.mjs` passes.
+    - [ ] `npm run build --prefix frontend` succeeds without errors.
   - **Verification:**
-    - [x] `bash -n deploy/azure/bootstrap-vm.sh` (shell syntax check)
-  - **Dependencies:** Task 3, Task 4
-  - **Files likely touched:**
-    - `deploy/azure/bootstrap-vm.sh`
-  - **Estimated scope:** S (1 file)
+    - [ ] `npx tsc -b frontend`
+    - [ ] `npm run build --prefix frontend`
+  - **Dependencies:** Task 3
+  - **Files likely touched:** None (verification step)
+  - **Estimated scope:** XS
 
-- [x] Task 6: Create comprehensive step-by-step deployment guide
-  - **Description:** Author `docs/deployment/DEPLOYMENT_GUIDE.md` detailing: (1) Creating the Azure B2s Linux VM using GitHub Student credits, (2) Setting Azure DNS and NSG rules (ports 22, 80, 443), (3) Running the VM bootstrap, (4) Starting the backend, (5) Deploying the frontend to Vercel via GitHub with environment variables, and (6) Post-deploy validation.
-  - **Acceptance criteria:**
-    - [x] Document clearly explains each phase with copy-paste commands and UI screenshots/links.
-    - [x] Covers secret configuration (`JWT_SECRET`, `MONGODB_URI`, `AZURE_STORAGE_CONNECTION_STRING`, `VITE_API_BASE_URL`).
-  - **Verification:**
-    - [x] Review markdown rendering and links.
-  - **Dependencies:** Task 1-5
-  - **Files likely touched:**
-    - `docs/deployment/DEPLOYMENT_GUIDE.md`
-  - **Estimated scope:** M (1 file)
-
-- [x] Task 7: Create automated cloud deployment verification script
-  - **Description:** Author `scripts/verify-cloud-deployment.sh` that accepts an API Gateway base URL (e.g. `https://<azure-vm-dns>`) and automatically tests: (1) `/actuator/health`, (2) `/v1/media/presign` (Azure Blob SAS generation), (3) `/v1/posts` (MongoDB read), and (4) CORS response headers for Vercel origin.
-  - **Acceptance criteria:**
-    - [x] Script executes and prints colored PASS/FAIL status for each health endpoint.
-    - [x] Validates HTTPS certificate and CORS preflight.
-  - **Verification:**
-    - [x] `bash scripts/verify-cloud-deployment.sh http://localhost:8080` against local gateway.
-  - **Dependencies:** Task 1
-  - **Files likely touched:**
-    - `scripts/verify-cloud-deployment.sh`
-  - **Estimated scope:** S (1 file)
-
-- [x] Task 8: Implement automated test suite for deployment artifacts and run regression tests
-  - **Description:** Create `frontend/test/deployment_artifacts.test.mjs` verifying: (1) `vercel.json` rewrites and caching, (2) `docker-compose.yml` service definitions and memory bounds, (3) Nginx configuration directives and proxy headers, (4) Azure bootstrap script syntax, and (5) Gateway CORS patterns. Execute the full unit test suite.
-  - **Acceptance criteria:**
-    - [x] `frontend/test/deployment_artifacts.test.mjs` contains comprehensive assertions covering all deployment artifacts.
-    - [x] `node --test frontend/test/deployment_artifacts.test.mjs` passes with 100% green tests.
-    - [x] `npm run build` and `mvn test-compile -pl api-gateway -f backend/pom.xml` succeed.
-  - **Verification:**
-    - [x] `node --test frontend/test/deployment_artifacts.test.mjs`
-    - [x] `cd frontend && npm run build`
-  - **Dependencies:** Tasks 1-7
-  - **Files likely touched:**
-    - `frontend/test/deployment_artifacts.test.mjs`
-  - **Estimated scope:** S (1 file)
+## Checkpoint: Ready for Implementation & Review
+- [ ] All tests passing.
+- [ ] Build clean.
+- [ ] Production bundle validated.
