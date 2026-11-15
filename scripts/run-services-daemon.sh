@@ -4,11 +4,30 @@ set -e
 DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PIDFILE="$DIR/scripts/.backend.pids"
 mkdir -p "$DIR/scripts"
-rm -f "$PIDFILE"
+
+# Cleanup old processes and ports
+if [ -f "$PIDFILE" ]; then
+    while IFS= read -r pid; do
+        if kill -0 "$pid" 2>/dev/null; then
+            kill "$pid" 2>/dev/null || true
+        fi
+    done < "$PIDFILE"
+    rm -f "$PIDFILE"
+fi
+
+for port in 8080 8081 8082 8083 8084 8085 8086 8087; do
+    fuser -k "${port}/tcp" 2>/dev/null || true
+done
 
 if [ -f "$DIR/backend/.env" ]; then
     set -a
+    # shellcheck disable=SC1091
     source "$DIR/backend/.env"
+    set +a
+elif [ -f "$DIR/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "$DIR/.env"
     set +a
 fi
 
@@ -25,6 +44,9 @@ cleanup() {
         done < "$PIDFILE"
         rm -f "$PIDFILE"
     fi
+    for port in 8080 8081 8082 8083 8084 8085 8086 8087; do
+        fuser -k "${port}/tcp" 2>/dev/null || true
+    done
 }
 trap cleanup SIGINT SIGTERM
 
@@ -34,8 +56,13 @@ start_svc() {
     local jar="$DIR/backend/$name/target/$name-1.0.0-SNAPSHOT.jar"
     local logfile="$DIR/scripts/$name.log"
 
+    if [ ! -f "$jar" ]; then
+        echo "Error: $jar missing. Running mvn package -DskipTests..."
+        (cd "$DIR/backend" && mvn package -DskipTests)
+    fi
+
     echo "Launching $name on port $port..."
-    java -Xms64m -Xmx256m \
+    java -Xms32m -Xmx160m \
         -Dserver.port=$port \
         -DMONGODB_URI="$MONGODB_URI" \
         -Dspring.data.mongodb.uri="$MONGODB_URI" \
@@ -63,3 +90,4 @@ start_svc "newsfeed-reader-service" 8087
 
 echo "All 8 microservices launched. Gateway on port 8080. Holding process..."
 wait
+

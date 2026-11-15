@@ -65,14 +65,14 @@ run_check \
 
 # 3. MongoDB Newsfeed Hydration Read
 run_check \
-    "Newsfeed / Posts Query (MongoDB Atlas connectivity)" \
-    "curl -s -o /dev/null -w '%{http_code}' '${BASE_URL}/v1/posts'" \
-    "200\|404"
+    "Newsfeed Hydration (/v1/feeds/test-user) (MongoDB Atlas)" \
+    "curl -s -o /dev/null -w '%{http_code}' '${BASE_URL}/v1/feeds/test-user'" \
+    "200"
 
 # 4. Azure Blob Storage SAS Generation
 run_check \
     "Azure Blob Storage Pre-Signed SAS Generation (/v1/media/presign)" \
-    "curl -s -X POST '${BASE_URL}/v1/media/presign' -H 'Content-Type: application/json' -d '{\"filename\":\"smoke-test.png\",\"contentType\":\"image/png\"}'" \
+    "curl -s -X POST '${BASE_URL}/v1/media/presign' -H 'Content-Type: application/json' -d '{\"userId\":\"smoke-test\",\"fileName\":\"smoke-test.png\",\"contentType\":\"image/png\"}'" \
     "uploadUrl\|url\|blob"
 
 # 5. Direct Messaging Transcript Read
@@ -83,8 +83,8 @@ run_check \
 
 # 6. Notification Aggregator Check
 run_check \
-    "Notification Feed Endpoint (/v1/notifications)" \
-    "curl -s -o /dev/null -w '%{http_code}' '${BASE_URL}/v1/notifications?userId=demo-user-1'" \
+    "Notification Feed Endpoint (/v1/notifications/test-user)" \
+    "curl -s -o /dev/null -w '%{http_code}' '${BASE_URL}/v1/notifications/test-user'" \
     "200"
 
 echo -e "\n${BOLD}${CYAN}------------------------------------------------------------------${RESET}"

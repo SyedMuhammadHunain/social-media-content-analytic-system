@@ -25,8 +25,13 @@ elif [ -f "$DIR/.env" ]; then
     set +a
 fi
 
+# Cleanup any existing listeners
+for port in 8080 8081 8082 8083 8084 8085 8086 8087; do
+    fuser -k "${port}/tcp" 2>/dev/null || true
+done
+
 # Export local defaults if not already present
-export MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/social_db}"
+export MONGODB_URI="${MONGODB_URI:-mongodb://localhost:27017/SocialMediaContentAnalysisSystem}"
 export AZURE_STORAGE_CONNECTION_STRING="${AZURE_STORAGE_CONNECTION_STRING:-}"
 
 start_service() {
@@ -41,7 +46,7 @@ start_service() {
     fi
 
     echo "Starting $name on port $port..."
-    nohup java -Xms64m -Xmx256m -Dserver.port=$port -DMONGODB_URI="$MONGODB_URI" -Dspring.data.mongodb.uri="$MONGODB_URI" -Dazure.storage.connection-string="$AZURE_STORAGE_CONNECTION_STRING" -jar "$jar" > "$logfile" 2>&1 &
+    nohup java -Xms32m -Xmx160m -Dserver.port=$port -DMONGODB_URI="$MONGODB_URI" -Dspring.data.mongodb.uri="$MONGODB_URI" -Dazure.storage.connection-string="$AZURE_STORAGE_CONNECTION_STRING" -jar "$jar" > "$logfile" 2>&1 &
     local pid=$!
     disown "$pid" 2>/dev/null || true
     echo "$pid" >> "$PIDFILE"
