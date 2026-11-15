@@ -1,0 +1,162 @@
+services:
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: api-gateway
+    container_name: smcas-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGIN_PATTERNS: ${ALLOWED_ORIGIN_PATTERNS:-https://*.vercel.app,http://localhost:[*]}
+      POST_WRITER_URI: http://post-writer-service:8081
+      PRESIGN_URI: http://presigned-url-service:8082
+      LIKE_URI: http://like-unlike-service:8083
+      FOLLOW_URI: http://follow-service:8084
+      COMMENT_URI: http://comment-service:8085
+      FEED_READER_URI: http://newsfeed-reader-service:8087
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+
+  post-writer-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: post-writer-service
+    container_name: smcas-post-writer-service
+    environment:
+      PORT: 8081
+      MONGODB_URI: ${MONGODB_URI}
+      FEEDGEN_URL: http://newsfeed-generator-service:8086
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  presigned-url-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: presigned-url-service
+    container_name: smcas-presigned-url-service
+    environment:
+      PORT: 8082
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
+      AZURE_STORAGE_CONTAINER_NAME: ${AZURE_STORAGE_CONTAINER_NAME:-media-assets}
+      AZURE_STORAGE_SAS_EXPIRY: ${AZURE_STORAGE_SAS_EXPIRY:-15}
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  like-unlike-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: like-unlike-service
+    container_name: smcas-like-unlike-service
+    environment:
+      PORT: 8083
+      MONGODB_URI: ${MONGODB_URI}
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  follow-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: follow-service
+    container_name: smcas-follow-service
+    environment:
+      PORT: 8084
+      MONGODB_URI: ${MONGODB_URI}
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  comment-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: comment-service
+    container_name: smcas-comment-service
+    environment:
+      PORT: 8085
+      MONGODB_URI: ${MONGODB_URI}
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  newsfeed-generator-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: newsfeed-generator-service
+    container_name: smcas-newsfeed-generator-service
+    environment:
+      PORT: 8086
+      MONGODB_URI: ${MONGODB_URI}
+      FOLLOW_SERVICE_URL: http://follow-service:8084
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+  newsfeed-reader-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: newsfeed-reader-service
+    container_name: smcas-newsfeed-reader-service
+    environment:
+      PORT: 8087
+      MONGODB_URI: ${MONGODB_URI}
+    restart: unless-stopped
+    networks:
+      - smcas-network
+    deploy:
+      resources:
+        limits:
+          memory: 180M
+
+networks:
+  smcas-network:
+    driver: bridge
