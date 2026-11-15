@@ -34,13 +34,13 @@ Plan: `tasks/plan.md`
 - [x] No hardcoded `#f1f5f9` or `#ffffff` text rules in mobile CSS.
 - [x] Astryx theme tokens are properly declared and responsive.
 
-- [ ] Task 3: Author automated test suite for mobile light theme contrast
+- [x] Task 3: Author automated test suite for mobile light theme contrast
   - **Description:** Create `frontend/test/mobile_light_theme_contrast.test.mjs` verifying: (1) `NewsFeedPage.tsx` mobile CSS does not contain hardcoded `#f1f5f9` or `#ffffff` color rules, (2) Astryx `--color-text-primary` and `--color-text-secondary` are bound to mobile typography, (3) `MobileNavigationDrawer.tsx` does not hardcode white text fallbacks on non-primary surfaces.
   - **Acceptance criteria:**
-    - [ ] Test file exists in `frontend/test/mobile_light_theme_contrast.test.mjs`.
-    - [ ] Runs with `node --test frontend/test/mobile_light_theme_contrast.test.mjs` and passes 100%.
+    - [x] Test file exists in `frontend/test/mobile_light_theme_contrast.test.mjs`.
+    - [x] Runs with `node --test frontend/test/mobile_light_theme_contrast.test.mjs` and passes 100%.
   - **Verification:**
-    - [ ] `node --test frontend/test/mobile_light_theme_contrast.test.mjs`
+    - [x] `node --test frontend/test/mobile_light_theme_contrast.test.mjs`
   - **Dependencies:** Task 1, Task 2
   - **Files likely touched:**
     - `frontend/test/mobile_light_theme_contrast.test.mjs`

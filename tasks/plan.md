@@ -24,7 +24,7 @@ Resolve the Android / mobile light theme font visibility bug where post body tex
 - [x] Astryx CSS variables correctly applied for both light and dark modes.
 
 ### Phase 2: Automated Testing & Verification
-- [ ] Task 3: Author automated test suite `frontend/test/mobile_light_theme_contrast.test.mjs` verifying light and dark mode CSS properties and token references.
+- [x] Task 3: Author automated test suite `frontend/test/mobile_light_theme_contrast.test.mjs` verifying light and dark mode CSS properties and token references.
 - [ ] Task 4: Execute TypeScript check (`npx tsc -b frontend`), test suite, and production build (`npm run build --prefix frontend`).
 
 ### Checkpoint: Complete Verification
