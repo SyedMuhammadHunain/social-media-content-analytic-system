@@ -44,9 +44,11 @@ Deploy the Social Media Content Analysis System (SMCAS) using the user's GitHub 
 
 ### Phase 4: Verification & Smoke Testing
 - [x] Task 7: Create automated post-deployment health check script (`scripts/verify-cloud-deployment.sh`) testing Gateway health, Mongo connectivity, and Azure Blob SAS generation.
+- [x] Task 8: Implement automated test suite for deployment artifacts (`frontend/test/deployment_artifacts.test.mjs`) and execute full regression verification.
 
 ### Checkpoint: Complete Deployment Artifacts
-- [x] All 7 tasks implemented, verified, and committed.
+- [x] All 8 tasks implemented, verified, and committed.
+- [x] Full automated test suite passes (frontend unit tests, gateway tests, deployment artifact tests).
 - [x] Production deployment artifacts ready for execution.
 
 ## Risks and Mitigations

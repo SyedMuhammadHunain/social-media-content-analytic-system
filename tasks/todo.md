@@ -89,3 +89,17 @@ Plan: `tasks/plan.md`
   - **Files likely touched:**
     - `scripts/verify-cloud-deployment.sh`
   - **Estimated scope:** S (1 file)
+
+- [x] Task 8: Implement automated test suite for deployment artifacts and run regression tests
+  - **Description:** Create `frontend/test/deployment_artifacts.test.mjs` verifying: (1) `vercel.json` rewrites and caching, (2) `docker-compose.yml` service definitions and memory bounds, (3) Nginx configuration directives and proxy headers, (4) Azure bootstrap script syntax, and (5) Gateway CORS patterns. Execute the full unit test suite.
+  - **Acceptance criteria:**
+    - [x] `frontend/test/deployment_artifacts.test.mjs` contains comprehensive assertions covering all deployment artifacts.
+    - [x] `node --test frontend/test/deployment_artifacts.test.mjs` passes with 100% green tests.
+    - [x] `npm run build` and `mvn test-compile -pl api-gateway -f backend/pom.xml` succeed.
+  - **Verification:**
+    - [x] `node --test frontend/test/deployment_artifacts.test.mjs`
+    - [x] `cd frontend && npm run build`
+  - **Dependencies:** Tasks 1-7
+  - **Files likely touched:**
+    - `frontend/test/deployment_artifacts.test.mjs`
+  - **Estimated scope:** S (1 file)
