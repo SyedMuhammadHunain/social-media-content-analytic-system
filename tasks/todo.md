@@ -1,118 +1,91 @@
-# Active Tasks: Direct Messaging Full-Stack Enhancements & UX Fixes
+# Active Tasks: Full-Stack Deployment (Vercel Frontend + Azure VM Backend)
 
 Plan: `tasks/plan.md`
 
-- [x] Task 1: Extend `NotificationType` with `MESSAGE` and trigger notification on `sendMessage` in `GatewayChatMessageService`
-  - **Description:** Add `MESSAGE` to `NotificationType.java`. When `GatewayChatMessageService.sendMessage` executes, persist an incoming message notification in MongoDB via `ReactiveNotificationRepository` for `recipientId` with the sender's name and message preview.
+- [x] Task 1: Update `api-gateway` CORS configuration for Vercel and dynamic origins
+  - **Description:** Update `CorsConfig.java` in `api-gateway` to allow `https://*.vercel.app` pattern and allow reading an optional comma-separated environment variable `ALLOWED_ORIGIN_PATTERNS`. This prevents browser CORS preflight blocking when the Vercel-hosted frontend calls the Azure backend.
   - **Acceptance criteria:**
-    - [x] `NotificationType.java` contains `MESSAGE` enum constant.
-    - [x] `GatewayChatMessageService.java` creates and saves a `Notification` entity when a direct message is sent.
-    - [x] `common-models` and `api-gateway` compile cleanly.
+    - [x] `CorsConfig.java` allows `https://*.vercel.app` pattern alongside `localhost` and `127.0.0.1`.
+    - [x] Optional environment variable `ALLOWED_ORIGIN_PATTERNS` overrides or extends origin patterns.
+    - [x] `api-gateway` compiles and passes tests without errors.
   - **Verification:**
-    - [x] `cd backend/common-models && mvn clean compile`
     - [x] `cd backend/api-gateway && mvn test-compile`
   - **Dependencies:** None
   - **Files likely touched:**
-    - `backend/common-models/src/main/java/com/social/common/model/NotificationType.java`
-    - `backend/api-gateway/src/main/java/com/social/gateway/service/GatewayChatMessageService.java`
-  - **Estimated scope:** S (2 files)
+    - `backend/api-gateway/src/main/java/com/social/gateway/config/CorsConfig.java`
+  - **Estimated scope:** XS (1 file)
 
-- [x] Task 2: Recompile and restart Spring Boot `api-gateway` on port 8080 and verify MongoDB Atlas persistence
-  - **Description:** Stop the old `api-gateway` process running on port 8080, compile the updated project, and restart `api-gateway` with Spring Boot profile connecting to MongoDB Atlas. Verify `/v1/chat/messages` and `/v1/notifications` with curl tests.
+- [x] Task 2: Create `frontend/vercel.json` for SPA routing and asset caching
+  - **Description:** Create `frontend/vercel.json` configuring client-side routing rewrites (`"source": "/(.*)", "destination": "/index.html"`) so route refreshes on Vercel do not yield 404s. Include cache-control headers for static assets.
   - **Acceptance criteria:**
-    - [x] `POST /v1/chat/messages` returns 200 OK and persists to MongoDB `chat_messages` collection.
-    - [x] `GET /v1/chat/messages?with={userId}` returns the saved messages.
-    - [x] Notification is queryable via `GET /v1/notifications?userId={recipientId}`.
+    - [x] `frontend/vercel.json` exists with SPA catch-all rewrite rule.
+    - [x] `frontend` builds cleanly with `npm run build`.
   - **Verification:**
-    - [x] `curl -X POST http://127.0.0.1:8080/v1/chat/messages ...` returns HTTP 200.
-    - [x] `curl -X GET http://127.0.0.1:8080/v1/chat/messages?with=...` returns persisted array.
+    - [x] `cd frontend && npm run build`
+    - [x] Verify `frontend/vercel.json` syntax with `jq . frontend/vercel.json`
+  - **Dependencies:** None
+  - **Files likely touched:**
+    - `frontend/vercel.json`
+  - **Estimated scope:** XS (1 file)
+
+- [x] Task 3: Create multi-service `docker-compose.yml` for backend orchestration
+  - **Description:** Create `docker-compose.yml` in repository root (or `deploy/docker/docker-compose.yml`) defining containers for all 8 microservices (`api-gateway`, `presigned-url-service`, `post-writer-service`, `like-unlike-service`, `follow-service`, `comment-service`, `newsfeed-generator-service`, `newsfeed-reader-service`) with JVM memory caps (160MB max), port exposures, and environment variable bindings.
+  - **Acceptance criteria:**
+    - [x] `docker-compose.yml` cleanly defines all 8 microservice containers.
+    - [x] Memory limits (`deploy.resources.limits.memory: 200M`) are defined to prevent VM OOM.
+    - [x] Configuration validates via Docker CLI.
+  - **Verification:**
+    - [x] `docker compose config`
   - **Dependencies:** Task 1
   - **Files likely touched:**
-    - `backend/api-gateway/target/` (runtime restart)
-  - **Estimated scope:** XS (runtime process restart)
+    - `docker-compose.yml`
+    - `backend/Dockerfile` (or service Dockerfiles)
+  - **Estimated scope:** M (2-3 files)
 
-- [x] Task 3: Implement initial transcript rehydration on refresh/mount in `useChatState.ts`
-  - **Description:** Update `useChatState.ts` to fetch remote messages from MongoDB `/v1/chat/messages` on initial mount and when a conversation becomes active, merging with local cache so refreshing the page preserves all database messages.
+- [x] Task 4: Create Nginx reverse proxy configuration template with SSL support
+  - **Description:** Create `deploy/nginx/smcas.conf` configured to reverse proxy external HTTPS traffic to `api-gateway` on port 8080, handling CORS headers, WebSocket / SSE upgrades, request timeouts, and Certbot Let's Encrypt SSL paths.
   - **Acceptance criteria:**
-    - [x] When active conversation opens, remote messages from backend are immediately loaded and merged.
-    - [x] Refreshing the browser preserves all messages previously saved in MongoDB.
+    - [x] `smcas.conf` directs `/` and `/v1/` to `http://127.0.0.1:8080`.
+    - [x] Includes SSL parameters and proxy headers (`X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`).
   - **Verification:**
-    - [x] `cd frontend && npx tsc -b`
-    - [x] `node --test test/chat_messaging.test.mjs`
-  - **Dependencies:** Task 2
+    - [x] `nginx -t -c deploy/nginx/smcas.conf` (or syntax check)
+  - **Dependencies:** None
   - **Files likely touched:**
-    - `frontend/src/app/chat/useChatState.ts`
+    - `deploy/nginx/smcas.conf`
   - **Estimated scope:** S (1 file)
 
-- [x] Task 4: Add `MESSAGE` notification handling and chat navigation in `NotificationListPage.tsx`
-  - **Description:** Update `NotificationListPage.tsx` to display `MESSAGE` notifications with a chat icon, sender avatar, message snippet, and an action button to open that conversation directly in the chat tab.
+- [x] Task 5: Create automated Azure VM bootstrap script
+  - **Description:** Create `deploy/azure/bootstrap-vm.sh` that automates setting up a fresh Ubuntu 24.04 LTS VM on Azure: configures 2GB swap file (for JVM safety), installs OpenJDK 21, Docker, Docker Compose, Nginx, and Certbot, and sets up firewall rules.
   - **Acceptance criteria:**
-    - [x] `NotificationListPage.tsx` renders `MESSAGE` notifications cleanly.
-    - [x] Clicking a message notification triggers `onOpenChatWithUser` and switches to the messages tab.
+    - [x] Script is idempotent and executes unattended with `bash deploy/azure/bootstrap-vm.sh`.
+    - [x] Configures swap space to ensure 8 JVM services never crash under burst load.
   - **Verification:**
-    - [x] `cd frontend && npx tsc -b && npm run lint`
+    - [x] `bash -n deploy/azure/bootstrap-vm.sh` (shell syntax check)
+  - **Dependencies:** Task 3, Task 4
+  - **Files likely touched:**
+    - `deploy/azure/bootstrap-vm.sh`
+  - **Estimated scope:** S (1 file)
+
+- [x] Task 6: Create comprehensive step-by-step deployment guide
+  - **Description:** Author `docs/deployment/DEPLOYMENT_GUIDE.md` detailing: (1) Creating the Azure B2s Linux VM using GitHub Student credits, (2) Setting Azure DNS and NSG rules (ports 22, 80, 443), (3) Running the VM bootstrap, (4) Starting the backend, (5) Deploying the frontend to Vercel via GitHub with environment variables, and (6) Post-deploy validation.
+  - **Acceptance criteria:**
+    - [x] Document clearly explains each phase with copy-paste commands and UI screenshots/links.
+    - [x] Covers secret configuration (`JWT_SECRET`, `MONGODB_URI`, `AZURE_STORAGE_CONNECTION_STRING`, `VITE_API_BASE_URL`).
+  - **Verification:**
+    - [x] Review markdown rendering and links.
+  - **Dependencies:** Task 1-5
+  - **Files likely touched:**
+    - `docs/deployment/DEPLOYMENT_GUIDE.md`
+  - **Estimated scope:** M (1 file)
+
+- [x] Task 7: Create automated cloud deployment verification script
+  - **Description:** Author `scripts/verify-cloud-deployment.sh` that accepts an API Gateway base URL (e.g. `https://<azure-vm-dns>`) and automatically tests: (1) `/actuator/health`, (2) `/v1/media/presign` (Azure Blob SAS generation), (3) `/v1/posts` (MongoDB read), and (4) CORS response headers for Vercel origin.
+  - **Acceptance criteria:**
+    - [x] Script executes and prints colored PASS/FAIL status for each health endpoint.
+    - [x] Validates HTTPS certificate and CORS preflight.
+  - **Verification:**
+    - [x] `bash scripts/verify-cloud-deployment.sh http://localhost:8080` against local gateway.
   - **Dependencies:** Task 1
   - **Files likely touched:**
-    - `frontend/src/app/notifications/NotificationListPage.tsx`
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
-  - **Estimated scope:** S (2 files)
-
-- [x] Task 5: Wire Follow button in `ChatProfilePresentation` to update connections and profile following count
-  - **Description:** Connect the Follow button inside `ChatProfilePresentation` (and `ChatRecipientHeader`) to call `onToggleFollow(participant)`, triggering `recordConnectionChange` in `profileActivityStore` and incrementing/decrementing `user.followingCount`.
-  - **Acceptance criteria:**
-    - [x] Clicking Follow in the chat interface increments connection count in profile activity store.
-    - [x] Profile following count updates immediately.
-    - [x] Button toggles between "Follow" and "Following".
-  - **Verification:**
-    - [x] `cd frontend && node --test test/chat_messaging.test.mjs`
-  - **Dependencies:** None
-  - **Files likely touched:**
-    - `frontend/src/app/chat/ChatRecipientHeader.tsx`
-    - `frontend/src/app/chat/ChatThreadView.tsx`
-    - `frontend/src/app/chat/ChatPage.tsx`
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
-  - **Estimated scope:** M (4 files)
-
-- [x] Task 6: Add "Message" action button in `ProfileMetaDetails.tsx` for visited profiles
-  - **Description:** Add a secondary "Message" button in `ProfileMetaDetails.tsx` next to "Follow" when `!isOwnProfile`. Clicking "Message" initiates chat with that user via `openChatWithUser(viewedUser)` and switches to the Messages tab.
-  - **Acceptance criteria:**
-    - [x] "Message" button appears on all visited user profiles (not on own profile).
-    - [x] Clicking "Message" opens the chat thread with that user and displays the message interface.
-  - **Verification:**
-    - [x] `cd frontend && npx tsc -b && npm run lint`
-  - **Dependencies:** None
-  - **Files likely touched:**
-    - `frontend/src/components/profile/ProfileMetaDetails.tsx`
-    - `frontend/src/components/profile/UserProfileView.tsx`
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
-  - **Estimated scope:** S (3 files)
-
-- [x] Task 7: Level Message page horizontally with sidebars on desktop; polish Android mobile viewports
-  - **Description:** Fix the desktop layout where the Message page touches `top: 0` by ensuring `margin-top: 24px` or `padding-top: 24px` on desktop (`min-width: 768px`) so it sits level with the left and right sidebars. Ensure Android mobile viewports (`max-width: 767px`) remain 100% full-width, edge-to-edge with no top gaps or navbar clipping.
-  - **Acceptance criteria:**
-    - [x] On desktop (>= 768px), the top bar of the Messages container is aligned horizontally at `top: 24px` with left and right sidebars.
-    - [x] On mobile (390x844), messages container covers 100% width and 100dvh cleanly.
-  - **Verification:**
-    - [x] `cd frontend && node scripts/run-devtools-chat-test.mjs`
-  - **Dependencies:** None
-  - **Files likely touched:**
-    - `frontend/src/app/feed/NewsFeedPage.tsx`
-    - `frontend/src/app/chat/ChatPage.tsx`
-    - `frontend/src/app/chat/ChatThreadView.tsx`
-  - **Estimated scope:** S (3 files)
-
-- [x] Task 8: Automated unit tests, Maven backend tests, and Chrome DevTools Protocol verification
-  - **Description:** Update `test/chat_messaging.test.mjs` and `run-devtools-chat-test.mjs` to test all 8 items: Follow connection update, backend MongoDB message saving & fetching on reload, receiver synchronization, notification generation, profile "Message" button click, desktop alignment, and mobile layout.
-  - **Acceptance criteria:**
-    - [x] All unit and integration tests pass cleanly.
-    - [x] DevTools script verifies desktop alignment, mobile width, profile message button, and deduplication.
-    - [x] 0 fatal console errors.
-  - **Verification:**
-    - [x] `cd frontend && npx tsc -b && npm run lint && node --test test/chat_messaging.test.mjs && npm run build`
-    - [x] `cd frontend && node scripts/run-devtools-chat-test.mjs`
-  - **Dependencies:** Task 1-7
-  - **Files likely touched:**
-    - `frontend/test/chat_messaging.test.mjs`
-    - `frontend/scripts/run-devtools-chat-test.mjs`
-    - `docs/reports/DEVTOOLS_CHAT_VERIFICATION.md`
-  - **Estimated scope:** S (3 files)
+    - `scripts/verify-cloud-deployment.sh`
+  - **Estimated scope:** S (1 file)

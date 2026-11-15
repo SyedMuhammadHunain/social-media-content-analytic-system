@@ -1,58 +1,58 @@
-# Implementation Plan: Direct Messaging Full-Stack Enhancements & UX Fixes
+# Implementation Plan: Full-Stack Deployment (Vercel Frontend + Azure VM Backend)
 
 ## Overview
-Address and verify the 8 user-reported messaging, persistence, profile connection, notification, and layout requirements:
-1. Follow button in chat updates connections & profile following count.
-2. Verified message persistence in MongoDB collection `chat_messages`.
-3. Saved message rehydration on page refresh/initial load from MongoDB.
-4. Bidirectional message synchronization between sender and receiver.
-5. In-app and backend notification generation for incoming messages in recipient's Notification tab.
-6. "Message" action button on visited user profiles navigating to chat thread.
-7. Desktop horizontal alignment of the Messages center panel with left & right sidebars (level with `top: 24px`).
-8. Clean Android mobile viewport styling (full-width edge-to-edge, sticky composer, no top gap or navbar collisions).
+Deploy the Social Media Content Analysis System (SMCAS) using the user's GitHub Student Developer Pack credits and existing cloud accounts:
+1. Frontend deployed to Vercel (free tier) with automated GitHub CI/CD and custom/preview domains.
+2. 8 Spring Boot microservices deployed on a single Azure Linux Virtual Machine (Ubuntu 24.04 LTS, Standard_B2s 2 vCPU / 4GB RAM) funded by GitHub Student Pack $100 Azure credits.
+3. Media storage routed to existing Microsoft Azure Blob Storage (`media-assets`).
+4. Database persisted on MongoDB Atlas cluster.
+5. Nginx reverse proxy with automated Let's Encrypt SSL on Azure VM to provide HTTPS on API Gateway, preventing browser Mixed Content blocking from Vercel.
 
 ## Architecture Decisions
-- **Spring Boot Gateway Restart & Mongo Live Verification:**
-  Recompile and start the live Spring Boot API Gateway process on port 8080 so `/v1/chat/messages` and `/v1/notifications` endpoints persist to MongoDB Atlas.
-- **Notification Type Extension:**
-  Add `MESSAGE` enum constant to `NotificationType.java`. `GatewayChatMessageService.sendMessage` will trigger a notification record in MongoDB for `recipientId`.
-- **Message Notification UI:**
-  Update `NotificationListPage.tsx` to handle `MESSAGE` notifications, rendering an Astryx chat/message icon and allowing direct navigation to that conversation.
-- **Unified Follow Graph State:**
-  Wire `ChatProfilePresentation` to trigger `recordConnectionChange` and update `followingCount` via an `onToggleFollow` prop originating in `useFollowAction`.
-- **Profile Visiting Message Action:**
-  Update `ProfileMetaDetails.tsx` to render an Astryx secondary "Message" button alongside "Follow" when `isOwnProfile` is false.
-- **Horizontal Desktop Alignment & Responsive Split:**
-  Apply `padding-top: 24px` on desktop (`min-width: 768px`) for `.newsfeed-center-scroll.is-messages` so it sits flush with the left and right fixed sidebars, while retaining `padding: 0` and 100dvh full width on Android mobile viewports (`max-width: 767px`).
+- **Cross-Origin Resource Sharing (CORS):**
+  Update `CorsConfig.java` in `api-gateway` to allow `https://*.vercel.app` and configurable origins via `ALLOWED_ORIGIN_PATTERNS`, resolving browser preflight rejection when Vercel makes requests to the Azure VM.
+- **Frontend SPA Routing on Vercel:**
+  Add `frontend/vercel.json` with rewrites (`/(.*) -> /index.html`) so refreshing routes on Vercel does not return 404.
+- **Backend Deployment on Azure VM:**
+  Provide both a unified `docker-compose.yml` and native daemon scripts (`scripts/start-backend.sh`). A single B2s VM (4GB RAM) comfortably hosts all 8 services with memory caps (-Xms32m -Xmx160m).
+- **HTTPS & SSL Termination:**
+  Configure an Nginx reverse proxy on the Azure VM listening on ports 80/443 that terminates SSL using Certbot (free Let's Encrypt) and forwards traffic to `http://127.0.0.1:8080`.
+- **Zero Out-of-Pocket Expense:**
+  Leverage GitHub Student Pack $100 Azure credits for the VM, MongoDB Atlas M0/free cluster, and Vercel free hobby tier.
 
 ## Task List
 
-### Phase 1: Backend Persistence & Notification Integration (Items 2, 3, 4, 5)
-- [x] Task 1: Extend `NotificationType` with `MESSAGE` and trigger notification on `sendMessage` in `GatewayChatMessageService`.
-- [x] Task 2: Recompile and restart Spring Boot `api-gateway` on port 8080, verify MongoDB Atlas `chat_messages` collection saves and retrieves messages.
+### Phase 1: Frontend & Gateway Deployment Configuration
+- [x] Task 1: Update `api-gateway` CORS configuration to allow Vercel origins (`https://*.vercel.app`) and dynamic env var `ALLOWED_ORIGIN_PATTERNS`.
+- [x] Task 2: Create `frontend/vercel.json` for SPA client-side routing rewrites and cache headers.
 
-### Checkpoint: Backend Persistence
-- [x] `POST /v1/chat/messages` persists to MongoDB and returns 200 OK.
-- [x] `GET /v1/chat/messages?with={userId}` returns persisted transcript.
-- [x] `GET /v1/notifications?userId={recipientId}` returns message notification.
+### Checkpoint: Configuration Integrity
+- [x] Backend compiles cleanly (`mvn test-compile -pl api-gateway`).
+- [x] Frontend builds cleanly (`npm run build`).
 
-### Phase 2: Frontend Message Sync, Refresh Rehydration & Notifications (Items 2, 3, 4, 5)
-- [x] Task 3: Implement initial transcript rehydration on refresh/mount in `useChatState.ts`.
-- [x] Task 4: Add `MESSAGE` notification handling and chat navigation in `NotificationListPage.tsx`.
+### Phase 2: Backend Containerization & Production Reverse Proxy
+- [x] Task 3: Create multi-service `docker-compose.yml` orchestrating all 8 microservices with network isolation and memory limits.
+- [x] Task 4: Create Nginx reverse proxy configuration template (`deploy/nginx/smcas.conf`) with SSL and WebSocket/SSE support.
 
-### Phase 3: Profile Connection & Message Button Integration (Items 1, 6)
-- [x] Task 5: Wire Follow button in `ChatProfilePresentation` to update connections and profile following count.
-- [x] Task 6: Add "Message" action button in `ProfileMetaDetails.tsx` for visited profiles, navigating to chat.
+### Checkpoint: Local Orchestration
+- [x] `docker compose config` validates successfully without syntax errors.
+- [x] Nginx configuration passes syntax validation.
 
-### Phase 4: Desktop Horizontal Alignment & Android Responsiveness (Items 7, 8)
-- [x] Task 7: Level Message page horizontally with sidebars (`top: 24px`) on desktop; maintain clean edge-to-edge layout on Android viewports.
+### Phase 3: Azure Linux VM Automation & Runbook
+- [x] Task 5: Create automated Azure VM bootstrap script (`deploy/azure/bootstrap-vm.sh`) to install Java 21, Docker, Nginx, and Certbot.
+- [x] Task 6: Create comprehensive step-by-step deployment runbook (`docs/deployment/DEPLOYMENT_GUIDE.md`) covering Azure VM creation, DNS setup, SSL issuance, and Vercel linking.
 
-### Phase 5: Verification & End-to-End DevTools Testing
-- [x] Task 8: Automated unit tests, Maven backend tests, and Chrome DevTools Protocol verification with screenshots.
+### Phase 4: Verification & Smoke Testing
+- [x] Task 7: Create automated post-deployment health check script (`scripts/verify-cloud-deployment.sh`) testing Gateway health, Mongo connectivity, and Azure Blob SAS generation.
+
+### Checkpoint: Complete Deployment Artifacts
+- [x] All 7 tasks implemented, verified, and committed.
+- [x] Production deployment artifacts ready for execution.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Gateway process port conflict on 8080 | Medium | Gracefully stop PID 98480 before restarting compiled Spring Boot gateway JAR. |
-| StrictMode double-triggering follow connection count | Low | Use idempotent connection updates keyed by target userId in `profileActivityStore`. |
-| Mobile viewport 100dvh scrollbar regression | Medium | DevTools CDP test on Android mobile preset (390x844) to verify sticky composer and full width. |
+| Mixed Content Block (HTTPS Vercel -> HTTP Backend) | High | Enforce Nginx + Certbot Let's Encrypt SSL on Azure VM so all API traffic is HTTPS. |
+| CORS Preflight Failures on Vercel | High | Configure `CorsConfig.java` to explicitly allow `https://*.vercel.app` pattern and credentials. |
+| Azure VM Out-Of-Memory (OOM) | Medium | Enforce bounded JVM heap flags (`-Xms32m -Xmx160m`) per microservice; configure 2GB swap space on Ubuntu VM. |
+| Student Credit Depletion | Low | Standard_B2s costs ~$30/month, leaving >3 months buffer on $100 student credit. Document how to stop VM when inactive. |
