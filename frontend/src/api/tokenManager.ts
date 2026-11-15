@@ -26,11 +26,12 @@ let configuredBaseUrl: string | null = null;
 let activeAuthToken: string | null = null;
 
 function resolveEnvGatewayUrl(): string | undefined {
-  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_GATEWAY_URL) {
-    return import.meta.env.VITE_API_GATEWAY_URL;
+  if (typeof import.meta !== 'undefined') {
+    if (import.meta.env?.VITE_API_GATEWAY_URL) return import.meta.env.VITE_API_GATEWAY_URL;
+    if (import.meta.env?.VITE_API_BASE_URL) return import.meta.env.VITE_API_BASE_URL;
   }
   const globalObj = typeof globalThis !== 'undefined' ? (globalThis as Record<string, any>) : undefined;
-  return globalObj?.process?.env?.VITE_API_GATEWAY_URL;
+  return globalObj?.process?.env?.VITE_API_GATEWAY_URL || globalObj?.process?.env?.VITE_API_BASE_URL;
 }
 
 function resolveWindowGatewayUrl(): string | undefined {

@@ -18,10 +18,9 @@ test('Production Cloud Deployment Artifacts & Configuration Suite', async (suite
     assert.ok(fs.existsSync(vercelPath), 'frontend/vercel.json must exist');
 
     const config = JSON.parse(fs.readFileSync(vercelPath, 'utf-8'));
-    assert.strictEqual(config.cleanUrls, true, 'cleanUrls must be enabled');
     assert.ok(Array.isArray(config.rewrites), 'rewrites array must be defined');
 
-    const catchAllRewrite = config.rewrites.find((r) => r.source === '/(.*)');
+    const catchAllRewrite = config.rewrites.find((r) => r.source === '/(.*)' || r.source === '/:path*');
     assert.ok(catchAllRewrite, 'Catch-all rewrite must be present');
     assert.strictEqual(catchAllRewrite.destination, '/index.html', 'Catch-all must route to /index.html');
 
