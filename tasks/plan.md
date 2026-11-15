@@ -17,11 +17,11 @@ Resolve the Android / mobile light theme font visibility bug where post body tex
 
 ### Phase 1: CSS Tokenization & Component Hardening
 - [x] Task 1: Replace hardcoded colors in `NewsFeedPage.tsx` mobile styles (`@media (max-width: 767px)`) with Astryx theme tokens.
-- [ ] Task 2: Audit and harden mobile drawer (`MobileNavigationDrawer.tsx`) and header fallback tokens for light theme.
+- [x] Task 2: Audit and harden mobile drawer (`MobileNavigationDrawer.tsx`) and header fallback tokens for light theme.
 
 ### Checkpoint: Tokenization Integrity
-- [ ] No hardcoded light text colors (`#f1f5f9`, `#ffffff`) remain in mobile media query text rules.
-- [ ] Astryx CSS variables correctly applied for both light and dark modes.
+- [x] No hardcoded light text colors (`#f1f5f9`, `#ffffff`) remain in mobile media query text rules.
+- [x] Astryx CSS variables correctly applied for both light and dark modes.
 
 ### Phase 2: Automated Testing & Verification
 - [ ] Task 3: Author automated test suite `frontend/test/mobile_light_theme_contrast.test.mjs` verifying light and dark mode CSS properties and token references.

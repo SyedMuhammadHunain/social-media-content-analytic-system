@@ -76,8 +76,8 @@ export function MobileNavigationDrawer({
           flexDirection: 'column',
           height: '100%',
           boxSizing: 'border-box',
-          backgroundColor: 'var(--color-background-body, #111111)',
-          color: 'var(--color-text-primary, #FFFFFF)',
+          backgroundColor: 'var(--color-background-body, transparent)',
+          color: 'var(--color-text-primary, currentColor)',
         }}
       >
         {/* Header with User Info & Close Button */}
@@ -110,10 +110,10 @@ export function MobileNavigationDrawer({
               }}
             />
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text-primary, #FFFFFF)' }}>
+              <span style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--color-text-primary, currentColor)' }}>
                 {user.name}
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary, #9CA3AF)' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary, currentColor)' }}>
                 @{user.username}
               </span>
             </div>
@@ -205,9 +205,9 @@ export function MobileNavigationDrawer({
                 fontSize: '0.8rem',
                 padding: '2px 8px',
                 borderRadius: 4,
-                backgroundColor: 'var(--color-background-body, #111111)',
-                color: 'var(--color-text-secondary, #9CA3AF)',
-                border: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1))',
+                backgroundColor: 'var(--color-background-body, transparent)',
+                color: 'var(--color-text-secondary, currentColor)',
+                border: '1px solid var(--color-border-subtle, currentColor)',
               }}
             >
               {currentTheme === 'dark' ? 'Dark' : 'Light'}
@@ -236,8 +236,8 @@ export function MobileNavigationDrawer({
         </VStack>
 
         {/* App Footer Branding */}
-        <div style={{ padding: '16px 0', borderTop: '1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08))' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary, #9CA3AF)' }}>
+        <div style={{ padding: '16px 0', borderTop: '1px solid var(--color-border-subtle, currentColor)' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary, currentColor)' }}>
             SocialPulse • Astryx Design System
           </span>
         </div>

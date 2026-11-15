@@ -17,22 +17,22 @@ Plan: `tasks/plan.md`
     - `frontend/src/app/feed/NewsFeedPage.tsx`
   - **Estimated scope:** XS (1 file)
 
-- [ ] Task 2: Audit and harden mobile drawer and header fallback tokens for light theme
+- [x] Task 2: Audit and harden mobile drawer and header fallback tokens for light theme
   - **Description:** Review `MobileNavigationDrawer.tsx`, `MobileAppHeader.tsx`, and `MobileBottomNav.tsx` to ensure any inline style colors use theme-neutral fallbacks (`currentColor`, `inherit`) rather than hardcoded `#FFFFFF` against potential white surfaces in light theme.
   - **Acceptance criteria:**
-    - [ ] `MobileNavigationDrawer.tsx` user profile text uses `var(--color-text-primary, currentColor)`.
-    - [ ] Secondary labels use `var(--color-text-secondary, currentColor)`.
-    - [ ] Badge text retains appropriate contrast against badge backgrounds.
+    - [x] `MobileNavigationDrawer.tsx` user profile text uses `var(--color-text-primary, currentColor)`.
+    - [x] Secondary labels use `var(--color-text-secondary, currentColor)`.
+    - [x] Badge text retains appropriate contrast against badge backgrounds.
   - **Verification:**
-    - [ ] Verify drawer appearance in both light and dark mode contexts.
+    - [x] Verify drawer appearance in both light and dark mode contexts.
   - **Dependencies:** Task 1
   - **Files likely touched:**
     - `frontend/src/app/feed/MobileNavigationDrawer.tsx`
   - **Estimated scope:** XS (1 file)
 
 ## Checkpoint: Foundation & Tokenization
-- [ ] No hardcoded `#f1f5f9` or `#ffffff` text rules in mobile CSS.
-- [ ] Astryx theme tokens are properly declared and responsive.
+- [x] No hardcoded `#f1f5f9` or `#ffffff` text rules in mobile CSS.
+- [x] Astryx theme tokens are properly declared and responsive.
 
 - [ ] Task 3: Author automated test suite for mobile light theme contrast
   - **Description:** Create `frontend/test/mobile_light_theme_contrast.test.mjs` verifying: (1) `NewsFeedPage.tsx` mobile CSS does not contain hardcoded `#f1f5f9` or `#ffffff` color rules, (2) Astryx `--color-text-primary` and `--color-text-secondary` are bound to mobile typography, (3) `MobileNavigationDrawer.tsx` does not hardcode white text fallbacks on non-primary surfaces.
