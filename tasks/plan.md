@@ -25,12 +25,12 @@ Resolve the Android / mobile light theme font visibility bug where post body tex
 
 ### Phase 2: Automated Testing & Verification
 - [x] Task 3: Author automated test suite `frontend/test/mobile_light_theme_contrast.test.mjs` verifying light and dark mode CSS properties and token references.
-- [ ] Task 4: Execute TypeScript check (`npx tsc -b frontend`), test suite, and production build (`npm run build --prefix frontend`).
+- [x] Task 4: Execute TypeScript check (`npx tsc -b frontend`), test suite, and production build (`npm run build --prefix frontend`).
 
 ### Checkpoint: Complete Verification
-- [ ] `node --test frontend/test/mobile_light_theme_contrast.test.mjs` passes.
-- [ ] `npm run build --prefix frontend` succeeds without errors.
-- [ ] Mobile light theme font is crisp and fully legible on Android viewport sizes.
+- [x] `node --test frontend/test/mobile_light_theme_contrast.test.mjs` passes.
+- [x] `npm run build --prefix frontend` succeeds without errors.
+- [x] Mobile light theme font is crisp and fully legible on Android viewport sizes.
 
 ## Risks and Mitigations
 | Risk | Impact | Mitigation |
